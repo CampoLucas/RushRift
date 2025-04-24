@@ -33,7 +33,7 @@ Assets/
 │   ├── Prefabs/
 │   ├── Scenes/
 │   └── Scripts/
-│       ├── _Main/
+│       ├── _Managers/
 │       ├── Entities/
 │       ├── General/
 │       ├── Tools/
@@ -41,9 +41,11 @@ Assets/
 └── (Any third-party assets)
 ```
 ### Coding Style
-• ```PascalCase``` for classes, method names, protected variables and properties<br/>
-• ```camelCase``` for public and serialized private variables<br/>
-• ```_camelCase``` for private variables<br/>
+* ```PascalCase``` for classes, method names, protected variables and properties
+* ```camelCase``` for public and serialized private variables
+* ```_camelCase``` for private variables
+* ```UPPER_SNAKE_CASE``` for constants
+* For ```Interfaces``` add an uppercase **"I"** at the name (e.g. ```IMovement```) 
 
 #### Script Organization Order
 1. public fields<br/>
