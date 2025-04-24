@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game.Entities.States;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -18,10 +19,12 @@ namespace Game.Entities
         [Header("References")]
         [SerializeField] private Animator animator;
 
+        protected EntityStateMachine _fsm;
+        
         private IModel _model;
         private IView _view;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             Transform = transform;
 
@@ -37,10 +40,15 @@ namespace Game.Entities
             }
         }
 
+        protected virtual void Start()
+        {
+            InitStateMachine();
+        }
+
         protected virtual void Update()
         {
             var delta = Time.deltaTime;
-            
+            if (_fsm != null) _fsm.Run(delta);
             _model.Update(delta);
         }
 
@@ -78,6 +86,9 @@ namespace Game.Entities
             
             if (_view != null) _view.Dispose();
             _view = null;
+            
+            if (_fsm != null) _fsm.Dispose();
+            _fsm = null;
         }
 
         public void OnDestroy()
