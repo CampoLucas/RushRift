@@ -1,0 +1,9 @@
+using System;
+
+namespace Game
+{
+    public interface IPredicate<T> : IDisposable
+    {
+        bool Evaluate(ref T args);
+    }
+}
