@@ -10,7 +10,7 @@
 ### How to Run
 1. Clone the repository
    ```bash
-   git clone https://github.com/CampoLucas/RushRift.git
+   git clone https://github.com/(your github username)/RushRift.git
 
 2. Install Unity [2022.3.46f1](https://unity.com/releases/editor/whats-new/2022.3.46#installs)
 3. Open the project in Unity
@@ -53,7 +53,7 @@ Assets/
 5. public methods<br/>
 6. private methods<br/>
 
-## Commiting Convetions
+## Git Convetions
 ### Branch Naming
 Type | Format | Example
 --- | --- | ---
@@ -66,3 +66,19 @@ To keep the workflow clean and easy to collaborate, we follow a structurated bra
 1. **We work as a team:** if everyone names branches however they want, it becomes chaotic and **difficult to mergue** without conflicts or confusion.
 2. **Each Task should have a short and focused branch:** small, single-purpose branches are easier to track, test and merge.
 3. **We are professionals:** consistent structure and good practices reflect the quality of our work and help us scale the project properly.
+
+### Mergue Guidelines
+#### ✅ Before Mergung Into ```develop```:
+1. **Test your changes**
+   Make sure that everithing you've worked on is functioning as expected. No broken features or console errors.
+2. **Merge the latest ```develop``` into your branch**
+   This makes certain that your branch is up to date and helps you resolve any merge conflicts **before** pushing to ```develop```.
+3. **Resolve any conflicts**
+   Don't push unresolved branches. Make sure the code you're merging plays nice with the rest of the team's work.
+
+#### 🚫 Never:
+* Merge directly into ```develop``` without testing
+* Leave conflicts unresolved
+* Push untested or broken changes just to “get it in”
+
+
