@@ -11,9 +11,5 @@ namespace Game.Entities
         IView GetView();
 
         Vector3 MoveDirection();
-        float MoveIntensity();
-
-        bool LightAttack();
-        bool HeavyAttack();
     }
 }
