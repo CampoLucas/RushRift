@@ -20,7 +20,7 @@ namespace Game.Entities
 
         public void Play(string name)
         {
-            Animator.Play(name);
+            if (Animator) Animator.Play(name);
         }
         
         public void Dispose()

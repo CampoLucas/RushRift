@@ -10,7 +10,6 @@ namespace Game.Entities
     public class PlayerModelSO : EntityModelSO
     {
         public MovementData MoveSpeed => moveSpeed;
-        public MovementData RunSpeed => runSpeed;
         public JumpData Jump => jump;
         public GravityData Gravity => gravity;
         public HealthComponentData Health => health;
@@ -19,7 +18,6 @@ namespace Game.Entities
         
         [Header("Movement Stats")] 
         [SerializeField] private MovementData moveSpeed;
-        [SerializeField] private MovementData runSpeed;
         [SerializeField] private JumpData jump;
         [SerializeField] private GravityData gravity;
 

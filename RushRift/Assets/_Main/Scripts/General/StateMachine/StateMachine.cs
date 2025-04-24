@@ -121,6 +121,7 @@ namespace Game
 
         private void ClearStates()
         {
+            if (_hashesList == null) Debug.LogError("the hashed list is null");
             foreach (var hashKey in _hashesList)
             {
                 var state = _statesDict[hashKey];

@@ -15,8 +15,8 @@ namespace Game.Entities.States
         
         public void Dispose()
         {
-            StateMachine?.Dispose();
-            Controller?.Dispose();
+            StateMachine = null;
+            Controller = null;
         }
     }
 }

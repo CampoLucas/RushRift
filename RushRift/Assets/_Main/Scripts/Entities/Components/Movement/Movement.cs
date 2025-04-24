@@ -177,7 +177,7 @@ namespace Game.Entities.Components
 
         public void OnDraw(Transform origin)
         {
-            _groundDetect.Draw(origin, Color.green);
+            _groundDetect.Draw(origin, _isGrounded ? Color.green : Color.red);
         }
 
         public void OnDrawSelected(Transform origin)
