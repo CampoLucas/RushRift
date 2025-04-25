@@ -1,7 +1,12 @@
 # RushRift
 
-## Setup Instructions
+## Table of Contents
+- [Setup Instructions](##-setup-instructions)
+- [Development Guidelines](##-development-guidelines)
+- [Git Conventions](##-git-vonventions)
+- [Documentation](##-documentation)
 
+## Setup Instructions
 ### Requirements
 - **Unity Version**: 2022.3.46f1
 - **Platform**: Windows
@@ -55,7 +60,7 @@ Assets/
 5. public methods<br/>
 6. private methods<br/>
 
-## Git Convetions
+## Git Conventions
 ### Branch Naming
 Type | Format | Example
 --- | --- | ---
@@ -82,5 +87,12 @@ To keep the workflow clean and easy to collaborate, we follow a structurated bra
 * Merge directly into ```develop``` without testing
 * Leave conflicts unresolved
 * Push untested or broken changes just to “get it in”
+* 
+## Documentation
+### Scene Requirements for the Player to Work
+* A **GameObject** with the ```InputManager``` component in the scene.
+* All **floors** must be on the ```Ground``` layer.
+* All **walls** must be on the ```Wall``` layer.
+* All **obstacles** must be on the ```Obstacle``` layer.
 
 
