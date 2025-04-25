@@ -1,10 +1,10 @@
 # RushRift
 
 ## Table of Contents
-- [Setup Instructions](##-setup-instructions)
-- [Development Guidelines](##-development-guidelines)
-- [Git Conventions](##-git-vonventions)
-- [Documentation](##-documentation)
+- [Setup Instructions](#setup-instructions)
+- [Development Guidelines](#development-guidelines)
+- [Git Conventions](#git-conventions)
+- [Documentation](#documentation)
 
 ## Setup Instructions
 ### Requirements
