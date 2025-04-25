@@ -90,11 +90,16 @@ To keep the workflow clean and easy to collaborate, we follow a structurated bra
 3. **Resolve any conflicts**
    Don't push unresolved branches. Make sure the code you're merging plays nice with the rest of the team's work.
 
+#### 🧹 After Merging:
+* **Delete your branch** (locally and remotely)
+   * This keeps keeps the repository clean and avoids confusion
+* Ask if you are not sure whether to delete a branch, but, in most cases, once it's merged, it's safe to remove. 
+
 #### 🚫 Never:
 * Merge directly into ```develop``` without testing
 * Leave conflicts unresolved
 * Push untested or broken changes just to “get it in”
-* 
+
 ## Documentation
 ### Scene Requirements for the Player to Work
 * A **GameObject** with the ```InputManager``` component in the scene.
