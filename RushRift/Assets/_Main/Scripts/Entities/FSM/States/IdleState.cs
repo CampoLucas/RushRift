@@ -1,4 +1,4 @@
-namespace Game.Entities.States
+namespace Game.Entities
 {
     public class IdleState : State<EntityArgs>
     {

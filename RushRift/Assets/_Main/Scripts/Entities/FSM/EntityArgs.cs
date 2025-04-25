@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Entities.States
+namespace Game.Entities
 {
     public struct EntityArgs : IDisposable
     {

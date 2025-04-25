@@ -17,7 +17,8 @@ namespace Game.Entities
             {
                 TryAddComponent(Data.MoveSpeed.GetMovement(characterController));
             }
-            
+
+            TryAddComponent(Data.GetComboComponent(controller));
             TryAddComponent(Data.Health.GetComponent()); 
             TryAddComponent(Data.Stamina.GetComponent());
             TryAddComponent(Data.Mana.GetComponent());

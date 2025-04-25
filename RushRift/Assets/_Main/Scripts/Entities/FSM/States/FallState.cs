@@ -1,7 +1,7 @@
-using Game.Entities.States;
+using Game.Entities.Components;
 using UnityEngine;
 
-namespace Game.Entities.Components
+namespace Game.Entities
 {
     public class FallState : State<EntityArgs>
     {

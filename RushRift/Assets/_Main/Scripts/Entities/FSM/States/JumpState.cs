@@ -1,7 +1,7 @@
 using Game.Entities.Components;
 using UnityEngine;
 
-namespace Game.Entities.States
+namespace Game.Entities
 {
     public class JumpState : State<EntityArgs>
     {

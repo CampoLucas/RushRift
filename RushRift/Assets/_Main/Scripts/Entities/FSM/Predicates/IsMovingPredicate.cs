@@ -1,4 +1,4 @@
-using Game.Entities.States;
+using Game.Entities;
 
 namespace Game.Predicates
 {

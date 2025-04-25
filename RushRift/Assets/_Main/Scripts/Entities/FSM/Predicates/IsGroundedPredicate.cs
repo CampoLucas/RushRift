@@ -1,5 +1,5 @@
 using Game.Entities.Components;
-using Game.Entities.States;
+using Game.Entities;
 
 namespace Game.Predicates
 {

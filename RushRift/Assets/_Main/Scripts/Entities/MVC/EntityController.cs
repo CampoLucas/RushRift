@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Game.Entities.States;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Entities

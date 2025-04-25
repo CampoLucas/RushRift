@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bacaba73e2a4bdaa4c7114a57ea2904, type: 3}
+  m_Name: Bouncy
+  m_EditorClassIdentifier: 
+  duration: 0.583
+  children:
+    collection:
+    - {fileID: 3456843235536731905}
+    - {fileID: 215105490938231010}
+  projectiles:
+  - {fileID: 362210214496231218, guid: bf8ac63ee8a098840a88aab1f7c7a337, type: 3}
+  amounts: 01000000
+  spreads: 23000000
+  damages: 01000000
+  speeds:
+  - 15
+  sizes:
+  - 1.8
+  lifeTimes:
+  - 8
+  - 9
+  - 10
+  hasGravity: 1
+  isBouncy: 1
+  maxCollisions: 4
+  spawnDelay: 0.3333333
+  offset: {x: 0.59, y: -0.02, z: 1.08}
+  forwardOffset: 0.5
+--- !u!114 &215105490938231010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0360fcbc3a594b58b0b50a558446b5de, type: 3}
+  m_Name: PlayAnimation
+  m_EditorClassIdentifier: 
+  duration: 0.583
+  children:
+    collection: []
+  animation: Fire_Light
+  delay: 0
+--- !u!114 &3456843235536731905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0360fcbc3a594b58b0b50a558446b5de, type: 3}
+  m_Name: PlayAnimation
+  m_EditorClassIdentifier: 
+  duration: 0.583
+  children:
+    collection: []
+  animation: Empty
+  delay: -1
