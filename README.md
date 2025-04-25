@@ -1,7 +1,19 @@
 # RushRift
 
-## Setup Instructions
+## Table of Contents
+- [Setup Instructions](#setup-instructions)
+   - [Requirements](#requirements)
+   - [How to Run](#how-to-run)
+- [Development Guidelines](#development-guidelines)
+   - [Folder Structure](#folder-structure)
+   - [Coding Style](#coding-style)
+- [Git Conventions](#git-conventions)
+   - [Branch Naming](#branch-naming)
+   - [Mergue Guidelines](#mergue-guidelines)
+- [Documentation](#documentation)
+   - [Scene Requirements for the Player to Work](#scene-requirements-for-the-player-to-work)
 
+## Setup Instructions
 ### Requirements
 - **Unity Version**: 2022.3.46f1
 - **Platform**: Windows
@@ -55,7 +67,7 @@ Assets/
 5. public methods<br/>
 6. private methods<br/>
 
-## Git Convetions
+## Git Conventions
 ### Branch Naming
 Type | Format | Example
 --- | --- | ---
@@ -82,5 +94,12 @@ To keep the workflow clean and easy to collaborate, we follow a structurated bra
 * Merge directly into ```develop``` without testing
 * Leave conflicts unresolved
 * Push untested or broken changes just to “get it in”
+* 
+## Documentation
+### Scene Requirements for the Player to Work
+* A **GameObject** with the ```InputManager``` component in the scene.
+* All **floors** must be on the ```Ground``` layer.
+* All **walls** must be on the ```Wall``` layer.
+* All **obstacles** must be on the ```Obstacle``` layer.
 
 
