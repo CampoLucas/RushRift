@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 931e5efd592f4c5b8bb6c99695a6a9e4, type: 3}
+  m_Name: A_FireBall
+  m_EditorClassIdentifier: 
+  duration: 0
+  loop: 1
+  modules:
+    collection:
+    - {fileID: 359384165664650886}
+  transitions:
+  - {fileID: 11400000, guid: cd42fd5e57b6e554aa5cf3b121bfb550, type: 2}
+--- !u!114 &359384165664650886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8abd75a84d84b70aacaf2150f46635a, type: 3}
+  m_Name: ComboModuleRunner
+  m_EditorClassIdentifier: 
+  duration: 0
+  children:
+    collection: []

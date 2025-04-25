@@ -1,5 +1,6 @@
+using Game.Entities.AttackSystem;
+using Game.Entities.AttackSystem.Modules;
 using Game.Entities.Components;
-using Game.Entities.States;
 using Game.Inputs;
 using Game.Predicates;
 using Game.Utils;
@@ -20,12 +21,31 @@ namespace Game.Entities
 
         #endregion
 
+        [Header("Attacks")]
+        [SerializeField] private StaticModuleData[] attacks;
+        
         private Vector3 _moveDir;
         
         protected override void Awake()
         {
             base.Awake();
             EyesTransform = Camera.main.transform;
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+            
+            if (GetModel().TryGetComponent<ComboHandler>(out var comboHandler))
+            {
+                for (var i = 0; i < attacks.Length; i++)
+                {
+                    var attack = attacks[i];
+                    if (attack == null) continue;
+                    
+                    comboHandler.AddModule(attack.Test());
+                }
+            }
         }
 
         protected override void Update()

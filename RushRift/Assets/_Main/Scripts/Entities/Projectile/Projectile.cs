@@ -15,7 +15,7 @@ namespace Game.Entities
         [FormerlySerializedAs("rb")]
         [Header("References")]
         [SerializeField] private Rigidbody body;
-        [SerializeField] private Collider collider;
+        [SerializeField] private Collider coll;
         
         [Header("Data")]
         [SerializeField] private ProjectileData data;
@@ -39,7 +39,7 @@ namespace Game.Entities
             _transform = transform;
             _timer = 0;
             if (!body) body = GetComponent<Rigidbody>();
-            if (!collider) collider = GetComponent<Collider>();
+            if (!coll) coll = GetComponent<Collider>();
         }
 
         private void Update()
@@ -74,8 +74,12 @@ namespace Game.Entities
         {
             data = newData;
             _transform.localScale = Vector3.one * data.Size;
-            trail.widthMultiplier = data.Size;
-            trail.time = data.Speed * .25f;
+
+            if (trail)
+            {
+                trail.widthMultiplier = data.Size;
+                trail.time = data.Speed * .25f;
+            }
 
             
             Debug.Log($"Set gravity: {data.Gravity}");
@@ -84,8 +88,11 @@ namespace Game.Entities
         
         public void PoolDisable()
         {
-            trail.Clear();
-            trail.gameObject.SetActive(false);
+            if (trail)
+            {
+                trail.Clear();
+                trail.gameObject.SetActive(false);
+            }
             gameObject.SetActive(false);
         }
 
@@ -97,10 +104,12 @@ namespace Game.Entities
             
             _transform.position = position;
             _transform.rotation = rotation;
-            
-            trail.gameObject.SetActive(true);
+            if (trail)
+            {
+                trail.gameObject.SetActive(true);
+                trail.Clear();
+            }
             gameObject.SetActive(true);
-            trail.Clear();
             _timer = 0;
             
             _collided.Clear();
@@ -123,44 +132,11 @@ namespace Game.Entities
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("TriggerEnter");
             OnTrigger(other.gameObject);
         }
 
         private void OnCollision(GameObject other, Collision otherColl)
         {
-#if false
-            if (other.CompareTag("Projectile")) return;
-            if (other == _thrower) return;
-
-            _collisions++;
-
-            if (other.TryGetComponent<IEntityController>(out var controller) &&
-                controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
-            {
-                healthComponent.Damage(Data.Damage, transform.position);
-            }
-            
-            if (_collisions < data.WallBounce)
-            {
-                _timer-= _timer/_collisions;
-                //_thrower = null; // That way it bounces and hits the entity that fires it
-                //rb.AddForce(rb.velocity * 2);
-                return;
-            }
-            
-            //var e = Instantiate(explosion, transform.position, Quaternion.identity);
-            //e.transform.localScale = Vector3.one * data.Size;
-            VFXPool.TryGetParticle(transform.position, transform.rotation, Data.Size, out var p);
-            if (_poolObject != null)
-            {
-                _poolObject.Recycle(this);
-            }
-            else
-            {
-                Destroy(gameObject);
-            }    
-#else
             // Check if the projectile collided with another projectile and return.
             if (other.CompareTag("Projectile")) return;
             
@@ -175,8 +151,7 @@ namespace Game.Entities
                 if (_wallCollisions < data.WallBounce)
                 {
                     _wallCollisions++;
-                    //Debug.Log("Bounce");
-                    //transform.rotation = Quaternion.LookRotation(BounceDirection(otherColl, _transform.forward));
+                    
                     
                 }
                 else
@@ -188,9 +163,6 @@ namespace Game.Entities
             {
                 ExplodeCollision(normal);
             }
-            
-            
-#endif
         }
 
         private void OnTrigger(GameObject other)
@@ -210,30 +182,25 @@ namespace Game.Entities
 
                 if (TryGetClosest(LayerMask.NameToLayer("Enemy"), _collided, out var closest))
                 {
-                    Debug.Log($"Closest {closest.name}");
                     var dir = (closest.transform.position - transform.position).normalized;
 
                     var velocityMag = body.velocity.magnitude;
                     body.velocity = dir * velocityMag;
-                    //body.AddForce(dir * data.Speed, ForceMode.Impulse);
+                    
                     ExplodeCollision(Vector3.up, false);
                     return;
                     
                 }
-                
-                
             }
             
             if (_penetrations < data.Penetration)
             {
                 _penetrations++;
                 ExplodeCollision(Vector3.up, false);
-
             }
             else
             {
                 ExplodeCollision(Vector3.up);
-
             }
         }
 
@@ -267,10 +234,8 @@ namespace Game.Entities
 
         private void ExplodeCollision(Vector3 normal, bool recycle = true)
         {
-            //var e = Instantiate(explosion, transform.position, Quaternion.identity);
-            //e.transform.localScale = Vector3.one * data.Size;
-            VFXPool.TryGetParticle(transform.position, transform.rotation, Data.Size, out var p);
-            p.transform.rotation = Quaternion.LookRotation(normal);
+            //VFXPool.TryGetParticle(transform.position, transform.rotation, Data.Size, out var p);
+            //p.transform.rotation = Quaternion.LookRotation(normal);
             
             if (!recycle) return;
             if (_poolObject != null)

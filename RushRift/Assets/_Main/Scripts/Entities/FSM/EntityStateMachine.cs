@@ -1,7 +1,7 @@
 using Game.Inputs;
 
 
-namespace Game.Entities.States
+namespace Game.Entities
 {
     public class EntityStateMachine : StateMachine<EntityArgs>
     {
