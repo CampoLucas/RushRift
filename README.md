@@ -2,9 +2,16 @@
 
 ## Table of Contents
 - [Setup Instructions](#setup-instructions)
+   - [Requirements](#requirements)
+   - [How to Run](#how-to-run)
 - [Development Guidelines](#development-guidelines)
+   - [Folder Structure](#folder-structure)
+   - [Coding Style](#coding-style)
 - [Git Conventions](#git-conventions)
+   - [Branch Naming](#branch-naming)
+   - [Mergue Guidelines](#mergue-guidelines)
 - [Documentation](#documentation)
+   - [Scene Requirements for the Player to Work](#scene-requirements-for-the-player-to-work)
 
 ## Setup Instructions
 ### Requirements
