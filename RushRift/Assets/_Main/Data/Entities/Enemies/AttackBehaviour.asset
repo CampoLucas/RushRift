@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7972977266186962784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9817a07dbd443298f64b63eb4483fcd, type: 3}
+  m_Name: Attack
+  m_EditorClassIdentifier: 
+  guid: 88adb87d92476d748847eac3c2bcf90c
+  children: []
+  position: {x: 100, y: 250}
+  previousPosition: {x: 100, y: 250}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &-6970276196716706628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e4ca69602c241c686d45dc20ef67e0b, type: 3}
+  m_Name: Rotate
+  m_EditorClassIdentifier: 
+  guid: 94e1bbca735c57b438ab2051c097c160
+  children: []
+  position: {x: -17, y: 250}
+  previousPosition: {x: 0, y: 250}
+  behaviourData: {fileID: 11400000}
+  instant: 1
+  rotationSpeed: 0
+  eyes: 1
+  lockY: 0
+  yOffset: 1
+--- !u!114 &-5014000826188864251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
+  m_Name: SequencerData
+  m_EditorClassIdentifier: 
+  guid: de52136da2bee7c4d9fcfe8b0c4a25f2
+  children:
+  - {fileID: -4836064833783834965}
+  - {fileID: -6970276196716706628}
+  - {fileID: -7972977266186962784}
+  - {fileID: -204173084967078635}
+  position: {x: -16.666687, y: 109.33333}
+  previousPosition: {x: -17, y: 109}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &-4836064833783834965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da082a5d1714d0a8c6cf2c2a94b73ef, type: 3}
+  m_Name: CheckFOV
+  m_EditorClassIdentifier: 
+  guid: 26f29e8ae7d981547acfed3f6cbf1406
+  children: []
+  position: {x: -136, y: 250}
+  previousPosition: {x: -134, y: 250}
+  behaviourData: {fileID: 11400000}
+  fov:
+    FOVs:
+    - checkAngle: 1
+      angle: 15
+      checkRange: 0
+      range: 0
+      checkView: 0
+      mask:
+        serializedVersion: 2
+        m_Bits: 0
+  ifAny: 0
+--- !u!114 &-204173084967078635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 604e52472d214752922db9e36411b3a1, type: 3}
+  m_Name: WaitData
+  m_EditorClassIdentifier: 
+  guid: aa473c5130bf76d47ad7f81aabbf3ae4
+  children: []
+  position: {x: 211, y: 250.00002}
+  previousPosition: {x: 210, y: 250.00002}
+  behaviourData: {fileID: 11400000}
+  duration: 1
+  randomDuration: 1
+  randomTime: {x: 0.1, y: 0.8}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdcad80ea3d04262997149c93f7febcb, type: 3}
+  m_Name: AttackBehaviour
+  m_EditorClassIdentifier: 
+  root: {fileID: 8253825941273094895}
+  nodes:
+  - {fileID: 8253825941273094895}
+  - {fileID: -5014000826188864251}
+  - {fileID: -4836064833783834965}
+  - {fileID: -6970276196716706628}
+  - {fileID: -7972977266186962784}
+  - {fileID: -204173084967078635}
+--- !u!114 &8253825941273094895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7661c447ca8510d41a7c38291a1a2e65, type: 3}
+  m_Name: RootData
+  m_EditorClassIdentifier: 
+  guid: 61105611b6d5f0f4abc308b5209fa52b
+  children:
+  - {fileID: -5014000826188864251}
+  position: {x: 0, y: 0}
+  previousPosition: {x: 0, y: 0}
+  behaviourData: {fileID: 11400000}

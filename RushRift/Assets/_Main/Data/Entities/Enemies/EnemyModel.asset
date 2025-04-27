@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7058ca27c22b47da9af46e94ef16373c, type: 3}
+  m_Name: EnemyModel
+  m_EditorClassIdentifier: 
+  movement:
+    accelerationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    decelerationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    maxSpeed: 8
+    useDot: 0
+    groundAcceleration: 100
+    groundDeceleration: 37
+    airAcceleration: 9.3
+    airDeceleration: 18.7
+    groundDetect:
+      size: {x: 1, y: 0.34, z: 1}
+      offset: {x: 0, y: 0.02, z: 0}
+      maxCollisions: 2
+      mask:
+        serializedVersion: 2
+        m_Bits: 8
+    gravity:
+      customGravity: 1
+      gravity: 0
+      gravityScale: 0.25
+  gravity:
+    customGravity: 0
+    gravity: 0
+    gravityScale: 0
+  combo: {fileID: 11400000, guid: 4b0424991f4826f41a401e28aa5810b1, type: 2}
+  health:
+    startValue: 1
+    max: 5
+    regenRate: 0.2
+  stamina:
+    startValue: 0
+    max: 0
+    regenRate: 0
+  mana:
+    startValue: 0
+    max: 0
+    regenRate: 0
