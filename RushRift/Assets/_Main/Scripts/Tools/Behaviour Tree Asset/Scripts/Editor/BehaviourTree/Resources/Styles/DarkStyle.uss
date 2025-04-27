@@ -1,0 +1,103 @@
+#tab-container {
+    background-color: rgb(40, 40, 40);
+}
+
+.tab-button {
+    background-color: rgb(40, 40, 40);
+    color: rgb(201, 201, 201);
+}
+
+.tab-button.not-active:hover:enabled {
+    background-color: rgb(48, 48, 48);
+}
+
+.tab-button.active {
+    background-color: rgb(60, 60, 60);
+}
+
+#node-border {
+    background-color: rgb(75, 75, 75);
+    border-left-color: rgb(36, 36, 36);
+    border-right-color: rgb(36, 36, 36);
+    border-top-color: rgb(36, 36, 36);
+    border-bottom-color: rgb(36, 36, 36);
+}
+
+.info-container {
+    background-color: rgb(0, 75, 115);
+    border-left-color: rgb(55, 55, 55);
+    border-right-color: rgb(55, 55, 55);
+    border-top-color: rgb(55, 55, 55);
+    border-bottom-color: rgb(55, 55, 55);
+}
+
+#node-border:hover:enabled {
+    background-color: rgb(75, 75, 75);
+    border-left-color: rgb(200, 200, 200);
+    border-right-color: rgb(200, 200, 200);
+    border-top-color: rgb(200, 200, 200);
+    border-bottom-color: rgb(200, 200, 200);
+    transition-duration: 0.01s;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+:hover:selected > #node-border {
+    border-left-color: rgba(0, 166, 250, 255);
+    border-right-color: rgba(0, 166, 250, 255);
+    border-top-color: rgba(0, 166, 250, 255);
+    border-bottom-color: rgba(0, 166, 250, 255);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+:selected > #node-border {
+    border-left-color: rgb(68, 192, 255);
+    border-right-color: rgb(68, 192, 255);
+    border-top-color: rgb(68, 192, 255);
+    border-bottom-color: rgb(68, 192, 255);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}
+
+.action .info-container {
+    background-color: rgba(58, 219, 13, 255);
+}
+
+.action .title-label {
+    color: rgba(51, 51, 51, 255);
+}
+
+.action .description-label {
+    color: rgb(82, 82, 82);
+}
+
+.conditional .info-container {
+    background-color: rgb(133, 0, 154);
+}
+
+.decorator .info-container {
+    background-color: rgb(118, 0, 10);
+}
+
+.composite .info-container {
+    background-color: rgb(255, 71, 137);
+}
+
+.composite .title-label {
+    color: rgb(51, 51, 51);
+}
+
+.composite .description-label {
+    color: rgb(82, 82, 82);
+}
+
+.root .info-container {
+    background-color: rgb(31, 31, 31);
+}

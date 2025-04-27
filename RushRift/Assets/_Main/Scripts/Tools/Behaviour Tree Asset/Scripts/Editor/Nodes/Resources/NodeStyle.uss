@@ -1,0 +1,135 @@
+.node {
+    min-width: 100px;
+    max-width: 150px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#node-border {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+    border-top-right-radius: 7px;
+    border-bottom-right-radius: 7px;
+}
+
+.info-container {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}
+
+.port-label {
+    position: absolute;
+    left: 100%;
+    top: 100%;
+    right: 100%;
+    bottom: 100%;
+    overflow: hidden;
+    visibility: hidden;
+    display: flex;
+}
+
+.port-container {
+    align-items: stretch;
+    justify-content: center;
+    flex-direction: column;
+    max-height: 20px;
+    min-height: 5px;
+}
+
+.port {
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.port-connector {
+    align-items: center;
+    display: flex;
+    border-left-color: rgba(70, 67, 67, 255);
+    border-right-color: rgba(70, 67, 67, 255);
+    border-top-color: rgba(70, 67, 67, 255);
+    border-bottom-color: rgba(70, 67, 67, 255);
+    visibility: hidden;
+    position: absolute;
+}
+
+.port-visual {
+    background-color: rgba(43, 43, 43, 255);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    padding-left: initial;
+    padding-right: initial;
+    width: 100%;
+    height: auto;
+    border-left-color: rgba(176, 176, 176, 255);
+    border-right-color: rgba(176, 176, 176, 255);
+    border-top-color: rgba(176, 176, 176, 255);
+    border-bottom-color: rgba(176, 176, 176, 255);
+}
+
+.port-visual:hover:enabled {
+    background-color: rgb(24, 24, 24);
+    padding-left: 30%;
+    padding-right: 30%;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-left-color: rgba(200, 200, 200, 255);
+    border-right-color: rgba(200, 200, 200, 255);
+    border-top-color: rgba(200, 200, 200, 255);
+    border-bottom-color: rgba(200, 200, 200, 255);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.description-label {
+    font-size: 10px;
+    white-space: normal;
+    overflow: hidden;
+    max-height: 20px;
+    color: rgba(171, 171, 171, 255);
+}
+
+.title-label {
+    overflow: hidden;
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    font-size: 12px;
+}

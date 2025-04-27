@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Behaviour%20Tree%20Asset/Scripts/Editor/Nodes/Resources/NodeStyle.uss?fileID=7433441132597879392&amp;guid=e4291e053ad24154ba9482a4c5f46405&amp;type=3#NodeStyle" />
+    <Style src="project://database/Assets/Behaviour%20Tree%20Asset/Scripts/Editor/BehaviourTree/Resources/Styles/DarkStyle.uss?fileID=7433441132597879392&amp;guid=e5afba3e8c3a4816888188fa69819cb0&amp;type=3#DarkStyle" />
+    <ui:VisualElement name="node-border">
+        <ui:VisualElement name="contents">
+            <ui:VisualElement name="top">
+                <ui:VisualElement name="input" class="port-container" />
+            </ui:VisualElement>
+            <ui:VisualElement name="container" class="info-container" style="justify-content: center;">
+                <ui:VisualElement name="title">
+                    <ui:Label name="title-label" text="Repeat" class="unity-text-element unity-label node-label title-label" />
+                </ui:VisualElement>
+                <ui:VisualElement name="decription">
+                    <ui:Label display-tooltip-when-elided="true" name="description-label" text="description" class="node-label description-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="buttom" style="align-items: stretch; justify-content: flex-start; flex-direction: column-reverse;">
+                <ui:VisualElement name="output" class="port-container" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="selection-border" />
+</ui:UXML>
