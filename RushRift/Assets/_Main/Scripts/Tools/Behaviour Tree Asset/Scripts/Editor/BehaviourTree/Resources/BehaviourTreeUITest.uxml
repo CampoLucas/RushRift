@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/Behaviour%20Tree%20Asset/Scripts/Editor/BehaviourTree/Resources/BehaviourTreeStyle.uss?fileID=7433441132597879392&amp;guid=8b8dae7dc95a65d4287507daf11b4e0f&amp;type=3#BehaviourTreeStyle" />
+    <Style src="project://database/Assets/Behaviour%20Tree%20Asset/Scripts/Editor/BehaviourTree/Resources/Styles/GlobalStyle.uss?fileID=7433441132597879392&amp;guid=94c62390a5004a69a481f119d3700e84&amp;type=3#GlobalStyle" />
+    <Style src="project://database/Assets/Behaviour%20Tree%20Asset/Scripts/Editor/BehaviourTree/Resources/Styles/LightStyle.uss?fileID=7433441132597879392&amp;guid=966421faefdc47099152c11a22daf5b0&amp;type=3#LightStyle" />
+    <Style src="project://database/Assets/Behaviour%20Tree%20Asset/Scripts/Editor/BehaviourTree/Resources/Styles/DarkStyle.uss?fileID=7433441132597879392&amp;guid=e5afba3e8c3a4816888188fa69819cb0&amp;type=3#DarkStyle" />
+    <uie:Toolbar name="toolbar" class="toolbar">
+        <uie:ToolbarMenu display-tooltip-when-elided="true" text="Assets" name="toolbar-menu" class="toolbar" />
+    </uie:Toolbar>
+    <SplitView fixed-pane-initial-dimension="300" name="split-view">
+        <TabView name="tab-view" />
+        <ui:VisualElement name="right-panel">
+            <ui:Label text="Tree View" display-tooltip-when-elided="true" style="background-color: rgb(32, 32, 32);" />
+            <BehaviourTreeView focusable="true" style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </SplitView>
+</ui:UXML>
