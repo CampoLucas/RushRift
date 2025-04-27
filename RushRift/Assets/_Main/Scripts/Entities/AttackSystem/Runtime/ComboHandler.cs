@@ -143,14 +143,12 @@ namespace Game.Entities.AttackSystem
 
         public void OnDraw(Transform origin)
         {
-            if (_combo == null) return;
-            //_combo.OnDraw(this);
+            
         }
 
         public void OnDrawSelected(Transform origin)
         {
-            if (_combo == null) return;
-            //_combo.OnDrawSelected(this);
+            
         }
 
         public bool Attacking()

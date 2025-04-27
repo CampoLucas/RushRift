@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BehaviourTreeAsset.EditorUI.VisualElements;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -92,14 +90,14 @@ public class TabView : VisualElement
 
 	public class Tab
 	{
-		public TabButton Button { get; private set; }
+		public BehaviourTreeAsset.EditorUI.VisualElements.TabButton Button { get; private set; }
 		public VisualElement Content { get; private set; }
 		public bool Enable { get; private set; }
 		public int Index { get; private set; }
 		
 		public Tab(string name, VisualElement content, int index)
 		{
-			Button = new TabButton(name);
+			Button = new BehaviourTreeAsset.EditorUI.VisualElements.TabButton(name);
 			Content = content;
 			Index = index;
 		}
