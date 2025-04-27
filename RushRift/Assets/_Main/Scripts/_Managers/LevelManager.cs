@@ -21,6 +21,7 @@ namespace Game
         private int _allEnemies;
         private int _deadEnemies;
         private bool _gameOver;
+        private bool _gameOverNotified;
         
         private void Awake()
         {
@@ -83,6 +84,14 @@ namespace Game
 
         private void OnPlayerDeath()
         {
+            if (!_gameOverNotified)
+            {
+                _gameOverNotified = true;
+            }
+            else
+            {
+                return;
+            }
             _gameOver = true;
             _onGameOver.NotifyAll();
         }
