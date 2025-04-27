@@ -17,7 +17,7 @@
 ### Requirements
 - **Unity Version**: 2022.3.46f1
 - **Platform**: Windows
-- **Packages:** Unity's Input System | Cinemachine
+- **Packages:** Unity's Input System | Cinemachine | TextMesh Pro | Visual Effect Graph
 
 ### How to Run
 1. Clone the repository
