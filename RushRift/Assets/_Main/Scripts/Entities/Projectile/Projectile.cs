@@ -81,8 +81,6 @@ namespace Game.Entities
                 trail.time = data.Speed * .25f;
             }
 
-            
-            Debug.Log($"Set gravity: {data.Gravity}");
             body.useGravity = data.Gravity;
         }
         
@@ -169,6 +167,8 @@ namespace Game.Entities
         {
             if (other == _thrower) return;
             if (!_collided.Add(other)) return;
+            
+            Debug.Log($"On trigger {other.name}");
 
             if (other.TryGetComponent<IController>(out var controller) &&
                 controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
