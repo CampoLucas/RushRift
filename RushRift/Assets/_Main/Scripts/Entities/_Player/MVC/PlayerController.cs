@@ -36,6 +36,11 @@ namespace Game.Entities
         {
             base.Start();
             
+            if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
+            {
+                LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
+            }
+            
             if (GetModel().TryGetComponent<ComboHandler>(out var comboHandler))
             {
                 for (var i = 0; i < attacks.Length; i++)
