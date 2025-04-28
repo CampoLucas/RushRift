@@ -8,21 +8,12 @@ namespace Game.Entities.AttackSystem.Modules
     public class ProjectileProxy : ModuleProxy<ProjectileModule>
     {
         private IPoolObject<Projectile, ProjectileData> _pool;
-        private IController _controller;
         private bool _executed;
         private float _timer;
-        private NullCheck<ComboHandler> _handler;
-        private LinearProjectileSpawner _forward;
-        private DiagonalProjectileSpawner _diagonal;
 
         public ProjectileProxy(ProjectileModule data, IModuleProxy[] children, IController controller, bool disposeData = false) : base(data, children, disposeData)
         {
-            _pool = data;
-            _controller = controller;
-            if (_controller != null && _controller.GetModel().TryGetComponent<ComboHandler>(out var handler))
-            {
-                _handler = handler;
-            }
+            _pool = new PoolObject<Projectile, ProjectileData>(data);
         }
 
         protected override void BeforeInit()
@@ -51,46 +42,9 @@ namespace Game.Entities.AttackSystem.Modules
 
         private void OnDo(Vector3 position, Quaternion rotation, GameObject thrower)
         {
-            if (!_handler || _handler.Get().ComboStats is not { } stats) return;
-
             var data = Data.PData;
-            var newData = new ProjectileData(data.Damage, data.Speed, data.LifeTime, stats.Size, stats.PenetrationCount, stats.WallBounceCount, stats.EnemyBounceCount, stats.HasGravity);
             
-            
-            if (stats.ForwardAmount > 0)
-            {
-                _forward.Fire(stats.ForwardAmount, stats.ForwardDistance * stats.Size, position, rotation, Data.ForwardOffset, newData, thrower, _pool);
-            }
-
-            if (stats.DiagonalAmount > 0)
-            {
-                _diagonal.Fire(stats.DiagonalAmount + 1, stats.DiagonalAngle, position, rotation, Data.ForwardOffset, newData, thrower, _pool);
-            }
-            
-            
-            // var angleStep = Data.Amount <= 1 ? 0 : Data.Spread / (Data.Amount - 1);
-            // var startAngle = Data.Amount <= 1 ? 0 : -Data.Spread / 2;
-            //
-            // //var rot = Quaternion.LookRotation(direction, upDirection);
-            //
-            // for (var i = 0; i < Data.Amount; i++)
-            // {
-            //     var angle = startAngle + (i * angleStep);
-            //     var rot = Quaternion.Euler(0, angle, 0) * rotation;
-            //
-            //     var spawnPos = (rot * (Vector3.forward * Data.ForwardOffset)) + position;
-            //
-            //     var data = Data.PData;
-            //     if (_handler && _handler.Get().ComboStats is { } stats)
-            //     {
-            //         var newData = new ProjectileData(data.Damage, data.Speed, data.LifeTime, stats.Size, stats.PenetrationCount, stats.WallBounceCount, stats.EnemyBounceCount, stats.HasGravity);
-            //         Fire(spawnPos, rot, newData, thrower);
-            //     }
-            //     else
-            //     {
-            //         Fire(spawnPos, rot, data, thrower);
-            //     }
-            // }
+            FireForwarlly(Data.Amount, Data.ForwardOffset * data.Size, position, rotation, Data.ForwardOffset, data, thrower, _pool);
         }
         
         private void Fire(Vector3 spawnPos, Quaternion rot, ProjectileData data, GameObject thrower)
@@ -100,9 +54,57 @@ namespace Game.Entities.AttackSystem.Modules
             var p = _pool.Get(spawnPos, rot, data);
             p.SetThrower(thrower);
         }
+        
+        public void FireDiagonally(int amount, float pDistance, Vector3 position, Quaternion rotation, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
+        {
+            if (amount <= 0)
+                return;
+            
+            var lessOrOne = amount <= 1;
+            
+            var skipMiddle = amount >= 3 && amount % 2 == 1;
+            var angleStep = lessOrOne ? 0 : pDistance / (amount - 1);
+            var startAngle = lessOrOne ? 0 : -pDistance / 2;
+
+            for (var i = 0; i < amount; i++)
+            {
+                if (skipMiddle && i == amount / 2)
+                    continue;
+                
+                var angle = startAngle + (i * angleStep);
+                //var rot = Quaternion.Euler(0, angle, 0) * rotation;
+                var rot = Quaternion.AngleAxis(angle, rotation * Vector3.up) * rotation;
+                var pos = (rot * (Vector3.forward * forwardOffset)) + position;
+
+                var p = pool.Get(pos, rot, pData);
+                p.SetThrower(thrower);
+            }
+        }
+        
+        public void FireForwarlly(int amount, float spacing, Vector3 position, Quaternion rotation, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
+        {
+            var lessOrOne = amount <= 1;
+            var totalWidth = spacing * (amount - 1);
+            var startOffset = lessOrOne ? 0 : -totalWidth / 2;
+
+            for (var i = 0; i < amount; i++)
+            {
+                // Calculate the offset along the local X-axis
+                var xOffset = startOffset + (i * spacing);
+                var offset = new Vector3(xOffset, 0, forwardOffset);
+
+                // Transform local offset to world space
+                var worldOffset = rotation * offset;
+                var spawnPosition = position + worldOffset;
+
+                var p = pool.Get(spawnPosition, rotation, pData);
+                p.SetThrower(thrower);
+            }
+        }
 
         protected override void OnDispose()
         {
+            _pool.Dispose();
             _pool = null;
         }
     }

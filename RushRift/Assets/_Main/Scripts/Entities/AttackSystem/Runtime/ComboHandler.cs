@@ -15,7 +15,6 @@ namespace Game.Entities.AttackSystem
         public IAttack Current { get; private set; }
         public float BeginAttackTime => _timeAttackStarted;
         public List<IModuleProxy> ComboProxies => _combo ? _combo.Get().GetProxies() : null;
-        public ComboStats ComboStats => _combo ? _combo.Get().Stats : null;
 
         private DesignPatterns.Observers.IObserver<float> _updateObserver;
         

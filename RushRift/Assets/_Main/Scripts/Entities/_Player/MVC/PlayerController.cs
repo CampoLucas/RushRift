@@ -20,9 +20,6 @@ namespace Game.Entities
         public static HashedKey DieState = new("Die");
 
         #endregion
-
-        [Header("Attacks")]
-        [SerializeField] private StaticModuleData[] attacks;
         
         private Vector3 _moveDir;
         
@@ -39,17 +36,6 @@ namespace Game.Entities
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
-            }
-            
-            if (GetModel().TryGetComponent<ComboHandler>(out var comboHandler))
-            {
-                for (var i = 0; i < attacks.Length; i++)
-                {
-                    var attack = attacks[i];
-                    if (attack == null) continue;
-                    
-                    comboHandler.AddModule(attack.Test());
-                }
             }
         }
 

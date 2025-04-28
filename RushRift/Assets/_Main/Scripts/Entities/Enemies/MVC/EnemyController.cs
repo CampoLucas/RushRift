@@ -24,9 +24,6 @@ namespace Game.Entities.Enemies.MVC
         [SerializeField] private int damageIndex;
         [SerializeField] private int deathIndex;
 
-        [Header("Attacks")]
-        [SerializeField] private StaticModuleData[] attacks;
-
         private IObserver<(float, float, float)> _onDamageObserver;
         private IObserver _onDeathObserver;
         private EnemyComponent _enemyComp;
@@ -64,19 +61,6 @@ namespace Game.Entities.Enemies.MVC
                 healthComponent.OnValueChanged.Attach(_onDamageObserver);
                 healthComponent.OnValueDepleted.Attach(_onDeathObserver);
             }
-
-            if (GetModel().TryGetComponent<ComboHandler>(out var comboHandler))
-            {
-                for (var i = 0; i < attacks.Length; i++)
-                {
-                    var attack = attacks[i];
-                    if (attack == null) continue;
-                    
-                    comboHandler.AddModule(attack.Test());
-                }
-            }
-
-            
         }
 
         public override Vector3 MoveDirection()
