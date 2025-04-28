@@ -12,6 +12,7 @@ namespace Game.Entities
         private float _jumpForce;
         private float _velocity;
         private float _elapsedTime;
+        
 
         public JumpState(JumpData jumpData, GravityData gravityData)
         {
@@ -38,13 +39,14 @@ namespace Game.Entities
             float t = Mathf.Clamp01(_elapsedTime / _jumpData.Duration);
             float curveValue = _jumpData.JumpCurve.Evaluate(t);
 
-            // Convert curve output into vertical speed
             _velocity = curveValue * Mathf.Sqrt(_jumpData.Height * -2 * _gravity);
 
+            // Add air control
             var input = args.Controller.MoveDirection() * _jumpData.MoveSpeed;
+            var controlledInput = Vector3.Lerp(Vector3.zero, input, _jumpData.AirControl);
             var jumpDir = Vector3.up * _velocity;
 
-            movement.AddMoveDir(input);
+            movement.AddMoveDir(controlledInput);
             movement.Move(jumpDir, delta);
         }
 

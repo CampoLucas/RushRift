@@ -61,11 +61,11 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    maxSpeed: 25
+    maxSpeed: 20
     useDot: 0
     groundAcceleration: 100
     groundDeceleration: 80
-    airAcceleration: 15
+    airAcceleration: 100
     airDeceleration: 100
     groundDetect:
       size: {x: 1, y: 0.34, z: 1}
@@ -78,7 +78,10 @@ MonoBehaviour:
       customGravity: 1
       gravity: 0
       gravityScale: 0.25
+      fallAirControl: 0.3
+      airAcceleration: 5
   jump:
+    airControl: 1
     height: 6
     moveSpeed: 25
     jumpCurve:
@@ -110,6 +113,8 @@ MonoBehaviour:
     customGravity: 0
     gravity: 10
     gravityScale: 5
+    fallAirControl: 1
+    airAcceleration: 80
   comboData: {fileID: 11400000, guid: 4b0424991f4826f41a401e28aa5810b1, type: 2}
   health:
     startValue: 10

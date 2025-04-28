@@ -8,6 +8,11 @@ namespace Game.Entities.Components
         public float Height => height;
         public float MoveSpeed => moveSpeed;
         
+        [SerializeField, Range(0f, 1f)] private float airControl = 0.5f;
+        public float AirControl => airControl;
+
+
+        
         [Header("Jump Settings")]
         [SerializeField] private float height;
         [SerializeField] private float moveSpeed;

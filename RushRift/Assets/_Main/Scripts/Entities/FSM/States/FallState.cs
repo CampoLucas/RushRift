@@ -29,11 +29,16 @@ namespace Game.Entities
         protected override void OnUpdate(ref EntityArgs args, float delta)
         {
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+
             _velocity += _gravity * delta;
+
             var input = args.Controller.MoveDirection();
-            var dir = new Vector3(0, _velocity, 0);
-            movement.AddMoveDir(input);
-            movement.Move(dir, delta);
+            var controlledInput = Vector3.Lerp(Vector3.zero, input, _gravityData.FallAirControl);
+
+            // Instead of separating input and vertical, COMBINE them
+            Vector3 finalMove = controlledInput * _gravityData.AirAcceleration + new Vector3(0, _velocity, 0);
+
+            movement.Move(finalMove, delta);
         }
     }
 }
