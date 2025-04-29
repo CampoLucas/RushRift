@@ -1,7 +1,6 @@
 using BehaviourTreeAsset.Runtime;
 using Game.DesignPatterns.Observers;
 using Game.Entities.AttackSystem;
-using Game.Entities.AttackSystem.Modules;
 using Game.Entities.Components;
 using Game.Entities.Enemies.Components;
 using UnityEngine;

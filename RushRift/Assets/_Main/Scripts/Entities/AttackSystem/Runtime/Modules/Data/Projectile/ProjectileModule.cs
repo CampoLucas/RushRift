@@ -6,7 +6,7 @@ using Game.DesignPatterns.Pool;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     // To do, make this have the pool instead of the proxy
     public class ProjectileModule : StaticModuleData, IFactory<Projectile, ProjectileData>

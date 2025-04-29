@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Entities.AttackSystem.Modules;
+using Game.Entities.AttackSystem;
 using UnityEngine;
 
 namespace Game.Entities.AttackSystem

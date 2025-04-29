@@ -3,7 +3,7 @@ using Game.DesignPatterns.Pool;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     public class ProjectileProxy : ModuleProxy<ProjectileModule>
     {

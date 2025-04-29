@@ -1,5 +1,4 @@
 using Game.Entities.AttackSystem;
-using Game.Entities.AttackSystem.Modules;
 using Game.Entities.Components;
 using Game.Inputs;
 using Game.Predicates;
@@ -20,6 +19,9 @@ namespace Game.Entities
         public static HashedKey DieState = new("Die");
 
         #endregion
+
+        [Header("Arms")]
+        [SerializeField] private Transform armsPivot;
         
         private Vector3 _moveDir;
         
@@ -46,6 +48,11 @@ namespace Game.Entities
             _moveDir.y = 0;
             
             base.Update();
+
+            if (armsPivot)
+            {
+                armsPivot.rotation = EyesTransform.rotation;
+            }
         }
         
         protected override void InitStateMachine()
