@@ -74,10 +74,10 @@ namespace Game.UI
             //     _stateMachine.TransitionTo<GameplayState>(1, 1, .75f);
             // }
 
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
+            //if (Input.GetKeyDown(KeyCode.Escape))
+            //{
+            //    Application.Quit();
+            //}
 
             if (Input.GetKeyDown(KeyCode.R))
             {
@@ -90,7 +90,8 @@ namespace Game.UI
         
         private void OnGameOver()
         {
-            _stateMachine.TransitionTo<GameOverState>(1, 2, .75f);
+            //_stateMachine.TransitionTo<GameOverState>(1, 2, .75f);
+            LevelManager.Instance.ScreenManager.PushScreen(ScreenName.GameOver);
         }
 
         private void OnDestroy()

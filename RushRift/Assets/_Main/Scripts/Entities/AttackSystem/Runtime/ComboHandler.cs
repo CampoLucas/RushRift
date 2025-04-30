@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.DesignPatterns.Observers;
-using Game.Entities.AttackSystem.Modules;
+using Game.Entities.AttackSystem;
 using Game.Entities.Components;
 using Game.Inputs;
 using UnityEngine;
@@ -15,7 +15,6 @@ namespace Game.Entities.AttackSystem
         public IAttack Current { get; private set; }
         public float BeginAttackTime => _timeAttackStarted;
         public List<IModuleProxy> ComboProxies => _combo ? _combo.Get().GetProxies() : null;
-        public ComboStats ComboStats => _combo ? _combo.Get().Stats : null;
 
         private DesignPatterns.Observers.IObserver<float> _updateObserver;
         

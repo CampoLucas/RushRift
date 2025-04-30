@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     /// <summary>
     /// ModulesData that are created in runtime

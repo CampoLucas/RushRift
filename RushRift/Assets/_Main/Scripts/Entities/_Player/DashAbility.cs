@@ -51,14 +51,21 @@ namespace _Main.Scripts.Entities._Player
                 }
             }
             
-            else if (Time.time >= _nextDashTime && Input.GetKeyDown(KeyCode.LeftShift))
-            {
-                StartDash();
-            }
+            // else if (Time.time >= _nextDashTime && Input.GetKeyDown(KeyCode.LeftShift))
+            // {
+            //     StartDash();
+            // }
         }
 
-        private void StartDash()
+        public void StartDash()
         {
+            if (Time.time < _nextDashTime)
+            {
+                Debug.Log("Dash return");
+                
+                return;
+            }
+            
             var forward = cameraTransform.forward;
             var right = cameraTransform.right;
 

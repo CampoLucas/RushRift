@@ -7,6 +7,7 @@ namespace Game.Entities
     {
         Transform Transform { get; }
         Transform EyesTransform { get; }
+        Transform SpawnPos { get; }
         IModel GetModel();
         IView GetView();
 

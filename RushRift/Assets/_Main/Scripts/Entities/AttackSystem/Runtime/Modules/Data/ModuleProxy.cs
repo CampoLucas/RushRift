@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     public abstract class ModuleProxy<TData> : IModuleProxy
         where TData : IModuleData
@@ -410,7 +410,8 @@ namespace Game.Entities.AttackSystem.Modules
 
     public struct ModuleParams
     {
-        public Transform Origin;
+        public Transform OriginTransform;
+        public Transform EyesTransform;
         public NullCheck<IController> Target;
     }
 
