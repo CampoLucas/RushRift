@@ -410,7 +410,8 @@ namespace Game.Entities.AttackSystem
 
     public struct ModuleParams
     {
-        public Transform Origin;
+        public Transform OriginTransform;
+        public Transform EyesTransform;
         public NullCheck<IController> Target;
     }
 

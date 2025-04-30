@@ -24,7 +24,7 @@ namespace Game.Entities.AttackSystem
         {
             if (!_dash)
             {
-                if (mParams.Origin.gameObject.TryGetComponent<DashAbility>(out var dash))
+                if (mParams.OriginTransform.gameObject.TryGetComponent<DashAbility>(out var dash))
                 {
                     _dash.Set(dash);
                 }

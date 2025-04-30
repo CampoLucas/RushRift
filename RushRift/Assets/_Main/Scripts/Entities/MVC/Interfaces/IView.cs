@@ -5,7 +5,7 @@ namespace Game.Entities
 {
     public interface IView : IDisposable
     {
-        void Init(Animator animator);
+        void Init(Animator[] animator);
         void Play(string name);
     }
 }

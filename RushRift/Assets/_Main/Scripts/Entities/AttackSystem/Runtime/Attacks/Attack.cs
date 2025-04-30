@@ -53,9 +53,9 @@ namespace Game.Entities.AttackSystem
         private List<IModuleProxy> _runningProxies = new();
         
         // I use subjects so I only execute the modules start, exit and update methods only if they are used.
-        // private ISubject<ModuleParams> _startSubject = new Subject<ModuleParams>();
-        // private ISubject<ModuleParams> _endSubject = new Subject<ModuleParams>();
-        // private ISubject<ModuleParams, float> _updateSubject = new Subject<ModuleParams, float>();
+        private ISubject<ModuleParams> _startSubject = new Subject<ModuleParams>();
+        private ISubject<ModuleParams> _endSubject = new Subject<ModuleParams>();
+        private ISubject<ModuleParams, float> _updateSubject = new Subject<ModuleParams, float>();
         private ModuleParams _moduleParams;
 
         public AttackProxy(Attack attack, IController controller)
@@ -109,7 +109,7 @@ namespace Game.Entities.AttackSystem
                 }
             }
             
-            //_updateSubject.NotifyAll(_moduleParams, delta);
+            _updateSubject.NotifyAll(_moduleParams, delta);
             
             if (!Loop && ((comboHandler.BeginAttackTime + Duration) - Time.time) <= 0)
             {
@@ -124,7 +124,7 @@ namespace Game.Entities.AttackSystem
 
         public void StartAttack(ComboHandler comboHandler)
         {
-            //_startSubject.NotifyAll(_moduleParams);
+            _startSubject.NotifyAll(_moduleParams);
             _runningProxies.Clear();
 
             for (var i = 0; i < _proxies.Count; i++)
@@ -136,14 +136,15 @@ namespace Game.Entities.AttackSystem
             
             _moduleParams = new ModuleParams()
             {
-                Origin = comboHandler.Owner.EyesTransform,
+                OriginTransform = comboHandler.Owner.SpawnPos ? comboHandler.Owner.SpawnPos : comboHandler.Owner.EyesTransform,
+                EyesTransform = comboHandler.Owner.EyesTransform,
                 Target = new NullCheck<IController>(comboHandler.Owner),
             };
         }
 
         public void EndAttack(ComboHandler comboHandler)
         {
-            //_endSubject.NotifyAll(_moduleParams);
+            _endSubject.NotifyAll(_moduleParams);
             _runningProxies.Clear();
         }
 
@@ -154,14 +155,14 @@ namespace Game.Entities.AttackSystem
 
         public void Dispose()
         {
-            // _startSubject.Dispose();
-            // _startSubject = null;
-            //
-            // _endSubject.Dispose();
-            // _endSubject = null;
-            //
-            // _updateSubject.Dispose();
-            // _updateSubject = null;
+            _startSubject.Dispose();
+            _startSubject = null;
+            
+            _endSubject.Dispose();
+            _endSubject = null;
+            
+            _updateSubject.Dispose();
+            _updateSubject = null;
 
             for (var i = 0; i < _proxies.Count; i++)
             {
@@ -190,18 +191,18 @@ namespace Game.Entities.AttackSystem
             _proxies.Add(module);
 
             // Subscribe the module to the subjects.
-            // if (module.TryGetStart(out var start)) _startSubject.Attach(start);
-            // if (module.TryGetUpdate(out var update)) _updateSubject.Attach(update);
-            // if (module.TryGetEnd(out var end)) _endSubject.Attach(end);
+            if (module.TryGetStart(out var start)) _startSubject.Attach(start);
+            if (module.TryGetUpdate(out var update)) _updateSubject.Attach(update);
+            if (module.TryGetEnd(out var end)) _endSubject.Attach(end);
         }
 
         public void RemoveModule(IModuleProxy module)
         {
             _proxies.Remove(module);
             
-            // if (module.TryGetStart(out var start)) _startSubject.Detach(start);
-            // if (module.TryGetUpdate(out var update)) _updateSubject.Detach(update);
-            // if (module.TryGetEnd(out var end)) _endSubject.Detach(end);
+            if (module.TryGetStart(out var start)) _startSubject.Detach(start);
+            if (module.TryGetUpdate(out var update)) _updateSubject.Detach(update);
+            if (module.TryGetEnd(out var end)) _endSubject.Detach(end);
 
             module.Dispose();
         }

@@ -33,18 +33,18 @@ namespace Game.Entities.AttackSystem
             if (_executed) return;
             _timer += delta;
             
-            if (_timer < Data.Delay) return;
+            if (_timer <= Data.Delay) return;
             
             _executed = true;
-            OnDo(Data.GetOffsetPosition(mParams.Origin), mParams.Origin.rotation, mParams.Target.Get().Transform.gameObject);
+            OnDo(mParams.OriginTransform, mParams.EyesTransform.rotation, mParams.Target.Get().Transform.gameObject);
         }
         
 
-        private void OnDo(Vector3 position, Quaternion rotation, GameObject thrower)
+        private void OnDo(Transform spawnPos, Quaternion rotation, GameObject thrower)
         {
             var data = Data.PData;
             
-            FireForwarlly(Data.Amount, Data.ForwardOffset * data.Size, position, rotation, Data.ForwardOffset, data, thrower, _pool);
+            FireForwarlly(Data.Amount, Data.ForwardOffset * data.Size, spawnPos, rotation, Data.ForwardOffset, data, thrower, _pool);
         }
         
         private void Fire(Vector3 spawnPos, Quaternion rot, ProjectileData data, GameObject thrower)
@@ -81,7 +81,7 @@ namespace Game.Entities.AttackSystem
             }
         }
         
-        public void FireForwarlly(int amount, float spacing, Vector3 position, Quaternion rotation, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
+        public void FireForwarlly(int amount, float spacing, Transform spawnPos, Quaternion rotation, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
         {
             var lessOrOne = amount <= 1;
             var totalWidth = spacing * (amount - 1);
@@ -95,10 +95,11 @@ namespace Game.Entities.AttackSystem
 
                 // Transform local offset to world space
                 var worldOffset = rotation * offset;
-                var spawnPosition = position + worldOffset;
+                var spawnPosition = spawnPos.position + worldOffset;
 
                 var p = pool.Get(spawnPosition, rotation, pData);
                 p.SetThrower(thrower);
+                
             }
         }
 
