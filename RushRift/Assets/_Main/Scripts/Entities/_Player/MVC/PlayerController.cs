@@ -1,5 +1,4 @@
 using Game.Entities.AttackSystem;
-using Game.Entities.AttackSystem.Modules;
 using Game.Entities.Components;
 using Game.Inputs;
 using Game.Predicates;
@@ -21,8 +20,8 @@ namespace Game.Entities
 
         #endregion
 
-        [Header("Attacks")]
-        [SerializeField] private StaticModuleData[] attacks;
+        [Header("Arms")]
+        [SerializeField] private Transform armsPivot;
         
         private Vector3 _moveDir;
         
@@ -40,17 +39,6 @@ namespace Game.Entities
             {
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
-            
-            if (GetModel().TryGetComponent<ComboHandler>(out var comboHandler))
-            {
-                for (var i = 0; i < attacks.Length; i++)
-                {
-                    var attack = attacks[i];
-                    if (attack == null) continue;
-                    
-                    comboHandler.AddModule(attack.Test());
-                }
-            }
         }
 
         protected override void Update()
@@ -60,6 +48,11 @@ namespace Game.Entities
             _moveDir.y = 0;
             
             base.Update();
+
+            if (armsPivot)
+            {
+                armsPivot.rotation = EyesTransform.rotation;
+            }
         }
         
         protected override void InitStateMachine()

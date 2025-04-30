@@ -14,6 +14,7 @@ namespace Game.Inputs
         public static HashedKey JumpInput { get; private set; }
         public static HashedKey LightAttackInput { get; private set; }
         public static HashedKey HeavyAttackInput { get; private set; }
+        public static HashedKey SecondaryAttackInput { get; private set; }
         public static HashedKey PauseInput { get; private set; }
         
         private static InputManager _instance;
@@ -40,10 +41,6 @@ namespace Game.Inputs
                 _instance = this;
             }
             InitInputs();
-        }
-
-        private void Start()
-        {
         }
 
         private void Update()
@@ -131,6 +128,7 @@ namespace Game.Inputs
             JumpInput = new HashedKey("jump");
             LightAttackInput = new HashedKey("light");
             HeavyAttackInput = new HashedKey("heavy");
+            SecondaryAttackInput = new HashedKey("secondary");
             PauseInput = new HashedKey("pause");
             
             // Add Value Inputs
@@ -142,6 +140,7 @@ namespace Game.Inputs
             AddActionInput(JumpInput, JumpAction, JumpActionStarted, JumpActionCanceled);
             AddActionInput(LightAttackInput, LightAttackAction, LightAttackActionStarted, LightAttackCanceled);
             AddActionInput(HeavyAttackInput, HeavyAttackAction, HeavyAttackActionStarted, HeavyAttackCanceled);
+            AddActionInput(SecondaryAttackInput, SecondaryAttackAction, SecondaryAttackStarted, SecondaryAttackCanceled);
             
             // Add Button Inputs
             AddButtonInput(PauseInput, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.phase == InputActionPhase.Started, () => _playerControls.UI.Pause.phase == InputActionPhase.Canceled);
@@ -183,6 +182,9 @@ namespace Game.Inputs
         private bool LightAttackCanceled() => _playerControls.Gameplay.LightAttack.phase == InputActionPhase.Canceled;
         private bool HeavyAttackAction() => _heavyFlag;
         private bool HeavyAttackActionStarted() => _playerControls.Gameplay.HeavyAttack.phase == InputActionPhase.Started;
+        private bool SecondaryAttackAction() => _playerControls.Gameplay.SecondaryAttack.triggered;
+        private bool SecondaryAttackStarted() => _playerControls.Gameplay.SecondaryAttack.phase == InputActionPhase.Started;
+        private bool SecondaryAttackCanceled() => _playerControls.Gameplay.SecondaryAttack.phase == InputActionPhase.Canceled;
         private bool HeavyAttackCanceled() => _playerControls.Gameplay.HeavyAttack.WasReleasedThisFrame();
         private Vector2 MoveValue() => _playerControls.Gameplay.Movement.ReadValue<Vector2>();
         private Vector2 LookValue() => _playerControls.Gameplay.Look.ReadValue<Vector2>();

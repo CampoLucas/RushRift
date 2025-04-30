@@ -1,7 +1,7 @@
 using Game.DesignPatterns.Observers;
 using UnityEngine;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     public interface IModuleProxy : System.IDisposable
     {

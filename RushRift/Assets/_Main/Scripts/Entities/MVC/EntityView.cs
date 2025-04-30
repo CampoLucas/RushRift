@@ -6,27 +6,35 @@ namespace Game.Entities
         where TData : EntityViewSO
     {
         protected TData ViewData;
-        protected Animator Animator;
+        protected Animator[] Animators;
 
         public EntityView(TData viewData)
         {
             ViewData = viewData;
         }
 
-        public void Init(Animator animator)
+        public void Init(Animator[] animator)
         {
-            Animator = animator;
+            Animators = animator;
         }
 
         public void Play(string name)
         {
-            if (Animator) Animator.Play(name);
+            Debug.Log($"Play anim {name}");
+            if (Animators.Length <= 0) return;
+
+            for (var i = 0; i < Animators.Length; i++)
+            {
+                var anim = Animators[i];
+                if (anim == null) continue;
+                anim.Play(name);
+            }
         }
         
         public void Dispose()
         {
             ViewData = null;
-            Animator = null;
+            Animators = null;
         }
     }
 }

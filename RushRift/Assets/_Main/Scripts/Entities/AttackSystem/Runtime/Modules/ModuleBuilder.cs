@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Game.DesignPatterns.Factory;
 using UnityEngine;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     public abstract class ModuleBuilder<T> : StaticModuleData
         where T : RuntimeModuleData

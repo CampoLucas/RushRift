@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Factory;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     public interface IModuleData : IDisposable, IPrototype<IModuleData>
     {

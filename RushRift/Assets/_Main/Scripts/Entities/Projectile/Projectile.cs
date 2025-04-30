@@ -26,6 +26,7 @@ namespace Game.Entities
 
         private Transform _transform;
         private float _timer;
+        private Vector3 _velocity;
         private IPoolObject<Projectile, ProjectileData> _poolObject;
         private GameObject _thrower;
         
@@ -40,6 +41,7 @@ namespace Game.Entities
             _timer = 0;
             if (!body) body = GetComponent<Rigidbody>();
             if (!coll) coll = GetComponent<Collider>();
+            _transform.SetParent(LevelManager.Instance.ScreenManager.screenTransformsDictionary[ScreenName.Gameplay]);
         }
 
         private void Update()
@@ -57,6 +59,18 @@ namespace Game.Entities
             }
 
             //_transform.position += _transform.forward * (data.Speed * Time.deltaTime);
+        }
+
+        private void OnEnable()
+        {
+            body.isKinematic = false;
+            body.velocity = _velocity;
+        }
+
+        private void OnDisable()
+        {
+            _velocity = body.velocity;
+            body.isKinematic = true;
         }
 
         public void SetThrower(GameObject thrower)
