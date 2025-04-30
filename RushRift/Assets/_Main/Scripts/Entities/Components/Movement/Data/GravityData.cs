@@ -9,7 +9,12 @@ namespace Game.Entities.Components
         [SerializeField] private bool customGravity;
         [SerializeField] private float gravity;
         [SerializeField] private float gravityScale;
-
+        
+        [SerializeField, Range(0f, 1f)] private float fallAirControl = 0.3f;
+        [SerializeField, Range(0f, 100f)] private float airAcceleration = 5f;
+        public float AirAcceleration => airAcceleration;
+        public float FallAirControl => fallAirControl;
+        
         public float GetValue() => (customGravity ? gravity : Physics.gravity.y) * gravityScale;
     }
 }
