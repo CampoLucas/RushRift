@@ -74,10 +74,10 @@ namespace Game.UI
             //     _stateMachine.TransitionTo<GameplayState>(1, 1, .75f);
             // }
 
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
+            //if (Input.GetKeyDown(KeyCode.Escape))
+            //{
+            //    Application.Quit();
+            //}
 
             if (Input.GetKeyDown(KeyCode.R))
             {

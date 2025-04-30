@@ -11,6 +11,8 @@ namespace Game
     [AddComponentMenu("Game/Level Manager")]
     public class LevelManager : MonoBehaviour
     {
+        [SerializeField] private ScreenManager screenManager;
+
         private static LevelManager _instance;
         
         private ISubject _onGameOver = new Subject();
@@ -22,6 +24,8 @@ namespace Game
         private int _deadEnemies;
         private bool _gameOver;
         private bool _gameOverNotified;
+        public ScreenManager ScreenManager => screenManager;
+        public static LevelManager Instance => _instance;
         
         private void Awake()
         {
