@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Game.Entities.AttackSystem.Modules
+namespace Game.Entities.AttackSystem
 {
     public class PlayAnimation : StaticModuleData
     {

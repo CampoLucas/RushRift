@@ -37,12 +37,14 @@ namespace Game.Entities
                 { "Light", LightAttack },
                 { "Heavy", HeavyAttack },
                 { "HeavyCancel", HeavyAttackCancel },
+                { "Secondary", SecondaryAttack },
             });
         }
         
         private bool LightAttack() => InputManager.GetActionPerformed(InputManager.LightAttackInput);
         private bool HeavyAttack() => InputManager.GetActionPerformed(InputManager.HeavyAttackInput);
         private bool HeavyAttackCancel() => InputManager.GetActionCanceled(InputManager.HeavyAttackInput);
+        private bool SecondaryAttack() => InputManager.GetActionPerformed(InputManager.SecondaryAttackInput);
         
         public override NullCheck<IModel> GetProxy()
         {

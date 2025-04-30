@@ -6,13 +6,15 @@ namespace Game.Entities
     {
         public Transform Transform { get; private set; }
         public Transform EyesTransform { get; protected set; }
+        public Transform SpawnPos => spawnPos;
 
         [Header("Data")]
         [SerializeField] protected EntityModelSO model;
         [SerializeField] protected EntityViewSO view;
 
         [Header("References")]
-        [SerializeField] private Animator animator;
+        [SerializeField] private Animator[] animator;
+        [SerializeField] private Transform spawnPos;
 
         protected EntityStateMachine _fsm;
         

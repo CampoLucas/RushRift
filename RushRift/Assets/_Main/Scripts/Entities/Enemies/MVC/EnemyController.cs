@@ -1,7 +1,6 @@
 using BehaviourTreeAsset.Runtime;
 using Game.DesignPatterns.Observers;
 using Game.Entities.AttackSystem;
-using Game.Entities.AttackSystem.Modules;
 using Game.Entities.Components;
 using Game.Entities.Enemies.Components;
 using UnityEngine;
@@ -23,9 +22,6 @@ namespace Game.Entities.Enemies.MVC
         [SerializeField] private BehaviourTreeRunner runner;
         [SerializeField] private int damageIndex;
         [SerializeField] private int deathIndex;
-
-        [Header("Attacks")]
-        [SerializeField] private StaticModuleData[] attacks;
 
         private IObserver<(float, float, float)> _onDamageObserver;
         private IObserver _onDeathObserver;
@@ -65,19 +61,6 @@ namespace Game.Entities.Enemies.MVC
                 healthComponent.OnValueChanged.Attach(_onDamageObserver);
                 healthComponent.OnValueDepleted.Attach(_onDeathObserver);
             }
-
-            if (GetModel().TryGetComponent<ComboHandler>(out var comboHandler))
-            {
-                for (var i = 0; i < attacks.Length; i++)
-                {
-                    var attack = attacks[i];
-                    if (attack == null) continue;
-                    
-                    comboHandler.AddModule(attack.Test());
-                }
-            }
-
-            
         }
 
         public override Vector3 MoveDirection()
