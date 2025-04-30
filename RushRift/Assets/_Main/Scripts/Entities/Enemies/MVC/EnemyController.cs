@@ -39,6 +39,7 @@ namespace Game.Entities.Enemies.MVC
             _onDamageObserver = new ActionObserver<(float, float, float)>(OnDamage);
             _onDeathObserver = new ActionObserver(OnDeath);
             
+
         }
 
         protected override void Start()

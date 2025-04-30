@@ -14,12 +14,12 @@ namespace Game
         [SerializeField] private ScreenManager screenManager;
 
         private static LevelManager _instance;
-        
+
         private ISubject _onGameOver = new Subject();
         private ISubject _onLevelWon = new Subject();
         private IObserver _onPlayerDeath;
         private IObserver _onEnemyDeath;
-        
+
         private int _allEnemies;
         private int _deadEnemies;
         private bool _gameOver;
@@ -34,7 +34,7 @@ namespace Game
             _onPlayerDeath = new ActionObserver(OnPlayerDeath);
             _onEnemyDeath = new ActionObserver(OnEnemyDeath);
         }
-        
+
         public static void GetPlayerReference(ISubject onDeath)
         {
             if (_instance == null)
