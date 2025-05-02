@@ -75,6 +75,7 @@ Feature | ```feature/feature-name``` | ```feature/player-dash```
 Bugfix | ```bugfix/short-description``` | ```bugfix/enemies-are-not-moving```
 Refactor | ```refactor/description``` | ```refactor/pathfinding-optimization```
 Art | ```art/short-description``` | ```art/enemy-model-and-textures```
+Importing | ```import/short-description``` | ```import/urp-to-project```
 
 To keep the workflow clean and easy to collaborate, we follow a structurated branch naming convections. Here is why:<br/>
 1. **We work as a team:** if everyone names branches however they want, it becomes chaotic and **difficult to mergue** without conflicts or confusion.
