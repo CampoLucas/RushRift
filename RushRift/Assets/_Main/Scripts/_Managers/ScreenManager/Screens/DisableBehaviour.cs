@@ -14,8 +14,13 @@ public class DisableBehaviour : MonoBehaviour
         _onDisableCall = new ActionObserver(OnDisableCall);
         _onEnableCall = new ActionObserver(OnEnableCall);
 
-        ScreenManager.disableBehaviour.Attach(_onDisableCall);
-        ScreenManager.enableBehaviour.Attach(_onEnableCall);
+        ScreenManager.onPaused.Attach(_onDisableCall);
+        ScreenManager.onDispaused.Attach(_onEnableCall);
+    }
+
+    public void SetBehaviour(Behaviour[] behaviours)
+    {
+        behavioursToDisable = behaviours;
     }
 
     private void OnDisableCall()

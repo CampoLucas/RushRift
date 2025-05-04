@@ -14,8 +14,8 @@ public class ScreenManager : MonoBehaviour
 {
 
     public Dictionary<ScreenName, Transform> screenTransformsDictionary = new Dictionary<ScreenName, Transform>();
-    public static ISubject disableBehaviour = new Subject();
-    public static ISubject enableBehaviour = new Subject();
+    public static ISubject onPaused = new Subject();
+    public static ISubject onDispaused = new Subject();
 
     [SerializeField] private ScreenName initialScreen;
     [SerializeField] private ScreenStruct[] screens;
@@ -30,7 +30,6 @@ public class ScreenManager : MonoBehaviour
             screenTransformsDictionary[screens[i].screenName] = screens[i].screenObject;
             _screenDictionary[screens[i].screenName] = screens[i].screenObject.GetComponent<IScreen>();
             //screens[i].screenObject.gameObject.SetActive(false);
-
         }
     }
 
