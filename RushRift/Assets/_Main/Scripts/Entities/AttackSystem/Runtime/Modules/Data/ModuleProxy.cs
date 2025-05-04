@@ -3,6 +3,7 @@ using Game.DesignPatterns.Observers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Entities.AttackSystem
 {
@@ -19,6 +20,7 @@ namespace Game.Entities.AttackSystem
         protected DesignPatterns.Observers.IObserver<ModuleParams> StartObserver;
         protected DesignPatterns.Observers.IObserver<ModuleParams> EndObserver;
         protected IObserver<ModuleParams, float> UpdateObserver;
+        protected IObserver<ModuleParams, float> LateUpdateObserver;
         
         private ModuleExecution ModuleExecution => Data.GetExecution();
         
@@ -69,69 +71,6 @@ namespace Game.Entities.AttackSystem
         
         public bool Execute(ModuleParams mParams, float delta)
         {
-#if false
-            if (ModuleExecution == ModuleExecution.Parallel)
-            {
-                //Debug.Log("Enter parallel");
-                if (!_started && !_running)
-                {
-                    _started = true;
-                    _running = true;
-                    _onStartSubject.NotifyAll(mParams);
-                }
-
-                _onUpdateSubject.NotifyAll(mParams, delta);
-            
-                Timer += delta;
-                if (Timer >= Duration)
-                {
-                    _onEndSubject.NotifyAll(mParams);
-                    _running = false;
-                    return false;
-                }
-
-                return true;
-            }
-            
-            if (ModuleExecution == ModuleExecution.Sequential)
-            {
-                if (!_started && !_running)
-                {
-                    _started = true;
-                    _running = true;
-                    _onStartSubject.NotifyAll(mParams);
-                    for (var i = 0; i < _children.Count; i++)
-                    {
-                        _children[i].Reset();
-                    }
-                }
-                
-                _onUpdateSubject.NotifyAll(mParams, delta);
-
-                if (_children != null && _children.Count > 0 && !_children[_childIndex].Execute(mParams, delta))
-                {
-                    _childIndex++;
-                    if (_childIndex >= _children.Count)
-                    {
-                        _onEndSubject.NotifyAll(mParams);
-                        _running = false;
-                        return false;
-                    }
-                }
-
-                if (_children == null)
-                {
-                    return false;
-                }
-
-                if (_childIndex >= _children.Count) return false;
-                return true;
-            }
-            
-            
-            // blend logic here
-            return false;
-#else
             if (!_started && !_running)
             {
                 _started = true;
@@ -153,7 +92,6 @@ namespace Game.Entities.AttackSystem
             }
 
             return true;
-#endif
         }
 
         public void Reset()
@@ -241,6 +179,20 @@ namespace Game.Entities.AttackSystem
             update = null;
             return false;
         }
+        
+        public virtual bool TryGetLateUpdate(out IObserver<ModuleParams, float> lateUpdate)
+        {
+            if (LateUpdateObserver != null)
+            {
+                lateUpdate = LateUpdateObserver;
+                return true;
+            }
+
+            lateUpdate = null;
+            return false;
+        }
+        
+        
 
         #endregion
         
@@ -412,7 +364,7 @@ namespace Game.Entities.AttackSystem
     {
         public Transform OriginTransform;
         public Transform EyesTransform;
-        public NullCheck<IController> Target;
+        [FormerlySerializedAs("Target")] public NullCheck<IController> Owner;
     }
 
     public enum ModuleExecution

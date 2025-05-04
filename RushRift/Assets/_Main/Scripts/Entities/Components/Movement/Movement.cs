@@ -10,6 +10,7 @@ namespace Game.Entities.Components
         public bool Grounded => _isGrounded;
         
         private IObserver<float> _updateObserver;
+        private IObserver<float> _lateUpdateObserver;
         
         // References
         private MovementData _data;
@@ -45,11 +46,6 @@ namespace Game.Entities.Components
 
         public void Update(float delta)
         {
-            
-            var pos = _transform.position;
-            Velocity = (_prevPosition - pos) / delta;
-            _prevPosition = pos;
-            
             CheckGrounded();
 
 
@@ -65,6 +61,10 @@ namespace Game.Entities.Components
             }
             
             _moveDir = Vector3.zero;
+            
+            var pos = _transform.position;
+            Velocity = (_prevPosition - pos) / delta;
+            _prevPosition = pos;
         }
 
         #region Movement

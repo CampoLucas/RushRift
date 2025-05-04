@@ -23,8 +23,8 @@ namespace Game.UI
         {
             _onGameOver = new ActionObserver(OnGameOver);
             
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            //Cursor.lockState = CursorLockMode.Locked;
+            //Cursor.visible = false;
         }
 
         private void Start()

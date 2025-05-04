@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Game.Entities
@@ -12,5 +13,9 @@ namespace Game.Entities
         IView GetView();
 
         Vector3 MoveDirection();
+
+        Coroutine DoCoroutine(IEnumerator routine);
+        void EndCoroutine(Coroutine coroutine);
+        void EndAllCoroutines();
     }
 }
