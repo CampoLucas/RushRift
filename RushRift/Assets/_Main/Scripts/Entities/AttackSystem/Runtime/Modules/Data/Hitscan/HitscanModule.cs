@@ -1,5 +1,6 @@
 using Game.VFX;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Entities.AttackSystem.Hitscan
 {
@@ -13,7 +14,8 @@ namespace Game.Entities.AttackSystem.Hitscan
         public LayerMask Mask => mask;
         public ParticleSystem Muzzle => muzzleEffect;
         public ParticleSystem Impact => impactEffect;
-        public ElectricArcController Trail => trail;
+        public ElectricArcController Line => line;
+        public float LineDuration => lineDuration;
         
         [Header("Spawn")]
         [SerializeField] private Vector3 offset;
@@ -31,7 +33,10 @@ namespace Game.Entities.AttackSystem.Hitscan
         [Header("Visuals")]
         [SerializeField] private ParticleSystem muzzleEffect;
         [SerializeField] private ParticleSystem impactEffect;
-        [SerializeField] private ElectricArcController trail;
+        [FormerlySerializedAs("trail")]
+        [Header("Line")]
+        [SerializeField] private ElectricArcController line;
+        [SerializeField] private float lineDuration;
         
         
         public override IModuleProxy GetProxy(IController controller, bool disposeData = false)

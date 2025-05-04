@@ -71,18 +71,19 @@ namespace Game.Entities.AttackSystem.Hitscan
             
 
             
-            var trail = Object.Instantiate(Data.Trail, Vector3.zero, Quaternion.identity);
+            var trail = Object.Instantiate(Data.Line, spawnPos, Quaternion.identity);
+            //trail.SetDuration(Data.LineDuration);
             
             if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range,
                     Data.Mask))
             {
-                if (Data.Trail)
+                if (Data.Line)
                 {
                     if (mParams.Owner)
                     {
                         //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, hit.normal, movement));
                         //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, movement));
-                        trail.SetPosition(mParams.OriginTransform, hit.point);
+                        trail.SetPosition(mParams.OriginTransform, hit.point, Data.LineDuration);
                     }
                 }
                 
@@ -90,12 +91,11 @@ namespace Game.Entities.AttackSystem.Hitscan
             }
             else
             {
-                trail.SetPosition(mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range));
+                trail.SetPosition(mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), Data.LineDuration);
                 // mParams.Owner.Get()
                 //     .DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), movement));
             }
             
-            trail.SetDuration(.1f);
             trail.Enable(true);
 
             
