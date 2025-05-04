@@ -16,6 +16,11 @@ namespace Game.Entities.AttackSystem.Hitscan
         public ParticleSystem Impact => impactEffect;
         public ElectricArcController Line => line;
         public float LineDuration => lineDuration;
+        public float Damage => damage;
+        public float Radius => radius;
+
+        [Header("Settings")]
+        [SerializeField] private float damage = 10;
         
         [Header("Spawn")]
         [SerializeField] private Vector3 offset;
@@ -29,11 +34,11 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         [Header("Collision")]
         [SerializeField] private LayerMask mask;
+        [SerializeField] private float radius = .5f;
 
         [Header("Visuals")]
         [SerializeField] private ParticleSystem muzzleEffect;
         [SerializeField] private ParticleSystem impactEffect;
-        [FormerlySerializedAs("trail")]
         [Header("Line")]
         [SerializeField] private ElectricArcController line;
         [SerializeField] private float lineDuration;

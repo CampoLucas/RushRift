@@ -73,9 +73,11 @@ namespace Game.Entities.AttackSystem.Hitscan
             
             var trail = Object.Instantiate(Data.Line, spawnPos, Quaternion.identity);
             //trail.SetDuration(Data.LineDuration);
-            
-            if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range,
-                    Data.Mask))
+#if false
+            if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.Mask))
+#else
+            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.Mask))
+#endif
             {
                 if (Data.Line)
                 {
@@ -86,8 +88,13 @@ namespace Game.Entities.AttackSystem.Hitscan
                         trail.SetPosition(mParams.OriginTransform, hit.point, Data.LineDuration);
                     }
                 }
-                
-                // damage
+
+                var other = hit.collider.gameObject;
+                if (other.TryGetComponent<IController>(out var controller) &&
+                    controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
+                {
+                    healthComponent.Damage(Data.Damage, mParams.OriginTransform.position);
+                }
             }
             else
             {
