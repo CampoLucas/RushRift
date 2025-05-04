@@ -36,7 +36,7 @@ namespace Game.Entities.AttackSystem
             if (_timer <= Data.Delay) return;
             
             _executed = true;
-            OnDo(mParams.OriginTransform, mParams.EyesTransform.rotation, mParams.Target.Get().Transform.gameObject);
+            OnDo(mParams.OriginTransform, mParams.EyesTransform.rotation, mParams.Owner.Get().Transform.gameObject);
         }
         
 

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Game.Entities
@@ -66,6 +67,21 @@ namespace Game.Entities
         public abstract Vector3 MoveDirection();
         protected virtual void InitStateMachine() { }
 
+        public Coroutine DoCoroutine(IEnumerator routine)
+        {
+            return StartCoroutine(routine);
+        }
+
+        public void EndCoroutine(Coroutine coroutine)
+        {
+            StopCoroutine(coroutine);
+        }
+
+        public void EndAllCoroutines()
+        {
+            StopAllCoroutines();
+        }
+
         public void OnDrawGizmos()
         {
             if (_model != null) _model.OnDraw(transform);
@@ -86,6 +102,8 @@ namespace Game.Entities
             
             if (_fsm != null) _fsm.Dispose();
             _fsm = null;
+            
+            StopAllCoroutines();
         }
 
         public void OnDestroy()

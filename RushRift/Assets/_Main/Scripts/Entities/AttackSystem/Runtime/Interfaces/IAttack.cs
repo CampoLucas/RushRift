@@ -12,5 +12,6 @@ namespace Game.Entities.AttackSystem
         void EndAttack(ComboHandler comboHandler);
         bool TryGetTransition(ComboHandler comboHandler, out TransitionProxy transition);
         bool ModulesExecuted();
+        void LateUpdateAttack(ComboHandler comboHandler, float delta);
     }
 }
