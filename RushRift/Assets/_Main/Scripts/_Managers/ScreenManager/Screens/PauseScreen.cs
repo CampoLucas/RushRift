@@ -6,9 +6,11 @@ using Game;
 
 public class PauseScreen : MonoBehaviour, IScreen
 {
+    [SerializeField] private GameObject[] pauseObjects;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button quitButton;
+
 
     private void Awake()
     {
@@ -22,20 +24,35 @@ public class PauseScreen : MonoBehaviour, IScreen
         if (Input.GetKeyDown(KeyCode.Escape)) LevelManager.Instance.ScreenManager.PopScreen();
     }
 
+    
+
     public void Activate()
     {
         gameObject.SetActive(true);
+        for (int i = 0; i < pauseObjects.Length; i++)
+        {
+            pauseObjects[i].SetActive(true);
+        }
+
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
     }
 
     public void Deactivate()
     {
+        for (int i = 0; i < pauseObjects.Length; i++)
+        {
+            pauseObjects[i].SetActive(false);
+        }
         gameObject.SetActive(false);
     }
 
     public void Free()
     {
+        for (int i = 0; i < pauseObjects.Length; i++)
+        {
+            pauseObjects[i].SetActive(false);
+        }
         gameObject.SetActive(false);
     }
 }

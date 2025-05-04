@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class GameOverScreen : MonoBehaviour, IScreen
 {
+    [SerializeField] private GameObject[] gameOverObjects;
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -13,17 +15,29 @@ public class GameOverScreen : MonoBehaviour, IScreen
     public void Activate()
     {
         gameObject.SetActive(true);
+        for (int i = 0; i < gameOverObjects.Length; i++)
+        {
+            gameOverObjects[i].SetActive(true);
+        }
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
     }
 
     public void Deactivate()
     {
+        for (int i = 0; i < gameOverObjects.Length; i++)
+        {
+            gameOverObjects[i].SetActive(false);
+        }
         gameObject.SetActive(false);
     }
 
     public void Free()
     {
+        for (int i = 0; i < gameOverObjects.Length; i++)
+        {
+            gameOverObjects[i].SetActive(false);
+        }
         gameObject.SetActive(false);
     }
 }
