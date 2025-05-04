@@ -17,6 +17,7 @@ namespace Game.VFX
         [SerializeField] private float arcOffset = .5f;
         [SerializeField] private bool startEnabled;
         [SerializeField] private float speed = 50f;
+        [SerializeField] private float time = .1f;
         
         [Header("Visual Effects")]
         [SerializeField] private VisualEffect[] electricArcs;
@@ -27,6 +28,7 @@ namespace Game.VFX
         private Vector3 _end;
 
         private float _duration;
+        private float _timer;
         
         private void Awake()
         {
@@ -35,24 +37,37 @@ namespace Game.VFX
 
         private void LateUpdate()
         {
+            var start = Vector3.zero;
+            
             if (_duration > 0)
             {
                 _start = _snapPos.position;
+                start = _start;
                 _duration -= Time.deltaTime;
             }
             else
             {
                 // when it isn't snapped, the start gets closer to the end, when the distance from the two is less than 0.01 the game object is destroyed
-                _start = Vector3.MoveTowards(_start, _end, Time.deltaTime * speed); // Speed
+                _timer += Time.deltaTime;
 
-                if (Vector3.Distance(_start, _end) < 0.01f)
+                start = Vector3.Lerp(_start, _end, _timer / time);
+                // _start = Vector3.MoveTowards(_start, _end, Time.deltaTime * speed); // Speed
+                //
+                // if (Vector3.Distance(_start, _end) < 0.01f)
+                // {
+                //     Destroy(gameObject);
+                // }
+
+                
+                
+                if (_timer >= time)
                 {
                     Destroy(gameObject);
                 }
             }
             
-            var dir = (_end - _start).normalized;
-            var mid = (_start + _end) * 0.5f;
+            var dir = (_end - start).normalized;
+            var mid = (start + _end) * 0.5f;
 
             var worldUp = Vector3.up;
             
@@ -63,10 +78,10 @@ namespace Game.VFX
             
             var perp = Vector3.Cross(dir, worldUp).normalized;
 
-            var mid1 = Vector3.Lerp(_start, mid, 0.5f) + perp * arcOffset;
+            var mid1 = Vector3.Lerp(start, mid, 0.5f) + perp * arcOffset;
             var mid2 = Vector3.Lerp(mid, _end, 0.5f) - perp * arcOffset;
             
-            SetPosition(Pos1, _start);
+            SetPosition(Pos1, start);
             SetPosition(Pos2, mid1);
             SetPosition(Pos3, mid2);
             SetPosition(Pos4, _end);
