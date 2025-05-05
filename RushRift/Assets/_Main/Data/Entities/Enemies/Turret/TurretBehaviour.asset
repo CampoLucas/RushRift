@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: db972372ca7e74f49b8531d0079cb93c
   children: []
-  position: {x: 139.33331, y: 613.3333}
-  previousPosition: {x: 139.33331, y: 613.3333}
+  position: {x: 139.33345, y: 611.9999}
+  previousPosition: {x: 139.33337, y: 611.9999}
   behaviourData: {fileID: 11400000}
   target: {fileID: 0}
   searchInChildren: 0
   animation: Idle
-  layer: -1
+  layer: 0
 --- !u!114 &-7006558094969266822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57,7 +57,8 @@ MonoBehaviour:
   guid: bad894dcfc9bc004ebffafe67807f189
   children:
   - {fileID: -6814332282639265595}
-  - {fileID: -4562655285050628618}
+  - {fileID: -1763924997084066979}
+  - {fileID: 7322067161602368824}
   position: {x: -212.66663, y: 494.66666}
   previousPosition: {x: -212.66663, y: 494.66666}
   behaviourData: {fileID: 11400000}
@@ -123,8 +124,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 36a91832822724f4aa821dd406f2d742
   children: []
-  position: {x: -71.33331, y: 613.3333}
-  previousPosition: {x: -71.33331, y: 613.3333}
+  position: {x: 25.333183, y: 840.2293}
+  previousPosition: {x: 25.333183, y: 835.96204}
   behaviourData: {fileID: 11400000}
   behaviour: {fileID: 0}
   waitUntilFinished: 0
@@ -142,15 +143,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 695ea80574c13e74d909536d4b988ee2
   children: []
-  position: {x: -190, y: 743.3333}
-  previousPosition: {x: -190, y: 743.3333}
+  position: {x: -196.66673, y: 613.3334}
+  previousPosition: {x: -196.66673, y: 613.3334}
   behaviourData: {fileID: 11400000}
-  useJoints: 0
-  joint: 0
-  instant: 0
-  rotationSpeed: 0
+  useJoints: 1
+  joint: 1
+  instant: 1
+  rotationSpeed: 35
   lockY: 0
-  yOffset: 0
+  yOffset: 2
 --- !u!114 &-1516577025932969459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,6 +198,7 @@ MonoBehaviour:
   - {fileID: -1763924997084066979}
   - {fileID: -4562655285050628618}
   - {fileID: -7110559236561837733}
+  - {fileID: 7322067161602368824}
 --- !u!114 &326541266069533516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,7 +238,7 @@ MonoBehaviour:
   behaviourData: {fileID: 11400000}
   amount: 1
   infinite: 1
-  stopOnFailure: 1
+  stopOnFailure: 0
 --- !u!114 &3300301289691992510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273,3 +275,24 @@ MonoBehaviour:
   position: {x: 139.33331, y: 494.66666}
   previousPosition: {x: 138.66663, y: 494.66666}
   behaviourData: {fileID: 11400000}
+--- !u!114 &7322067161602368824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 551884d144a14c98af7c5505cff38500, type: 3}
+  m_Name: PlayAnimationData
+  m_EditorClassIdentifier: 
+  guid: 455858e748a4c6e45baa0546ccdb79ce
+  children: []
+  position: {x: -76.66667, y: 613.3334}
+  previousPosition: {x: -76.66667, y: 613.3334}
+  behaviourData: {fileID: 11400000}
+  target: {fileID: 0}
+  searchInChildren: 0
+  animation: Attack
+  layer: 0

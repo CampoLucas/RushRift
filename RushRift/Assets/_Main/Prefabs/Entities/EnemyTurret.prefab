@@ -1572,7 +1572,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3396198388266674332
 Transform:
   m_ObjectHideFlags: 0
@@ -1604,10 +1604,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   model: {fileID: 11400000, guid: 98655a84338e62740b26800a97a07287, type: 2}
   view: {fileID: 11400000, guid: 5c646f6e934b4cd4faf3ee0b9f7ecba1, type: 2}
+  joints:
+    defaultJoint: {fileID: 3396198388266674332}
+    jointMap:
+      content:
+      - {fileID: 8555879087384776526}
+      - {fileID: 1054498543568652266}
+      - {fileID: 1042700442025698905}
+      - {fileID: 6319363509302650368}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      enumType: 0
   animator:
   - {fileID: 209896415292165565}
-  spawnPos: {fileID: 0}
-  eyes: {fileID: 6938734689062018311}
   target: {fileID: 0}
   runner: {fileID: 4036694657418605575}
   damageIndex: 1
@@ -1648,7 +1668,7 @@ MonoBehaviour:
   behaviours:
   - name: Chase
     startActive: 1
-    behaviour: {fileID: 11400000, guid: 7deabefd86e03db46a12577e73ba1938, type: 2}
+    behaviour: {fileID: 11400000, guid: 95617cbe274b19144a55f10b6ff9619d, type: 2}
   - name: Damage
     startActive: 0
     behaviour: {fileID: 11400000, guid: d70b5c7029bb6a648a5197c7a8f86ff4, type: 2}
