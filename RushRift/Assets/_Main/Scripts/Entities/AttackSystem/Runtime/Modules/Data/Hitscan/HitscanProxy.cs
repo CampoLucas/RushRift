@@ -59,9 +59,12 @@ namespace Game.Entities.AttackSystem.Hitscan
         private void Shoot(ModuleParams mParams, float delta)
         {
             if (Data.Muzzle) Data.Muzzle.Play();
-            var spawnPos = Data.GetOffsetPosition(mParams.OriginTransform);
 
-            var direction = Data.GetDirection(mParams.EyesTransform.position, mParams.EyesTransform.forward, spawnPos);
+            var origin = mParams.Joints.GetJoint(Data.OriginJoint);
+            var spawn = mParams.Joints.GetJoint(Data.SpawnJoint);
+            
+            var spawnPos = Data.GetOffsetPosition(spawn);
+            var direction = Data.GetDirection(origin.position, origin.forward, spawnPos);
             
             
             if (!mParams.Owner || !mParams.Owner.Get().GetModel().TryGetComponent<IMovement>(out var movement)) return;
@@ -85,7 +88,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                     {
                         //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, hit.normal, movement));
                         //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, movement));
-                        trail.SetPosition(mParams.OriginTransform, hit.point, Data.LineDuration);
+                        trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
                     }
                 }
 
@@ -93,12 +96,12 @@ namespace Game.Entities.AttackSystem.Hitscan
                 if (other.TryGetComponent<IController>(out var controller) &&
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                 {
-                    healthComponent.Damage(Data.Damage, mParams.OriginTransform.position);
+                    healthComponent.Damage(Data.Damage, spawnPos);
                 }
             }
             else
             {
-                trail.SetPosition(mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), Data.LineDuration);
+                trail.SetPosition(spawn, spawnPos + (origin.forward * Data.Range), Data.LineDuration, Data.Offset);
                 // mParams.Owner.Get()
                 //     .DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), movement));
             }

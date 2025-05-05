@@ -12,10 +12,6 @@ namespace Game.Entities.Enemies.MVC
         public static ISubject onEnemyDeathSubject = new Subject();
         public static ISubject onEnemySpawnSubject = new Subject();
         
-        [Header("Parts")]
-        [SerializeField] private Transform eyes;
-        [SerializeField] private Transform head;
-        
         [Header("Target")]
         [SerializeField] private Transform target;
 
@@ -31,7 +27,6 @@ namespace Game.Entities.Enemies.MVC
         protected override void Awake()
         {
             base.Awake();
-            EyesTransform = eyes;
 
             _onDamageObserver = new ActionObserver<(float, float, float)>(OnDamage);
             _onDeathObserver = new ActionObserver(OnDeath);
@@ -44,15 +39,6 @@ namespace Game.Entities.Enemies.MVC
             base.Start();
             onEnemySpawnSubject.NotifyAll();
             if (target) Init(target);
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-            if (head)
-            {
-                head.rotation = Quaternion.LookRotation((target.position - head.position).normalized);
-            }
         }
 
         public void Init(Transform newTarget)
@@ -78,7 +64,7 @@ namespace Game.Entities.Enemies.MVC
             if ((_enemyComp != null || (_enemyComp == null && GetModel().TryGetComponent(out _enemyComp))) &&
                 _enemyComp.TryGetTarget(out var t))
             {
-                return (t.position - Transform.position).normalized;
+                return (t.position - Origin.position).normalized;
             }
             
             return Vector3.zero;

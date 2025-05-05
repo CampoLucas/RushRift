@@ -7,7 +7,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Turret_TurnOn
+  m_Name: Activate
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -55,7 +55,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Turret_Idle
+  m_Name: Idle
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -107,7 +107,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Turret_TurnOff
+  m_Name: Deactivate
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -137,16 +137,16 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 3487334061164001013}
-    m_Position: {x: 350, y: -50, z: 0}
+    m_Position: {x: 310, y: 20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6300430070968067848}
-    m_Position: {x: 350, y: 0, z: 0}
+    m_Position: {x: 580, y: 20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2290105773602770449}
-    m_Position: {x: 350, y: 50, z: 0}
+    m_Position: {x: 570, y: 120, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4286110655468598251}
-    m_Position: {x: 310, y: 200, z: 0}
+    m_Position: {x: 310, y: 120, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []

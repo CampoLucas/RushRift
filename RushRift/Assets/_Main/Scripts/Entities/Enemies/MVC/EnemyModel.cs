@@ -57,7 +57,7 @@ namespace Game.Entities.Enemies.MVC
         {
             TryAddComponent(new EnemyComponent());
             
-            if (controller.Transform.gameObject.TryGetComponent<CharacterController>(out var characterController))
+            if (controller.Origin.gameObject.TryGetComponent<CharacterController>(out var characterController))
             {
                 TryAddComponent(Data.Movement.GetMovement(characterController));
             }

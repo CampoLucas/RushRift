@@ -5,17 +5,16 @@ namespace Game.Entities
 {
     public abstract class EntityController : MonoBehaviour, IController
     {
-        public Transform Transform { get; private set; }
-        public Transform EyesTransform { get; protected set; }
-        public Transform SpawnPos => spawnPos;
+        public Transform Origin { get; private set; }
+        public Joints<EntityJoint> Joints => joints;
 
         [Header("Data")]
         [SerializeField] protected EntityModelSO model;
         [SerializeField] protected EntityViewSO view;
 
         [Header("References")]
+        [SerializeField] protected Joints<EntityJoint> joints;
         [SerializeField] private Animator[] animator;
-        [SerializeField] private Transform spawnPos;
 
         protected EntityStateMachine _fsm;
         
@@ -24,7 +23,7 @@ namespace Game.Entities
 
         protected virtual void Awake()
         {
-            Transform = transform;
+            Origin = transform;
 
             // Create the model
             if (model.GetProxy().TryGetValue(out _model))

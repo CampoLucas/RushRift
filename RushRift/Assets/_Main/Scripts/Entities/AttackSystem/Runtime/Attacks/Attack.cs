@@ -143,8 +143,8 @@ namespace Game.Entities.AttackSystem
             
             _moduleParams = new ModuleParams()
             {
-                OriginTransform = comboHandler.Owner.SpawnPos ? comboHandler.Owner.SpawnPos : comboHandler.Owner.EyesTransform,
-                EyesTransform = comboHandler.Owner.EyesTransform,
+                OriginTransform = comboHandler.Owner.Origin,
+                Joints = comboHandler.Owner.Joints,
                 Owner = new NullCheck<IController>(comboHandler.Owner),
             };
         }

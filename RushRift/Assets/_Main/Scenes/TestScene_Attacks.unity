@@ -122,6 +122,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!4 &346239541 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1042700442025698905, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+  m_PrefabInstance: {fileID: 6744004969472743846}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &416698043 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 8249983170060861690, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
@@ -367,6 +372,16 @@ Transform:
   - {fileID: 601205828}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1118102149 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8555879087384776526, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+  m_PrefabInstance: {fileID: 6744004969472743846}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1327188930 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6319363509302650368, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+  m_PrefabInstance: {fileID: 6744004969472743846}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1377344397 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1054498543568652266, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
@@ -438,7 +453,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3237178699898523402, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -195.75015
+      value: -195.75017
       objectReference: {fileID: 0}
     - target: {fileID: 4509023946367575078, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -563,13 +578,17 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 1606467033}
+    - target: {fileID: 3947552943855110621, guid: 9b6d7312b4314957b7c455ad7821a204, type: 3}
+      propertyPath: joints.jointMap.content.Array.size
+      value: 17
+      objectReference: {fileID: 0}
     - target: {fileID: 6713962002373540701, guid: 9b6d7312b4314957b7c455ad7821a204, type: 3}
       propertyPath: m_Name
       value: EnemyPH
       objectReference: {fileID: 0}
     - target: {fileID: 6713962002373540701, guid: 9b6d7312b4314957b7c455ad7821a204, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -682,11 +701,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1789846691}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &1940637361 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2038125241530167517, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
-  m_PrefabInstance: {fileID: 1381847364611171129}
-  m_PrefabAsset: {fileID: 0}
 --- !u!95 &1962555711 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2566603677424257256, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
@@ -704,10 +718,6 @@ PrefabInstance:
       propertyPath: m_Follow
       value: 
       objectReference: {fileID: 8022306612526394683}
-    - target: {fileID: 6873740543595733783, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
-      propertyPath: m_Cameras.Array.size
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6873740543595733783, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
       propertyPath: m_Cameras.Array.data[0]
       value: 
@@ -817,6 +827,30 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 1606467033}
+    - target: {fileID: 3947552943855110621, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+      propertyPath: joints.defaultJoint
+      value: 
+      objectReference: {fileID: 1118102149}
+    - target: {fileID: 3947552943855110621, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+      propertyPath: joints.jointMap.content.Array.size
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 3947552943855110621, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+      propertyPath: joints.jointMap.content.Array.data[0]
+      value: 
+      objectReference: {fileID: 1118102149}
+    - target: {fileID: 3947552943855110621, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+      propertyPath: joints.jointMap.content.Array.data[1]
+      value: 
+      objectReference: {fileID: 1377344397}
+    - target: {fileID: 3947552943855110621, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+      propertyPath: joints.jointMap.content.Array.data[2]
+      value: 
+      objectReference: {fileID: 346239541}
+    - target: {fileID: 3947552943855110621, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+      propertyPath: joints.jointMap.content.Array.data[3]
+      value: 
+      objectReference: {fileID: 1327188930}
     - target: {fileID: 4036694657418605575, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
       propertyPath: behaviours.Array.data[0].behaviour
       value: 
@@ -828,6 +862,10 @@ PrefabInstance:
     - target: {fileID: 6713962002373540701, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
       propertyPath: m_Name
       value: EnemyTurret
+      objectReference: {fileID: 0}
+    - target: {fileID: 6713962002373540701, guid: 5c556f0ad6d01b4438bf462861b6dbf3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -882,10 +920,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5050218275519897064, guid: 50c0be4072f72d04b862cba7d3ec4697, type: 3}
-      propertyPath: spawnPos
-      value: 
-      objectReference: {fileID: 1940637361}
     - target: {fileID: 5050218275519897064, guid: 50c0be4072f72d04b862cba7d3ec4697, type: 3}
       propertyPath: animator.Array.data[0]
       value: 
