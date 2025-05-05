@@ -12,8 +12,9 @@ namespace Game.Entities.Enemies.MVC
         public static ISubject onEnemyDeathSubject = new Subject();
         public static ISubject onEnemySpawnSubject = new Subject();
         
-        [Header("Eyes")]
+        [Header("Parts")]
         [SerializeField] private Transform eyes;
+        [SerializeField] private Transform head;
         
         [Header("Target")]
         [SerializeField] private Transform target;
@@ -43,6 +44,15 @@ namespace Game.Entities.Enemies.MVC
             base.Start();
             onEnemySpawnSubject.NotifyAll();
             if (target) Init(target);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            if (head)
+            {
+                head.rotation = Quaternion.LookRotation((target.position - head.position).normalized);
+            }
         }
 
         public void Init(Transform newTarget)

@@ -116,6 +116,19 @@ namespace Game.VFX
                 electricArcs[i].SetVector3(posID, pos);
             }
         }
+        
+        // Calcular el angulo entre dos vectores
+        private float AngleBetweenVectors(Vector3 a, Vector3 b)
+        {
+            return Vector3.Angle(a, b);
+        }
+        
+        // Saber si un objeto esta mirando a otro (tambien se podria hacer con dot)
+        private bool IsLookingAt(Vector3 forward, Vector3 directionToTarget, float thresholdAngle = 5f)
+        {
+            var angle = AngleBetweenVectors(forward, directionToTarget);
+            return angle < thresholdAngle;
+        }
 
     }
 }
