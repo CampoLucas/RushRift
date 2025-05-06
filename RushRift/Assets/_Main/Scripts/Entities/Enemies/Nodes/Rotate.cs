@@ -114,7 +114,10 @@ namespace Game.BehaviourTree.Nodes
 
         private void Rotate(Vector3 dir, float speed, float delta)
         {
-            dir.y = 0;
+            if (Data.LockY)
+            {
+                dir.y = 0;
+            }
             var tr = Quaternion.LookRotation(dir);
 
             _origin.Get().rotation = Data.Instant ? tr : Quaternion.Slerp(_origin.Get().rotation, tr, speed * delta);

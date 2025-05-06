@@ -2,7 +2,7 @@ using UnityEngine;
 using Game.DesignPatterns.Observers;
 using UnityEngine.UI;
 using TMPro;
-using Game.Entities.Enemies.MVC;
+using Game.Entities;
 
 public class ObjectiveManager : MonoBehaviour
 {

@@ -29,6 +29,8 @@ namespace Game.Entities.AttackSystem.Hitscan
         {
             _executed = false;
             _timer = 0;
+            
+            Debug.Log("Hitscan start");
         }
         
         private void OnLateUpdate(ModuleParams mParams, float delta)
@@ -38,7 +40,6 @@ namespace Game.Entities.AttackSystem.Hitscan
 
             if (_timer >= Data.Delay)
             {
-                Debug.Log($"Fired timer {_timer} {Timer}");
                 _executed = true;
                 Shoot(mParams, delta);
                 
@@ -50,7 +51,6 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         private Vector3 CalculateSpawnPosition(Vector3 spawnPos, Vector3 velocity, Vector3 forward, float time, float delta)
         {
-            Debug.Log($"Velocity is {velocity}, speed mag {velocity.magnitude}");
             var compensatedPosition = spawnPos + velocity * delta;
 
             return compensatedPosition;
@@ -67,7 +67,7 @@ namespace Game.Entities.AttackSystem.Hitscan
             var direction = Data.GetDirection(origin.position, origin.forward, spawnPos);
             
             
-            if (!mParams.Owner || !mParams.Owner.Get().GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            if (!mParams.Owner) return;
             
             //direction += movement.Velocity;
             //spawnPos = CalculateSpawnPosition(spawnPos, movement.Velocity, movement.Velocity, movement.Velocity.magnitude, delta);
@@ -75,6 +75,8 @@ namespace Game.Entities.AttackSystem.Hitscan
 
             
             var trail = Object.Instantiate(Data.Line, spawnPos, Quaternion.identity);
+            Debug.Log("Fire NOOWOOWO");
+            
             //trail.SetDuration(Data.LineDuration);
 #if false
             if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.Mask))

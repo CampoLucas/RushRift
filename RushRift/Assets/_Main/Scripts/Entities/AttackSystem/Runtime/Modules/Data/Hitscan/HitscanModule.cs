@@ -80,5 +80,7 @@ namespace Game.Entities.AttackSystem.Hitscan
             
             return direction;
         }
+        
+        
     }
 }

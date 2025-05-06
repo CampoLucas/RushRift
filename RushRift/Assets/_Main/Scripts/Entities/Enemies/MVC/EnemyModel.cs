@@ -6,7 +6,7 @@ using Game.Entities.Enemies.Components;
 using Game.Inputs;
 using UnityEngine;
 
-namespace Game.Entities.Enemies.MVC
+namespace Game.Entities
 {
     [CreateAssetMenu(menuName = "Game/Entities/Enemy/Model")]
     public class EnemyModel : EntityModelSO

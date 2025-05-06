@@ -5,7 +5,7 @@ using Game.Entities.Components;
 using Game.Entities.Enemies.Components;
 using UnityEngine;
 
-namespace Game.Entities.Enemies.MVC
+namespace Game.Entities
 {
     public class EnemyController : EntityController
     {
