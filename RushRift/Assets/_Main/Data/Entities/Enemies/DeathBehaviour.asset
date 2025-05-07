@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdcad80ea3d04262997149c93f7febcb, type: 3}
+  m_Name: DeathBehaviour
+  m_EditorClassIdentifier: 
+  root: {fileID: 5071820414570829837}
+  nodes:
+  - {fileID: 5071820414570829837}
+  - {fileID: 4366849800867571029}
+  - {fileID: 6046247531997033223}
+  - {fileID: 7919715613212035022}
+  - {fileID: 3038056235976735128}
+--- !u!114 &3038056235976735128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0b2cd440784c60883785029b37faca, type: 3}
+  m_Name: PlayVFX
+  m_EditorClassIdentifier: 
+  guid: 0b91421fd2d8502429b01557fefae329
+  children: []
+  position: {x: -163, y: 263}
+  previousPosition: {x: -162, y: 263}
+  behaviourData: {fileID: 0}
+--- !u!114 &4366849800867571029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74fc5b7c733b41779c59e0784e6418a9, type: 3}
+  m_Name: DebugLogData
+  m_EditorClassIdentifier: 
+  guid: f89326dea15746c47bd668eede611f73
+  children: []
+  position: {x: -46.547497, y: 262.81207}
+  previousPosition: {x: -47.869995, y: 262.81207}
+  behaviourData: {fileID: 11400000}
+  message: DeathToTheEmpire
+--- !u!114 &5071820414570829837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7661c447ca8510d41a7c38291a1a2e65, type: 3}
+  m_Name: RootData
+  m_EditorClassIdentifier: 
+  guid: 22f32bd4fca51ed40887caea67cc7c60
+  children:
+  - {fileID: 7919715613212035022}
+  position: {x: 0, y: 0}
+  previousPosition: {x: 0, y: 0}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &6046247531997033223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff2662f2ab478a145a7d07f2ff9551e0, type: 3}
+  m_Name: SetActive
+  m_EditorClassIdentifier: 
+  guid: e8126a70c2763a048b50a045a2b7046d
+  children: []
+  position: {x: 118.452545, y: 260.81213}
+  previousPosition: {x: 117.13004, y: 260.81213}
+  behaviourData: {fileID: 11400000}
+  value: 0
+--- !u!114 &7919715613212035022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
+  m_Name: SequencerData
+  m_EditorClassIdentifier: 
+  guid: 8a6a6490cca6dca478848ce3867653ec
+  children:
+  - {fileID: 3038056235976735128}
+  - {fileID: 4366849800867571029}
+  - {fileID: 6046247531997033223}
+  position: {x: -14.547501, y: 97.812096}
+  previousPosition: {x: -15.870001, y: 97.812096}
+  behaviourData: {fileID: 0}

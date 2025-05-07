@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8349019004904432489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab39b5f5fc404bbba35cdd06da3ff61d, type: 3}
+  m_Name: SetFollowing
+  m_EditorClassIdentifier: 
+  guid: dd9aafce24b6b8743a39ca2f8ade1c71
+  children: []
+  position: {x: -127, y: 229}
+  previousPosition: {x: -127, y: 229}
+  behaviourData: {fileID: 11400000}
+  value: 1
+--- !u!114 &-5901316019354549763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fffe7047189404daf553f88fc6add12, type: 3}
+  m_Name: RunBehaviourData
+  m_EditorClassIdentifier: 
+  guid: 917aa0c6e59af8846b6fa58373dc96a2
+  children: []
+  position: {x: 116, y: 229}
+  previousPosition: {x: 116, y: 229}
+  behaviourData: {fileID: 11400000}
+  behaviour: {fileID: 11400000, guid: 7deabefd86e03db46a12577e73ba1938, type: 2}
+  waitUntilFinished: 0
+--- !u!114 &-4434569483837872123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7661c447ca8510d41a7c38291a1a2e65, type: 3}
+  m_Name: RootData
+  m_EditorClassIdentifier: 
+  guid: df21361b3b8c3344fa7f4bca9c719952
+  children:
+  - {fileID: 5656481339419416081}
+  position: {x: 0, y: 0}
+  previousPosition: {x: 0, y: 0}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdcad80ea3d04262997149c93f7febcb, type: 3}
+  m_Name: DamageBehaviour
+  m_EditorClassIdentifier: 
+  root: {fileID: -4434569483837872123}
+  nodes:
+  - {fileID: -4434569483837872123}
+  - {fileID: 5656481339419416081}
+  - {fileID: 430791905945930466}
+  - {fileID: -5901316019354549763}
+  - {fileID: 796747193567812899}
+  - {fileID: -8349019004904432489}
+--- !u!114 &430791905945930466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 604e52472d214752922db9e36411b3a1, type: 3}
+  m_Name: WaitData
+  m_EditorClassIdentifier: 
+  guid: 9b0a625854f40714fb0220dde432619d
+  children: []
+  position: {x: -0.000019200641, y: 229.33334}
+  previousPosition: {x: 0, y: 229}
+  behaviourData: {fileID: 11400000}
+  duration: 0.2
+  randomDuration: 1
+  randomTime: {x: 0.3, y: 0.6}
+--- !u!114 &796747193567812899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 551884d144a14c98af7c5505cff38500, type: 3}
+  m_Name: PlayAnimationData
+  m_EditorClassIdentifier: 
+  guid: bc0888739999e5b498596cc7a751749c
+  children: []
+  position: {x: -295.31934, y: 227.3334}
+  previousPosition: {x: -289.32407, y: 227.3334}
+  behaviourData: {fileID: 11400000}
+  target: {fileID: 0}
+  searchInChildren: 1
+  animation: Damage
+  layer: -1
+--- !u!114 &5656481339419416081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
+  m_Name: SequencerData
+  m_EditorClassIdentifier: 
+  guid: 1ba69d46b7178764bb206747ca8c6993
+  children:
+  - {fileID: 796747193567812899}
+  - {fileID: -8349019004904432489}
+  - {fileID: 430791905945930466}
+  - {fileID: -5901316019354549763}
+  position: {x: -17, y: 107}
+  previousPosition: {x: -17, y: 108}
+  behaviourData: {fileID: 11400000}
