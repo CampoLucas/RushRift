@@ -41,6 +41,8 @@ namespace Game.Entities
             _timer = 0;
             if (!body) body = GetComponent<Rigidbody>();
             if (!coll) coll = GetComponent<Collider>();
+            
+            if (LevelManager.Instance.ScreenManager) _transform.SetParent(LevelManager.Instance.ScreenManager.screenTransformsDictionary[ScreenName.Gameplay]);
         }
 
         private void Update()

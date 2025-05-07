@@ -17,6 +17,7 @@ namespace Game.Entities.AttackSystem
         public List<IModuleProxy> ComboProxies => _combo ? _combo.Get().GetProxies() : null;
 
         private DesignPatterns.Observers.IObserver<float> _updateObserver;
+        private DesignPatterns.Observers.IObserver<float> _lateUpdateObserver;
         
 
         private NullCheck<ComboProxy> _combo;
@@ -31,8 +32,9 @@ namespace Game.Entities.AttackSystem
             _inputs = inputs;
             
             _updateObserver = new ActionObserver<float>(Update);
+            _lateUpdateObserver = new ActionObserver<float>(LateUpdate);
         }
-        
+
         public static bool EvaluateTransitions(in IEnumerable<TransitionProxy> transitions, ComboHandler comboHandler,
             out TransitionProxy transition)
         {
@@ -60,8 +62,8 @@ namespace Game.Entities.AttackSystem
 
         public bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
-            observer = default;
-            return false;
+            observer = _lateUpdateObserver;
+            return _lateUpdateObserver != null;
         }
 
         public bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer)
@@ -91,6 +93,11 @@ namespace Game.Entities.AttackSystem
             }
             
             if (Current != null) Current.UpdateAttack(this, delta);
+        }
+        
+        private void LateUpdate(float delta)
+        {
+            if (Current != null) Current.LateUpdateAttack(this, delta);
         }
 
         public void Dispose()

@@ -93,15 +93,15 @@ namespace Game.BehaviourTree.Nodes
             switch (Data.Direction)
             {
                 case Direction.Forward:
-                    return _controller.Transform.forward;
+                    return _controller.Origin.forward;
                 case Direction.Right:
-                    return _controller.Transform.right;
+                    return _controller.Origin.right;
                 case Direction.MoveDir:
                     return _controller.MoveDirection();
                 case Direction.DamageDirection:
                     if (_controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                     {
-                        return (_controller.Transform.position - healthComponent.DamagePosition).normalized;
+                        return (_controller.Origin.position - healthComponent.DamagePosition).normalized;
                     }
                     return Vector3.zero;
                 default:

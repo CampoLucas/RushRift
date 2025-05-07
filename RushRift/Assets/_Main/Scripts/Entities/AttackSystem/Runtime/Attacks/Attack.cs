@@ -56,6 +56,7 @@ namespace Game.Entities.AttackSystem
         private ISubject<ModuleParams> _startSubject = new Subject<ModuleParams>();
         private ISubject<ModuleParams> _endSubject = new Subject<ModuleParams>();
         private ISubject<ModuleParams, float> _updateSubject = new Subject<ModuleParams, float>();
+        private ISubject<ModuleParams, float> _lateUpdateSubject = new Subject<ModuleParams, float>();
         private ModuleParams _moduleParams;
 
         public AttackProxy(Attack attack, IController controller)
@@ -94,6 +95,7 @@ namespace Game.Entities.AttackSystem
         
         public void UpdateAttack(ComboHandler comboHandler, float delta)
         {
+            // If it can transition, it transitions
             if (TryGetTransition(comboHandler, out var tr))
             {
                 tr.Do(comboHandler);
@@ -117,6 +119,11 @@ namespace Game.Entities.AttackSystem
             }
         }
 
+        public void LateUpdateAttack(ComboHandler comboHandler, float delta)
+        {
+            _lateUpdateSubject.NotifyAll(_moduleParams, delta);
+        }
+
         public bool ModulesExecuted()
         {
             return _runningProxies.Count == 0;
@@ -136,9 +143,9 @@ namespace Game.Entities.AttackSystem
             
             _moduleParams = new ModuleParams()
             {
-                OriginTransform = comboHandler.Owner.SpawnPos ? comboHandler.Owner.SpawnPos : comboHandler.Owner.EyesTransform,
-                EyesTransform = comboHandler.Owner.EyesTransform,
-                Target = new NullCheck<IController>(comboHandler.Owner),
+                OriginTransform = comboHandler.Owner.Origin,
+                Joints = comboHandler.Owner.Joints,
+                Owner = new NullCheck<IController>(comboHandler.Owner),
             };
         }
 
@@ -163,6 +170,9 @@ namespace Game.Entities.AttackSystem
             
             _updateSubject.Dispose();
             _updateSubject = null;
+            
+            _lateUpdateSubject.Dispose();
+            _lateUpdateSubject = null;
 
             for (var i = 0; i < _proxies.Count; i++)
             {
@@ -194,6 +204,7 @@ namespace Game.Entities.AttackSystem
             if (module.TryGetStart(out var start)) _startSubject.Attach(start);
             if (module.TryGetUpdate(out var update)) _updateSubject.Attach(update);
             if (module.TryGetEnd(out var end)) _endSubject.Attach(end);
+            if (module.TryGetLateUpdate(out var lateUpdate)) _lateUpdateSubject.Attach(lateUpdate);
         }
 
         public void RemoveModule(IModuleProxy module)
@@ -203,6 +214,7 @@ namespace Game.Entities.AttackSystem
             if (module.TryGetStart(out var start)) _startSubject.Detach(start);
             if (module.TryGetUpdate(out var update)) _updateSubject.Detach(update);
             if (module.TryGetEnd(out var end)) _endSubject.Detach(end);
+            if (module.TryGetLateUpdate(out var lateUpdate)) _lateUpdateSubject.Detach(lateUpdate);
 
             module.Dispose();
         }

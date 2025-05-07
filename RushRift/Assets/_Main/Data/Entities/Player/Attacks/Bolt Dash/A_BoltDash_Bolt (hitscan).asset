@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4047193210219181004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0360fcbc3a594b58b0b50a558446b5de, type: 3}
+  m_Name: PlayAnimation
+  m_EditorClassIdentifier: 
+  duration: 0.833
+  children:
+    collection: []
+  animation: Attack Release
+  delay: 0
+--- !u!114 &-47452404125950400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa4042d2554d4448b86e906ff9cd15b1, type: 3}
+  m_Name: HitscanModule
+  m_EditorClassIdentifier: 
+  duration: 0.833
+  children:
+    collection: []
+  damage: 10
+  offset: {x: 0, y: 0, z: 0}
+  delay: 0.2666667
+  range: -1
+  spawnJoint: 9
+  originJoint: 16
+  addSpread: 0
+  spread: 0.1
+  mask:
+    serializedVersion: 2
+    m_Bits: 968
+  radius: 0.5
+  muzzleEffect: {fileID: 0}
+  impactEffect: {fileID: 0}
+  line: {fileID: 440560736661759916, guid: 19ce12596154b0a4cb394a4f2dbc1557, type: 3}
+  lineDuration: 0.15
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 931e5efd592f4c5b8bb6c99695a6a9e4, type: 3}
+  m_Name: A_BoltDash_Bolt (hitscan)
+  m_EditorClassIdentifier: 
+  duration: 0.833
+  loop: 0
+  modules:
+    collection:
+    - {fileID: -4047193210219181004}
+    - {fileID: 4486367842339909572}
+    - {fileID: -47452404125950400}
+  transitions: []
+--- !u!114 &4486367842339909572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0360fcbc3a594b58b0b50a558446b5de, type: 3}
+  m_Name: PlayAnimation
+  m_EditorClassIdentifier: 
+  duration: 0.833
+  children:
+    collection: []
+  animation: Empty
+  delay: -1

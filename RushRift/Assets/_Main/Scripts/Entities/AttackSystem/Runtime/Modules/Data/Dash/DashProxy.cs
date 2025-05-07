@@ -10,7 +10,7 @@ namespace Game.Entities.AttackSystem
         
         public DashProxy(DashModule data, IModuleProxy[] children, IController controller, bool disposeData = false) : base(data, children, disposeData)
         {
-            if (_dash || controller == null || !controller.Transform || !controller.Transform.gameObject.TryGetComponent<DashAbility>(out var dash)) return;
+            if (_dash || controller == null || !controller.Origin || !controller.Origin.gameObject.TryGetComponent<DashAbility>(out var dash)) return;
             
             _dash.Set(dash);
         }

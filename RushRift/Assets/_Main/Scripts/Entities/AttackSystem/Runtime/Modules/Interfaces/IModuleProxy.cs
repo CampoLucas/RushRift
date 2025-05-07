@@ -18,6 +18,7 @@ namespace Game.Entities.AttackSystem
         bool TryGetStart(out IObserver<ModuleParams> observer);
         bool TryGetEnd(out IObserver<ModuleParams> observer);
         bool TryGetUpdate(out IObserver<ModuleParams, float> observer);
+        bool TryGetLateUpdate(out IObserver<ModuleParams, float> observer);
         
         // Composite Methods
         void AddChild(IModuleProxy child, bool initChildren = true);
