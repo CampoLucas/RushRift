@@ -6,9 +6,8 @@ namespace Game.Entities
 {
     public interface IController : IDisposable
     {
-        Transform Transform { get; }
-        Transform EyesTransform { get; }
-        Transform SpawnPos { get; }
+        Transform Origin { get; }
+        Joints<EntityJoint> Joints { get; }
         IModel GetModel();
         IView GetView();
 

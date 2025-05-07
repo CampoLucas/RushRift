@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game.Utils;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -24,6 +25,7 @@ namespace Game.VFX
         
 
         private Transform _snapPos;
+        private Vector3 _snapOffset;
         private Vector3 _start;
         private Vector3 _end;
 
@@ -42,6 +44,10 @@ namespace Game.VFX
             if (_duration > 0)
             {
                 _start = _snapPos.position;
+
+                //_start = _snapOffset.TransformOffset(_snapPos);
+                
+                
                 start = _start;
                 _duration -= Time.deltaTime;
             }
@@ -94,7 +100,7 @@ namespace Game.VFX
             // _duration -= Time.deltaTime;
         }
 
-        public void SetPosition(Transform start, Vector3 end, float snapDuration)
+        public void SetPosition(Transform start, Vector3 end, float snapDuration, Vector3 offset)
         {
             _duration = snapDuration;
             _snapPos = start;
@@ -115,6 +121,19 @@ namespace Game.VFX
             {
                 electricArcs[i].SetVector3(posID, pos);
             }
+        }
+        
+        // Calcular el angulo entre dos vectores
+        private float AngleBetweenVectors(Vector3 a, Vector3 b)
+        {
+            return Vector3.Angle(a, b);
+        }
+        
+        // Saber si un objeto esta mirando a otro (tambien se podria hacer con dot)
+        private bool IsLookingAt(Vector3 forward, Vector3 directionToTarget, float thresholdAngle = 5f)
+        {
+            var angle = AngleBetweenVectors(forward, directionToTarget);
+            return angle < thresholdAngle;
         }
 
     }

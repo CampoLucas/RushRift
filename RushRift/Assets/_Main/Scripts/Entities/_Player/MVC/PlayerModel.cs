@@ -13,7 +13,7 @@ namespace Game.Entities
         {
             base.Init(controller);
 
-            if (controller.Transform.gameObject.TryGetComponent<CharacterController>(out var characterController))
+            if (controller.Origin.gameObject.TryGetComponent<CharacterController>(out var characterController))
             {
                 TryAddComponent(Data.MoveSpeed.GetMovement(characterController));
             }

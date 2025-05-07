@@ -20,15 +20,25 @@ namespace Game.Entities
 
         #endregion
 
-        [Header("Arms")]
-        [SerializeField] private Transform armsPivot;
-        
         private Vector3 _moveDir;
+        private Transform _camera;
         
         protected override void Awake()
         {
             base.Awake();
-            EyesTransform = Camera.main.transform;
+            _camera = Camera.main.transform;
+
+            if (_camera)
+            {
+                if (_camera.gameObject.TryGetComponent<JointsContainer>(out var cameraJoints))
+                {
+                    joints.AddJoint(cameraJoints.Joints);
+                }
+                
+                
+                joints.SetJoint(EntityJoint.Eyes, _camera);
+            }
+            
         }
 
         protected override void Start()
@@ -44,15 +54,10 @@ namespace Game.Entities
         protected override void Update()
         {
             var inputDir = InputManager.GetValueVector(InputManager.MoveInput).XOZ();
-            _moveDir = EyesTransform.forward * inputDir.z + EyesTransform.right * inputDir.x;
+            _moveDir = _camera.forward * inputDir.z + _camera.right * inputDir.x;
             _moveDir.y = 0;
             
             base.Update();
-
-            if (armsPivot)
-            {
-                armsPivot.rotation = EyesTransform.rotation;
-            }
         }
         
         protected override void InitStateMachine()

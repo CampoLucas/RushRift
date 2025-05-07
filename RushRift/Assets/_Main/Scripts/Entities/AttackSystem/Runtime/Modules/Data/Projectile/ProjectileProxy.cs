@@ -36,7 +36,7 @@ namespace Game.Entities.AttackSystem
             if (_timer <= Data.Delay) return;
             
             _executed = true;
-            OnDo(mParams.OriginTransform, mParams.EyesTransform.rotation, mParams.Owner.Get().Transform.gameObject);
+            OnDo(mParams.Joints.GetJoint(Data.SpawnJoint), mParams.Joints.GetJoint(Data.OriginJoint).rotation, mParams.Owner.Get().Origin.gameObject);
         }
         
 

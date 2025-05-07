@@ -6,7 +6,7 @@ using Game.Entities.Enemies.Components;
 using Game.Inputs;
 using UnityEngine;
 
-namespace Game.Entities.Enemies.MVC
+namespace Game.Entities
 {
     [CreateAssetMenu(menuName = "Game/Entities/Enemy/Model")]
     public class EnemyModel : EntityModelSO
@@ -57,7 +57,7 @@ namespace Game.Entities.Enemies.MVC
         {
             TryAddComponent(new EnemyComponent());
             
-            if (controller.Transform.gameObject.TryGetComponent<CharacterController>(out var characterController))
+            if (controller.Origin.gameObject.TryGetComponent<CharacterController>(out var characterController))
             {
                 TryAddComponent(Data.Movement.GetMovement(characterController));
             }

@@ -12,13 +12,13 @@ namespace Game.BehaviourTree.Nodes
         public bool Instant => instant;
         public float RotationSpeed => rotationSpeed;
         public float YOffset => yOffset;
-        public bool Eyes => eyes;
         public bool LockY => lockY;
-        
+
         [Header("Rot Settings")]
+        [SerializeField] private bool useJoints;
+        [SerializeField] private EntityJoint joint;
         [SerializeField] private bool instant;
         [SerializeField] private float rotationSpeed;
-        [SerializeField] private bool eyes;
         [SerializeField] private bool lockY;
 
         [Header("Target Settings")]
@@ -27,6 +27,18 @@ namespace Game.BehaviourTree.Nodes
         protected override INode OnCreateNode()
         {
             return new RotateProxy(this);
+        }
+
+        public Transform GetTransform(IController controller)
+        {
+            if (!useJoints)
+            {
+                return controller.Origin;
+            }
+            else
+            {
+                return controller.Joints.GetJoint(joint);
+            }
         }
     }
 
@@ -49,11 +61,12 @@ namespace Game.BehaviourTree.Nodes
         protected override void OnStart()
         {
             if (_controller == null) return;
-            if (!_origin) _origin.Set(Data.Eyes ? _controller.EyesTransform : _controller.Transform);
+            if (!_origin) _origin.Set(Data.GetTransform(_controller));
             if (_enemyComp == null) _controller.GetModel().TryGetComponent(out _enemyComp);
             if (_target || _enemyComp == null) return;
             if (_enemyComp.TryGetTarget(out var target)) _target.Set(target);
         }
+        
 
         protected override NodeState OnUpdate()
         {
@@ -101,7 +114,10 @@ namespace Game.BehaviourTree.Nodes
 
         private void Rotate(Vector3 dir, float speed, float delta)
         {
-            dir.y = 0;
+            if (Data.LockY)
+            {
+                dir.y = 0;
+            }
             var tr = Quaternion.LookRotation(dir);
 
             _origin.Get().rotation = Data.Instant ? tr : Quaternion.Slerp(_origin.Get().rotation, tr, speed * delta);

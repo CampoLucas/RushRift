@@ -49,7 +49,7 @@ namespace Game.BehaviourTree.Nodes
         protected override void OnStart()
         {
             if (_controller == null) return;
-            if (!_origin) _origin.Set(_controller.Transform);
+            if (!_origin) _origin.Set(_controller.Origin);
             if (_enemyComp == null) _controller.GetModel().TryGetComponent(out _enemyComp);
             if (_target || _enemyComp == null) return;
             if (_enemyComp.TryGetTarget(out var target)) _target.Set(target);

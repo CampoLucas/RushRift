@@ -5,15 +5,12 @@ using Game.Entities.Components;
 using Game.Entities.Enemies.Components;
 using UnityEngine;
 
-namespace Game.Entities.Enemies.MVC
+namespace Game.Entities
 {
     public class EnemyController : EntityController
     {
         public static ISubject onEnemyDeathSubject = new Subject();
         public static ISubject onEnemySpawnSubject = new Subject();
-        
-        [Header("Eyes")]
-        [SerializeField] private Transform eyes;
         
         [Header("Target")]
         [SerializeField] private Transform target;
@@ -30,7 +27,6 @@ namespace Game.Entities.Enemies.MVC
         protected override void Awake()
         {
             base.Awake();
-            EyesTransform = eyes;
 
             _onDamageObserver = new ActionObserver<(float, float, float)>(OnDamage);
             _onDeathObserver = new ActionObserver(OnDeath);
@@ -68,7 +64,7 @@ namespace Game.Entities.Enemies.MVC
             if ((_enemyComp != null || (_enemyComp == null && GetModel().TryGetComponent(out _enemyComp))) &&
                 _enemyComp.TryGetTarget(out var t))
             {
-                return (t.position - Transform.position).normalized;
+                return (t.position - Origin.position).normalized;
             }
             
             return Vector3.zero;

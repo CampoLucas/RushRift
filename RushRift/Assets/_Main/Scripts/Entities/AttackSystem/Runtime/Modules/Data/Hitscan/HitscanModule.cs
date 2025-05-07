@@ -18,6 +18,9 @@ namespace Game.Entities.AttackSystem.Hitscan
         public float LineDuration => lineDuration;
         public float Damage => damage;
         public float Radius => radius;
+        public EntityJoint SpawnJoint => spawnJoint;
+        public EntityJoint OriginJoint => originJoint;
+        public Vector3 Offset => offset;
 
         [Header("Settings")]
         [SerializeField] private float damage = 10;
@@ -27,6 +30,8 @@ namespace Game.Entities.AttackSystem.Hitscan
         //[SerializeField] private float forwardOffset;
         [SerializeField] private float delay = .5f;
         [SerializeField] private float range = -1;
+        [SerializeField] private EntityJoint spawnJoint;
+        [SerializeField] private EntityJoint originJoint;
         
         [Header("Spread")]
         [SerializeField] private bool addSpread = true;
@@ -75,5 +80,7 @@ namespace Game.Entities.AttackSystem.Hitscan
             
             return direction;
         }
+        
+        
     }
 }

@@ -363,8 +363,8 @@ namespace Game.Entities.AttackSystem
     public struct ModuleParams
     {
         public Transform OriginTransform;
-        public Transform EyesTransform;
-        [FormerlySerializedAs("Target")] public NullCheck<IController> Owner;
+        public Joints<EntityJoint> Joints;
+        public NullCheck<IController> Owner;
     }
 
     public enum ModuleExecution

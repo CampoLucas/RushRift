@@ -29,6 +29,8 @@ namespace Game.Entities.AttackSystem.Hitscan
         {
             _executed = false;
             _timer = 0;
+            
+            Debug.Log("Hitscan start");
         }
         
         private void OnLateUpdate(ModuleParams mParams, float delta)
@@ -38,7 +40,6 @@ namespace Game.Entities.AttackSystem.Hitscan
 
             if (_timer >= Data.Delay)
             {
-                Debug.Log($"Fired timer {_timer} {Timer}");
                 _executed = true;
                 Shoot(mParams, delta);
                 
@@ -50,7 +51,6 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         private Vector3 CalculateSpawnPosition(Vector3 spawnPos, Vector3 velocity, Vector3 forward, float time, float delta)
         {
-            Debug.Log($"Velocity is {velocity}, speed mag {velocity.magnitude}");
             var compensatedPosition = spawnPos + velocity * delta;
 
             return compensatedPosition;
@@ -59,12 +59,15 @@ namespace Game.Entities.AttackSystem.Hitscan
         private void Shoot(ModuleParams mParams, float delta)
         {
             if (Data.Muzzle) Data.Muzzle.Play();
-            var spawnPos = Data.GetOffsetPosition(mParams.OriginTransform);
 
-            var direction = Data.GetDirection(mParams.EyesTransform.position, mParams.EyesTransform.forward, spawnPos);
+            var origin = mParams.Joints.GetJoint(Data.OriginJoint);
+            var spawn = mParams.Joints.GetJoint(Data.SpawnJoint);
+            
+            var spawnPos = Data.GetOffsetPosition(spawn);
+            var direction = Data.GetDirection(origin.position, origin.forward, spawnPos);
             
             
-            if (!mParams.Owner || !mParams.Owner.Get().GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            if (!mParams.Owner) return;
             
             //direction += movement.Velocity;
             //spawnPos = CalculateSpawnPosition(spawnPos, movement.Velocity, movement.Velocity, movement.Velocity.magnitude, delta);
@@ -72,6 +75,8 @@ namespace Game.Entities.AttackSystem.Hitscan
 
             
             var trail = Object.Instantiate(Data.Line, spawnPos, Quaternion.identity);
+            Debug.Log("Fire NOOWOOWO");
+            
             //trail.SetDuration(Data.LineDuration);
 #if false
             if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.Mask))
@@ -85,7 +90,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                     {
                         //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, hit.normal, movement));
                         //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, movement));
-                        trail.SetPosition(mParams.OriginTransform, hit.point, Data.LineDuration);
+                        trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
                     }
                 }
 
@@ -93,12 +98,12 @@ namespace Game.Entities.AttackSystem.Hitscan
                 if (other.TryGetComponent<IController>(out var controller) &&
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                 {
-                    healthComponent.Damage(Data.Damage, mParams.OriginTransform.position);
+                    healthComponent.Damage(Data.Damage, spawnPos);
                 }
             }
             else
             {
-                trail.SetPosition(mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), Data.LineDuration);
+                trail.SetPosition(spawn, spawnPos + (origin.forward * Data.Range), Data.LineDuration, Data.Offset);
                 // mParams.Owner.Get()
                 //     .DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), movement));
             }
