@@ -13,6 +13,9 @@ public class ObjectiveManager : MonoBehaviour
     private float _timer;
     private int _currentEnemies = 0;
     private int _totalEnemies = 0;
+    private int _minutes;
+    private int _seconds;
+    private int _miliSeconds;
 
     private IObserver _decreaseObserver;
     private IObserver _increaseObserver;
@@ -29,7 +32,11 @@ public class ObjectiveManager : MonoBehaviour
     private void Update()
     {
         _timer += Time.deltaTime;
-        timerText.text = _timer.ToString("0.0.000");
+        _minutes = Mathf.FloorToInt(_timer / 60);
+        _seconds = Mathf.FloorToInt(_timer % 60);
+        _miliSeconds = Mathf.FloorToInt((_timer % 1) * 1000);
+        timerText.text = string.Format("{0:00}:{1:00}:{2:000}", _minutes,_seconds,_miliSeconds);
+
     }
 
     private void EnemyQuantity()
