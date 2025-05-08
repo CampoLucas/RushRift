@@ -60,6 +60,10 @@ public class PlayerMovement : MonoBehaviour
     private float decelerationTimer;
     private bool isGrounded;
     private bool jumpRequested;
+    
+    public Vector3 GetVelocity() => velocity;
+    public Transform GetOrientation() => orientation;
+    public float GetMaxSpeed() => maxSpeed;
 
     #endregion
 
