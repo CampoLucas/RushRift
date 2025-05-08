@@ -38,11 +38,14 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("Initial force applied when jumping.")]
     [SerializeField] private float jumpForce = 10f;
+    
+    [Tooltip("How long the player can still jump after leaving the ground.")]
+    [SerializeField, Range(0f, 0.5f)] private float coyoteTime = 0.15f;
 
     [Header("Ground Check")]
     [Tooltip("Transform used for ground check origin.")]
     [SerializeField] private Transform groundCheckPoint;
-
+    
     [Tooltip("Ground check radius.")]
     [SerializeField] private float groundCheckRadius = 0.3f;
 
@@ -58,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveDirection;
     private float accelerationTimer;
     private float decelerationTimer;
+    private float coyoteTimer;
     private bool isGrounded;
     private bool jumpRequested;
     
@@ -105,9 +109,10 @@ public class PlayerMovement : MonoBehaviour
         
         moveDirection = (camForward * input.z + camRight * input.x).normalized;
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetButtonDown("Jump") && coyoteTimer > 0f)
         {
             jumpRequested = true;
+            coyoteTimer = 0f; // prevent double jump during coyote window
         }
     }
 
@@ -164,10 +169,30 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckGrounded()
     {
+        bool wasGrounded = isGrounded;
+
         isGrounded = groundCheckPoint != null
             ? Physics.CheckSphere(groundCheckPoint.position, groundCheckRadius, groundMask)
             : controller.isGrounded;
+
+        // Reset or reduce coyote timer
+        if (isGrounded)
+        {
+            coyoteTimer = coyoteTime;
+        }
+        else if (wasGrounded)
+        {
+            // Start countdown only once after losing contact
+            coyoteTimer -= Time.deltaTime;
+        }
+        else
+        {
+            coyoteTimer -= Time.deltaTime;
+        }
+
+        coyoteTimer = Mathf.Clamp(coyoteTimer, 0f, coyoteTime);
     }
+
 
     #endregion
 }
