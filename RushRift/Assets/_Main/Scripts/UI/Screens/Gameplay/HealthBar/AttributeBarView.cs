@@ -13,7 +13,7 @@ namespace Game.UI.Screens
         public void SetValue(float currentValue, float maxValue)
         {
             healthBarFill.fillAmount = currentValue / maxValue;
-            text.text = $"{currentValue}/{maxValue}";
+            text.text = $"{(int)currentValue}/{maxValue}";
         }
         
         public void OnNotify((float, float, float) arg)
@@ -25,7 +25,8 @@ namespace Game.UI.Screens
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
+            healthBarFill = null;
+            text = null;
         }
     }
 }
