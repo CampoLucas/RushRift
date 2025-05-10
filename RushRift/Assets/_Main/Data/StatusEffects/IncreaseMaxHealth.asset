@@ -13,20 +13,6 @@ MonoBehaviour:
   m_Name: ChangeMaxHealth
   m_EditorClassIdentifier: 
   amount: 10
---- !u!114 &-601880241212144601
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 218653b7294f447688a4a45fa8aab529, type: 3}
-  m_Name: CompareHealthTrigger
-  m_EditorClassIdentifier: 
-  value: 0
-  comparison: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43,9 +29,9 @@ MonoBehaviour:
     collection:
     - {fileID: -7554503012360926440}
   startTriggers:
-    collection: []
+    collection:
+    - {fileID: 0}
   stopTriggers:
     collection: []
   removeTriggers:
-    collection:
-    - {fileID: -601880241212144601}
+    collection: []

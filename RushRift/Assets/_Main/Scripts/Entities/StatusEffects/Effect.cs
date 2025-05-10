@@ -16,9 +16,9 @@ namespace Game.Entities
 
         public void ApplyEffect(IController controller)
         {
-            var startTr = startTriggers.Select(a => a.GetSubject(controller)).ToArray();
-            var stopTr = stopTriggers.Select(a => a.GetSubject(controller)).ToArray();
-            var removeTr = removeTriggers.Select(a => a.GetSubject(controller)).ToArray();
+            var startTr = startTriggers.Select(a => a.GetTrigger(controller)).ToArray();
+            var stopTr = stopTriggers.Select(a => a.GetTrigger(controller)).ToArray();
+            var removeTr = removeTriggers.Select(a => a.GetTrigger(controller)).ToArray();
 
             var effectInstance = new EffectInstance(strategy.Get<IEffectStrategy>().ToArray(), startTr, stopTr, removeTr);
             effectInstance.Initialize(controller);

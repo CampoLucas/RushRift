@@ -10,16 +10,26 @@ namespace Game.Entities
         [SerializeField] private float value;
         [SerializeField] private Comparison comparison;
         
-        public override ISubject GetSubject(IController controller)
+        public override Trigger GetTrigger(IController controller)
         {
             if (controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
-                Debug.Log("Return subject");
-                return healthComponent.OnValueChanged.Where(a => Compare(a.Item1));
+                var subject = healthComponent.OnValueChanged.Where(a => Compare(a.Item1));
+                
+                return new Trigger(subject, this);
             }
 
-            Debug.Log("Return null");
             return null;
+        }
+
+        public override bool Evaluate(ref IController controller)
+        {
+            if (controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
+            {
+                return Compare(healthComponent.Value);
+            }
+
+            return false;
         }
 
         private bool Compare(float health)

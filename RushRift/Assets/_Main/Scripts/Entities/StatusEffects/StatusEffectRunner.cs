@@ -18,6 +18,7 @@ namespace Game.Entities
         {
             _effects.Remove(effect);
             effect.Dispose();
+            Debug.Log("Remove effect");
             //effect.OnRemove();
         }
 

@@ -10,9 +10,9 @@ namespace Game.Entities
         private IController _controller;
         
         private List<IEffectStrategy> _strategies = new();
-        private List<ISubject> _startTriggers = new();
-        private List<ISubject> _stopTriggers = new();
-        private List<ISubject> _removeTriggers = new();
+        private List<Trigger> _startTriggers = new();
+        private List<Trigger> _stopTriggers = new();
+        private List<Trigger> _removeTriggers = new();
 
         private IObserver _onStart;
         private IObserver _onStop;
@@ -21,10 +21,10 @@ namespace Game.Entities
         private bool _started;
         private bool _stopped;
         private bool _removed;
+        private bool _disposed;
         
-
-        public EffectInstance(IEffectStrategy[] strategies, ISubject[] startTriggers,
-            ISubject[] stopTriggers, ISubject[] removeTriggers)
+        public EffectInstance(IEffectStrategy[] strategies, Trigger[] startTriggers,
+            Trigger[] stopTriggers, Trigger[] removeTriggers)
         {
             if (strategies is { Length: > 0 }) _strategies.AddRange(strategies);
             if (startTriggers is { Length: > 0 }) _startTriggers.AddRange(startTriggers);
@@ -53,6 +53,14 @@ namespace Game.Entities
             {
                 for (var i = 0; i < _removeTriggers.Count; i++)
                 {
+                    var trigger = _removeTriggers[i];
+                    
+                    if (trigger == null) continue;
+                    if (trigger.Evaluate(ref controller))
+                    {
+                        statusEffectRunner.RemoveEffect(this);
+                        return;
+                    }
                     _removeTriggers[i].Attach(_onRemove);
                 }
             }
@@ -62,6 +70,14 @@ namespace Game.Entities
             {
                 for (var i = 0; i < _startTriggers.Count; i++)
                 {
+                    var trigger = _startTriggers[i];
+                    
+                    if (trigger == null) continue;
+                    if (trigger.Evaluate(ref controller))
+                    {
+                        OnStart();
+                        return;
+                    }
                     _startTriggers[i].Attach(_onStart);
                 }
             }
@@ -73,6 +89,8 @@ namespace Game.Entities
 
         private void OnStart()
         {
+            if (_disposed) return;
+
             if (_started) return;
             if (_removed) return;
             _started = true;
@@ -100,6 +118,8 @@ namespace Game.Entities
             {
                 // Executes the effect logic from when the effect starts
                 if (_strategies == null) Debug.Log("Strategy is null");
+                if (_removed) return;
+                Debug.Log($"Removed: {_removed}");
                 for (var i = 0; i < _strategies.Count; i++)
                 {
                     _strategies[i].StartEffect(_controller);
@@ -115,6 +135,7 @@ namespace Game.Entities
         
         private void OnStop(bool attachTriggers)
         {
+            if (_disposed) return;
             if (_stopped) return;
             _stopped = true;
             _started = false;
@@ -149,6 +170,7 @@ namespace Game.Entities
 
         private void OnRemove()
         {
+            if (_disposed) return;
             if (_removed) return;
             _removed = true;
             
@@ -181,13 +203,15 @@ namespace Game.Entities
             
             if (_controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
             {
-                Debug.Log("Remove Effect");
                 statusEffectRunner.RemoveEffect(this);
             }
         }
 
         public void Dispose()
         {
+            if (_disposed) return;
+            _disposed = true;
+            
             for (var i = 0; i < _strategies.Count; i++)
             {
                 _strategies[i].Dispose();
