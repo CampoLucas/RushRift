@@ -8,11 +8,13 @@ namespace Game.Entities
     {
         private ISubject _subject;
         private IPredicate<IController> _predicate;
+        private readonly bool _disposeSubject;
 
-        public Trigger(ISubject subject, IPredicate<IController> predicate)
+        public Trigger(ISubject subject, IPredicate<IController> predicate, bool disposeSubject = true)
         {
             _subject = subject;
             _predicate = predicate;
+            _disposeSubject = disposeSubject;
         }
         
         public bool Evaluate(ref IController args) => _predicate.Evaluate(ref args);
@@ -29,7 +31,7 @@ namespace Game.Entities
         
         public void Dispose()
         {
-            _subject.Dispose();
+            if (_disposeSubject) _subject.Dispose();
             _subject = null;
             
             _predicate.Dispose();

@@ -15,6 +15,8 @@ public class EffectGiverTest : MonoBehaviour
         {
             Debug.Log("Give effect");
             effect.ApplyEffect(controller);
+            
+            Destroy(gameObject);
         }
     }
 }

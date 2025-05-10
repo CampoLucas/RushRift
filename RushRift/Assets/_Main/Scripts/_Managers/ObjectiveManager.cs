@@ -25,8 +25,8 @@ public class ObjectiveManager : MonoBehaviour
         _decreaseObserver = new ActionObserver(DecreseEnemyQuantity);
         _increaseObserver = new ActionObserver(EnemyQuantity);
 
-        EnemyController.onEnemyDeathSubject.Attach(_decreaseObserver);
-        EnemyController.onEnemySpawnSubject.Attach(_increaseObserver);
+        EnemyController.OnEnemyDeathSubject.Attach(_decreaseObserver);
+        EnemyController.OnEnemySpawnSubject.Attach(_increaseObserver);
     }
 
     private void Update()

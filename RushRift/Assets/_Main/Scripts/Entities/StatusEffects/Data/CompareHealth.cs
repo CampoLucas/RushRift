@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Game.Entities
 {
-    public class CompareHealthTrigger : EffectTrigger
+    public class CompareHealth : EffectTrigger
     {
         [SerializeField] private float value;
         [SerializeField] private Comparison comparison;

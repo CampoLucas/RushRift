@@ -91,7 +91,7 @@ namespace Game.Entities
             if (_model != null) _model.OnDrawSelected(transform);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (_model != null) _model.Dispose();
             _model = null;
