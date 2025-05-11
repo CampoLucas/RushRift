@@ -16,7 +16,7 @@ public class MovementTest : MonoBehaviour
     private void Awake()
     {
 #if !UNITY_EDITOR
-        Destroy(this);
+        //Destroy(this);
 #endif
         _target = FindObjectOfType<PlayerController>();
     }
