@@ -162,6 +162,15 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -2f;
         }
     }
+    
+    /// <summary>
+    /// 🚀 Apply an external impulse to the player's velocity.
+    /// </summary>
+    public void ApplyImpulse(Vector3 impulse)
+    {
+        velocity = impulse;
+        coyoteTimer = 0f; // prevent jumping immediately after being launched
+    }
 
     #endregion
 
