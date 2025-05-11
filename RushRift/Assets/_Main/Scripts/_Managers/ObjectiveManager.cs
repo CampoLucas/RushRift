@@ -12,7 +12,7 @@ public class ObjectiveManager : MonoBehaviour
 
     private float _timer;
     private int _currentEnemies = 0;
-    private int _totalEnemies = 0;
+    //private int _totalEnemies = 0;
     private int _minutes;
     private int _seconds;
     private int _miliSeconds;

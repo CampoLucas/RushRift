@@ -13,7 +13,7 @@ namespace Game.Entities
         {
             if (controller.GetModel().TryGetComponent<IMovement>(out var movement))
             {
-                movement.AppendMaxSpeed(GetValue(movement.StartMaxSpeed));
+                movement.AppendMaxSpeed(GetValue(movement.BaseMaxSpeed));
             }
         }
 
@@ -24,7 +24,10 @@ namespace Game.Entities
 
         public override void StopEffect(IController controller)
         {
-            throw new System.NotImplementedException();
+            if (controller.GetModel().TryGetComponent<IMovement>(out var movement))
+            {
+                movement.AppendMaxSpeed(-GetValue(movement.BaseMaxSpeed));
+            }
         }
     }
 }

@@ -8,7 +8,8 @@ namespace Game.Entities.Components
     {
         public Vector3 Velocity { get; private set; }
         public bool Grounded => _isGrounded;
-        public float StartMaxSpeed => _data.MaxSpeed;
+        public float MaxSpeed => _data.MaxSpeed + _speedModifier;
+        public float BaseMaxSpeed => _data.MaxSpeed;
 
         private IObserver<float> _updateObserver;
         private IObserver<float> _lateUpdateObserver;
@@ -33,7 +34,7 @@ namespace Game.Entities.Components
 
         // Velocity
         private Vector3 _prevPosition;
-        private float _maxSpeed;
+        private float _speedModifier;
 
 
         public Movement(CharacterController controller, MovementData data)
@@ -43,7 +44,6 @@ namespace Game.Entities.Components
             
             SetData(data);
             _updateObserver = new ActionObserver<float>(Update);
-            _maxSpeed = StartMaxSpeed;
         }
 
         public void Update(float delta)
@@ -73,9 +73,7 @@ namespace Game.Entities.Components
 
         private void Move(Vector3 dir, float accel, float deccel, float delta)
         {
-            
-            //Debug.Log($"Max Speed: {_maxSpeed}, Velocity {Velocity.magnitude}");
-            var targetVelocity = dir * _maxSpeed;
+            var targetVelocity = dir * MaxSpeed;
             var horizontalVelocity = new Vector3(_currentVelocity.x, 0f, _currentVelocity.z);
             var velocityDelta = targetVelocity - horizontalVelocity;
 
@@ -150,7 +148,7 @@ namespace Game.Entities.Components
 
         public void AppendMaxSpeed(float amount)
         {
-            _maxSpeed += amount;
+            _speedModifier += amount;
         }
 
 

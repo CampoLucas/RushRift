@@ -12,20 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12ac5793eef0431992a894a335b5f4e5, type: 3}
   m_Name: MaxSpeed
   m_EditorClassIdentifier: 
-  value: 1.5
+  value: 10
   percentage: 1
---- !u!114 &-7786818072069541144
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb9c16b77793585419e8ebac593bc0a5, type: 3}
-  m_Name: OnEnemyKilled
-  m_EditorClassIdentifier: 
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38,27 +26,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8c6f6fd0a67401b875e86fed2d0bca3, type: 3}
   m_Name: IncreaseMaxSpeed
   m_EditorClassIdentifier: 
+  duration: 3
   strategy:
     collection:
     - {fileID: -9092648178907138045}
-    - {fileID: 543945907709672118}
   startTriggers:
-    collection:
-    - {fileID: -7786818072069541144}
+    collection: []
   stopTriggers:
     collection: []
   removeTriggers:
     collection: []
---- !u!114 &543945907709672118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6996f747826a4acaa47201551117ce4a, type: 3}
-  m_Name: ChangeMaxHealth
-  m_EditorClassIdentifier: 
-  amount: 20

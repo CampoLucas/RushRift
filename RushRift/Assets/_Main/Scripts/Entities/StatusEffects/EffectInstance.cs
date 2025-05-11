@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Entities
@@ -17,11 +16,16 @@ namespace Game.Entities
         private IObserver _onStart;
         private IObserver _onStop;
         private IObserver _onRemove;
+        private IObserver<float> _update;
 
         private bool _started;
         private bool _stopped;
         private bool _removed;
         private bool _disposed;
+
+        private readonly float _duration;
+        private readonly bool _temporary;
+        private float _elapsedTime;
         
         public EffectInstance(IEffectStrategy[] strategies, Trigger[] startTriggers,
             Trigger[] stopTriggers, Trigger[] removeTriggers)
@@ -34,6 +38,18 @@ namespace Game.Entities
             _onStart = new ActionObserver(OnStart);
             _onStop = new ActionObserver(OnStop);
             _onRemove = new ActionObserver(OnRemove);
+        }
+
+        public EffectInstance(IEffectStrategy[] strategies, Trigger[] startTriggers,
+            Trigger[] stopTriggers, Trigger[] removeTriggers, float duration) : this(strategies, startTriggers,
+            stopTriggers, removeTriggers)
+        {
+            if (duration <= 0) return;
+
+            _duration = duration;
+            _temporary = true;
+
+            _update = new ActionObserver<float>(OnUpdate);
         }
 
         public void Initialize(IController controller)
@@ -49,7 +65,7 @@ namespace Game.Entities
             statusEffectRunner.AddEffect(this);
             
             // If it has remove triggers, it subscribes the on remove observer
-            if (_removeTriggers.Count > 0)
+            if (HasRemoveTriggers())
             {
                 for (var i = 0; i < _removeTriggers.Count; i++)
                 {
@@ -87,126 +103,18 @@ namespace Game.Entities
             }
         }
 
-        private void OnStart()
+        public bool TryGetUpdate(out IObserver<float> observer)
         {
-            if (_disposed) return;
-
-            if (_started) return;
-            if (_removed) return;
-            _started = true;
-            _stopped = false;
-
-            if (_startTriggers.Count > 0)
+            if (_temporary && _update != null)
             {
-                // When the effect starts, it unsubscribes from all the start subjects
-                for (var i = 0; i < _startTriggers.Count; i++)
-                {
-                    _startTriggers[i].Detach(_onStart);
-                }
+                observer = _update;
+                return true;
             }
 
-            if (_stopTriggers.Count > 0)
-            {
-                // When it starts, it subscribes to all the stop subjects
-                for (var i = 0; i < _stopTriggers.Count; i++)
-                {
-                    _stopTriggers[i].Attach(_onStop);
-                }
-            }
-
-            if (_strategies is { Count: > 0 })
-            {
-                // Executes the effect logic from when the effect starts
-                if (_strategies == null) Debug.Log("Strategy is null");
-                if (_removed) return;
-                Debug.Log($"Removed: {_removed}");
-                for (var i = 0; i < _strategies.Count; i++)
-                {
-                    _strategies[i].StartEffect(_controller);
-                }
-            }
-        }
-
-        private void OnStop()
-        {
-            Debug.Log("Stop Effect");
-            OnStop(true);
+            observer = default;
+            return false;
         }
         
-        private void OnStop(bool attachTriggers)
-        {
-            if (_disposed) return;
-            if (_stopped) return;
-            _stopped = true;
-            _started = false;
-            // When the effect stops, it unsubscribes from all the stop subjects
-            if (_stopTriggers.Count > 0)
-            {
-                for (var i = 0; i < _stopTriggers.Count; i++)
-                {
-                    _stopTriggers[i].Detach(_onStop);
-                }
-            }
-
-            if (attachTriggers && _startTriggers.Count > 0)
-            {
-                // When it stops, it subscribes to all the start subjects
-                for (var i = 0; i < _startTriggers.Count; i++)
-                {
-                    _startTriggers[i].Attach(_onStart);
-                }
-            }
-            
-            if (_strategies != null && _strategies.Count > 0)
-            {
-                for (var i = 0; i < _strategies.Count; i++)
-                {
-                    _strategies[i].StopEffect(_controller);
-                }
-            }
-
-            
-        }
-
-        private void OnRemove()
-        {
-            if (_disposed) return;
-            if (_removed) return;
-            _removed = true;
-            
-            if (_started) OnStop(false); // it doesn't subscribe back to the start subjects
-            
-            
-            if (_startTriggers.Count > 0)
-            {
-                for (var i = 0; i < _startTriggers.Count; i++)
-                {
-                    _startTriggers[i].Detach(_onStart);
-                }
-            }
-            
-            if (_stopTriggers.Count > 0)
-            {
-                for (var i = 0; i < _stopTriggers.Count; i++)
-                {
-                    _stopTriggers[i].Detach(_onStop);
-                }
-            }
-            
-            if (_removeTriggers.Count > 0)
-            {
-                for (var i = 0; i < _removeTriggers.Count; i++)
-                {
-                    _removeTriggers[i].Detach(_onRemove);
-                }
-            }
-            
-            if (_controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
-            {
-                statusEffectRunner.RemoveEffect(this);
-            }
-        }
-
         public void Dispose()
         {
             if (_disposed) return;
@@ -250,6 +158,126 @@ namespace Game.Entities
             _onRemove = null;
 
             _controller = null;
+        }
+
+        private void OnUpdate(float delta)
+        {
+            if (_elapsedTime >= _duration)
+            {
+                OnRemove();
+                return;
+            }
+            _elapsedTime += delta;
+        }
+
+        private void OnStart()
+        {
+            if (_disposed || _started || _removed) return;
+            _started = true;
+            _stopped = false;
+
+            // When the effect starts, it unsubscribes from all the start subjects
+            DetachStartTriggers();
+            
+            // When it starts, it subscribes to all the stop subjects
+            AttachStopTriggers();
+
+            // Executes the effect logic from when the effect starts
+            Start();
+        }
+
+        private void OnStop()
+        {
+            Debug.Log("Stop Effect");
+            OnStop(true);
+        }
+        
+        private void OnStop(bool attachTriggers)
+        {
+            if (_disposed || _stopped) return;
+            _stopped = true;
+            _started = false;
+            // When the effect stops, it unsubscribes from all the stop subjects
+            DetachStopTriggers();
+
+            // When it stops, it subscribes to all the start subjects
+            if (attachTriggers) AttachStartTriggers();
+            
+            Stop();
+        }
+
+        private void OnRemove()
+        {
+            if (_disposed || _removed) return;
+            _removed = true;
+            
+            DetachStartTriggers();
+            DetachStopTriggers();
+            DetachRemoveTriggers();
+            
+            if (_started) Stop(); // it doesn't subscribe back to the start subjects
+            
+            if (_controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
+            {
+                statusEffectRunner.RemoveEffect(this);
+            }
+        }
+
+        private bool HasTriggers(ref List<Trigger> triggers) => triggers != null && triggers.Count > 0;
+        private bool HasStartTriggers() => HasTriggers(ref _startTriggers);
+        private bool HasStopTriggers() => HasTriggers(ref _stopTriggers);
+        private bool HasRemoveTriggers() => HasTriggers(ref _removeTriggers);
+
+        private void AttachTriggers(ref List<Trigger> triggers, ref IObserver observer)
+        {
+            if (!HasTriggers(ref triggers)) return;
+            for (var i = 0; i < triggers.Count; i++)
+            {
+                var trigger = triggers[i];
+                if (trigger == null) continue;
+
+                trigger.Attach(observer);
+            }
+        }
+        
+        private void DetachTriggers(ref List<Trigger> triggers, ref IObserver observer)
+        {
+            if (!HasTriggers(ref triggers)) return;
+            for (var i = 0; i < triggers.Count; i++)
+            {
+                var trigger = triggers[i];
+                if (trigger == null) continue;
+
+                trigger.Detach(observer);
+            }
+        }
+        
+        private void AttachStartTriggers() => AttachTriggers(ref _startTriggers, ref _onStart);
+        private void DetachStartTriggers() => DetachTriggers(ref _startTriggers, ref _onStart);
+        private void AttachStopTriggers() => AttachTriggers(ref _stopTriggers, ref _onStop);
+        private void DetachStopTriggers() => DetachTriggers(ref _stopTriggers, ref _onStop);
+        private void AttachRemoveTriggers() => AttachTriggers(ref _removeTriggers, ref _onRemove);
+        private void DetachRemoveTriggers() => DetachTriggers(ref _removeTriggers, ref _onRemove);
+
+        private void Start()
+        {
+            // Executes the effect logic from when the effect starts
+            if (_strategies is not { Count: > 0 } || _removed) return;
+            
+            for (var i = 0; i < _strategies.Count; i++)
+            {
+                _strategies[i].StartEffect(_controller);
+            }
+        }
+        
+        private void Stop()
+        {
+            if (_strategies is not { Count: > 0 }) return;
+            
+            for (var i = 0; i < _strategies.Count; i++)
+            {
+                _strategies[i].StopEffect(_controller);
+            }
         }
     }
 }

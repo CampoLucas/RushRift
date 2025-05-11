@@ -8,7 +8,7 @@ namespace Game.Entities
     {
         public override Trigger GetTrigger(IController controller)
         {
-            return new Trigger(EnemyController.OnEnemyDeathSubject, this);
+            return new Trigger(EnemyController.OnEnemyDeathSubject, this, false);
         }
 
         public override bool Evaluate(ref IController args)
