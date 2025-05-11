@@ -6,7 +6,7 @@ namespace Game.Entities.Components
     public class Attribute<TData, TDataReturn> : IAttribute where TData : AttributeData<TDataReturn> where TDataReturn : IAttribute
     {
         public float Value { get; private set; }
-        public float MaxValue => _data.MaxValue;
+        public float MaxValue => _maxHealth;
         public ISubject<(float, float, float)> OnValueChanged { get; private set; } = new Subject<(float, float, float)>();
         public ISubject OnValueDepleted{ get; private set; } = new Subject();
 
@@ -16,6 +16,8 @@ namespace Game.Entities.Components
         
         private IObserver<float> _updateObserver;
         private TData _data;
+
+        private float _maxHealth;
         
         // ToDo: observers for when value updated, value depleted, value maxed, maxModifierUpdated, regenModifierUpdated
         // ToDo: when adding a max value modifier and the attribute is full, the value will stay full.
@@ -34,14 +36,27 @@ namespace Game.Entities.Components
         public void Update(float delta)
         {
             if (Disposed) return;
-            if (Value < _data.MaxValue)
+            
+            if (_data.RegenRate == 0) return;
+            
+            if (_data.RegenRate > 0 && Value < MaxValue)
             {
                 Increase(delta * _data.RegenRate);
             }
+            
+            if (_data.RegenRate < 0 && Value > 0)
+            {
+                Decrease(delta * Mathf.Abs(_data.RegenRate));
+            }
+            
+            // if (Value < MaxValue && _data.RegenRate > 0)
+            // {
+            //     Increase(delta * _data.RegenRate);
+            // }
         }
 
         public bool IsEmpty() => Value <= 0;
-        public bool IsFull() => Value >= _data.MaxValue;
+        public bool IsFull() => Value >= MaxValue;
 
         public void Decrease(float amount)
         {
@@ -52,7 +67,7 @@ namespace Game.Entities.Components
             Value -= amount;
             
             OnDecrease(prevValue);
-            OnValueChanged.NotifyAll((Value, prevValue, _data.MaxValue));
+            OnValueChanged.NotifyAll((Value, prevValue, MaxValue));
 
             if (IsEmpty())
             {
@@ -63,7 +78,7 @@ namespace Game.Entities.Components
         public void Increase(float amount)
         {
             if (Disposed) return;
-            var maxValue = _data.MaxValue;
+            var maxValue = MaxValue;
             
             if (Value >= maxValue) return;
             var prevValue = Value;
@@ -76,6 +91,17 @@ namespace Game.Entities.Components
 
             OnIncrease(prevValue);
             OnValueChanged.NotifyAll((Value, prevValue, maxValue));
+        }
+
+        public void IncreaseMaxValue(float amount)
+        {
+            _maxHealth += amount;
+            OnValueChanged.NotifyAll((Value, Value, MaxValue));
+        }
+
+        public void IncreaseRegenSpeed(float amount)
+        {
+            
         }
         
         public void Dispose()
@@ -120,11 +146,13 @@ namespace Game.Entities.Components
 
         private void InitAttribute()
         {
+            _maxHealth = _data.MaxValue;
+            
             var prevValue = Value;
             var startValue = _data.StartValue;
             
-            Value = startValue > _data.MaxValue ? _data.MaxValue : startValue;
-            OnValueChanged.NotifyAll((Value, prevValue, _data.MaxValue));
+            Value = startValue > MaxValue ? MaxValue : startValue;
+            OnValueChanged.NotifyAll((Value, prevValue, MaxValue));
         }
     }
 }

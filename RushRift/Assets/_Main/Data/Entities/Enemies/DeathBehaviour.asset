@@ -1,5 +1,26 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2825331974255021693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 194f8500603f4b7ab6a97476b716e925, type: 3}
+  m_Name: GiveEffect
+  m_EditorClassIdentifier: 
+  guid: 3db90f523821f114cb2f6859cef4ccee
+  children: []
+  position: {x: 100.66667, y: 261.33337}
+  previousPosition: {x: 100.66667, y: 261.33337}
+  behaviourData: {fileID: 11400000}
+  effectGiver:
+    effect: {fileID: 11400000, guid: e4d949f19f3c9dd478c887c9a575088b, type: 2}
+    overrideEffect: 0
+    duration: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19,6 +40,7 @@ MonoBehaviour:
   - {fileID: 6046247531997033223}
   - {fileID: 7919715613212035022}
   - {fileID: 3038056235976735128}
+  - {fileID: -2825331974255021693}
 --- !u!114 &3038056235976735128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,8 +108,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: e8126a70c2763a048b50a045a2b7046d
   children: []
-  position: {x: 118.452545, y: 260.81213}
-  previousPosition: {x: 117.13004, y: 260.81213}
+  position: {x: 214.80005, y: 262.6667}
+  previousPosition: {x: 214.03342, y: 262.6667}
   behaviourData: {fileID: 11400000}
   value: 0
 --- !u!114 &7919715613212035022
@@ -106,6 +128,7 @@ MonoBehaviour:
   children:
   - {fileID: 3038056235976735128}
   - {fileID: 4366849800867571029}
+  - {fileID: -2825331974255021693}
   - {fileID: 6046247531997033223}
   position: {x: -14.547501, y: 97.812096}
   previousPosition: {x: -15.870001, y: 97.812096}

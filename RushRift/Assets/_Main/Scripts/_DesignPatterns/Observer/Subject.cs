@@ -43,7 +43,7 @@ namespace Game.DesignPatterns.Observers
             Subscribers.Clear();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             DetachAll();
             Subscribers = null;
