@@ -52,17 +52,17 @@ namespace Game.Entities.AttackSystem
             switch (directionToCompare)
             {
                 case Direction.EntityForward:
-                    return combo.Owner.Transform.forward;
+                    return combo.Owner.Origin.forward;
                 case Direction.EntityBackwards:
-                    return -combo.Owner.Transform.forward;
+                    return -combo.Owner.Origin.forward;
                 case Direction.EntityUp:
-                    return combo.Owner.Transform.up;
+                    return combo.Owner.Origin.up;
                 case Direction.EntityDown:
-                    return -combo.Owner.Transform.up;
+                    return -combo.Owner.Origin.up;
                 case Direction.EntityRight:
-                    return combo.Owner.Transform.right;
+                    return combo.Owner.Origin.right;
                 case Direction.EntityLeft:
-                    return -combo.Owner.Transform.right;
+                    return -combo.Owner.Origin.right;
                 case Direction.Custom:
                     return customDirection;
                 default:

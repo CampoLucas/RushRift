@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Game.DesignPatterns.Factory;
-using Game.DesignPatterns.Pool;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -17,6 +13,8 @@ namespace Game.Entities.AttackSystem
         public Vector3 Offset => offset;
         public float ForwardOffset => forwardOffset;
         public ProjectileData PData => pData;
+        public EntityJoint SpawnJoint => spawnJoint;
+        public EntityJoint OriginJoint => originJoint;
         
         [Header("Spawn Values")]
         [SerializeField] private Projectile prefab;
@@ -26,6 +24,8 @@ namespace Game.Entities.AttackSystem
         [Header("Spawn Position")]
         [SerializeField] private Vector3 offset;
         [SerializeField] private float forwardOffset;
+        [SerializeField] private EntityJoint spawnJoint;
+        [SerializeField] private EntityJoint originJoint;
 
         [Header("Projectile")]
         [SerializeField] private ProjectileData pData;

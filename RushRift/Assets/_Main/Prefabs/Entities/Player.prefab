@@ -208,11 +208,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   model: {fileID: 11400000, guid: 1b439137366ea7c43a91c78b51a87ab9, type: 2}
   view: {fileID: 11400000, guid: 5c646f6e934b4cd4faf3ee0b9f7ecba1, type: 2}
+  joints:
+    defaultJoint: {fileID: 1343605122638024750}
+    jointMap:
+      content:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      enumType: 0
   animator:
   - {fileID: 0}
   - {fileID: 0}
-  spawnPos: {fileID: 0}
-  armsPivot: {fileID: 5272200013264856196}
 --- !u!143 &1602347858527426830
 CharacterController:
   m_ObjectHideFlags: 0
@@ -253,7 +277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterController: {fileID: 1602347858527426830}
   cameraTransform: {fileID: 0}
-  dashDistance: 10
+  dashDistance: 30
   dashDuration: 0.2
   dashCooldown: 0.25
   dashSpeedCurve:

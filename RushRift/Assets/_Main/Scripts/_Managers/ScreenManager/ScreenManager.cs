@@ -1,4 +1,5 @@
-using System.Collections;
+using Game.DesignPatterns.Observers;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ public class ScreenManager : MonoBehaviour
 {
 
     public Dictionary<ScreenName, Transform> screenTransformsDictionary = new Dictionary<ScreenName, Transform>();
+    public static ISubject onPaused = new Subject();
+    public static ISubject onDispaused = new Subject();
 
     [SerializeField] private ScreenName initialScreen;
     [SerializeField] private ScreenStruct[] screens;
@@ -26,8 +29,7 @@ public class ScreenManager : MonoBehaviour
         {
             screenTransformsDictionary[screens[i].screenName] = screens[i].screenObject;
             _screenDictionary[screens[i].screenName] = screens[i].screenObject.GetComponent<IScreen>();
-            screens[i].screenObject.gameObject.SetActive(false);
-
+            //screens[i].screenObject.gameObject.SetActive(false);
         }
     }
 

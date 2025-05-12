@@ -8,8 +8,11 @@ namespace Game.Entities.Components
     {
         public Vector3 Velocity { get; private set; }
         public bool Grounded => _isGrounded;
-        
+        public float MaxSpeed => _data.MaxSpeed + _speedModifier;
+        public float BaseMaxSpeed => _data.MaxSpeed;
+
         private IObserver<float> _updateObserver;
+        private IObserver<float> _lateUpdateObserver;
         
         // References
         private MovementData _data;
@@ -31,8 +34,8 @@ namespace Game.Entities.Components
 
         // Velocity
         private Vector3 _prevPosition;
+        private float _speedModifier;
 
-        private float _maxSpeed;
 
         public Movement(CharacterController controller, MovementData data)
         {
@@ -45,11 +48,6 @@ namespace Game.Entities.Components
 
         public void Update(float delta)
         {
-            
-            var pos = _transform.position;
-            Velocity = (_prevPosition - pos) / delta;
-            _prevPosition = pos;
-            
             CheckGrounded();
 
 
@@ -65,13 +63,17 @@ namespace Game.Entities.Components
             }
             
             _moveDir = Vector3.zero;
+            
+            var pos = _transform.position;
+            Velocity = (_prevPosition - pos) / delta;
+            _prevPosition = pos;
         }
 
         #region Movement
 
         private void Move(Vector3 dir, float accel, float deccel, float delta)
         {
-            var targetVelocity = dir * _data.MaxSpeed;
+            var targetVelocity = dir * MaxSpeed;
             var horizontalVelocity = new Vector3(_currentVelocity.x, 0f, _currentVelocity.z);
             var velocityDelta = targetVelocity - horizontalVelocity;
 
@@ -141,9 +143,15 @@ namespace Game.Entities.Components
             
             if (_groundDetect != null) _groundDetect.Dispose();
             _groundDetect = data.GetGroundDetector(_transform);
+            
         }
-        
-        
+
+        public void AppendMaxSpeed(float amount)
+        {
+            _speedModifier += amount;
+        }
+
+
         public void Dispose()
         {
             _data = null;

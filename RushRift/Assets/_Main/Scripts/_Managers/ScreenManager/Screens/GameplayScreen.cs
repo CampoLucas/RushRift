@@ -4,8 +4,8 @@ using Game;
 
 public class GameplayScreen : MonoBehaviour, IScreen
 {
-    private Dictionary<Behaviour, bool> _behaviourDictionary = new Dictionary<Behaviour, bool>();
-
+    //private Dictionary<Behaviour, bool> _behaviourDictionary = new Dictionary<Behaviour, bool>();
+    [SerializeField] private GameObject[] gameplayObjects;
 
     private void Update()
     {
@@ -15,29 +15,40 @@ public class GameplayScreen : MonoBehaviour, IScreen
     public void Activate()
     {
         gameObject.SetActive(true);
+        for (int i = 0; i < gameplayObjects.Length; i++)
+        {
+            gameplayObjects[i].SetActive(true);
+        }
+        ScreenManager.onDispaused.NotifyAll();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        foreach (var behaviour in _behaviourDictionary) behaviour.Key.enabled = behaviour.Value;
+        //foreach (var behaviour in _behaviourDictionary) behaviour.Key.enabled = behaviour.Value;
     }
 
     public void Deactivate()
     {
-        foreach (var behaviour in GetComponentsInChildren<Behaviour>())
-        {
-            if (behaviour.GetComponent<Camera>() != null)
-            {
-                _behaviourDictionary.Remove(behaviour);
-                continue;
-            }
-            _behaviourDictionary[behaviour] = behaviour.enabled;
-            behaviour.enabled = false;
-        }
+        ScreenManager.onPaused.NotifyAll();
+        gameObject.SetActive(false);
+        //foreach (var behaviour in GetComponentsInChildren<Behaviour>())
+        //{
+        //    if (behaviour.GetComponent<Camera>() != null)
+        //    {
+        //        _behaviourDictionary.Remove(behaviour);
+        //        continue;
+        //    }
+        //    _behaviourDictionary[behaviour] = behaviour.enabled;
+        //    behaviour.enabled = false;
+        //}
 
     }
 
     public void Free()
     {
+        for (int i = 0; i < gameplayObjects.Length; i++)
+        {
+            gameplayObjects[i].SetActive(false);
+        }
         gameObject.SetActive(false);
     }
 }

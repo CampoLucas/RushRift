@@ -20,7 +20,6 @@ namespace Game.Entities
 
         public void Play(string name)
         {
-            Debug.Log($"Play anim {name}");
             if (Animators.Length <= 0) return;
 
             for (var i = 0; i < Animators.Length; i++)

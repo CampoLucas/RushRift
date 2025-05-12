@@ -100,7 +100,7 @@ namespace Game.UI
             gameOverView = null;
             player = null;
             
-            _stateMachine.Dispose();
+            if (_stateMachine != null) _stateMachine.Dispose();
             _onGameOver.Dispose();
         }
     }
