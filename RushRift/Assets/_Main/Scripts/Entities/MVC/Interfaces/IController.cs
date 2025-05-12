@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Game.Entities
 {
@@ -10,6 +11,7 @@ namespace Game.Entities
         Joints<EntityJoint> Joints { get; }
         IModel GetModel();
         IView GetView();
+        VisualEffect SpeedLines { get; }
 
         Vector3 MoveDirection();
 
