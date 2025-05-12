@@ -15,13 +15,16 @@ namespace Game.Entities
 
             if (controller.Origin.gameObject.TryGetComponent<CharacterController>(out var characterController))
             {
-                TryAddComponent(Data.MoveSpeed.GetMovement(characterController));
+                var movement = Data.MoveSpeed.GetMovement(characterController);
+                TryAddComponent(movement);
+                //TryAddComponent(Data.SpeedLines.GetComponent(controller.SpeedLines, movement.MoveAmount));
             }
 
             TryAddComponent(Data.GetComboComponent(controller));
             TryAddComponent(Data.Health.GetComponent()); 
             TryAddComponent(Data.Stamina.GetComponent());
             TryAddComponent(Data.Mana.GetComponent());
+            
         }
     }
 }

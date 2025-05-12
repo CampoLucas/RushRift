@@ -14,5 +14,6 @@ namespace Game.Entities.Components
         void AddImpulse(Vector3 dir);
         void SetData(MovementData data);
         void AppendMaxSpeed(float amount);
+        float MoveAmount();
     }
 }

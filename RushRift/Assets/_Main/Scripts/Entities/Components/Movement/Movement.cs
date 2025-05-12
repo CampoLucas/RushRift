@@ -26,6 +26,7 @@ namespace Game.Entities.Components
         private float _verticalVelocity;
         private float _accelTime = 0f;
         private float _decelTime = 0f;
+        private float _moveAmount;
 
 
         // Collision detection
@@ -66,6 +67,7 @@ namespace Game.Entities.Components
             
             var pos = _transform.position;
             Velocity = (_prevPosition - pos) / delta;
+            _moveAmount = Velocity.magnitude;
             _prevPosition = pos;
         }
 
@@ -149,6 +151,11 @@ namespace Game.Entities.Components
         public void AppendMaxSpeed(float amount)
         {
             _speedModifier += amount;
+        }
+
+        public float MoveAmount()
+        {
+            return _moveAmount;
         }
 
 
