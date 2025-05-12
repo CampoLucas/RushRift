@@ -36,8 +36,8 @@ namespace Game.Entities
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
 
             _elapsedTime += delta;
-            float t = Mathf.Clamp01(_elapsedTime / _jumpData.Duration);
-            float curveValue = _jumpData.JumpCurve.Evaluate(t);
+            var t = Mathf.Clamp01(_elapsedTime / _jumpData.Duration);
+            var curveValue = _jumpData.JumpCurve.Evaluate(t);
 
             _velocity = curveValue * Mathf.Sqrt(_jumpData.Height * -2 * _gravity);
 
@@ -52,7 +52,9 @@ namespace Game.Entities
 
         protected override bool OnCompleted(ref EntityArgs args)
         {
-            return _elapsedTime >= _jumpData.Duration;
+            //return false;
+            //return _elapsedTime >= _jumpData.Duration;
+            return _velocity <= 0;
         }
         
         protected override void OnDispose()
