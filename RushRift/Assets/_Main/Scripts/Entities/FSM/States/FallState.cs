@@ -23,7 +23,9 @@ namespace Game.Entities
         protected override void OnStart(ref EntityArgs args)
         {
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            movement.EnableGravity(false);
             _velocity = movement.Velocity.y;
+            if (_velocity > 0) _velocity = 0;
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
@@ -38,7 +40,14 @@ namespace Game.Entities
             // Instead of separating input and vertical, COMBINE them
             Vector3 finalMove = controlledInput * _gravityData.AirAcceleration + new Vector3(0, _velocity, 0);
 
+            //movement.AddMoveDir(finalMove);
             movement.Move(finalMove, delta);
+        }
+
+        protected override void OnExit(ref EntityArgs args)
+        {
+            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            movement.EnableGravity(true);
         }
     }
 }

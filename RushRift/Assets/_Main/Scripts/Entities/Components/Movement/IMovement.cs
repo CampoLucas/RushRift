@@ -15,5 +15,6 @@ namespace Game.Entities.Components
         void SetData(MovementData data);
         void AppendMaxSpeed(float amount);
         float MoveAmount();
+        void EnableGravity(bool value);
     }
 }

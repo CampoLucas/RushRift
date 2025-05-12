@@ -29,6 +29,8 @@ namespace Game.Entities
         protected override void OnStart(ref EntityArgs args)
         {
             _elapsedTime = 0f;
+            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            movement.EnableGravity(false);
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
@@ -48,6 +50,12 @@ namespace Game.Entities
 
             movement.AddMoveDir(controlledInput);
             movement.Move(jumpDir, delta);
+        }
+
+        protected override void OnExit(ref EntityArgs args)
+        {
+            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            movement.EnableGravity(true);
         }
 
         protected override bool OnCompleted(ref EntityArgs args)
