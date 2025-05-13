@@ -30,6 +30,18 @@ namespace Game.Entities
             }
         }
         
+        public void Play(string name, int layer, float normalizedTime = 0)
+        {
+            if (Animators.Length <= 0) return;
+
+            for (var i = 0; i < Animators.Length; i++)
+            {
+                var anim = Animators[i];
+                if (anim == null) continue;
+                anim.Play(name, layer, normalizedTime);
+            }
+        }
+        
         public void Dispose()
         {
             ViewData = null;

@@ -16,6 +16,11 @@ MonoBehaviour:
   children:
     collection: []
   animation: Attack Release
+  useNormalizedTime: 1
+  layer: 1
+  startFrame: 6
+  framesPerSecond: 30
+  animationDuration: 0.833
   delay: 0
 --- !u!114 &-47452404125950400
 MonoBehaviour:
@@ -34,7 +39,7 @@ MonoBehaviour:
     collection: []
   damage: 10
   offset: {x: 0, y: 0, z: 0}
-  delay: 0.2666667
+  delay: 0.06666667
   range: -1
   spawnJoint: 9
   originJoint: 16
@@ -47,7 +52,7 @@ MonoBehaviour:
   muzzleEffect: {fileID: 0}
   impactEffect: {fileID: 0}
   line: {fileID: 440560736661759916, guid: 19ce12596154b0a4cb394a4f2dbc1557, type: 3}
-  lineDuration: 0.15
+  lineDuration: 0.16
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,7 +65,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 931e5efd592f4c5b8bb6c99695a6a9e4, type: 3}
   m_Name: A_BoltDash_Bolt (hitscan)
   m_EditorClassIdentifier: 
-  duration: 0.833
+  duration: 0.6
   loop: 0
   modules:
     collection:
@@ -84,4 +89,9 @@ MonoBehaviour:
   children:
     collection: []
   animation: Empty
+  useNormalizedTime: 0
+  layer: 0
+  startFrame: 0
+  framesPerSecond: 24
+  animationDuration: 0
   delay: -1
