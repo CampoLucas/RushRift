@@ -41,22 +41,22 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
+        time: -0.0041656494
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 0.004115167
+        outSlope: 0.004115167
         tangentMode: 0
-        weightedMode: 0
+        weightedMode: 3
         inWeight: 0
-        outWeight: 0
+        outWeight: 1
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: 0
-        outSlope: 0
+        inSlope: 0.005649761
+        outSlope: 0.005649761
         tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
+        weightedMode: 3
+        inWeight: 0.73444057
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -78,6 +78,7 @@ MonoBehaviour:
       customGravity: 0
       gravity: 2
       gravityScale: 1
+      maxGravityAccel: 6
       fallAirControl: 1
       airAcceleration: 100
   jump:
@@ -113,6 +114,7 @@ MonoBehaviour:
     customGravity: 0
     gravity: 10
     gravityScale: 4
+    maxGravityAccel: 0
     fallAirControl: 0.566
     airAcceleration: 40
   comboData: {fileID: 11400000, guid: 0b705b981d3638540927ff120005df2d, type: 2}
