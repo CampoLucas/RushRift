@@ -37,6 +37,7 @@ namespace Game.Entities.Components
         private Vector3 _prevPosition;
         private float _speedModifier;
 
+        private bool _enableGravity;
 
         public Movement(CharacterController controller, MovementData data)
         {
@@ -52,14 +53,14 @@ namespace Game.Entities.Components
             CheckGrounded();
 
 
+            _verticalVelocity += _data.Gravity.GetValue() * delta;
             if (_isGrounded)
             {
-                _verticalVelocity = -1f;
+                //_verticalVelocity = -1f;
                 Move(_moveDir, _data.GroundAccel, _data.GroundDec, delta);
             }
             else
             {
-                _verticalVelocity += _data.Gravity.GetValue() * delta;
                 Move(_moveDir, _data.AirAccel, _data.AirDec, delta);
             }
             
@@ -107,7 +108,8 @@ namespace Game.Entities.Components
                 horizontalVelocity = Vector3.zero;
             }
 
-            _currentVelocity = new Vector3(horizontalVelocity.x, _verticalVelocity, horizontalVelocity.z);
+            
+            _currentVelocity = new Vector3(horizontalVelocity.x,  _enableGravity ? _verticalVelocity : 0, horizontalVelocity.z);
             _controller.Move(_currentVelocity * delta);
             _prevMoveDir = dir;
         }
@@ -156,6 +158,11 @@ namespace Game.Entities.Components
         public float MoveAmount()
         {
             return _moveAmount;
+        }
+
+        public void EnableGravity(bool value)
+        {
+            _enableGravity = value;
         }
 
 
