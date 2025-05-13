@@ -7,7 +7,6 @@ namespace Game.Entities.Components
     public class MovementData
     {
         public float MaxSpeed => maxSpeed;
-        public bool UseDot => useDot;
         public float GroundAccel => groundAcceleration;
         public float GroundDec => groundDeceleration;
         public float AirAccel => airAcceleration;
@@ -23,7 +22,6 @@ namespace Game.Entities.Components
         
         [Header("Settings")] 
         [Range(1f, 100f)][SerializeField] private float maxSpeed = 10f;
-        [SerializeField] private bool useDot;
         
         [Header("Ground")]
         [Range(0.25f,100f)][SerializeField] private float groundAcceleration = 5f;
