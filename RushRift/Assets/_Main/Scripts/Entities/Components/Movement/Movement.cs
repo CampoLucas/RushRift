@@ -54,6 +54,11 @@ namespace Game.Entities.Components
 
 
             _verticalVelocity += _data.Gravity.GetValue() * delta;
+            if (_verticalVelocity > _data.Gravity.MaxGravityAccel)
+            {
+                _verticalVelocity = _data.Gravity.MaxGravityAccel;
+            }
+            
             if (_isGrounded)
             {
                 //_verticalVelocity = -1f;
