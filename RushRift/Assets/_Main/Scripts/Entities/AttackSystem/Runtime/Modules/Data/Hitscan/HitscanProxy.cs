@@ -81,7 +81,8 @@ namespace Game.Entities.AttackSystem.Hitscan
 #if false
             if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.Mask))
 #else
-            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.Mask))
+            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.EntityMask) || // Checks if it collided with an entity
+                Physics.Raycast(spawnPos, direction, out hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
 #endif
             {
                 if (Data.Line)
@@ -108,6 +109,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                 //     .DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), movement));
             }
             
+            if (Data.UseSFX) AudioManager.Play(Data.SFXName);
             trail.Enable(true);
 
             
