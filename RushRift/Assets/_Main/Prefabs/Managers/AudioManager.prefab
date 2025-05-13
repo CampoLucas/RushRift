@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7095539490065185307
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2810066583127449980}
+  - component: {fileID: 7170916178061385612}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2810066583127449980
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7095539490065185307}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7170916178061385612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7095539490065185307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc5c2f5a6ab84845af1ec05762a8a399, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: SparksAttack
+    loop: 0
+    playOnAwake: 0
+    delay: 0
+    clips:
+    - {fileID: 8300000, guid: 9f21389d53f58d54caf989fc01fa10f3, type: 3}
+    - {fileID: 8300000, guid: d7f0cad51b894504e92e5dbecd6af348, type: 3}
+    - {fileID: 8300000, guid: e87767d9fcb8da647a3fc625a3264144, type: 3}
+    - {fileID: 8300000, guid: 1cdf863f8011c78468eef34b2177c0d6, type: 3}
+    mixer: {fileID: 7930112030254647855, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    volume: 1
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 1, y: 0.8}
+  - name: LaserAttack
+    loop: 0
+    playOnAwake: 0
+    delay: 0
+    clips:
+    - {fileID: 8300000, guid: b1c86d5e0506f0c489ff079ab93793f5, type: 3}
+    - {fileID: 8300000, guid: 78129799d38ff3b4e837302dc83923ca, type: 3}
+    - {fileID: 8300000, guid: ad91309d969b12e4b95d36fdec5d5147, type: 3}
+    - {fileID: 8300000, guid: 2ac2422f0ade7e24d81b8c7670ffe776, type: 3}
+    - {fileID: 8300000, guid: 3b01d59c7fe56314c8d0a87efb7f5969, type: 3}
+    - {fileID: 8300000, guid: 227e863e23bf6e4498958d0de58c332a, type: 3}
+    - {fileID: 8300000, guid: 6eb27a948a03218448c5a84b0dcaa6b4, type: 3}
+    - {fileID: 8300000, guid: f50ff6c3d609d7f4db8ecb062c0daad2, type: 3}
+    - {fileID: 8300000, guid: c5bbdf9fdc1c1f3498780b5b4bf840d4, type: 3}
+    - {fileID: 8300000, guid: 94c35d2bfdf0dba42b074bc18fa4eb90, type: 3}
+    mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    volume: 1
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 1, y: 0.8}
