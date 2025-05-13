@@ -1,5 +1,6 @@
 using Game.Entities.Components;
 using UnityEngine;
+using Game.Utils;
 
 namespace Game.Entities
 {
@@ -35,7 +36,7 @@ namespace Game.Entities
             _velocity += _gravity * delta;
 
             var input = args.Controller.MoveDirection();
-            var controlledInput = Vector3.Lerp(Vector3.zero, input, _gravityData.FallAirControl);
+            var controlledInput = Vector3.Lerp(Vector3.zero, input, _gravityData.FallAirControl).XOZ();
             var jumpDir = Vector3.up * _velocity;
             
             // Instead of separating input and vertical, COMBINE them
