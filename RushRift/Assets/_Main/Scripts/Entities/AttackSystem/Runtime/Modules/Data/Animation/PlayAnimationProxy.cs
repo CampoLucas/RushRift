@@ -47,7 +47,9 @@ namespace Game.Entities.AttackSystem
         
         private void OnDo(ModuleParams mParams)
         {
-            _controller.GetView().Play(Data.Animation);
+            Data.Play(_controller.GetView());
+            
+            //_controller.GetView().Play(Data.Animation);
         }
 
     }
