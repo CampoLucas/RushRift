@@ -4,11 +4,11 @@ namespace Game.UI.Screens
 {
     public class GameplayModel : UIModel
     {
-        public AttributeBarModel HealthBar { get; private set; }
+        public BarModel HealthBar { get; private set; }
 
         public GameplayModel(AttributeBarData healthBar)
         {
-            HealthBar = new AttributeBarModel(healthBar);
+            HealthBar = new BarModel(healthBar);
         }
 
         public override void Dispose()

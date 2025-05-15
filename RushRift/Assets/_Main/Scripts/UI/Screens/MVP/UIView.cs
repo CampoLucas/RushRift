@@ -15,7 +15,7 @@ namespace Game.UI.Screens
         
         private Coroutine _coroutine;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             if (!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
         }

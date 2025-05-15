@@ -3,12 +3,12 @@ using Game.DesignPatterns.Observers;
 
 namespace Game.UI.Screens
 {
-    public class AttributeBarModel : UIModel, IObserver<float, float, float>
+    public class BarModel : UIModel, IObserver<float, float, float>
     {
         public AttributeBarData Data { get; private set; }
         public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
 
-        public AttributeBarModel(AttributeBarData data)
+        public BarModel(AttributeBarData data)
         {
             Data = data;
             Data.OnValueChanged.Attach(this);
