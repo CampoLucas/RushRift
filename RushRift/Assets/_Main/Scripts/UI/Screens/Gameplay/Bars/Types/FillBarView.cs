@@ -108,7 +108,7 @@ namespace Game.UI.Screens
             secondaryFill.fillAmount = startFill;
             secondaryFill.gameObject.SetActive(true);
 
-            while (currentFill > targetFill)
+            while (currentFill >= targetFill)
             {
                 currentFill -= Time.deltaTime * secondarySpeed;
 
