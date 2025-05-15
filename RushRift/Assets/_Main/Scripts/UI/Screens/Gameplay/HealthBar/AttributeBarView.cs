@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public class AttributeBarView : UIView, IObserver<(float, float, float)>
+    public class AttributeBarView : UIView, IObserver<float, float, float>
     {
         [SerializeField] private Image healthBarFill;
         [SerializeField] private TMP_Text text;
@@ -16,15 +16,16 @@ namespace Game.UI.Screens
             text.text = $"{(int)currentValue}/{maxValue}";
         }
         
-        public void OnNotify((float, float, float) arg)
+        public void OnNotify(float currentHealth, float previousHealth, float maxHealth)
         {
-            SetValue(arg.Item1, arg.Item3);
+            SetValue(currentHealth, maxHealth);
             // healthBarFill.fillAmount = arg.Item1 / arg.Item3;
             // text.text = $"{arg.Item1}/{arg.Item3}";
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             healthBarFill = null;
             text = null;
         }

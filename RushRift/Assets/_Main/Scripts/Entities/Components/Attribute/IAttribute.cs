@@ -18,7 +18,7 @@ namespace Game.Entities.Components
         /// A subject that notifies observers when the value is updated.
         /// It takes a tuple with the current, previous and max value.
         /// </summary>
-        ISubject<(float, float, float)> OnValueChanged { get; }
+        ISubject<float, float, float> OnValueChanged { get; }
         
         /// <summary>
         /// Indicates if the value of the attribute is less or equal than zero.

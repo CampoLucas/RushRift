@@ -7,7 +7,7 @@ namespace Game.Entities.Components
     {
         public float Value { get; private set; }
         public float MaxValue => _maxHealth;
-        public ISubject<(float, float, float)> OnValueChanged { get; private set; } = new Subject<(float, float, float)>();
+        public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
         public ISubject OnValueDepleted{ get; private set; } = new Subject();
 
         
@@ -67,7 +67,7 @@ namespace Game.Entities.Components
             Value -= amount;
             
             OnDecrease(prevValue);
-            OnValueChanged.NotifyAll((Value, prevValue, MaxValue));
+            OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
 
             if (IsEmpty())
             {
@@ -90,13 +90,13 @@ namespace Game.Entities.Components
             }
 
             OnIncrease(prevValue);
-            OnValueChanged.NotifyAll((Value, prevValue, maxValue));
+            OnValueChanged.NotifyAll(Value, prevValue, maxValue);
         }
 
         public void IncreaseMaxValue(float amount)
         {
             _maxHealth += amount;
-            OnValueChanged.NotifyAll((Value, Value, MaxValue));
+            OnValueChanged.NotifyAll(Value, Value, MaxValue);
         }
 
         public void IncreaseRegenSpeed(float amount)
@@ -152,7 +152,7 @@ namespace Game.Entities.Components
             var startValue = _data.StartValue;
             
             Value = startValue > MaxValue ? MaxValue : startValue;
-            OnValueChanged.NotifyAll((Value, prevValue, MaxValue));
+            OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
         }
     }
 }

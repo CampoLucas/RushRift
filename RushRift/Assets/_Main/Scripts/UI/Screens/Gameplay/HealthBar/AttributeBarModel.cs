@@ -1,14 +1,12 @@
 using System;
 using Game.DesignPatterns.Observers;
-using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Game.UI.Screens
 {
-    public class AttributeBarModel : UIModel, DesignPatterns.Observers.IObserver<(float, float, float)>
+    public class AttributeBarModel : UIModel, IObserver<float, float, float>
     {
         public AttributeBarData Data { get; private set; }
-        public ISubject<(float, float, float)> OnValueChanged { get; private set; } = new Subject<(float, float, float)>();
+        public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
 
         public AttributeBarModel(AttributeBarData data)
         {
@@ -16,27 +14,30 @@ namespace Game.UI.Screens
             Data.OnValueChanged.Attach(this);
         }
 
-        public void OnNotify((float, float, float) arg)
+        public void OnNotify(float currentHealth, float previousHealth, float maxHealth)
         {
-            OnValueChanged.NotifyAll(arg);
+            OnValueChanged.NotifyAll(currentHealth, previousHealth, maxHealth);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             Data.OnValueChanged.Detach(this);
             Data.Dispose();
             
+            OnValueChanged.DetachAll();
             OnValueChanged.Dispose();
+            OnValueChanged = null;
         }
     }
 
     public struct AttributeBarData : IDisposable
     {
-        public ISubject<(float, float, float)> OnValueChanged { get; private set; }
+        public ISubject<float, float, float> OnValueChanged { get; private set; }
         public float StartValue { get; private set; }
         public float StartMaxValue { get; private set; }
 
-        public AttributeBarData(float startValue, float startMaxValue, ISubject<(float, float, float)> onValueChanged)
+        public AttributeBarData(float startValue, float startMaxValue, ISubject<float, float, float> onValueChanged)
         {
             StartValue = startValue;
             StartMaxValue = startMaxValue;

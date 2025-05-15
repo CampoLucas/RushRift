@@ -10,5 +10,12 @@ namespace Game.UI.Screens
         {
             HealthBar = new AttributeBarModel(healthBar);
         }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            HealthBar.Dispose();
+            HealthBar = null;
+        }
     }
 }

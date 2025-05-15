@@ -37,7 +37,11 @@ namespace Game.UI.Screens
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
+            Model.Dispose();
+            Model = null;
+            
+            View.Dispose();
+            View = null;
         }
     }
 }
