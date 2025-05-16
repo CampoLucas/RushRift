@@ -1,19 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Game.UI.Screens
 {
-    public class SegmentedBarView : BarView
+    public class SegmentedFillBarView : BarView
     {
-        [FormerlySerializedAs("barPrefab")]
         [Header("Prefabs")]
         [SerializeField] private BarSegment barSegmentPrefab;
 
         [Header("References")]
         [SerializeField] private RectTransform container;
+        [SerializeField] private TMP_Text text;
 
         [Header("Settings")]
         [SerializeField] private int segmentsCount = 10;
@@ -38,53 +39,45 @@ namespace Game.UI.Screens
 
         public override void SetStartValue(float startValue, float startMaxValue)
         {
-            if (!Mathf.Approximately(startMaxValue, _lastMax)) // Check if we need to regenerate segments
+            if (!Mathf.Approximately(startMaxValue, _lastMax))
             {
                 RebuildSegments(startMaxValue);
             }
+            
+            text.text = $"{startValue}/{startMaxValue}";
 
-            var filledSegments = Mathf.FloorToInt(startValue / _valuePerSegment);
+            var remaining = startValue;
 
             for (var i = 0; i < _segments.Count; i++)
             {
-                _segments[i].SetColor(i < filledSegments ? filledColor : emptyColor);
+                var segmentFill = Mathf.Clamp01(remaining / _valuePerSegment);
+                _segments[i].Fill(segmentFill);
+                remaining -= _valuePerSegment;
             }
         }
         
         private void SetValue(float current, float previous, float max)
         {
-            if (!Mathf.Approximately(max, _lastMax)) // Check if we need to regenerate segments
+            if (!Mathf.Approximately(max, _lastMax))
             {
                 RebuildSegments(max);
             }
 
-            var previousFilled = Mathf.FloorToInt(previous / _valuePerSegment);
-            var currentFilled = Mathf.FloorToInt(current / _valuePerSegment);
-            
-            
-            
-            for (var i = 0; i < _segments.Count; i++) // Instantly update filled segments
+            text.text = $"{current}/{max}";
+
+            var remaining = current;
+
+            for (var i = 0; i < _segments.Count; i++)
             {
-                if (i < currentFilled)
-                {
-                    _segments[i].SetColor(filledColor);
-                }
-                else if (i >= currentFilled && i < previousFilled)
-                {
-                    // if Just lost fill, switch to secondary color
-                    _segments[i].SetColor(secondaryColor);
-                }
-                else
-                {
-                    _segments[i].SetColor(emptyColor); // Already empty
-                }
+                var segmentFill = Mathf.Clamp01(remaining / _valuePerSegment);
+                _segments[i].Fill(segmentFill);  // Only adjust fill amount
+                remaining -= _valuePerSegment;
             }
 
             if (current < previous)
             {
-                // Stop any running coroutines
-                if (_secondaryCoroutine != null)
-                    StopCoroutine(_secondaryCoroutine);
+                if (_secondaryCoroutine != null) StopCoroutine(_secondaryCoroutine);
+                
                 _secondaryCoroutine = StartCoroutine(FadeSegmentsCoroutine(current, previous, max));
             }
         }
@@ -106,7 +99,8 @@ namespace Game.UI.Screens
                 for (var i = 0; i < toAdd; i++)
                 {
                     var newSegment = Instantiate(barSegmentPrefab, container);
-                    newSegment.SetColor(emptyColor);
+                    newSegment.SetColor(filledColor);
+                    newSegment.SetSecondaryColor(secondaryColor);
                     _segments.Add(newSegment);
                 }
             }
@@ -127,33 +121,32 @@ namespace Game.UI.Screens
         {
             yield return new WaitForSeconds(fadeDelay);
 
-            var targetFill = Mathf.FloorToInt(current / _valuePerSegment);
-            var startFill = Mathf.FloorToInt(previous / _valuePerSegment);
-            var currentFill = (float)startFill;
+            var target = current;
+            var start = previous;
+            var remaining = start;
 
-            while (currentFill > targetFill)
+            while (remaining >= target)
             {
-                currentFill -= Time.deltaTime * fadeSpeed;
+                remaining -= Time.deltaTime * fadeSpeed;
 
-                var indexThreshold = Mathf.FloorToInt(currentFill);
-                
+                var r = remaining;
                 for (var i = 0; i < _segments.Count; i++)
                 {
-                    if (i > indexThreshold)
-                    {
-                        _segments[i].SetColor(emptyColor);
-                    }
+                    var segmentFill = Mathf.Clamp01(r / _valuePerSegment);
+                    _segments[i].SecondaryFill(segmentFill);  // Only adjust fill amount
+                    r -= _valuePerSegment;
                 }
 
                 yield return null;
             }
-
+            
             for (var i = 0; i < _segments.Count; i++)
             {
-                if (i > targetFill) _segments[i].SetColor(emptyColor);
+                _segments[i].SecondaryFill(Mathf.Clamp01(target / _valuePerSegment));
+                target -= _valuePerSegment;
             }
-
         }
+        
 
         private void OnDestroy()
         {

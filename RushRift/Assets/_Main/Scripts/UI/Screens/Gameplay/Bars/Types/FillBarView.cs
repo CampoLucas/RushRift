@@ -83,18 +83,13 @@ namespace Game.UI.Screens
             
             if (showText) text.text = $"{(int)current}/{max}";
             
-            if (_secondaryCoroutine != null)
-            {
-                StopCoroutine(_secondaryCoroutine);
-
-                if (current >= previous)
-                {
-                    secondaryFill.gameObject.SetActive(false);
-                }
-            }
             
             if (useSecondaryFill && current < previous)
             {
+                if (_secondaryCoroutine != null)
+                {
+                    StopCoroutine(_secondaryCoroutine);
+                }
                 _secondaryCoroutine = StartCoroutine(SetSecondaryValue(current, previous, max));
             }
         }

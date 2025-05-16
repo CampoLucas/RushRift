@@ -85,6 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8306382590155690267}
   - component: {fileID: 6279731528844005624}
+  - component: {fileID: 5411332790956660258}
   - component: {fileID: 8730734523475458463}
   m_Layer: 0
   m_Name: Bar_Segment_Fill
@@ -124,6 +125,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1011669526841786284}
   m_CullTransparentMesh: 1
+--- !u!114 &5411332790956660258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011669526841786284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5935dcf1667545998a9bcdd95611aa25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  segment: {fileID: 2066858101521048474}
+  secondarySegment: {fileID: 7606580214658028987}
 --- !u!114 &8730734523475458463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,7 +163,7 @@ MonoBehaviour:
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -220,10 +235,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 382e6d3ecb5db2945b103ef0438d1243, type: 3}
-  m_Type: 0
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -295,10 +310,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 382e6d3ecb5db2945b103ef0438d1243, type: 3}
-  m_Type: 0
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
