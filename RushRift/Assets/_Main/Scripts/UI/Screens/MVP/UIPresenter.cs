@@ -35,7 +35,7 @@ namespace Game.UI.Screens
             View.FadeOut(t, startTime, duration, ref onStart, ref onEnd);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             Model.Dispose();
             Model = null;

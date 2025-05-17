@@ -23,9 +23,9 @@ namespace Game.Entities.Components
         
         // Regeneration variables
         private IRegenStrategy<TData, TDataReturn> _regenStrategy;
-        private bool _regenerating;
-        private bool _startRegenDelay;
-        private float _regenDelayTimer;
+        // private bool _regenerating;
+        // private bool _startRegenDelay;
+        // private float _regenDelayTimer;
         private float _regenModifier;
         
         public Attribute(TData data)
@@ -99,13 +99,14 @@ namespace Game.Entities.Components
             if (IsEmpty()) return; // Don't decrease if it is already empty.
 
             _prevValue = Value;
-            Value -= Mathf.Max(0, Value - amount);
+            Value -= amount;
             
             OnDecrease(_prevValue);
             OnValueChanged.NotifyAll(Value, _prevValue, MaxValue);
 
             if (IsEmpty())
             {
+                Value = 0;
                 OnValueDepleted.NotifyAll();
             }
             else

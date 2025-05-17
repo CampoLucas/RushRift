@@ -74,12 +74,12 @@ namespace Game.UI.Screens
                 remaining -= _valuePerSegment;
             }
 
-            if (current < previous)
-            {
-                if (_secondaryCoroutine != null) StopCoroutine(_secondaryCoroutine);
-                
-                _secondaryCoroutine = StartCoroutine(FadeSegmentsCoroutine(current, previous, max));
-            }
+            // if (current < previous)
+            // {
+            //     if (_secondaryCoroutine != null) StopCoroutine(_secondaryCoroutine);
+            //     
+            //     _secondaryCoroutine = StartCoroutine(FadeSegmentsCoroutine(current, previous, max));
+            // }
         }
         
         private void RebuildSegments(float max)

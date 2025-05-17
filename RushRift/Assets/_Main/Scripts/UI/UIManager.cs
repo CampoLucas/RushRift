@@ -43,6 +43,7 @@ namespace Game.UI
             var model = player.GetModel();
 
             if (model == null || !model.TryGetComponent<HealthComponent>(out var health)) return;
+            if (model == null || !model.TryGetComponent<EnergyComponent>(out var energy)) return;
             
             // if (!LevelManager.TryGetAttributeSubjects(out var onHealthChanged, 
             //         out var onStaminaChanged, 
@@ -51,8 +52,9 @@ namespace Game.UI
             // var gameplayModel = new GameplayModel(onHealthChanged, onStaminaChanged, onManaChanged);
 
             var healthBarData = new AttributeBarData(health.Value, health.MaxValue, health.OnValueChanged);
+            var energyBarData = new AttributeBarData(energy.Value, energy.MaxValue, energy.OnValueChanged);
             
-            var gameplayModel = new GameplayModel(healthBarData);
+            var gameplayModel = new GameplayModel(healthBarData, energyBarData);
             var gameplayPresenter = new GameplayPresenter(gameplayModel, gameplayView);
 
             var gameOverModel = new GameOverModel();

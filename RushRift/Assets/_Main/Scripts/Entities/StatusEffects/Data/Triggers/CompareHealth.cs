@@ -54,13 +54,5 @@ namespace Game.Entities
         }
     }
 
-    public enum Comparison
-    {
-        Equal,
-        Different,
-        Greater,
-        GreaterOrEqual,
-        Less,
-        LessOrEqual,
-    }
+    
 }

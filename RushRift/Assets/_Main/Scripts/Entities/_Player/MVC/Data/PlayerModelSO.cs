@@ -27,7 +27,7 @@ namespace Game.Entities
         
         [Header("Attributes")]
         [SerializeField] private HealthComponentData health;
-        [FormerlySerializedAs("stamina")] [SerializeField] private EnergyComponentData energy;
+        [SerializeField] private EnergyComponentData energy;
         
         public ComboHandler GetComboComponent(IController controller)
         {
