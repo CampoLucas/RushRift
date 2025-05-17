@@ -6,53 +6,88 @@ namespace Game.Entities.Components
     public class Attribute<TData, TDataReturn> : IAttribute where TData : AttributeData<TDataReturn> where TDataReturn : IAttribute
     {
         public float Value { get; private set; }
-        public float MaxValue => _maxHealth;
+        public float MaxValue => _data.MaxValue + _maxModifier;
+        public float RegenRate => _data.RegenRate + _regenModifier;
+        public float StartRegenRate => _data.RegenRate != 0 ? _data.RegenRate : .1f;
+        public float StartMaxValue => _data.MaxValue;
         public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
         public ISubject OnValueDepleted{ get; private set; } = new Subject();
-
         
         protected IObserver<float> LateUpdateObserver;
         protected bool Disposed;
         
         private IObserver<float> _updateObserver;
         private TData _data;
-
-        private float _maxHealth;
+        private float _maxModifier;
+        private float _prevValue;
         
-        // ToDo: observers for when value updated, value depleted, value maxed, maxModifierUpdated, regenModifierUpdated
-        // ToDo: when adding a max value modifier and the attribute is full, the value will stay full.
-        // ToDo: when removing a max value modifier adjust the value so it is not over the max value.
-        // ToDo: have a changed max value and check if the current max value is different and if it is, adjust the value if nescesary
+        // Regeneration variables
+        private IRegenStrategy<TData, TDataReturn> _regenStrategy;
+        private bool _regenerating;
+        private bool _startRegenDelay;
+        private float _regenDelayTimer;
+        private float _regenModifier;
         
         public Attribute(TData data)
         {
             _data = data;
             
             _updateObserver = new ActionObserver<float>(Update);
+            _regenStrategy = new RegenStrategy<TData, TDataReturn>();
             
             InitAttribute();
         }
         
         public void Update(float delta)
         {
-            if (Disposed) return;
+            if (Disposed/* || !_data.HasRegen*/) return;
+
+            _regenStrategy.Tick(delta, this, _data);
             
-            if (_data.RegenRate == 0) return;
-            
-            if (_data.RegenRate > 0 && Value < MaxValue)
+            /*
+            if (!_regenerating && !_startRegenDelay && _prevValue != Value)
             {
-                Increase(delta * _data.RegenRate);
+                _startRegenDelay = true;
+                _regenDelayTimer = _data.RegenDelay;
             }
-            
-            if (_data.RegenRate < 0 && Value > 0)
+
+            if (_startRegenDelay)
             {
-                Decrease(delta * Mathf.Abs(_data.RegenRate));
+                _regenDelayTimer -= delta;
+
+                if (_regenDelayTimer <= 0)
+                {
+                    _startRegenDelay = false;
+                    _regenerating = true;
+                }
             }
-            
-            // if (Value < MaxValue && _data.RegenRate > 0)
-            // {
-            //     Increase(delta * _data.RegenRate);
-            // }
+
+            if (_regenerating)
+            {
+                if (_data.RegenRate > 0)
+                {
+                    if (Value < MaxValue)
+                    {
+                        Increase(delta * RegenRate);
+                    }
+                    else
+                    {
+                        _regenerating = false;
+                    }
+                }
+                else
+                {
+                    if (Value > 0)
+                    {
+                        Decrease(delta * Mathf.Abs(RegenRate));
+                    }
+                    else
+                    {
+                        _regenerating = false;
+                    }
+                }
+            }
+            */
         }
 
         public bool IsEmpty() => Value <= 0;
@@ -63,15 +98,19 @@ namespace Game.Entities.Components
             if (Disposed) return;
             if (IsEmpty()) return; // Don't decrease if it is already empty.
 
-            var prevValue = Value;
-            Value -= amount;
+            _prevValue = Value;
+            Value -= Mathf.Max(0, Value - amount);
             
-            OnDecrease(prevValue);
-            OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
+            OnDecrease(_prevValue);
+            OnValueChanged.NotifyAll(Value, _prevValue, MaxValue);
 
             if (IsEmpty())
             {
                 OnValueDepleted.NotifyAll();
+            }
+            else
+            {
+                _regenStrategy.NotifyValueChanged(_prevValue, Value, _data);
             }
         }
 
@@ -81,7 +120,7 @@ namespace Game.Entities.Components
             var maxValue = MaxValue;
             
             if (Value >= maxValue) return;
-            var prevValue = Value;
+            _prevValue = Value;
 
             Value += amount;
             if (Value >= maxValue)
@@ -89,19 +128,20 @@ namespace Game.Entities.Components
                 Value = maxValue;
             }
 
-            OnIncrease(prevValue);
-            OnValueChanged.NotifyAll(Value, prevValue, maxValue);
+            OnIncrease(_prevValue);
+            OnValueChanged.NotifyAll(Value, _prevValue, maxValue);
+            _regenStrategy.NotifyValueChanged(_prevValue, Value, _data);
         }
 
-        public void IncreaseMaxValue(float amount)
+        public void MaxValueModifier(float amount)
         {
-            _maxHealth += amount;
+            _maxModifier += amount;
             OnValueChanged.NotifyAll(Value, Value, MaxValue);
         }
 
-        public void IncreaseRegenSpeed(float amount)
+        public void RegenRateModifier(float amount)
         {
-            
+            _regenModifier += amount;
         }
         
         public void Dispose()
@@ -146,8 +186,6 @@ namespace Game.Entities.Components
 
         private void InitAttribute()
         {
-            _maxHealth = _data.MaxValue;
-            
             var prevValue = Value;
             var startValue = _data.StartValue;
             

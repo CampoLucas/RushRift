@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7554503012360926440
+--- !u!114 &-3921474168298658905
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,10 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6996f747826a4acaa47201551117ce4a, type: 3}
-  m_Name: ChangeMaxHealth
+  m_Script: {fileID: 11500000, guid: a23b831b3605474188c45d48c5358411, type: 3}
+  m_Name: ChangeMaxValue
   m_EditorClassIdentifier: 
-  amount: 10
+  attribute: 0
+  percentage: 1
+  amount: 30
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25,9 +27,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8c6f6fd0a67401b875e86fed2d0bca3, type: 3}
   m_Name: IncreaseMaxHealth
   m_EditorClassIdentifier: 
+  duration: 0
   strategy:
     collection:
-    - {fileID: -7554503012360926440}
+    - {fileID: 0}
+    - {fileID: -3921474168298658905}
   startTriggers:
     collection: []
   stopTriggers:

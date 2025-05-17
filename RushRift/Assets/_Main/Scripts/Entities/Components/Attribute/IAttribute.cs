@@ -13,6 +13,8 @@ namespace Game.Entities.Components
         /// </summary>
         float Value { get; }
         float MaxValue { get; }
+        float StartRegenRate { get; }
+        float StartMaxValue { get; }
 
         /// <summary>
         /// A subject that notifies observers when the value is updated.
@@ -40,5 +42,8 @@ namespace Game.Entities.Components
         /// </summary>
         /// <param name="amount">The amount to increase.</param>
         void Increase(float amount);
+
+        void MaxValueModifier(float amount);
+        void RegenRateModifier(float amount);
     }
 }

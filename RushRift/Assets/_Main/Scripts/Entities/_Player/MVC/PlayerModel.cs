@@ -22,8 +22,7 @@ namespace Game.Entities
 
             TryAddComponent(Data.GetComboComponent(controller));
             TryAddComponent(Data.Health.GetComponent()); 
-            TryAddComponent(Data.Stamina.GetComponent());
-            TryAddComponent(Data.Mana.GetComponent());
+            TryAddComponent(Data.Energy.GetComponent());
             
         }
     }
