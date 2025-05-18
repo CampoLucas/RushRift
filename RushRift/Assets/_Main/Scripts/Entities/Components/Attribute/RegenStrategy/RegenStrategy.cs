@@ -11,7 +11,7 @@ namespace Game.Entities.Components
         
         public void Tick(float delta, Attribute<TData, TDataReturn> attribute, TData data)
         {
-            if (!data.HasRegen || attribute.IsEmpty()) return;
+            //if (attribute.IsEmpty()) return;
 
             if (_waitingForDelay)
             {
@@ -41,7 +41,7 @@ namespace Game.Entities.Components
 
         public void NotifyValueChanged(float oldValue, float newValue, TData data)
         {
-            if (!data.HasRegen || oldValue == newValue) return;
+            if (oldValue == newValue) return;
 
             _waitingForDelay = true;
             _regenDelayTimer = data.RegenDelay;

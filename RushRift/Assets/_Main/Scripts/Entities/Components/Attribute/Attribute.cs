@@ -192,6 +192,7 @@ namespace Game.Entities.Components
             
             Value = startValue > MaxValue ? MaxValue : startValue;
             OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
+            _regenStrategy.NotifyValueChanged(Value, prevValue, _data);
         }
     }
 }
