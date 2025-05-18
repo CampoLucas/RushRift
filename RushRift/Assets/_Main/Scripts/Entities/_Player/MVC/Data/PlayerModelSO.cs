@@ -16,11 +16,13 @@ namespace Game.Entities
         public GravityData Gravity => gravity;
         public HealthComponentData Health => health;
         public EnergyComponentData Energy => energy;
+        public DashData Dash => dash;
         
         [Header("Movement Stats")] 
         [SerializeField] private MovementData moveSpeed;
         [SerializeField] private JumpData jump;
         [SerializeField] private GravityData gravity;
+        [SerializeField] private DashData dash;
 
         [Header("Combo")]
         [SerializeField] private Combo comboData;

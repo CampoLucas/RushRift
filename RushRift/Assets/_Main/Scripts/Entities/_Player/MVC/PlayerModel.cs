@@ -17,6 +17,8 @@ namespace Game.Entities
             {
                 var movement = Data.MoveSpeed.GetMovement(characterController);
                 TryAddComponent(movement);
+
+                TryAddComponent(Data.Dash.GetComponent(characterController, controller.Origin, Camera.main.transform));
                 //TryAddComponent(Data.SpeedLines.GetComponent(controller.SpeedLines, movement.MoveAmount));
             }
 
