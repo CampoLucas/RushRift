@@ -50,7 +50,7 @@ namespace Game.Entities.Attribute
                     atr = default;
                     return false;
                 case AttributeType.Energy:
-                    if (controller.GetModel().TryGetComponent<HealthComponent>(out var ec))
+                    if (controller.GetModel().TryGetComponent<EnergyComponent>(out var ec))
                     {
                         atr = ec;
                         return true;
