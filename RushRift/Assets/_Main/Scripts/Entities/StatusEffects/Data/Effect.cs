@@ -8,6 +8,8 @@ namespace Game.Entities
     {
         [Header("Settings")]
         [SerializeField] private float duration;
+        [SerializeField] private bool removeWhenApplied = false;
+        [SerializeField] private bool detachWhenApplied = true;
         
         [Header("Effects")]
         [SerializeField] private SerializableSOCollection<EffectStrategy> strategy;
@@ -30,8 +32,8 @@ namespace Game.Entities
             var strategies = strategy.Get<IEffectStrategy>().ToArray();
 
             var effectInstance = dur > 0 ? 
-                new EffectInstance(strategies, startTr, stopTr, removeTr, dur) : 
-                new EffectInstance(strategies, startTr, stopTr, removeTr);
+                new EffectInstance(strategies, startTr, stopTr, removeTr, removeWhenApplied, detachWhenApplied, dur) :
+                new EffectInstance(strategies, startTr, stopTr, removeTr, removeWhenApplied, detachWhenApplied);
             effectInstance.Initialize(controller);
         }
 
