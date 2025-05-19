@@ -29,7 +29,7 @@ namespace Game.Entities
             }
             
 #if UNITY_EDITOR
-            Debug.Log("Effect Added");
+            Debug.Log("SuperTest: Effect Added");
 #endif
         }
 
@@ -46,7 +46,7 @@ namespace Game.Entities
             effect.Dispose(); // Dispose all effect's reference, including subjects and observers created dynamically.
             
 #if UNITY_EDITOR
-            Debug.Log("Effect Removed");
+            Debug.Log("SuperTest: Effect Removed");
 #endif
         }
 

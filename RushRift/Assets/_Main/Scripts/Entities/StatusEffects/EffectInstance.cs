@@ -144,10 +144,11 @@ namespace Game.Entities
 
         private void OnStart()
         {
-            if (_disposed || (_started && !_detachWhenApplied) || _removed) return;
+            if (_disposed || (_started && _detachWhenApplied) || _removed) return;
             _started = true;
             _stopped = false;
-
+            
+            Debug.Log("SuperTest: Start Effect");
             Start();
 
             if (_removeWhenApplied)
@@ -212,8 +213,15 @@ namespace Game.Entities
         private void Start()
         {
             // Executes the effect logic from when the effect starts
-            if (_strategies == null || _strategies.Count == 0 || _removed) return;
+            if (_strategies == null || _strategies.Count == 0 || _removed)
+            {
+                Debug.Log($"SuperTest: Strategies is null ? {_strategies == null} Strategies is 0 ? {_strategies.Count == 0} Removed ? {_removed}");
+                
+                return;
+            }
             
+            
+            Debug.Log("SuperTest: it should start");
             for (var i = 0; i < _strategies.Count; i++)
             {
                 _strategies[i].StartEffect(_controller);

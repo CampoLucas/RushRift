@@ -7,6 +7,8 @@ namespace Game.Entities.Attribute
     {
         protected override void OnStartEffect(IAttribute atr)
         {
+            Debug.Log("SuperTest: Change Value start");
+            
             var a = GetAmount(atr.StartMaxValue);
             if (a > 0)
             {
