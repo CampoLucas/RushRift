@@ -19,20 +19,20 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 0
-        inSlope: 0
-        outSlope: 0
+        inSlope: -0.035273638
+        outSlope: -0.035273638
         tangentMode: 0
-        weightedMode: 0
+        weightedMode: 3
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.7875
       - serializedVersion: 3
         time: 0.15
-        value: 1
-        inSlope: 0
-        outSlope: 0
+        value: 0.99583435
+        inSlope: -0.000004849191
+        outSlope: -0.000004849191
         tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
+        weightedMode: 1
+        inWeight: 0.49166667
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -41,30 +41,29 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
+        time: -0.0041656494
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 0.004115167
+        outSlope: 0.004115167
         tangentMode: 0
-        weightedMode: 0
+        weightedMode: 3
         inWeight: 0
-        outWeight: 0
+        outWeight: 1
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: 0
-        outSlope: 0
+        inSlope: 0.005649761
+        outSlope: 0.005649761
         tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
+        weightedMode: 3
+        inWeight: 0.73444057
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     maxSpeed: 40
-    useDot: 0
     groundAcceleration: 100
-    groundDeceleration: 80
+    groundDeceleration: 100
     airAcceleration: 100
     airDeceleration: 100
     groundDetect:
@@ -75,9 +74,10 @@ MonoBehaviour:
         serializedVersion: 2
         m_Bits: 8
     gravity:
-      customGravity: 1
-      gravity: 0
-      gravityScale: 0.25
+      customGravity: 0
+      gravity: 2
+      gravityScale: 1
+      maxGravityAccel: 3
       fallAirControl: 1
       airAcceleration: 100
   jump:
@@ -112,7 +112,8 @@ MonoBehaviour:
   gravity:
     customGravity: 0
     gravity: 10
-    gravityScale: 5
+    gravityScale: 4
+    maxGravityAccel: 0
     fallAirControl: 0.566
     airAcceleration: 40
   comboData: {fileID: 11400000, guid: 0b705b981d3638540927ff120005df2d, type: 2}

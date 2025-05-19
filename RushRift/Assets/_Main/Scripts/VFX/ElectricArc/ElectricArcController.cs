@@ -17,7 +17,7 @@ namespace Game.VFX
         [Header("Settings")]
         [SerializeField] private float arcOffset = .5f;
         [SerializeField] private bool startEnabled;
-        [SerializeField] private float speed = 50f;
+        //[SerializeField] private float speed = 50f;
         [SerializeField] private float time = .1f;
         
         [Header("Visual Effects")]

@@ -8,7 +8,9 @@ namespace Game.Entities.Components
     {
         public Vector3 Velocity { get; private set; }
         public bool Grounded => _isGrounded;
-        
+        public float MaxSpeed => _data.MaxSpeed + _speedModifier;
+        public float BaseMaxSpeed => _data.MaxSpeed;
+
         private IObserver<float> _updateObserver;
         private IObserver<float> _lateUpdateObserver;
         
@@ -24,6 +26,7 @@ namespace Game.Entities.Components
         private float _verticalVelocity;
         private float _accelTime = 0f;
         private float _decelTime = 0f;
+        private float _moveAmount;
 
 
         // Collision detection
@@ -32,8 +35,9 @@ namespace Game.Entities.Components
 
         // Velocity
         private Vector3 _prevPosition;
+        private float _speedModifier;
 
-        private float _maxSpeed;
+        private bool _enableGravity;
 
         public Movement(CharacterController controller, MovementData data)
         {
@@ -49,14 +53,19 @@ namespace Game.Entities.Components
             CheckGrounded();
 
 
+            _verticalVelocity += _data.Gravity.GetValue() * delta;
+            if (_verticalVelocity > _data.Gravity.MaxGravityAccel)
+            {
+                _verticalVelocity = _data.Gravity.MaxGravityAccel;
+            }
+            
             if (_isGrounded)
             {
-                _verticalVelocity = -1f;
+                //_verticalVelocity = -1f;
                 Move(_moveDir, _data.GroundAccel, _data.GroundDec, delta);
             }
             else
             {
-                _verticalVelocity += _data.Gravity.GetValue() * delta;
                 Move(_moveDir, _data.AirAccel, _data.AirDec, delta);
             }
             
@@ -64,6 +73,7 @@ namespace Game.Entities.Components
             
             var pos = _transform.position;
             Velocity = (_prevPosition - pos) / delta;
+            _moveAmount = Velocity.magnitude;
             _prevPosition = pos;
         }
 
@@ -71,7 +81,7 @@ namespace Game.Entities.Components
 
         private void Move(Vector3 dir, float accel, float deccel, float delta)
         {
-            var targetVelocity = dir * _data.MaxSpeed;
+            var targetVelocity = dir * MaxSpeed;
             var horizontalVelocity = new Vector3(_currentVelocity.x, 0f, _currentVelocity.z);
             var velocityDelta = targetVelocity - horizontalVelocity;
 
@@ -103,7 +113,8 @@ namespace Game.Entities.Components
                 horizontalVelocity = Vector3.zero;
             }
 
-            _currentVelocity = new Vector3(horizontalVelocity.x, _verticalVelocity, horizontalVelocity.z);
+            
+            _currentVelocity = new Vector3(horizontalVelocity.x,  _enableGravity ? _verticalVelocity : 0, horizontalVelocity.z);
             _controller.Move(_currentVelocity * delta);
             _prevMoveDir = dir;
         }
@@ -141,9 +152,25 @@ namespace Game.Entities.Components
             
             if (_groundDetect != null) _groundDetect.Dispose();
             _groundDetect = data.GetGroundDetector(_transform);
+            
         }
-        
-        
+
+        public void AppendMaxSpeed(float amount)
+        {
+            _speedModifier += amount;
+        }
+
+        public float MoveAmount()
+        {
+            return _moveAmount;
+        }
+
+        public void EnableGravity(bool value)
+        {
+            _enableGravity = value;
+        }
+
+
         public void Dispose()
         {
             _data = null;

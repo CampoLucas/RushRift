@@ -1,11 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Game.Entities
 {
     public abstract class EntityController : MonoBehaviour, IController
     {
         public Transform Origin { get; private set; }
+        public VisualEffect SpeedLines => speedLines;
         public Joints<EntityJoint> Joints => joints;
 
         [Header("Data")]
@@ -15,6 +17,7 @@ namespace Game.Entities
         [Header("References")]
         [SerializeField] protected Joints<EntityJoint> joints;
         [SerializeField] private Animator[] animator;
+        [SerializeField] private VisualEffect speedLines;
 
         protected EntityStateMachine _fsm;
         
@@ -91,7 +94,7 @@ namespace Game.Entities
             if (_model != null) _model.OnDrawSelected(transform);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (_model != null) _model.Dispose();
             _model = null;

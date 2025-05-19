@@ -29,6 +29,8 @@ namespace Game.Entities
         protected override void OnStart(ref EntityArgs args)
         {
             _elapsedTime = 0f;
+            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            movement.EnableGravity(false);
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
@@ -36,8 +38,8 @@ namespace Game.Entities
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
 
             _elapsedTime += delta;
-            float t = Mathf.Clamp01(_elapsedTime / _jumpData.Duration);
-            float curveValue = _jumpData.JumpCurve.Evaluate(t);
+            var t = Mathf.Clamp01(_elapsedTime / _jumpData.Duration);
+            var curveValue = _jumpData.JumpCurve.Evaluate(t);
 
             _velocity = curveValue * Mathf.Sqrt(_jumpData.Height * -2 * _gravity);
 
@@ -50,9 +52,17 @@ namespace Game.Entities
             movement.Move(jumpDir, delta);
         }
 
+        protected override void OnExit(ref EntityArgs args)
+        {
+            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            movement.EnableGravity(true);
+        }
+
         protected override bool OnCompleted(ref EntityArgs args)
         {
-            return _elapsedTime >= _jumpData.Duration;
+            //return false;
+            //return _elapsedTime >= _jumpData.Duration;
+            return _velocity <= 0;
         }
         
         protected override void OnDispose()

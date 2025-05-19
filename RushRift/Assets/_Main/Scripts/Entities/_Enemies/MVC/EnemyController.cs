@@ -9,8 +9,8 @@ namespace Game.Entities
 {
     public class EnemyController : EntityController
     {
-        public static ISubject onEnemyDeathSubject = new Subject();
-        public static ISubject onEnemySpawnSubject = new Subject();
+        public static ISubject OnEnemyDeathSubject = new Subject(); // ToDo: Move it to the a EnemyManager and dispose of all references
+        public static ISubject OnEnemySpawnSubject = new Subject();
         
         [Header("Target")]
         [SerializeField] private Transform target;
@@ -37,7 +37,7 @@ namespace Game.Entities
         protected override void Start()
         {
             base.Start();
-            onEnemySpawnSubject.NotifyAll();
+            OnEnemySpawnSubject.NotifyAll();
             if (target) Init(target);
         }
 
@@ -72,7 +72,7 @@ namespace Game.Entities
 
         private void OnDeath()
         {
-            onEnemyDeathSubject.NotifyAll();
+            OnEnemyDeathSubject.NotifyAll();
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
         }

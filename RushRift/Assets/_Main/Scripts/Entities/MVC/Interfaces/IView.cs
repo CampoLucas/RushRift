@@ -7,5 +7,6 @@ namespace Game.Entities
     {
         void Init(Animator[] animator);
         void Play(string name);
+        void Play(string name, int layer, float time = 0);
     }
 }

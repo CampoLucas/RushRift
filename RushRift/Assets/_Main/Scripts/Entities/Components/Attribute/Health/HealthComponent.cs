@@ -6,6 +6,7 @@ namespace Game.Entities.Components
     public class HealthComponent : Attribute<HealthComponentData, HealthComponent>
     {
         public Vector3 DamagePosition { get; private set; }
+        public ISubject OnHealthChanged { get; private set; } = new Subject();
         
         private bool _damaged;
         private float _healthLost;
@@ -23,7 +24,6 @@ namespace Game.Entities.Components
 
         public bool IsAlive() => !IsEmpty();
         public bool Damaged() => _damaged;
-        public float HealthLost() => _healthLost;
 
         public void Damage(float amount/*, DamageType dmgType*/, Vector3 position)
         {
@@ -35,7 +35,7 @@ namespace Game.Entities.Components
             
             base.Decrease(amount);
         }
-        
+
         protected override void OnDecrease(float previousValue)
         {
             _damaged = true;
@@ -45,6 +45,13 @@ namespace Game.Entities.Components
         public override void OnDraw(Transform origin)
         {
             
+        }
+
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            OnHealthChanged.Dispose();
+            OnHealthChanged = null;
         }
     }
 }

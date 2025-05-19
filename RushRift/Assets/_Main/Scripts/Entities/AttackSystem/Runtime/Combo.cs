@@ -42,7 +42,7 @@ namespace Game.Entities.AttackSystem
 
         private List<IModuleData> _data = new();
         private Dictionary<IModuleData, bool> _removableDictionary = new();
-        private bool _modified;
+        //private bool _modified;
         
         private List<IModuleProxy> _proxies = new();
         
@@ -67,7 +67,7 @@ namespace Game.Entities.AttackSystem
         {
             if (data == null) return;
             _data.Add(data);
-            _modified = true;
+            //_modified = true;
         }
 
         public void RemoveData(IModuleData data)
@@ -75,7 +75,7 @@ namespace Game.Entities.AttackSystem
             if (data == null) return;
             if (!_data.Remove(data)) return;
             data.Dispose();
-            _modified = true;
+            //_modified = true;
         }
 
         // when closing the inventory it would be executed
@@ -128,7 +128,7 @@ namespace Game.Entities.AttackSystem
 
             
 
-            _modified = false;
+            //_modified = false;
         }
 
         public List<IModuleProxy> GetProxies() => _proxies;

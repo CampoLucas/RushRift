@@ -11,7 +11,8 @@ namespace Game.Entities.AttackSystem.Hitscan
         
         public bool AddSpread => addSpread;
         public float Spread => spread;
-        public LayerMask Mask => mask;
+        public LayerMask GroundMask => groundMask;
+        public LayerMask EntityMask => entityMask;
         public ParticleSystem Muzzle => muzzleEffect;
         public ParticleSystem Impact => impactEffect;
         public ElectricArcController Line => line;
@@ -21,6 +22,8 @@ namespace Game.Entities.AttackSystem.Hitscan
         public EntityJoint SpawnJoint => spawnJoint;
         public EntityJoint OriginJoint => originJoint;
         public Vector3 Offset => offset;
+        public bool UseSFX => useSFX;
+        public string SFXName => sfxName;
 
         [Header("Settings")]
         [SerializeField] private float damage = 10;
@@ -37,8 +40,10 @@ namespace Game.Entities.AttackSystem.Hitscan
         [SerializeField] private bool addSpread = true;
         [SerializeField] private float spread = .1f;
 
+        [FormerlySerializedAs("mask")]
         [Header("Collision")]
-        [SerializeField] private LayerMask mask;
+        [SerializeField] private LayerMask groundMask;
+        [SerializeField] private LayerMask entityMask;
         [SerializeField] private float radius = .5f;
 
         [Header("Visuals")]
@@ -47,6 +52,10 @@ namespace Game.Entities.AttackSystem.Hitscan
         [Header("Line")]
         [SerializeField] private ElectricArcController line;
         [SerializeField] private float lineDuration;
+
+        [Header("SFX")]
+        [SerializeField] private bool useSFX;
+        [SerializeField] private string sfxName;
         
         
         public override IModuleProxy GetProxy(IController controller, bool disposeData = false)
@@ -67,7 +76,7 @@ namespace Game.Entities.AttackSystem.Hitscan
         {
             var direction = forward;
             
-            if (Physics.Raycast(eyesPos, forward, out var hit, Range, Mask))
+            if (Physics.Raycast(eyesPos, forward, out var hit, Range, GroundMask))
             {
                 direction = (hit.point - spawnPos).normalized;
             }
