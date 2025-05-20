@@ -601,7 +601,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0.15578079, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -777,8 +777,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7423510261586405569}
-  - component: {fileID: 7532046956758376420}
-  - component: {fileID: 6083858128748102099}
   m_Layer: 0
   m_Name: Bar
   m_TagString: Untagged
@@ -808,45 +806,6 @@ RectTransform:
   m_AnchoredPosition: {x: -169.81, y: 0}
   m_SizeDelta: {x: 204.15, y: 27.95}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7532046956758376420
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4687892247176673251}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69920aaa13b84a7889405a1180b2953b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasGroup: {fileID: 6083858128748102099}
-  primaryFill: {fileID: 2717560390507555607}
-  secondaryFill: {fileID: 3843090398329865048}
-  background: {fileID: 5556296619613678345}
-  border: {fileID: 0}
-  text: {fileID: 0}
-  useSecondaryFill: 0
-  showText: 1
-  showMax: 0
-  secondarySpeed: 0.3
-  primaryFillColor: {r: 0.22352943, g: 0.9215687, b: 0.4784314, a: 1}
-  secondaryFillColor: {r: 0.9137255, g: 0.8375563, b: 0.14509803, a: 1}
-  backgroundColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
-  borderColor: {r: 0, g: 0, b: 0, a: 1}
-  textColor: {r: 1, g: 1, b: 1, a: 1}
---- !u!225 &6083858128748102099
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4687892247176673251}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1 &5072913291667113056
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,7 +943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69920aaa13b84a7889405a1180b2953b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvasGroup: {fileID: 6083858128748102099}
+  canvasGroup: {fileID: 0}
   primaryFill: {fileID: 2717560390507555607}
   secondaryFill: {fileID: 3843090398329865048}
   background: {fileID: 5556296619613678345}
