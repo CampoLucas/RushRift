@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Game.UI.Screens
 {
     [RequireComponent(typeof(CanvasGroup))]
-    public class UIView : MonoBehaviour
+    public class UIView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup canvasGroup;
         
@@ -15,10 +15,10 @@ namespace Game.UI.Screens
         
         private Coroutine _coroutine;
 
-        // private void Awake()
-        // {
-        //     _canvasGroup = GetComponent<CanvasGroup>();
-        // }
+        protected virtual void Awake()
+        {
+            if (!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
+        }
 
         public void Show()
         {
@@ -82,6 +82,12 @@ namespace Game.UI.Screens
                 Hide();
                 onEnd.NotifyAll();
             }
+        }
+
+        public virtual void Dispose()
+        {
+            canvasGroup = null;
+            StopCoroutine(_coroutine);
         }
     }
 }

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6238020085386141392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bc538b7b50d4999965fbe7102a27062, type: 3}
+  m_Name: ChangeRegenRate
+  m_EditorClassIdentifier: 
+  attribute: 0
+  percentage: 0
+  amount: 0.25
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8c6f6fd0a67401b875e86fed2d0bca3, type: 3}
+  m_Name: Test_IncreaseHealthRegen_Percentage
+  m_EditorClassIdentifier: 
+  duration: 8
+  strategy:
+    collection:
+    - {fileID: -6238020085386141392}
+  startTriggers:
+    collection: []
+  stopTriggers:
+    collection: []
+  removeTriggers:
+    collection: []

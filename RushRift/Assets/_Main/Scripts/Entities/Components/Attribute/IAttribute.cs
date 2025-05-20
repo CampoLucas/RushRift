@@ -13,12 +13,14 @@ namespace Game.Entities.Components
         /// </summary>
         float Value { get; }
         float MaxValue { get; }
+        float StartRegenRate { get; }
+        float StartMaxValue { get; }
 
         /// <summary>
         /// A subject that notifies observers when the value is updated.
         /// It takes a tuple with the current, previous and max value.
         /// </summary>
-        ISubject<(float, float, float)> OnValueChanged { get; }
+        ISubject<float, float, float> OnValueChanged { get; }
         
         /// <summary>
         /// Indicates if the value of the attribute is less or equal than zero.
@@ -40,5 +42,8 @@ namespace Game.Entities.Components
         /// </summary>
         /// <param name="amount">The amount to increase.</param>
         void Increase(float amount);
+
+        void MaxValueModifier(float amount);
+        void RegenRateModifier(float amount);
     }
 }

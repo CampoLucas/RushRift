@@ -20,7 +20,7 @@ namespace Game.Entities
         [SerializeField] private int damageIndex;
         [SerializeField] private int deathIndex;
 
-        private IObserver<(float, float, float)> _onDamageObserver;
+        private IObserver<float, float, float> _onDamageObserver;
         private IObserver _onDeathObserver;
         private EnemyComponent _enemyComp;
         
@@ -28,7 +28,7 @@ namespace Game.Entities
         {
             base.Awake();
 
-            _onDamageObserver = new ActionObserver<(float, float, float)>(OnDamage);
+            _onDamageObserver = new ActionObserver<float, float, float>(OnDamage);
             _onDeathObserver = new ActionObserver(OnDeath);
             
 
@@ -77,9 +77,9 @@ namespace Game.Entities
             runner.SetRunnerActive(deathIndex);
         }
         
-        private void OnDamage((float, float, float) args)
+        private void OnDamage(float currentHealth, float previousHealth, float maxHealth)
         {
-            if (args.Item1 >= args.Item2) return;
+            if (currentHealth >= previousHealth) return;
             
             runner.DisableAllRunners();
             runner.SetRunnerActive(damageIndex);

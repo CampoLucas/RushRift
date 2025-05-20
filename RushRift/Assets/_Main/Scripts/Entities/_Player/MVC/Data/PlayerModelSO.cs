@@ -4,6 +4,7 @@ using Game.Entities.AttackSystem;
 using Game.Entities.Components;
 using Game.Inputs;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Entities
 {
@@ -14,21 +15,21 @@ namespace Game.Entities
         public JumpData Jump => jump;
         public GravityData Gravity => gravity;
         public HealthComponentData Health => health;
-        public StaminaComponentData Stamina => stamina;
-        public ManaComponentData Mana => mana;
+        public EnergyComponentData Energy => energy;
+        public DashData Dash => dash;
         
         [Header("Movement Stats")] 
         [SerializeField] private MovementData moveSpeed;
         [SerializeField] private JumpData jump;
         [SerializeField] private GravityData gravity;
+        [SerializeField] private DashData dash;
 
         [Header("Combo")]
         [SerializeField] private Combo comboData;
         
         [Header("Attributes")]
         [SerializeField] private HealthComponentData health;
-        [SerializeField] private StaminaComponentData stamina;
-        [SerializeField] private ManaComponentData mana;
+        [SerializeField] private EnergyComponentData energy;
         
         public ComboHandler GetComboComponent(IController controller)
         {

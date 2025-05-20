@@ -27,7 +27,9 @@ public class DisableBehaviour : MonoBehaviour
     {
         for (int i = 0; i < behavioursToDisable.Length; i++)
         {
-            behavioursToDisable[i].enabled = false;
+            var b = behavioursToDisable[i];
+            if (b == null) continue;
+            b.enabled = false;
         }
     }
 

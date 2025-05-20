@@ -5,6 +5,7 @@ using Game.Entities.Components;
 using Game.Entities.Enemies.Components;
 using Game.Inputs;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Entities
 {
@@ -15,7 +16,7 @@ namespace Game.Entities
         public GravityData Gravity => gravity;
         public Combo Combo => combo;
         public HealthComponentData Health => health;
-        public StaminaComponentData Stamina => stamina;
+        public EnergyComponentData Energy => energy;
         public ManaComponentData Mana => mana;
         
         [Header("Movement")]
@@ -27,7 +28,7 @@ namespace Game.Entities
         
         [Header("Attributes")]
         [SerializeField] private HealthComponentData health;
-        [SerializeField] private StaminaComponentData stamina;
+        [FormerlySerializedAs("stamina")] [SerializeField] private EnergyComponentData energy;
         [SerializeField] private ManaComponentData mana;
         
         public override NullCheck<IModel> GetProxy()
@@ -64,7 +65,7 @@ namespace Game.Entities
             
             TryAddComponent(Data.GetComboComponent(controller));
             TryAddComponent(Data.Health.GetComponent()); 
-            TryAddComponent(Data.Stamina.GetComponent());
+            TryAddComponent(Data.Energy.GetComponent());
             TryAddComponent(Data.Mana.GetComponent());
         }
     }

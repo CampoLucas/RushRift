@@ -131,6 +131,13 @@ namespace Game.Entities.AttackSystem
 
         public void StartAttack(ComboHandler comboHandler)
         {
+            _moduleParams = new ModuleParams()
+            {
+                OriginTransform = comboHandler.Owner.Origin,
+                Joints = comboHandler.Owner.Joints,
+                Owner = new NullCheck<IController>(comboHandler.Owner),
+            };
+            
             _startSubject.NotifyAll(_moduleParams);
             _runningProxies.Clear();
 
@@ -140,13 +147,6 @@ namespace Game.Entities.AttackSystem
                 proxy.Reset();
                 _runningProxies.Add(proxy);
             }
-            
-            _moduleParams = new ModuleParams()
-            {
-                OriginTransform = comboHandler.Owner.Origin,
-                Joints = comboHandler.Owner.Joints,
-                Owner = new NullCheck<IController>(comboHandler.Owner),
-            };
         }
 
         public void EndAttack(ComboHandler comboHandler)
