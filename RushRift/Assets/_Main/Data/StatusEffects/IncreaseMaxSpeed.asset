@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12ac5793eef0431992a894a335b5f4e5, type: 3}
   m_Name: MaxSpeed
   m_EditorClassIdentifier: 
-  value: 50
+  value: 35
   percentage: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -27,6 +27,8 @@ MonoBehaviour:
   m_Name: IncreaseMaxSpeed
   m_EditorClassIdentifier: 
   duration: 3
+  removeWhenApplied: 0
+  detachWhenApplied: 1
   strategy:
     collection:
     - {fileID: -9092648178907138045}
