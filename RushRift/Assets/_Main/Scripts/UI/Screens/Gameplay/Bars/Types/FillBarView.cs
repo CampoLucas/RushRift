@@ -19,6 +19,7 @@ namespace Game.UI.Screens
         [Header("Settings")]
         [SerializeField] private bool useSecondaryFill;
         [SerializeField] private bool showText;
+        [SerializeField] private bool showMax;
         [SerializeField] private float secondarySpeed = 1f;
         
         [Header("Colors")]
@@ -74,14 +75,14 @@ namespace Game.UI.Screens
         public override void SetStartValue(float startValue, float startMaxValue)
         {
             primaryFill.fillAmount = startValue / startMaxValue;
-            if (showText) text.text = $"{(int)startValue}/{startMaxValue}";
+            if (showText) text.text = showMax ? $"{(int)startValue}/{startMaxValue}" : $"{(int)startValue}";
         }
 
         private void SetValue(float current, float previous, float max)
         {
             primaryFill.fillAmount = current / max;
             
-            if (showText) text.text = $"{(int)current}/{max}";
+            if (showText) text.text = showMax ? $"{(int)current}/{max}" : $"{(int)current}";
             
             
             if (useSecondaryFill && current < previous)
