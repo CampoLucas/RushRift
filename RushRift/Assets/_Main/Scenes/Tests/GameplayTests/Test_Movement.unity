@@ -4014,7 +4014,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2832051620954201106}
   - component: {fileID: 2537509460948761361}
-  - component: {fileID: 6719577147111306041}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -4022,23 +4021,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &6719577147111306041
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6719577147111306040}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 550c7ed537114c44c98626e6225b6931, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startFOV: 75
-  maxFOV: 70
-  lerpSpeed: 40
-  playerMovement: {fileID: 9075180828914040086}
-  forwardThreshold: 0.1
 --- !u!1 &7012067647788453309
 GameObject:
   m_ObjectHideFlags: 3
@@ -4191,8 +4173,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 962701637}
   maxSpeed: 20
-  acceleration: 100
-  deceleration: 80
+  acceleration: 1000
+  deceleration: 1000
   accelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -4241,7 +4223,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  airControl: 0.8
+  airControl: 1
   gravity: -19.62
   jumpForce: 18
   jumpCurve:
