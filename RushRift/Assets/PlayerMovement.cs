@@ -39,6 +39,13 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Initial force applied when jumping.")]
     [SerializeField] private float jumpForce = 10f;
     
+    [Header("Jump Curve Settings")]
+    [Tooltip("Controls vertical movement over jump duration (Y = height multiplier).")]
+    [SerializeField] private AnimationCurve jumpCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
+
+    [Tooltip("Duration of the jump curve in seconds.")]
+    [SerializeField, Range(0.1f, 2f)] private float jumpDuration = 0.5f;
+    
     [Tooltip("How long the player can still jump after leaving the ground.")]
     [SerializeField, Range(0f, 0.5f)] private float coyoteTime = 0.15f;
 
@@ -61,6 +68,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveDirection;
     private float accelerationTimer;
     private float decelerationTimer;
+    
+    private float jumpTimer = 0f;
+    private bool isJumping = false;
+    private float gravityDelayTimer = 0f;
     private float coyoteTimer;
     private bool isGrounded;
     private bool jumpRequested;
@@ -86,7 +97,6 @@ public class PlayerMovement : MonoBehaviour
         
         Vector3 cameraEuler = Camera.main.transform.eulerAngles;
         orientation.rotation = Quaternion.Euler(0, cameraEuler.y, 0);
-
     }
 
     #endregion
@@ -142,16 +152,34 @@ public class PlayerMovement : MonoBehaviour
         velocityDelta = Vector3.ClampMagnitude(velocityDelta, rate * deltaTime * curveFactor);
         horizontalVelocity += velocityDelta;
 
-        // Jumping
         if (jumpRequested)
         {
-            velocity.y = jumpForce;
+            isJumping = true;
+            jumpTimer = 0f;
             jumpRequested = false;
+            gravityDelayTimer = 0f; // gravity delay no longer needed
         }
 
-        // Apply gravity
-        velocity.y += gravity * deltaTime;
+        if (isJumping)
+        {
+            jumpTimer += deltaTime;
+            float t = Mathf.Clamp01(jumpTimer / jumpDuration);
+            float curveValue = jumpCurve.Evaluate(t);
+    
+            // Convert curve output to vertical velocity
+            velocity.y = curveValue * jumpForce;
 
+            if (jumpTimer >= jumpDuration)
+            {
+                isJumping = false;
+            }
+        }
+        
+        else
+        {
+            velocity.y += gravity * deltaTime;
+        }
+        
         // Combine final velocity and move
         velocity = new Vector3(horizontalVelocity.x, velocity.y, horizontalVelocity.z);
         controller.Move(velocity * deltaTime);
@@ -189,11 +217,14 @@ public class PlayerMovement : MonoBehaviour
         {
             coyoteTimer = coyoteTime;
         }
+        
         else if (wasGrounded)
         {
             // Start countdown only once after losing contact
             coyoteTimer -= Time.deltaTime;
+            velocity.y = -2f; // reset vertical velocity to prevent bouncing
         }
+        
         else
         {
             coyoteTimer -= Time.deltaTime;
@@ -201,7 +232,6 @@ public class PlayerMovement : MonoBehaviour
 
         coyoteTimer = Mathf.Clamp(coyoteTimer, 0f, coyoteTime);
     }
-
-
+    
     #endregion
 }
