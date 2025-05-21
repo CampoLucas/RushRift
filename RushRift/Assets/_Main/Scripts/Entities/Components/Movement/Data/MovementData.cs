@@ -38,6 +38,6 @@ namespace Game.Entities.Components
         [SerializeField] private GravityData gravity;
         
         public IMovement GetMovement(CharacterController controller) => new Movement(controller, this);
-        public BoxOverlapDetect GetGroundDetector(Transform origin) => groundDetect.Get(origin);
+        public IDetection GetGroundDetector(Transform origin) => groundDetect.Get(origin);
     }
 }

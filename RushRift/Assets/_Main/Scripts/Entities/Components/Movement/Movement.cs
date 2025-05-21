@@ -30,7 +30,7 @@ namespace Game.Entities.Components
 
 
         // Collision detection
-        private BoxOverlapDetect _groundDetect;
+        private IDetection _groundDetect;
         private bool _isGrounded;
 
         // Velocity

@@ -1,21 +1,20 @@
-using System;
 using UnityEngine;
 
 namespace Game.Detection
 {
-    public class BoxOverlapDetect : IDisposable
+    public class OverlapDetect : IDetection
     {
         public bool IsColliding => _isColliding;
         public int Overlaps => _overlaps;
         
-        private BoxOverlapDetectData _data;
+        private IDetectionData _data;
         private Transform _origin;
 
         private int _overlaps;
         private Collider[] _colliders;
         private bool _isColliding; // Memoization
         
-        public BoxOverlapDetect(Transform origin, BoxOverlapDetectData data)
+        public OverlapDetect(Transform origin, IDetectionData data)
         {
             _origin = origin;
             _data = data;
@@ -32,6 +31,8 @@ namespace Game.Detection
         public void Dispose()
         {
             _data = null;
+            _origin = null;
+            _colliders = null;
         }
 
         public void Draw(Transform origin, Color color)

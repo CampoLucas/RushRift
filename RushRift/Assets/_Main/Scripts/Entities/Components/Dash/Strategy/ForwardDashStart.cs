@@ -2,11 +2,11 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class ForwardDash : IDashStrategy
+    public class ForwardDashStart : IDashStartStrategy
     {
         private DashData _data;
 
-        public ForwardDash(DashData data)
+        public ForwardDashStart(DashData data)
         {
             _data = data;
         }

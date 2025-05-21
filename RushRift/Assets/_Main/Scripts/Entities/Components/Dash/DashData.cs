@@ -27,14 +27,14 @@ namespace Game.Entities.Components
             return new DashComponent(controller, origin, cameraTransform, GetStrategy(), this);
         }
 
-        private IDashStrategy GetStrategy()
+        private IDashStartStrategy GetStrategy()
         {
             switch (strategy)
             {
                 case DashStrategy.Directional:
-                    return new DirectionalDash(this);
+                    return new DirectionalDashStart(this);
                 case DashStrategy.Forward:
-                    return new ForwardDash(this);
+                    return new ForwardDashStart(this);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

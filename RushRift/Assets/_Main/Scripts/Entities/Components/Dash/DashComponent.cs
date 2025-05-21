@@ -11,7 +11,8 @@ namespace Game.Entities.Components
 
         private DashData _data;
         private IObserver<float> _updateObserver;
-        private IDashStrategy _strategy;
+        private IDashStartStrategy _startStrategy;
+        private IDashUpdateStrategy _updateStrategy;
         
         private CharacterController _controller;
         private Transform _origin;
@@ -25,7 +26,7 @@ namespace Game.Entities.Components
 
 
         public DashComponent(CharacterController controller, Transform origin, Transform cameraTransform,
-            IDashStrategy strategy, DashData data)
+            IDashStartStrategy startStrategy, DashData data)
         {
             _controller = controller;
             _origin = origin;
@@ -34,7 +35,7 @@ namespace Game.Entities.Components
             _data = data;
             
             // Assign dash strategy
-            _strategy = strategy;
+            _startStrategy = startStrategy;
             _updateObserver = new ActionObserver<float>(OnUpdate);
         }
 
@@ -48,9 +49,11 @@ namespace Game.Entities.Components
             
             // Lerp between start and end positions based on curve
             var currentPosition = Vector3.Lerp(_dashStartPosition, _dashEndPosition, curveValue);
-            var moveVector = currentPosition - _origin.position;
+            var position = _origin.position;
+            var moveVector = currentPosition - position;
                 
             _controller.Move(moveVector); // Move by the difference
+            _updateStrategy?.OnDashUpdate(_origin, position);
 
             if (progress >= 1f)
             {
@@ -75,7 +78,7 @@ namespace Game.Entities.Components
         {
             if (_isDashing) return false;
             
-            _strategy.StartDash(_origin, _cameraTransform, out _dashStartPosition, out _dashEndPosition, out var dir);
+            _startStrategy.StartDash(_origin, _cameraTransform, out _dashStartPosition, out _dashEndPosition, out var dir);
 
             if (_dashStartPosition != _dashEndPosition)
             {
@@ -88,6 +91,20 @@ namespace Game.Entities.Components
             }
 
             return false;
+        }
+
+        public void SetUpdateStrategy(IDashUpdateStrategy updateStrategy)
+        {
+            var isNull = updateStrategy == null;
+            var isCurrentNull = _updateStrategy == null;
+
+            if (!isCurrentNull)
+            {
+                if (_updateStrategy == updateStrategy) return;
+                _updateStrategy.Dispose();
+            }
+
+            _updateStrategy = updateStrategy;
         }
         
         public bool TryGetUpdate(out IObserver<float> observer)
@@ -136,8 +153,8 @@ namespace Game.Entities.Components
             _updateObserver.Dispose();
             _updateObserver = null;
             
-            _strategy.Dispose();
-            _strategy = null;
+            _startStrategy.Dispose();
+            _startStrategy = null;
         }
     }
 }
