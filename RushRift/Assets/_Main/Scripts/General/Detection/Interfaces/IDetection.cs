@@ -7,6 +7,7 @@ namespace Game.Detection
     {
         bool IsColliding { get; }
         int Overlaps { get; }
+        Collider[] Collisions { get; }
         
         bool Detect();
         void Draw(Transform origin, Color color);

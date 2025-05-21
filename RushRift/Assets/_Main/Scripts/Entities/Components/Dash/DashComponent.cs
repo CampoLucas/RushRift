@@ -53,13 +53,14 @@ namespace Game.Entities.Components
             var moveVector = currentPosition - position;
                 
             _controller.Move(moveVector); // Move by the difference
-            _updateStrategy?.OnDashUpdate(_origin, position);
+            //_updateStrategy?.OnDashUpdate(_origin, position);
 
-            if (progress >= 1f)
+            if (progress >= 1f || (_updateStrategy != null && _updateStrategy.OnDashUpdate(_origin, position)))
             {
                 _isDashing = false;
                 
                 OnStopDash.NotifyAll();
+                _updateStrategy?.Reset();
             }
         }
 
@@ -95,7 +96,6 @@ namespace Game.Entities.Components
 
         public void SetUpdateStrategy(IDashUpdateStrategy updateStrategy)
         {
-            var isNull = updateStrategy == null;
             var isCurrentNull = _updateStrategy == null;
 
             if (!isCurrentNull)

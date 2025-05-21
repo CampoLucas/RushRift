@@ -5,6 +5,7 @@ namespace Game.Entities.Components
 {
     public interface IDashUpdateStrategy : IDisposable
     {
-        void OnDashUpdate(Transform transform, Vector3 currentPosition);
+        bool OnDashUpdate(Transform transform, Vector3 currentPosition);
+        void Reset();
     }
 }

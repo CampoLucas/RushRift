@@ -6,6 +6,7 @@ namespace Game.Detection
     {
         public bool IsColliding => _isColliding;
         public int Overlaps => _overlaps;
+        public Collider[] Collisions => _colliders;
         
         private IDetectionData _data;
         private Transform _origin;
