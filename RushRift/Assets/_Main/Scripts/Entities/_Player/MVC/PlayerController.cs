@@ -20,6 +20,9 @@ namespace Game.Entities
 
         #endregion
 
+        [Header("Start Effects")]
+        [SerializeField] private Effect[] effects;
+        
         private Vector3 _moveDir;
         private Transform _camera;
         
@@ -48,6 +51,15 @@ namespace Game.Entities
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
+            }
+            
+            if (effects == null || effects.Length == 0) return;
+            
+            for (var i = 0; i < effects.Length; i++)
+            {
+                var effect = effects[i];
+                if (effect == null) continue;
+                effect.ApplyEffect(this);
             }
         }
 

@@ -62,7 +62,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     maxSpeed: 10
-    useDot: 0
     groundAcceleration: 5
     groundDeceleration: 20
     airAcceleration: 5
@@ -78,24 +77,29 @@ MonoBehaviour:
       customGravity: 0
       gravity: 0
       gravityScale: 0
+      maxGravityAccel: 0
       fallAirControl: 0.3
       airAcceleration: 5
   gravity:
     customGravity: 0
     gravity: 0
     gravityScale: 0
+    maxGravityAccel: 0
     fallAirControl: 0.3
     airAcceleration: 5
   combo: {fileID: 11400000, guid: 6c99a691714480143bfcfa32eefd67a3, type: 2}
   health:
     startValue: 20
     max: 20
+    regenDelay: 0
     regenRate: 0
-  stamina:
+  energy:
     startValue: 0
     max: 0
+    regenDelay: 0
     regenRate: 0
   mana:
     startValue: 0
     max: 0
+    regenDelay: 0
     regenRate: 0

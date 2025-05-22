@@ -1479,7 +1479,6 @@ GameObject:
   - component: {fileID: 3396198388266674332}
   - component: {fileID: 3947552943855110621}
   - component: {fileID: 4036694657418605575}
-  - component: {fileID: 6609655740008864657}
   - component: {fileID: 4025288467119005644}
   - component: {fileID: 3486766384206959456}
   m_Layer: 9
@@ -1548,6 +1547,7 @@ MonoBehaviour:
       enumType: 0
   animator:
   - {fileID: 8390996798022735615}
+  speedLines: {fileID: 0}
   target: {fileID: 0}
   runner: {fileID: 4036694657418605575}
   damageIndex: 1
@@ -1574,27 +1574,6 @@ MonoBehaviour:
   - name: Death
     startActive: 0
     behaviour: {fileID: 11400000, guid: 3c4ecd31aab0e174ea54643887629342, type: 2}
---- !u!65 &6609655740008864657
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6713962002373540701}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2.0007515, y: 0.45695662, z: 2.0273197}
-  m_Center: {x: -0.0044277906, y: 0.24459088, z: 0.00000035762787}
 --- !u!65 &4025288467119005644
 BoxCollider:
   m_ObjectHideFlags: 0

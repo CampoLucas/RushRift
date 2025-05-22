@@ -113,6 +113,8 @@ namespace Game.Entities.Components
             {
                 _regenStrategy.NotifyValueChanged(_prevValue, Value, _data);
             }
+            
+            Debug.Log($"SuperTest: Attribute Decreased prev value: {_prevValue} curr value: {Value} amount {amount}");
         }
 
         public void Increase(float amount)

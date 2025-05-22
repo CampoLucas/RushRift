@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class DirectionalDash : IDashStrategy
+    public class DirectionalDashStart : IDashStartStrategy
     {
         private DashData _data;
 
-        public DirectionalDash(DashData data)
+        public DirectionalDashStart(DashData data)
         {
             _data = data;
         }

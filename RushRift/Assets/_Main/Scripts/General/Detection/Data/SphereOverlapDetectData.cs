@@ -3,19 +3,19 @@ using UnityEngine;
 namespace Game.Detection
 {
     [System.Serializable]
-    public class BoxOverlapDetectData
+    public class SphereOverlapDetectData : IDetectionData
     {
         public int MaxCollisions => maxCollisions;
         
         [Header("Size & Offset")] 
-        [SerializeField] private Vector3 size;
         [SerializeField] private Vector3 offset;
+        [SerializeField] private float radius;
 
         [Header("Detection Settings")]
         [SerializeField] private int maxCollisions;
         [SerializeField] private LayerMask mask;
 
-        public BoxOverlapDetect Get(Transform origin) => new BoxOverlapDetect(origin, this);
+        public IDetection Get(Transform origin) => new OverlapDetect(origin, this);
 
         public Vector3 GetPosOffset(Transform origin)
         {
@@ -28,13 +28,14 @@ namespace Game.Detection
 
         public int Detect(Transform origin, ref Collider[] colliders)
         {
-            return Physics.OverlapBoxNonAlloc(GetPosOffset(origin), size / 2, colliders, origin.rotation, mask);
+            return Physics.OverlapSphereNonAlloc(GetPosOffset(origin), radius, colliders, mask);
+            //return Physics.OverlapBoxNonAlloc(GetPosOffset(origin), size / 2, colliders, origin.rotation, mask);
         }
 
         public void Draw(Transform origin, Color color)
         {
             Gizmos.color = color;
-            Gizmos.DrawWireCube(GetPosOffset(origin), size);
+            Gizmos.DrawWireSphere(GetPosOffset(origin), radius);
         }
 
     }

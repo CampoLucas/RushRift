@@ -23,7 +23,7 @@ namespace Game.Entities.Components
                 }
             }
 
-            if (_regenerating)
+            if (attribute.RegenRate != 0 && _regenerating)
             {
                 var regenRate = attribute.RegenRate;
                 if (regenRate > 0)
