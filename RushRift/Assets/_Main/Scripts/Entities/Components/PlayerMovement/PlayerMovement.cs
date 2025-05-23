@@ -55,10 +55,21 @@ namespace Game.Entities.Components
         public void AddMoveDir(Vector3 dir, bool normalize = true)
         {
 #if true
-            var forward = Orientation.forward.XOZ().normalized;
-            var right = Orientation.right.XOZ().normalized;
+            if (normalize) dir.Normalize();
 
-            _moveDirection = (forward * dir.z + right * dir.x).normalized;
+            if (Orientation != null)
+            {
+                var forward = Orientation.forward.XOZ().normalized;
+                var right = Orientation.right.XOZ().normalized;
+
+                _moveDirection = (forward * dir.z + right * dir.x).normalized;
+            }
+            else
+            {
+                _moveDirection = dir;
+            }
+            
+            
 #else
             _moveInput = dir;
             if (normalize)

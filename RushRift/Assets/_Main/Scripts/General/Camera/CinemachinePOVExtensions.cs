@@ -8,14 +8,14 @@ namespace Game
     public class CinemachinePOVExtensions : CinemachineExtension
     {
         [Header("Settings")]
+        [SerializeField] private float clampAngle = 70;
         [SerializeField] private bool invertHorizontal;
         [SerializeField] private bool invertVertical;
-        [SerializeField] private float clampAngle = 70;
         
         [Header("Speed")]
-        [SerializeField] private float sensivility;
-        [SerializeField] private float horizontalSpeed = 10;
-        [SerializeField] private float verticalSpeed = 10;
+        [SerializeField] private float sensivility = .3f;
+        // [SerializeField] private float horizontalSpeed = 10;
+        // [SerializeField] private float verticalSpeed = 10;
         
         
         private Transform _transform;
