@@ -12,6 +12,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4effd1cb90d94e5980c1af96ff7100a1, type: 3}
   m_Name: PlayerModel
   m_EditorClassIdentifier: 
+  playerMovement:
+    maxSpeed: 20
+    acceleration: 1000
+    accelerationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.25
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    deceleration: 1000
+    decelerationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.05
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    airControl: 1
+    gravity: -19.62
+    coyoteTime: 0.15
+    detector:
+      offset: {x: 0, y: 0.02, z: 0}
+      radius: 0.5
+      maxCollisions: 3
+      mask:
+        serializedVersion: 2
+        m_Bits: 8
   moveSpeed:
     accelerationCurve:
       serializedVersion: 2

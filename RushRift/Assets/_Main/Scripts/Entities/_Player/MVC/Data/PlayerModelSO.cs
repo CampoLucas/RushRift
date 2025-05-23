@@ -17,8 +17,10 @@ namespace Game.Entities
         public HealthComponentData Health => health;
         public EnergyComponentData Energy => energy;
         public DashData Dash => dash;
-        
-        [Header("Movement Stats")] 
+        public PlayerMovementData PlayerMovement => playerMovement;
+
+        [Header("Movement Stats")]
+        [SerializeField] private PlayerMovementData playerMovement;
         [SerializeField] private MovementData moveSpeed;
         [SerializeField] private JumpData jump;
         [SerializeField] private GravityData gravity;

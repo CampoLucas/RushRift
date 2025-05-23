@@ -11,8 +11,7 @@ namespace Game.Entities.Components
         float BaseMaxSpeed { get; }
         void AddMoveDir(Vector3 dir, bool normalize = true);
         void Move(Vector3 dir, float delta);
-        void AddImpulse(Vector3 dir);
-        void SetData(MovementData data);
+        void ApplyImpulse(Vector3 impulse);
         void AppendMaxSpeed(float amount);
         float MoveAmount();
         void EnableGravity(bool value);

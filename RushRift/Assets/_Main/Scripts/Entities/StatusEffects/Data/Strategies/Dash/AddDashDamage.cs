@@ -10,7 +10,7 @@ namespace Game.Entities.Dash
     public class AddDashDamage : DashEffectStrategy
     {
         [Header("Detection")]
-        [SerializeField] private SphereOverlapDetectData overlap;
+        [SerializeField] private SphereOverlapData overlap;
 
         [Header("Damage")]
         [SerializeField] private float damage;

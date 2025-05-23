@@ -15,7 +15,8 @@ namespace Game.Entities
 
             if (controller.Origin.gameObject.TryGetComponent<CharacterController>(out var characterController))
             {
-                var movement = Data.MoveSpeed.GetMovement(characterController);
+                //var movement = Data.MoveSpeed.GetMovement(characterController);
+                var movement = Data.PlayerMovement.GetMovement(characterController, controller.Origin, controller.Joints.GetJoint(EntityJoint.Eyes));
                 TryAddComponent(movement);
 
                 TryAddComponent(Data.Dash.GetComponent(characterController, controller.Origin, Camera.main.transform));

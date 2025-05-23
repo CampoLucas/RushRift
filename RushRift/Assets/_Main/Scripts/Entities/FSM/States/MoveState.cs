@@ -15,7 +15,7 @@ namespace Game.Entities
         protected override void OnStart(ref EntityArgs args)
         {
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
-            movement.SetData(_data);
+            //movement.SetData(_data);
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
