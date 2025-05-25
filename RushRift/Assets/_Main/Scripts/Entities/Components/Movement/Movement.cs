@@ -170,6 +170,11 @@ namespace Game.Entities.Components
             _enableGravity = value;
         }
 
+        public void SetYVelocity(float velocity)
+        {
+            _verticalVelocity = velocity;
+        }
+
 
         public void Dispose()
         {

@@ -171,6 +171,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (jumpTimer >= jumpDuration)
             {
+                Debug.Log("Super Test: stopped jumping");
                 isJumping = false;
             }
         }

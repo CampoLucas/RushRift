@@ -11,19 +11,15 @@ namespace Game.Entities
     [CreateAssetMenu(menuName = "Game/Entities/Player/Model")]
     public class PlayerModelSO : EntityModelSO
     {
-        public MovementData MoveSpeed => moveSpeed;
+        public PlayerMovementData PlayerMovement => playerMovement;
         public JumpData Jump => jump;
-        public GravityData Gravity => gravity;
         public HealthComponentData Health => health;
         public EnergyComponentData Energy => energy;
         public DashData Dash => dash;
-        public PlayerMovementData PlayerMovement => playerMovement;
 
         [Header("Movement Stats")]
         [SerializeField] private PlayerMovementData playerMovement;
-        [SerializeField] private MovementData moveSpeed;
         [SerializeField] private JumpData jump;
-        [SerializeField] private GravityData gravity;
         [SerializeField] private DashData dash;
 
         [Header("Combo")]

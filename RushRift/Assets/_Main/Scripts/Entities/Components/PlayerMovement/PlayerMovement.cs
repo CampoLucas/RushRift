@@ -7,23 +7,28 @@ namespace Game.Entities.Components
 {
     public class PlayerMovement : IMovement
     {
-        public Transform Orientation { get; private set; }
-        public Vector3 Velocity => _velocity;
+        public Vector3 Velocity { get; private set; }
         public bool Grounded => _grounded || _coyoteTimer > 0;
         public float MaxSpeed => _data.MaxSpeed + _speedModifier;
         public float BaseMaxSpeed => _data.MaxSpeed;
         
         private PlayerMovementData _data;
         private CharacterController _controller;
+        private Transform _orientation;
+        private Transform _origin;
         private IDetection _detection;
+        
         private Vector3 _velocity;
         private Vector3 _moveDirection;
         private Vector3 _moveInput;
+        private Vector3 _prevPosition;
+        private float _moveAmount;
+        
         private float _accelTimer;
         private float _decelTimer;
         private float _coyoteTimer;
         private bool _grounded;
-        private bool _gravity;
+        private bool _gravity = true;
 
         private float _speedModifier;
 
@@ -34,7 +39,8 @@ namespace Game.Entities.Components
         {
             _data = data;
             _controller = controller;
-            Orientation = orientation;
+            _orientation = orientation;
+            _origin = origin;
             _detection = _data.Detector.Get(origin);
             _tick = new ActionObserver<float>(Tick);
             _lateTick = new ActionObserver<float>(LateTick);
@@ -45,6 +51,11 @@ namespace Game.Entities.Components
             GroundChecks(delta);
             //HandleInput();
             HandleMovement(delta);
+
+            var pos = _origin.position;
+            Velocity = (_prevPosition - pos) / delta;
+            _moveAmount = Velocity.magnitude;
+            _prevPosition = pos;
         }
 
         private void LateTick(float delta)
@@ -57,10 +68,10 @@ namespace Game.Entities.Components
 #if true
             if (normalize) dir.Normalize();
 
-            if (Orientation != null)
+            if (_orientation != null)
             {
-                var forward = Orientation.forward.XOZ().normalized;
-                var right = Orientation.right.XOZ().normalized;
+                var forward = _orientation.forward.XOZ().normalized;
+                var right = _orientation.right.XOZ().normalized;
 
                 _moveDirection = (forward * dir.z + right * dir.x).normalized;
             }
@@ -90,11 +101,16 @@ namespace Game.Entities.Components
         }
 
         public void AppendMaxSpeed(float amount) => _speedModifier += amount;
-        public float MoveAmount() => _velocity.magnitude;
+        public float MoveAmount() => _moveAmount;
 
         public void EnableGravity(bool value)
         {
             _gravity = value;
+        }
+
+        public void SetYVelocity(float velocity)
+        {
+            _velocity.y = velocity;
         }
 
         #region Component Methods
@@ -146,7 +162,7 @@ namespace Game.Entities.Components
             _controller = null;
             _detection?.Dispose();
             _detection = null;
-            Orientation = null;
+            _orientation = null;
             _tick?.Dispose();
             _tick = null;
             _lateTick?.Dispose();
@@ -197,7 +213,8 @@ namespace Game.Entities.Components
             var moveMagnitude = _moveDirection.magnitude;
             var isMoving = moveMagnitude > 0.01f;
 
-
+    
+            // Calculates the velocity when acceleration or decelerating 
             if (isMoving)
             {
                 CalculateDeltaVelocity(ref deltaVel, _data.AccelRate, _data.AccelCurve, ref _accelTimer, delta);
@@ -209,6 +226,7 @@ namespace Game.Entities.Components
 
             horizontalVel += deltaVel;
 
+            // Calculates the velocity y
             if (_gravity)
             {
                 _velocity.y += _data.Gravity * delta;
@@ -218,6 +236,7 @@ namespace Game.Entities.Components
             _velocity = new Vector3(horizontalVel.x, _velocity.y, horizontalVel.z);
             _controller.Move(_velocity * delta);
 
+            // Reset vertical velocity if grounded
             if (Grounded && _velocity.y < 0f)
             {
                 _velocity.y = -9.8f;

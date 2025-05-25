@@ -16,20 +16,11 @@ namespace Game
         [SerializeField] private float sensivility = .3f;
         // [SerializeField] private float horizontalSpeed = 10;
         // [SerializeField] private float verticalSpeed = 10;
-        
-        
-        private Transform _transform;
-        private Vector3 _startRotation;
         //private bool _startedRotating;
 
         private float _yaw;
         private float _pitch;
-
-        private void Start()
-        {
-            _transform = transform;
-            _startRotation = _transform.localRotation.eulerAngles;
-        }
+        
 
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime)
         {

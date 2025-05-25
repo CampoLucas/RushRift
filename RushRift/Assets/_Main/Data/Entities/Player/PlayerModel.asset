@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerModel
   m_EditorClassIdentifier: 
   playerMovement:
-    maxSpeed: 40
+    maxSpeed: 20
     acceleration: 1000
     accelerationCurve:
       serializedVersion: 2
@@ -74,79 +74,10 @@ MonoBehaviour:
       mask:
         serializedVersion: 2
         m_Bits: 8
-  moveSpeed:
-    accelerationCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: -0.035273638
-        outSlope: -0.035273638
-        tangentMode: 0
-        weightedMode: 3
-        inWeight: 0
-        outWeight: 0.7875
-      - serializedVersion: 3
-        time: 0.15
-        value: 0.99583435
-        inSlope: -0.000004849191
-        outSlope: -0.000004849191
-        tangentMode: 0
-        weightedMode: 1
-        inWeight: 0.49166667
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    decelerationCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: -0.0041656494
-        value: 1
-        inSlope: 0.08157769
-        outSlope: 0.08157769
-        tangentMode: 0
-        weightedMode: 3
-        inWeight: 0
-        outWeight: 0.9865872
-      - serializedVersion: 3
-        time: 1
-        value: -0.0034332275
-        inSlope: 0.000000077462424
-        outSlope: 0.000000077462424
-        tangentMode: 0
-        weightedMode: 3
-        inWeight: 0.3532041
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    maxSpeed: 40
-    groundAcceleration: 100
-    groundDeceleration: 100
-    airAcceleration: 100
-    airDeceleration: 100
-    groundDetect:
-      size: {x: 1, y: 0.34, z: 1}
-      offset: {x: 0, y: 0.02, z: 0}
-      maxCollisions: 2
-      mask:
-        serializedVersion: 2
-        m_Bits: 8
-    gravity:
-      customGravity: 0
-      gravity: 2
-      gravityScale: 1
-      maxGravityAccel: 2
-      fallAirControl: 1
-      airAcceleration: 100
   jump:
-    airControl: 1
-    height: 18
-    moveSpeed: 25
-    jumpCurve:
+    force: 18
+    duration: 1
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -170,14 +101,6 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    duration: 1.25
-  gravity:
-    customGravity: 0
-    gravity: 10
-    gravityScale: 4
-    maxGravityAccel: 0
-    fallAirControl: 0.566
-    airAcceleration: 40
   dash:
     distance: 30
     duration: 0.2
