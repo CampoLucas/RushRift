@@ -11,7 +11,7 @@ public class JumpPad : MonoBehaviour
 
     [Header("Launch Settings")]
     [Tooltip("Vertical force applied to the player.")]
-    [SerializeField, Range(5f, 50f)] private float launchForce = 20f;
+    [SerializeField, Range(5f, 1000f)] private float launchForce = 20f;
 
     [Tooltip("Extra forward push applied based on pad direction.")]
     [SerializeField, Range(0f, 20f)] private float forwardBoost;
