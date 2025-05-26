@@ -18,11 +18,13 @@ namespace Game.Entities
         
         protected override void OnInit(ref EntityArgs args)
         {
+            return;
             _gravity = _gravityData.GetValue();
         }
 
         protected override void OnStart(ref EntityArgs args)
         {
+            return;
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
             movement.EnableGravity(false);
             _velocity = movement.Velocity.y;
@@ -31,6 +33,7 @@ namespace Game.Entities
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
         {
+            return;
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
 
             _velocity += _gravity * delta;
@@ -50,6 +53,7 @@ namespace Game.Entities
 
         protected override void OnExit(ref EntityArgs args)
         {
+            return;
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
             movement.EnableGravity(true);
         }

@@ -79,9 +79,9 @@ namespace Game.Entities
             var playerModel = model as PlayerModelSO;
             
             var idleState = new IdleState();
-            var moveState = new MoveState(playerModel.MoveSpeed);
-            var jumpState = new JumpState(playerModel.Jump, playerModel.Gravity);
-            var fallState = new FallState(playerModel.Gravity);
+            var moveState = new MoveState();
+            var jumpState = new JumpState(playerModel.Jump);
+            var fallState = new MoveState();
 
             _fsm.AddState(IdleState, idleState);
             _fsm.AddState(MoveState, moveState);

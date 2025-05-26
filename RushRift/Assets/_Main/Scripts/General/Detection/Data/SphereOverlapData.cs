@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Game.Detection
 {
     [System.Serializable]
-    public class SphereOverlapDetectData : IDetectionData
+    public class SphereOverlapData : IDetectionData
     {
         public int MaxCollisions => maxCollisions;
         

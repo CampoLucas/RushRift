@@ -5,17 +5,15 @@ namespace Game.Entities
 {
     public class MoveState : State<EntityArgs>
     {
-        private MovementData _data;
-
-        public MoveState(MovementData data)
+        public MoveState()
         {
-            _data = data;
+            
         }
 
         protected override void OnStart(ref EntityArgs args)
         {
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
-            movement.SetData(_data);
+            //movement.SetData(_data);
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
@@ -26,11 +24,6 @@ namespace Game.Entities
                 return;
             }
             movement.AddMoveDir(controller.MoveDirection());
-        }
-
-        protected override void OnDispose()
-        {
-            _data = null;
         }
     }
 }

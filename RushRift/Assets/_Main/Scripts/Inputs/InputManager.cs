@@ -16,6 +16,7 @@ namespace Game.Inputs
         public static HashedKey HeavyAttackInput { get; private set; }
         public static HashedKey SecondaryAttackInput { get; private set; }
         public static HashedKey PauseInput { get; private set; }
+        public static HashedKey MousePosition { get; private set; }
         
         private static InputManager _instance;
         private Dictionary<HashedKey, InputButton> _buttonsDict = new();
@@ -130,10 +131,12 @@ namespace Game.Inputs
             HeavyAttackInput = new HashedKey("heavy");
             SecondaryAttackInput = new HashedKey("secondary");
             PauseInput = new HashedKey("pause");
+            MousePosition = new HashedKey("mouse-pos");
             
             // Add Value Inputs
             AddValueInput(MoveInput, MoveValue);
             AddValueInput(LookInput, LookValue);
+            AddValueInput(MousePosition, MousePosValue);
             
             // Add Action Inputs
             AddActionInput(InteractInput, InteractAction, InteractActionStarted, InteractActionCanceled);
@@ -188,6 +191,7 @@ namespace Game.Inputs
         private bool HeavyAttackCanceled() => _playerControls.Gameplay.HeavyAttack.WasReleasedThisFrame();
         private Vector2 MoveValue() => _playerControls.Gameplay.Movement.ReadValue<Vector2>();
         private Vector2 LookValue() => _playerControls.Gameplay.Look.ReadValue<Vector2>();
+        private Vector2 MousePosValue() => _playerControls.Gameplay.MousePosition.ReadValue<Vector2>();
 
         #endregion
 

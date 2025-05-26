@@ -141,7 +141,7 @@ namespace Game.Entities.Components
             }
         }
 
-        public void AddImpulse(Vector3 dir)
+        public void ApplyImpulse(Vector3 impulse)
         {
             
         }
@@ -168,6 +168,11 @@ namespace Game.Entities.Components
         public void EnableGravity(bool value)
         {
             _enableGravity = value;
+        }
+
+        public void SetYVelocity(float velocity)
+        {
+            _verticalVelocity = velocity;
         }
 
 

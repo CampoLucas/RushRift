@@ -38,7 +38,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Look"",
-                    ""type"": ""Value"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""59d7be2e-ce5a-46c7-ab1e-ac5f8cd8c977"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
@@ -89,6 +89,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MousePosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""712f4b22-28ec-4a1d-89f7-f90435eb7757"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -207,7 +216,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""id"": ""ee27701a-d744-45fd-87da-c62cc0a10444"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
-                    ""processors"": ""NormalizeVector2"",
+                    ""processors"": """",
                     ""groups"": ""Keyboard"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
@@ -377,6 +386,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""SecondaryAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""31b5a9c3-01ad-4fa2-88a1-47f680b2dcfc"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""MousePosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -448,6 +468,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Gameplay_LightAttack = m_Gameplay.FindAction("LightAttack", throwIfNotFound: true);
         m_Gameplay_HeavyAttack = m_Gameplay.FindAction("HeavyAttack", throwIfNotFound: true);
         m_Gameplay_SecondaryAttack = m_Gameplay.FindAction("SecondaryAttack", throwIfNotFound: true);
+        m_Gameplay_MousePosition = m_Gameplay.FindAction("MousePosition", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Pause = m_UI.FindAction("Pause", throwIfNotFound: true);
@@ -519,6 +540,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_LightAttack;
     private readonly InputAction m_Gameplay_HeavyAttack;
     private readonly InputAction m_Gameplay_SecondaryAttack;
+    private readonly InputAction m_Gameplay_MousePosition;
     public struct GameplayActions
     {
         private @PlayerControls m_Wrapper;
@@ -530,6 +552,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @LightAttack => m_Wrapper.m_Gameplay_LightAttack;
         public InputAction @HeavyAttack => m_Wrapper.m_Gameplay_HeavyAttack;
         public InputAction @SecondaryAttack => m_Wrapper.m_Gameplay_SecondaryAttack;
+        public InputAction @MousePosition => m_Wrapper.m_Gameplay_MousePosition;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -560,6 +583,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @SecondaryAttack.started += instance.OnSecondaryAttack;
             @SecondaryAttack.performed += instance.OnSecondaryAttack;
             @SecondaryAttack.canceled += instance.OnSecondaryAttack;
+            @MousePosition.started += instance.OnMousePosition;
+            @MousePosition.performed += instance.OnMousePosition;
+            @MousePosition.canceled += instance.OnMousePosition;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -585,6 +611,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @SecondaryAttack.started -= instance.OnSecondaryAttack;
             @SecondaryAttack.performed -= instance.OnSecondaryAttack;
             @SecondaryAttack.canceled -= instance.OnSecondaryAttack;
+            @MousePosition.started -= instance.OnMousePosition;
+            @MousePosition.performed -= instance.OnMousePosition;
+            @MousePosition.canceled -= instance.OnMousePosition;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -675,6 +704,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnLightAttack(InputAction.CallbackContext context);
         void OnHeavyAttack(InputAction.CallbackContext context);
         void OnSecondaryAttack(InputAction.CallbackContext context);
+        void OnMousePosition(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

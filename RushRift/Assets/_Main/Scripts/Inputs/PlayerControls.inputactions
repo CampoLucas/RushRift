@@ -16,7 +16,7 @@
                 },
                 {
                     "name": "Look",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "59d7be2e-ce5a-46c7-ab1e-ac5f8cd8c977",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -67,6 +67,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MousePosition",
+                    "type": "Value",
+                    "id": "712f4b22-28ec-4a1d-89f7-f90435eb7757",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -185,7 +194,7 @@
                     "id": "ee27701a-d744-45fd-87da-c62cc0a10444",
                     "path": "<Mouse>/delta",
                     "interactions": "",
-                    "processors": "NormalizeVector2",
+                    "processors": "",
                     "groups": "Keyboard",
                     "action": "Look",
                     "isComposite": false,
@@ -353,6 +362,17 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "SecondaryAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "31b5a9c3-01ad-4fa2-88a1-47f680b2dcfc",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "MousePosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
