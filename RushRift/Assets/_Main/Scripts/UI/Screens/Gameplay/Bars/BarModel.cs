@@ -1,5 +1,6 @@
 using System;
 using Game.DesignPatterns.Observers;
+using Game.Entities.Components;
 
 namespace Game.UI.Screens
 {
@@ -34,18 +35,19 @@ namespace Game.UI.Screens
     public struct AttributeBarData : IDisposable
     {
         public ISubject<float, float, float> OnValueChanged { get; private set; }
-        public float StartValue { get; private set; }
-        public float StartMaxValue { get; private set; }
+        public float StartValue => _attribute.Value;
+        public float StartMaxValue => _attribute.MaxValue;
+        private IAttribute _attribute;
 
-        public AttributeBarData(float startValue, float startMaxValue, ISubject<float, float, float> onValueChanged)
+        public AttributeBarData(IAttribute attribute, ISubject<float, float, float> onValueChanged)
         {
-            StartValue = startValue;
-            StartMaxValue = startMaxValue;
+            _attribute = attribute;
             OnValueChanged = onValueChanged;
         }
 
         public void Dispose()
         {
+            _attribute = null;
             OnValueChanged = null;
         }
     }

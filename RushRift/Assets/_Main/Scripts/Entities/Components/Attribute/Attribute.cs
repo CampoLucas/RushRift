@@ -121,8 +121,14 @@ namespace Game.Entities.Components
         {
             if (Disposed) return;
             var maxValue = MaxValue;
+
+            if (Value >= maxValue)
+            {
+                Debug.Log("SuperTest: Increase Value is max value.");
+                return;
+            }
             
-            if (Value >= maxValue) return;
+            Debug.Log($"SuperTest: Increase Value {amount}");
             _prevValue = Value;
 
             Value += amount;
@@ -191,6 +197,7 @@ namespace Game.Entities.Components
         {
             var prevValue = Value;
             var startValue = _data.StartValue;
+            Debug.Log($"SuperTest: Init attribute curr {Value}");
             
             Value = startValue > MaxValue ? MaxValue : startValue;
             OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
