@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Entities
 {
-    public class Trigger : ISubject, IPredicate<IController>
+    public class Trigger : ITrigger
     {
         private ISubject _subject;
         private IPredicate<IController> _predicate;

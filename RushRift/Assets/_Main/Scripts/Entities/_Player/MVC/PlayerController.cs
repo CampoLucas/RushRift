@@ -20,6 +20,9 @@ namespace Game.Entities
 
         #endregion
 
+        [Header("Start Effects")]
+        [SerializeField] private Effect[] effects;
+        
         private Vector3 _moveDir;
         private Transform _camera;
         
@@ -49,6 +52,15 @@ namespace Game.Entities
             {
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
+            
+            if (effects == null || effects.Length == 0) return;
+            
+            for (var i = 0; i < effects.Length; i++)
+            {
+                var effect = effects[i];
+                if (effect == null) continue;
+                effect.ApplyEffect(this);
+            }
         }
 
         protected override void Update()
@@ -67,9 +79,9 @@ namespace Game.Entities
             var playerModel = model as PlayerModelSO;
             
             var idleState = new IdleState();
-            var moveState = new MoveState(playerModel.MoveSpeed);
-            var jumpState = new JumpState(playerModel.Jump, playerModel.Gravity);
-            var fallState = new FallState(playerModel.Gravity);
+            var moveState = new MoveState();
+            var jumpState = new JumpState(playerModel.Jump);
+            var fallState = new MoveState();
 
             _fsm.AddState(IdleState, idleState);
             _fsm.AddState(MoveState, moveState);

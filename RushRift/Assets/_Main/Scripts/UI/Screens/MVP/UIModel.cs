@@ -1,7 +1,12 @@
+using System;
+
 namespace Game.UI.Screens
 {
-    public class UIModel
+    public class UIModel : IDisposable
     {
-        
+        public virtual void Dispose()
+        {
+            // ToDo: Dispose references
+        }
     }
 }

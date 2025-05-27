@@ -11,7 +11,7 @@ namespace Game.Entities
         {
             if (controller.GetModel().TryGetComponent<HealthComponent>(out var health))
             {
-                health.IncreaseMaxValue(amount);
+                health.MaxValueModifier(amount);
             }
         }
 
@@ -19,7 +19,7 @@ namespace Game.Entities
         {
             if (controller.GetModel().TryGetComponent<HealthComponent>(out var health))
             {
-                health.IncreaseMaxValue(-amount);
+                health.MaxValueModifier(-amount);
             }
         }
     }

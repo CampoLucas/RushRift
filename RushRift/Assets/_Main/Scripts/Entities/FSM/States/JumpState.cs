@@ -5,25 +5,16 @@ namespace Game.Entities
 {
     public class JumpState : State<EntityArgs>
     {
-        private JumpData _jumpData;
-        private GravityData _gravityData;
+        private JumpData _data;
 
         private float _gravity;
-        private float _jumpForce;
         private float _velocity;
         private float _elapsedTime;
         
 
-        public JumpState(JumpData jumpData, GravityData gravityData)
+        public JumpState(JumpData data)
         {
-            _jumpData = jumpData;
-            _gravityData = gravityData;
-        }
-
-        protected override void OnInit(ref EntityArgs args)
-        {
-            _gravity = _gravityData.GetValue();
-            _jumpForce = Mathf.Sqrt(_jumpData.Height * -2 * _gravity);
+            _data = data;
         }
 
         protected override void OnStart(ref EntityArgs args)
@@ -37,19 +28,15 @@ namespace Game.Entities
         {
             if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
 
+            movement.AddMoveDir(args.Controller.MoveDirection());
+            
             _elapsedTime += delta;
-            var t = Mathf.Clamp01(_elapsedTime / _jumpData.Duration);
-            var curveValue = _jumpData.JumpCurve.Evaluate(t);
+            var t = Mathf.Clamp01(_elapsedTime / _data.Duration);
+            var curve = _data.Curve.Evaluate(t);
 
-            _velocity = curveValue * Mathf.Sqrt(_jumpData.Height * -2 * _gravity);
+            _velocity = curve * _data.Force;
 
-            // Add air control
-            var input = args.Controller.MoveDirection() * _jumpData.MoveSpeed;
-            var controlledInput = Vector3.Lerp(Vector3.zero, input, _jumpData.AirControl);
-            var jumpDir = Vector3.up * _velocity;
-
-            movement.AddMoveDir(controlledInput);
-            movement.Move(jumpDir, delta);
+            movement.SetYVelocity(_velocity);
         }
 
         protected override void OnExit(ref EntityArgs args)
@@ -62,13 +49,12 @@ namespace Game.Entities
         {
             //return false;
             //return _elapsedTime >= _jumpData.Duration;
-            return _velocity <= 0;
+            return _velocity <= 0 || _elapsedTime >= _data.Duration;
         }
         
         protected override void OnDispose()
         {
-            _jumpData = null;
-            _gravityData = null;
+            _data = null;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Game.Entities
         {
             if (controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
-                var subject = healthComponent.OnValueChanged.Where(a => Compare(a.Item1));
+                var subject = healthComponent.OnValueChanged.Where((a, b, c) => Compare(a));
                 
                 return new Trigger(subject, this);
             }
@@ -54,13 +54,5 @@ namespace Game.Entities
         }
     }
 
-    public enum Comparison
-    {
-        Equal,
-        Different,
-        Greater,
-        GreaterOrEqual,
-        Less,
-        LessOrEqual,
-    }
+    
 }

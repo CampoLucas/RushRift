@@ -9,5 +9,7 @@ namespace Game.Entities
         {
             
         }
+
+        public virtual string Description() => "";
     }
 }
