@@ -27,9 +27,8 @@ public class WinTrigger : MonoBehaviour
     {
         if (!other.CompareTag(triggerTag)) return;
 
-        SceneManager.LoadScene("Level_1");
+        SceneManager.LoadScene("Level_1_Rework");
     }
 
     #endregion
 }
-
