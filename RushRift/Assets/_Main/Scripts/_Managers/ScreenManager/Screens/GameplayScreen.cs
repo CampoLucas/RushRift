@@ -17,6 +17,8 @@ public class GameplayScreen : MonoBehaviour, IScreen
         gameObject.SetActive(true);
         for (int i = 0; i < gameplayObjects.Length; i++)
         {
+            var g = gameplayObjects[i];
+            if (!g) continue;
             gameplayObjects[i].SetActive(true);
         }
         ScreenManager.onDispaused.NotifyAll();
