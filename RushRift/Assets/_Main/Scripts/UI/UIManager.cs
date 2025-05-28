@@ -51,8 +51,8 @@ namespace Game.UI
             //
             // var gameplayModel = new GameplayModel(onHealthChanged, onStaminaChanged, onManaChanged);
 
-            var healthBarData = new AttributeBarData(health.Value, health.MaxValue, health.OnValueChanged);
-            var energyBarData = new AttributeBarData(energy.Value, energy.MaxValue, energy.OnValueChanged);
+            var healthBarData = new AttributeBarData(health, health.OnValueChanged);
+            var energyBarData = new AttributeBarData(energy, energy.OnValueChanged);
             
             var gameplayModel = new GameplayModel(healthBarData, energyBarData);
             var gameplayPresenter = new GameplayPresenter(gameplayModel, gameplayView);
