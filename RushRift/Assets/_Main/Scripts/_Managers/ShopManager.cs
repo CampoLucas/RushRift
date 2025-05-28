@@ -47,6 +47,6 @@ public class ShopManager : MonoBehaviour
 
     public void LoadLevel()
     {
-        SceneManager.LoadScene("Level_1");
+        SceneManager.LoadScene("Level_1_Rework");
     }
 }

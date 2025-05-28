@@ -18,6 +18,7 @@ public class ScoreManager : MonoBehaviour
         _onPointsGainObserver = new ActionObserver<int>(OnPointsGain);
 
         EnemyController.OnEnemyGivesPoints.Attach(_onPointsGainObserver);
+        WinTrigger.OnWinGivePoints.Attach(_onPointsGainObserver);
         data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
         else data = new();
@@ -25,7 +26,7 @@ public class ScoreManager : MonoBehaviour
     }
 
 
-    private void OnPointsGain(int points)
+    public void OnPointsGain(int points)
     {
         playerCurrency += points;
         data.playerCurrency = playerCurrency;

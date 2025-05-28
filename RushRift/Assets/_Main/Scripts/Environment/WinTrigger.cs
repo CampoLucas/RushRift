@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Game;
+using Game.DesignPatterns.Observers;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,6 +16,9 @@ using UnityEditor.SceneManagement;
 public class WinTrigger : MonoBehaviour
 {
     #region Serialized Fields
+    [Header("Points")]
+    [SerializeField] private int points;
+
 
     [Header("Trigger Settings")]
     [Tooltip("Tag required to activate the trigger (default: Player).")]
@@ -29,6 +34,7 @@ public class WinTrigger : MonoBehaviour
 #endif
 
     #endregion
+    public static ISubject<int> OnWinGivePoints = new Subject<int>();
 
     #region Unity Events
 
@@ -43,6 +49,7 @@ public class WinTrigger : MonoBehaviour
 
         if (!string.IsNullOrEmpty(sceneToLoad))
         {
+            OnWinGivePoints.NotifyAll(points);
             Debug.Log($"🏁 WinTrigger: Loading scene '{sceneToLoad}'");
             SceneManager.LoadScene(sceneToLoad);
         }
