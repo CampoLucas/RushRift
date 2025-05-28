@@ -1,34 +1,34 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using Game.DesignPatterns.Observers;
-using Game;
-using Game.Entities;
 using TMPro;
+using UnityEngine.SceneManagement;
 
-
-
-public class ScoreManager : MonoBehaviour
+public class ShopManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text scoreText;
     private int playerCurrency;
     private SaveData data;
-    private IObserver<int> _onPointsGainObserver;
 
     private void Start()
     {
-        _onPointsGainObserver = new ActionObserver<int>(OnPointsGain);
-
-        EnemyController.OnEnemyGivesPoints.Attach(_onPointsGainObserver);
         data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
         else playerCurrency = 0;
         scoreText.text = playerCurrency.ToString();
     }
 
-
-    private void OnPointsGain(int points)
+    public void OnPurchase(int cost)
     {
-        playerCurrency += points;
+        if (playerCurrency < cost) return;
+        playerCurrency -= cost;
+        if (playerCurrency < 0) playerCurrency = 0;
         scoreText.text = playerCurrency.ToString();
         SaveAndLoad.Save(playerCurrency);
+    }
+
+    public void LoadLevel()
+    {
+        SceneManager.LoadScene("Level_1");
     }
 }
