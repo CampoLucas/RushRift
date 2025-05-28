@@ -11,6 +11,7 @@ namespace Game.Entities
     {
         public static ISubject OnEnemyDeathSubject = new Subject(); // ToDo: Move it to the a EnemyManager and dispose of all references
         public static ISubject OnEnemySpawnSubject = new Subject();
+        public static ISubject<int> OnEnemyGivesPoints = new Subject<int>();
         
         [Header("Target")]
         [SerializeField] private Transform target;
@@ -19,6 +20,9 @@ namespace Game.Entities
         [SerializeField] private BehaviourTreeRunner runner;
         [SerializeField] private int damageIndex;
         [SerializeField] private int deathIndex;
+
+        [Header("Points")]
+        [SerializeField] private int points;
 
         private IObserver<float, float, float> _onDamageObserver;
         private IObserver _onDeathObserver;
@@ -73,6 +77,7 @@ namespace Game.Entities
         private void OnDeath()
         {
             OnEnemyDeathSubject.NotifyAll();
+            OnEnemyGivesPoints.NotifyAll(points);
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
         }

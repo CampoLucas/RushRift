@@ -12,6 +12,7 @@ namespace Game
     public class LevelManager : MonoBehaviour
     {
         [SerializeField] private ScreenManager screenManager;
+        [SerializeField] private ScoreManager scoreManager;
 
         private static LevelManager _instance;
 
@@ -25,6 +26,7 @@ namespace Game
         private bool _gameOver;
         private bool _gameOverNotified;
         public ScreenManager ScreenManager => screenManager;
+        public ScoreManager ScoreManager => scoreManager;
         public static LevelManager Instance => _instance;
         
         private void Awake()
