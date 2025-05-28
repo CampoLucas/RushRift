@@ -1,14 +1,22 @@
-using System.Collections;
+using Game.Entities;
 using System.Collections.Generic;
-using UnityEngine;
+
 
 [System.Serializable]
-public class SaveData 
+public class SaveData
 {
     public int playerCurrency;
+    public Dictionary<int, bool> unlockedEffects = new();
 
-    public SaveData(int score)
+    public List<int> GetActiveEffects()
     {
-        playerCurrency = score;
+        if (unlockedEffects == null) return null;
+        List<int> effects = new List<int>();
+        foreach (var item in unlockedEffects)
+        {
+            if (item.Value == true) effects.Add(item.Key);
+        }
+
+        return effects;
     }
 }

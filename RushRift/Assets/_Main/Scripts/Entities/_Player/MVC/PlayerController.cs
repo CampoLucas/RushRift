@@ -3,6 +3,7 @@ using Game.Entities.Components;
 using Game.Inputs;
 using Game.Predicates;
 using Game.Utils;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Entities
@@ -21,10 +22,12 @@ namespace Game.Entities
         #endregion
 
         [Header("Start Effects")]
-        [SerializeField] private Effect[] effects;
-        
+        [SerializeField] private List<int> effectsID = new List<int>();
+
+        private Dictionary<int, Effect> effects = new();
         private Vector3 _moveDir;
         private Transform _camera;
+        private SaveData saveData;
         
         protected override void Awake()
         {
@@ -41,7 +44,12 @@ namespace Game.Entities
                 
                 joints.SetJoint(EntityJoint.Eyes, _camera);
             }
-            
+
+            saveData = SaveAndLoad.Load();
+            for (int i = 0; i < ScriptableReference.Instance.effectsReferences.Count; i++)
+            {
+                effects.Add(ScriptableReference.Instance.effectsReferences[i].ID, ScriptableReference.Instance.effectsReferences[i].effect);
+            }
         }
 
         protected override void Start()
@@ -52,15 +60,22 @@ namespace Game.Entities
             {
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
-            
-            if (effects == null || effects.Length == 0) return;
-            
-            for (var i = 0; i < effects.Length; i++)
+
+            effectsID = saveData.GetActiveEffects();
+            if (effects == null || effects.Count == 0) return;
+
+            for (int i = 0; i < effectsID.Count; i++)
             {
-                var effect = effects[i];
-                if (effect == null) continue;
-                effect.ApplyEffect(this);
+                var currentEffect = effects[effectsID[i]];
+                currentEffect.ApplyEffect(this);
             }
+
+            //for (var i = 0; i < effects.Length; i++)
+            //{
+            //    var effect = effects[i];
+            //    if (effect == null) continue;
+            //    effect.ApplyEffect(this);
+            //}
         }
 
         protected override void Update()

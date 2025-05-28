@@ -20,7 +20,7 @@ public class ScoreManager : MonoBehaviour
         EnemyController.OnEnemyGivesPoints.Attach(_onPointsGainObserver);
         data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
-        else playerCurrency = 0;
+        else data = new();
         scoreText.text = playerCurrency.ToString();
     }
 
@@ -28,7 +28,8 @@ public class ScoreManager : MonoBehaviour
     private void OnPointsGain(int points)
     {
         playerCurrency += points;
+        data.playerCurrency = playerCurrency;
         scoreText.text = playerCurrency.ToString();
-        SaveAndLoad.Save(playerCurrency);
+        SaveAndLoad.Save(data);
     }
 }
