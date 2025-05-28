@@ -43,7 +43,6 @@ public class ShopManager : MonoBehaviour
         data.playerCurrency = playerCurrency;
         if (playerCurrency < 0) playerCurrency = 0;
         scoreText.text = playerCurrency.ToString();
-        data.unlockedEffects = new Dictionary<int, bool>();
 
         if (data.unlockedEffects.ContainsKey(perk)) data.unlockedEffects[perk] = true;
         else data.unlockedEffects.Add(perk, true);
