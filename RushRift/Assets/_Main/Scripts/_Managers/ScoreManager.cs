@@ -9,6 +9,7 @@ using TMPro;
 public class ScoreManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text scoreText;
+    private int currentPoints;
     private int playerCurrency;
     private SaveData data;
     private IObserver<int> _onPointsGainObserver;
@@ -22,15 +23,16 @@ public class ScoreManager : MonoBehaviour
         data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
         else data = new();
-        scoreText.text = playerCurrency.ToString();
+        scoreText.text = currentPoints.ToString();
     }
 
 
     public void OnPointsGain(int points)
     {
-        playerCurrency += points;
+        currentPoints += points;
+        playerCurrency += currentPoints;
         data.playerCurrency = playerCurrency;
-        scoreText.text = playerCurrency.ToString();
+        scoreText.text = currentPoints.ToString();
         SaveAndLoad.Save(data);
     }
 }

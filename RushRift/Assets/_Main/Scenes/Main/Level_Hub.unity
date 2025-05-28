@@ -179,7 +179,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: DashDamage
+  m_text: Dash Damage
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -206,7 +206,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 62.15
+  m_fontSize: 72
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -783,7 +783,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Perk 2
+  m_text: Increase Energy
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1223,9 +1223,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scoreText: {fileID: 1284460999}
   dashCostText: {fileID: 201470156}
+  increaseCurrentEnergyCostText: {fileID: 393167807}
   dashDamagePerk: {fileID: 1992631990}
+  increaseCurrentEnergy: {fileID: 1194720004}
   dashDamageEffect: 0
-  dashDamageCost: 5
+  increaseCurrentEnergyEffect: 1
+  increaseCurrentEnergyCost: 500
+  dashDamageCost: 300
 --- !u!4 &1183240899
 Transform:
   m_ObjectHideFlags: 0
@@ -1926,6 +1930,8 @@ MonoBehaviour:
   effectsReferences:
   - ID: 0
     effect: {fileID: 11400000, guid: 24fca3f19ed27fb458aff39bdf9f43e6, type: 2}
+  - ID: 1
+    effect: {fileID: 11400000, guid: bf762bb7cd0a88a45971b01357d92df4, type: 2}
 --- !u!4 &1854629628
 Transform:
   m_ObjectHideFlags: 0

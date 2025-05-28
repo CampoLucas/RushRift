@@ -10,8 +10,12 @@ public class ShopManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text dashCostText;
+    [SerializeField] private TMP_Text increaseCurrentEnergyCostText;
     [SerializeField] private Button dashDamagePerk;
+    [SerializeField] private Button increaseCurrentEnergy;
     [SerializeField] private int dashDamageEffect;
+    [SerializeField] private int increaseCurrentEnergyEffect;
+    [SerializeField] private int increaseCurrentEnergyCost;
     [SerializeField] private int dashDamageCost;
     private int playerCurrency;
     private SaveData data;
@@ -19,7 +23,9 @@ public class ShopManager : MonoBehaviour
     private void Awake()
     {
         dashDamagePerk.onClick.AddListener(() => OnPurchase(dashDamageCost,dashDamageEffect));
+        increaseCurrentEnergy.onClick.AddListener(() => OnPurchase(increaseCurrentEnergyCost,increaseCurrentEnergyEffect));
         dashCostText.text = dashDamageCost.ToString();
+        increaseCurrentEnergyCostText.text =increaseCurrentEnergyCost.ToString();
     }
 
     private void Start()
