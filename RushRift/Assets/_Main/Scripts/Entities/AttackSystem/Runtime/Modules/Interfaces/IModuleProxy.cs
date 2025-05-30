@@ -29,5 +29,9 @@ namespace Game.Entities.AttackSystem
         // Getters for Children
         bool TryGetChild<TModule>(out TModule child, bool first = true) where TModule : IModuleProxy;
         bool TryGetChildren<TModule>(out TModule[] children) where TModule : IModuleProxy;
+        
+        // Gizmos methods
+        void OnDraw(Transform origin);
+        void OnDrawSelected(Transform origin);
     }
 }

@@ -15,6 +15,11 @@ namespace Game.Entities.AttackSystem.Hitscan
         private float _timer;
         private Action _lateUpdate = delegate {};
         
+        // Debug variables
+        private Vector3 _startPos;
+        private Vector3 _direction;
+        private bool _detected;
+        
         public HitscanProxy(HitscanModule data, IModuleProxy[] children, bool disposeData = false) : base(data, children, disposeData)
         {
         }
@@ -75,26 +80,22 @@ namespace Game.Entities.AttackSystem.Hitscan
 
             
             var trail = Object.Instantiate(Data.Line, spawnPos, Quaternion.identity);
-            Debug.Log("Fire NOOWOOWO");
+            trail.Enable(false);
             
             //trail.SetDuration(Data.LineDuration);
+
+            _startPos = spawnPos;
+            _direction = direction;
+            
 #if false
-            if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.Mask))
+            if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.EntityMask))
 #else
-            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.EntityMask) || // Checks if it collided with an entity
-                Physics.Raycast(spawnPos, direction, out hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
+            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.EntityMask)) // Checks if it collided with an entity
 #endif
             {
-                if (Data.Line)
-                {
-                    if (mParams.Owner)
-                    {
-                        //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, hit.normal, movement));
-                        //mParams.Owner.Get().DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, hit.point, movement));
-                        trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
-                    }
-                }
-
+                _detected = true;
+                trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
+                Debug.Log("SuperTest: hits entity");
                 var other = hit.collider.gameObject;
                 if (other.TryGetComponent<IController>(out var controller) &&
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
@@ -102,11 +103,18 @@ namespace Game.Entities.AttackSystem.Hitscan
                     healthComponent.Damage(Data.Damage, spawnPos);
                 }
             }
+            else if (Physics.Raycast(spawnPos, direction, out hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
+            {
+                _detected = true;
+                trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
+                Debug.Log("SuperTest: hits ground");
+                // Play particles when collided with the ground
+            }
             else
             {
-                trail.SetPosition(spawn, spawnPos + (origin.forward * Data.Range), Data.LineDuration, Data.Offset);
-                // mParams.Owner.Get()
-                //     .DoCoroutine(SpawnTrail(trail, mParams.OriginTransform, spawnPos + (mParams.EyesTransform.forward * Data.Range), movement));
+                _detected = false;
+                Debug.Log("SuperTest: Doesn't hit");
+                trail.SetPosition(spawn, spawnPos + (direction * Data.Range), Data.LineDuration, Data.Offset);
             }
             
             if (Data.UseSFX) AudioManager.Play(Data.SFXName);
@@ -115,51 +123,10 @@ namespace Game.Entities.AttackSystem.Hitscan
             
         }
 
-        // // When the trail collides with something
-        // private IEnumerator SpawnTrail(TrailRenderer trail, Transform origin, Vector3 endPos, Vector3 endNormal, IMovement movement, float trailSpeed = 1000f)
-        // {
-        //     Debug.Log("Yes collision");
-        //     var position = origin.position;
-        //     var distance = Vector3.Distance(position + movement.Velocity * Time.deltaTime, endPos);
-        //     var trailTime = distance / trailSpeed;
-        //     var elapsed = 0f;
-        //     
-        //     trail.transform.position = position + movement.Velocity * Time.deltaTime;
-        //     
-        //     while (elapsed < trailTime)
-        //     {
-        //         var t = elapsed / trailTime;
-        //         trail.transform.position = Vector3.Lerp(origin.position + movement.Velocity * Time.deltaTime, endPos, t);
-        //         elapsed += Time.deltaTime;
-        //
-        //         yield return null;
-        //     }
-        //
-        //     trail.transform.position = endPos;
-        //     if (Data.Impact) Object.Instantiate(Data.Impact, endPos, Quaternion.LookRotation(endNormal));
-        //     
-        //     Object.Destroy(trail.gameObject, trail.time);
-        // }
-        //
-        // private IEnumerator SpawnTrail(LineRenderer line, Transform origin, Vector3 endPos, IMovement movement, float duration = .1f)
-        // {
-        //     
-        //     var elapsed = 0f;
-        //
-        //     var emitter = line.AddComponent<LineEmiter>();
-        //     emitter.SetInfo(origin, endPos);
-        //     
-        //     while (elapsed < duration)
-        //     {
-        //         //yield return new WaitForEndOfFrame();
-        //         //line.transform.position = Vector3.Lerp(origin.position + movement.Velocity * Time.deltaTime, endPos, t);
-        //         elapsed += Time.deltaTime;
-        //         
-        //
-        //         yield return null;
-        //     }
-        //     
-        //     Object.Destroy(line.gameObject);
-        // }
+        public override void OnDraw(Transform origin)
+        {
+            Gizmos.color = _detected ? Color.green : Color.red;
+            Gizmos.DrawRay(_startPos, _direction * Data.Range);
+        }
     }
 }

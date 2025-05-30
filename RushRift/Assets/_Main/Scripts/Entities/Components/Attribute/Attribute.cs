@@ -114,7 +114,6 @@ namespace Game.Entities.Components
                 _regenStrategy.NotifyValueChanged(_prevValue, Value, _data);
             }
             
-            Debug.Log($"SuperTest: Attribute Decreased prev value: {_prevValue} curr value: {Value} amount {amount}");
         }
 
         public void Increase(float amount)
@@ -124,11 +123,9 @@ namespace Game.Entities.Components
 
             if (Value >= maxValue)
             {
-                Debug.Log("SuperTest: Increase Value is max value.");
                 return;
             }
             
-            Debug.Log($"SuperTest: Increase Value {amount}");
             _prevValue = Value;
 
             Value += amount;
@@ -197,7 +194,6 @@ namespace Game.Entities.Components
         {
             var prevValue = Value;
             var startValue = _data.StartValue;
-            Debug.Log($"SuperTest: Init attribute curr {Value}");
             
             Value = startValue > MaxValue ? MaxValue : startValue;
             OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
