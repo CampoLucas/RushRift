@@ -141,6 +141,9 @@ namespace Game.Entities.AttackSystem
             }
             _children.Clear();
         }
+        
+        public virtual void OnDraw(Transform origin) { }
+        public virtual void OnDrawSelected(Transform origin) { }
 
         #region Observer Getters
 
