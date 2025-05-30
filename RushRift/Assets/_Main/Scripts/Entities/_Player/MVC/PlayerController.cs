@@ -46,10 +46,17 @@ namespace Game.Entities
             }
 
             saveData = SaveAndLoad.Load();
-            for (int i = 0; i < ScriptableReference.Instance.effectsReferences.Count; i++)
+
+            var scriptableReference = ScriptableReference.Instance;
+
+            if (scriptableReference)
             {
-                effects.Add(ScriptableReference.Instance.effectsReferences[i].ID, ScriptableReference.Instance.effectsReferences[i].effect);
+                for (int i = 0; i < ScriptableReference.Instance.effectsReferences.Count; i++)
+                {
+                    effects.Add(ScriptableReference.Instance.effectsReferences[i].ID, ScriptableReference.Instance.effectsReferences[i].effect);
+                }
             }
+            
         }
 
         protected override void Start()
