@@ -14,38 +14,36 @@ namespace Game
         
         [Header("Speed")]
         [SerializeField] private float sensivility = .3f;
+        [SerializeField] private float smoothing = 10f;
         // [SerializeField] private float horizontalSpeed = 10;
         // [SerializeField] private float verticalSpeed = 10;
         //private bool _startedRotating;
 
         private float _yaw;
         private float _pitch;
-        
+        private Vector2 _cachedDelta;
+
+        private void Update()
+        {
+#if false
+            _cachedDelta = InputManager.GetValueVector(InputManager.LookInput);
+#else    
+            var rawDelta = InputManager.GetValueVector(InputManager.LookInput);
+
+            _cachedDelta = Vector2.Lerp(_cachedDelta, rawDelta, Time.deltaTime * smoothing);
+#endif
+        }
+
 
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime)
         {
+            if (vcam.Follow == null || stage != CinemachineCore.Stage.Aim) return;
+
 #if false
-            if (vcam.Follow == null || stage != CinemachineCore.Stage.Aim) return;
-            
             var deltaInput = InputManager.GetValueVector(InputManager.LookInput);
-                    
-            Debug.Log($"Mouse input: {deltaInput.magnitude}");
-
-            var xInput = deltaInput.x * horizontalSpeed * sensivility * Time.deltaTime;
-            if (invertHorizontal) xInput *= -1;
-            var yInput = deltaInput.y * verticalSpeed * sensivility * Time.deltaTime;
-            if (invertVertical) yInput *= -1;
-                    
-                    
-            _startRotation.x += xInput;
-            _startRotation.y -= yInput;
-
-            _startRotation.y = Mathf.Clamp(_startRotation.y, -clampAngle, clampAngle);
-            state.RawOrientation = Quaternion.Euler(_startRotation.y, _startRotation.x, 0f);
 #else
-            if (vcam.Follow == null || stage != CinemachineCore.Stage.Aim) return;
-            
-            var deltaInput = InputManager.GetValueVector(InputManager.LookInput);
+            var deltaInput = _cachedDelta;
+#endif
 
             if (invertHorizontal) deltaInput.x *= -1;
             if (invertVertical) deltaInput.y *= -1;
@@ -58,7 +56,6 @@ namespace Game
 
             var rotation = Quaternion.Euler(-_pitch, _yaw, 0f);
             state.RawOrientation = rotation;
-#endif
         }
     }
 }
