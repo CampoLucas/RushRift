@@ -68,6 +68,7 @@ namespace Game.Entities
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
 
+            if (saveData == null) return;
             effectsID = saveData.GetActiveEffects();
             if (effects == null || effects.Count == 0) return;
 

@@ -1,7 +1,9 @@
-using System;
 using UnityEngine;
 using Cinemachine;
+using Game.DesignPatterns.Observers;
 using Game.Inputs;
+using Game.UI;
+using UnityEngine.Serialization;
 
 namespace Game
 {
@@ -13,52 +15,89 @@ namespace Game
         [SerializeField] private bool invertVertical;
         
         [Header("Speed")]
-        [SerializeField] private float sensivility = .3f;
+        [SerializeField] private float sensibility = .3f;
+        [SerializeField] private float smoothing = 10f;
         // [SerializeField] private float horizontalSpeed = 10;
         // [SerializeField] private float verticalSpeed = 10;
         //private bool _startedRotating;
 
         private float _yaw;
         private float _pitch;
-        
+        private Vector2 _cachedDelta;
+        private ActionObserver<float> _onSensibilityChanged;
+        private ActionObserver<float> _onSmoothnessChanged;
+
+        private void Start()
+        {
+            var saveData = SaveAndLoad.Load();
+
+            sensibility = saveData.Camera.Sensibility;
+            smoothing = saveData.Camera.Smoothness;
+
+            _onSensibilityChanged = new ActionObserver<float>(OnSensibilityChanged);
+            _onSmoothnessChanged = new ActionObserver<float>(OnSmoothnessChanged);
+
+
+            if (Options.OnCameraSensibilityChanged == null)
+            {
+                Debug.Log("On Camara Sensibility is null");
+            }
+            Options.OnCameraSensibilityChanged.Attach(_onSensibilityChanged);
+            Options.OnCameraSmoothnessChanged.Attach(_onSmoothnessChanged);
+        }
+
+        private void Update()
+        {
+#if false
+            _cachedDelta = InputManager.GetValueVector(InputManager.LookInput);
+#else    
+            var rawDelta = InputManager.GetValueVector(InputManager.LookInput);
+
+            _cachedDelta = Vector2.Lerp(_cachedDelta, rawDelta, Time.deltaTime * smoothing);
+#endif
+        }
+
 
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime)
         {
+            if (vcam.Follow == null || stage != CinemachineCore.Stage.Aim) return;
+
 #if false
-            if (vcam.Follow == null || stage != CinemachineCore.Stage.Aim) return;
-            
             var deltaInput = InputManager.GetValueVector(InputManager.LookInput);
-                    
-            Debug.Log($"Mouse input: {deltaInput.magnitude}");
-
-            var xInput = deltaInput.x * horizontalSpeed * sensivility * Time.deltaTime;
-            if (invertHorizontal) xInput *= -1;
-            var yInput = deltaInput.y * verticalSpeed * sensivility * Time.deltaTime;
-            if (invertVertical) yInput *= -1;
-                    
-                    
-            _startRotation.x += xInput;
-            _startRotation.y -= yInput;
-
-            _startRotation.y = Mathf.Clamp(_startRotation.y, -clampAngle, clampAngle);
-            state.RawOrientation = Quaternion.Euler(_startRotation.y, _startRotation.x, 0f);
 #else
-            if (vcam.Follow == null || stage != CinemachineCore.Stage.Aim) return;
-            
-            var deltaInput = InputManager.GetValueVector(InputManager.LookInput);
+            var deltaInput = _cachedDelta;
+#endif
 
             if (invertHorizontal) deltaInput.x *= -1;
             if (invertVertical) deltaInput.y *= -1;
             
-            Debug.Log($"Mouse input: {deltaInput.magnitude}");
-
-            _yaw += deltaInput.x * sensivility;
-            _pitch += deltaInput.y * sensivility;
+            _yaw += deltaInput.x * sensibility;
+            _pitch += deltaInput.y * sensibility;
             _pitch = Mathf.Clamp(_pitch, -clampAngle, clampAngle);
 
             var rotation = Quaternion.Euler(-_pitch, _yaw, 0f);
             state.RawOrientation = rotation;
-#endif
+        }
+
+        private void OnSensibilityChanged(float value)
+        {
+            sensibility = value;
+        }
+
+        private void OnSmoothnessChanged(float value)
+        {
+            smoothing = value;
+        }
+
+        protected override void OnDestroy()
+        {
+            var sensibilitySubject = Options.OnCameraSensibilityChanged;
+            var smoothnessSubject = Options.OnCameraSensibilityChanged;
+            if (sensibilitySubject != null) sensibilitySubject.Detach(_onSensibilityChanged);
+            if (smoothnessSubject != null) smoothnessSubject.Detach(_onSmoothnessChanged);
+            
+            _onSensibilityChanged.Dispose();
+            _onSmoothnessChanged.Dispose();
         }
     }
 }
