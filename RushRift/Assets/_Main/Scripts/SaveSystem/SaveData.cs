@@ -7,6 +7,7 @@ public class SaveData
 {
     public int playerCurrency;
     public Dictionary<int, bool> unlockedEffects = new();
+    public CameraSettings CameraSettings = new();
 
     public List<int> GetActiveEffects()
     {
@@ -18,5 +19,17 @@ public class SaveData
         }
 
         return effects;
+    }
+}
+
+public struct CameraSettings
+{
+    public float Sensibility;
+    public float Smoothness;
+
+    public CameraSettings(float sensibility = .35f, float smoothness = 35f)
+    {
+        Sensibility = sensibility;
+        Smoothness = smoothness;
     }
 }
