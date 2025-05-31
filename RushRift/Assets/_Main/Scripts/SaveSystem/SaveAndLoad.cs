@@ -22,7 +22,7 @@ public class SaveAndLoad
 
     public static SaveData Load()
     {
-        SaveData data;
+        SaveData data = new();
         if (File.Exists(path))
         {
             formatter = new BinaryFormatter();
@@ -34,8 +34,9 @@ public class SaveAndLoad
         }
         else
         {
-            Debug.LogWarning("Save file not found in" + path);
-            return null;
+            Debug.LogWarning($"Save file not found in {path}, creating new save" );
+            Save(data);
+            return data;
         }
     }
 } 
