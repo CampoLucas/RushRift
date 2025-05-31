@@ -7,12 +7,12 @@ namespace Game.UI
 {
     public class Options : MonoBehaviour
     {
-        public static ISubject<float> OnCameraSensibilityChanged;
-        public static ISubject<float> OnCameraSmoothnessChanged;
+        public static ISubject<float> OnCameraSensibilityChanged = new Subject<float>();
+        public static ISubject<float> OnCameraSmoothnessChanged = new Subject<float>();
 
         [Header("Camera Settings")]
-        [SerializeField] private Slider sensibilitySlider;
-        [SerializeField] private Slider smoothnessSlider;
+        [SerializeField] private OptionSlider sensibilitySlider;
+        [SerializeField] private OptionSlider smoothnessSlider;
 
         private Options _instance;
 
@@ -28,11 +28,10 @@ namespace Game.UI
                 return;
             }
             
-            OnCameraSensibilityChanged = new Subject<float>();
-            OnCameraSmoothnessChanged = new Subject<float>();
+            Debug.Log("Options Awake");
             
-            sensibilitySlider.onValueChanged.AddListener(OnSensibilityChangedHandler);
-            smoothnessSlider.onValueChanged.AddListener(OnSmoothnessChangedHandler);
+            sensibilitySlider.OnValueChanged.AddListener(OnSensibilityChangedHandler);
+            smoothnessSlider.OnValueChanged.AddListener(OnSmoothnessChangedHandler);
         }
 
         private void Start()
@@ -40,8 +39,8 @@ namespace Game.UI
             // init values from the save file
             var saveData = SaveAndLoad.Load();
 
-            sensibilitySlider.value = saveData.CameraSettings.Sensibility;
-            smoothnessSlider.value = saveData.CameraSettings.Smoothness;
+            sensibilitySlider.Value = saveData.Camera.Sensibility;
+            smoothnessSlider.Value = saveData.Camera.Smoothness;
         }
 
         public void OnSensibilityChangedHandler(float value)
@@ -51,7 +50,7 @@ namespace Game.UI
             // save value
             var saveData = SaveAndLoad.Load();
 
-            saveData.CameraSettings.Sensibility = value;
+            saveData.Camera.Sensibility = value;
             SaveAndLoad.Save(saveData);
         }
         
@@ -62,8 +61,26 @@ namespace Game.UI
             // Save value
             var saveData = SaveAndLoad.Load();
 
-            saveData.CameraSettings.Smoothness = value;
+            saveData.Camera.Smoothness = value;
             SaveAndLoad.Save(saveData);
+        }
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
+            else
+            {
+                return;
+            }
+            
+            OnCameraSmoothnessChanged.DetachAll();
+            //OnCameraSmoothnessChanged.Dispose();
+            
+            OnCameraSensibilityChanged.DetachAll();
+            //OnCameraSensibilityChanged.Dispose();
         }
     }
 }

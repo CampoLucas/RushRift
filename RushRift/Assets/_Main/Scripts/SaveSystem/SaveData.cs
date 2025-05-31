@@ -1,5 +1,6 @@
 using Game.Entities;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 
 [System.Serializable]
@@ -7,8 +8,10 @@ public class SaveData
 {
     public int playerCurrency;
     public Dictionary<int, bool> unlockedEffects = new();
-    public CameraSettings CameraSettings = new();
+    public CameraSettings Camera = new CameraSettings(.35f, 30);
 
+    
+    
     public List<int> GetActiveEffects()
     {
         if (unlockedEffects == null) return null;
@@ -22,14 +25,21 @@ public class SaveData
     }
 }
 
+[System.Serializable]
 public struct CameraSettings
 {
     public float Sensibility;
     public float Smoothness;
-
-    public CameraSettings(float sensibility = .35f, float smoothness = 35f)
+    public bool InvertX;
+    public bool InvertY;
+    
+    public CameraSettings(float sensibility, float smoothness, bool invertX = false, bool invertY = false)
     {
         Sensibility = sensibility;
         Smoothness = smoothness;
+        InvertX = invertX;
+        InvertY = invertY;
     }
 }
+
+
