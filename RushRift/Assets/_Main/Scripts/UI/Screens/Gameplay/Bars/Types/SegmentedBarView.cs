@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -14,9 +15,10 @@ namespace Game.UI.Screens
 
         [Header("References")]
         [SerializeField] private RectTransform container;
+        [SerializeField] private TMP_Text text;
 
         [Header("Settings")]
-        [SerializeField] private int segmentsCount = 10;
+        //[SerializeField] private int segmentsCount = 10;
         [SerializeField] private float fadeDelay = 0.2f;
         [SerializeField] private float fadeSpeed = 0.5f; 
 
@@ -38,6 +40,8 @@ namespace Game.UI.Screens
 
         public override void SetStartValue(float startValue, float startMaxValue)
         {
+            text.text = ((int)startValue).ToString();
+            
             if (!Mathf.Approximately(startMaxValue, _lastMax)) // Check if we need to regenerate segments
             {
                 RebuildSegments(startMaxValue);
@@ -53,6 +57,8 @@ namespace Game.UI.Screens
         
         private void SetValue(float current, float previous, float max)
         {
+            text.text = ((int)current).ToString();
+            
             if (!Mathf.Approximately(max, _lastMax)) // Check if we need to regenerate segments
             {
                 RebuildSegments(max);
@@ -80,11 +86,12 @@ namespace Game.UI.Screens
                 }
             }
 
+            // Stop any running coroutines
+            if (_secondaryCoroutine != null)
+                StopCoroutine(_secondaryCoroutine);
+                    
             if (current < previous)
             {
-                // Stop any running coroutines
-                if (_secondaryCoroutine != null)
-                    StopCoroutine(_secondaryCoroutine);
                 _secondaryCoroutine = StartCoroutine(FadeSegmentsCoroutine(current, previous, max));
             }
         }
@@ -94,8 +101,8 @@ namespace Game.UI.Screens
             _lastMax = max; // Store for next comparison
 
 
-            var newSegmentsCount = segmentsCount; // Calculate new segment count
-            _valuePerSegment = max / newSegmentsCount;
+            var newSegmentsCount = max; // Calculate new segment count
+            _valuePerSegment = 1;
 
             var currentCount = _segments.Count;
 
