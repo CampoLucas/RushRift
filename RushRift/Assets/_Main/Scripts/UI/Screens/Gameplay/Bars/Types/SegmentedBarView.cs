@@ -38,26 +38,31 @@ namespace Game.UI.Screens
             SetValue(currentHealth, previousHealth, maxHealth);
         }
 
-        public override void SetStartValue(float startValue, float startMaxValue)
+        public override void SetStartValue(float current, float max)
         {
-            text.text = ((int)startValue).ToString();
+            text.text = ValueText(current, max);
             
-            if (!Mathf.Approximately(startMaxValue, _lastMax)) // Check if we need to regenerate segments
+            if (!Mathf.Approximately(max, _lastMax)) // Check if we need to regenerate segments
             {
-                RebuildSegments(startMaxValue);
+                RebuildSegments(max);
             }
 
-            var filledSegments = Mathf.FloorToInt(startValue / _valuePerSegment);
+            var filledSegments = Mathf.FloorToInt(current / _valuePerSegment);
 
             for (var i = 0; i < _segments.Count; i++)
             {
                 _segments[i].SetColor(i < filledSegments ? filledColor : emptyColor);
             }
         }
+
+        private string ValueText(float current, float max)
+        {
+            return $"<size=100%>{((int)current)}<voffset=.25em><size=50%>/{(int)max}";
+        }
         
         private void SetValue(float current, float previous, float max)
         {
-            text.text = ((int)current).ToString();
+            text.text = ValueText(current, max);
             
             if (!Mathf.Approximately(max, _lastMax)) // Check if we need to regenerate segments
             {

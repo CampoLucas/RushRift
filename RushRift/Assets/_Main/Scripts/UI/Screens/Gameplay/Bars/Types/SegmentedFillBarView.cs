@@ -37,16 +37,16 @@ namespace Game.UI.Screens
             SetValue(currentHealth, previousHealth, maxHealth);
         }
 
-        public override void SetStartValue(float startValue, float startMaxValue)
+        public override void SetStartValue(float current, float max)
         {
-            if (!Mathf.Approximately(startMaxValue, _lastMax))
+            if (!Mathf.Approximately(max, _lastMax))
             {
-                RebuildSegments(startMaxValue);
+                RebuildSegments(max);
             }
             
-            text.text = $"{startValue}/{startMaxValue}";
+            text.text = $"{current}/{max}";
 
-            var remaining = startValue;
+            var remaining = current;
 
             for (var i = 0; i < _segments.Count; i++)
             {
