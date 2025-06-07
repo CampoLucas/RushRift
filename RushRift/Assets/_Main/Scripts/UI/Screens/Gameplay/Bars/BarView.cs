@@ -9,6 +9,6 @@ namespace Game.UI.Screens
     {
         public abstract void OnNotify(float currentHealth, float previousHealth, float maxHealth);
 
-        public abstract void SetStartValue(float startValue, float startMaxValue);
+        public abstract void SetStartValue(float current, float max);
     }
 }
