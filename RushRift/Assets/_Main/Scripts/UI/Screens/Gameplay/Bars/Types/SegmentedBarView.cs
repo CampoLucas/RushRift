@@ -57,7 +57,8 @@ namespace Game.UI.Screens
 
         private string ValueText(float current, float max)
         {
-            return $"<size=100%>{((int)current)}<voffset=.25em><size=50%>/{(int)max}";
+            //return $"<size=100%>{((int)current)}<voffset=.25em><size=50%>/{(int)max}";
+            return ((int)current).ToString();
         }
         
         private void SetValue(float current, float previous, float max)
