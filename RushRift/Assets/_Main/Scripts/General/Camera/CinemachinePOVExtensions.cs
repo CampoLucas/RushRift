@@ -93,11 +93,18 @@ namespace Game
         {
             var sensibilitySubject = Options.OnCameraSensibilityChanged;
             var smoothnessSubject = Options.OnCameraSensibilityChanged;
-            if (sensibilitySubject != null) sensibilitySubject.Detach(_onSensibilityChanged);
-            if (smoothnessSubject != null) smoothnessSubject.Detach(_onSmoothnessChanged);
-            
-            _onSensibilityChanged.Dispose();
-            _onSmoothnessChanged.Dispose();
+
+            if (_onSensibilityChanged != null)
+            {
+                if (sensibilitySubject != null) sensibilitySubject.Detach(_onSensibilityChanged);
+                _onSensibilityChanged.Dispose();
+            }
+
+            if (_onSmoothnessChanged != null)
+            {
+                if (smoothnessSubject != null) smoothnessSubject.Detach(_onSmoothnessChanged);
+                _onSmoothnessChanged?.Dispose();
+            }
         }
     }
 }

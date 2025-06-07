@@ -1,19 +1,32 @@
+using System;
 using Game.Entities;
 using UnityEngine;
 
 public class EffectOnCollision : MonoBehaviour
 {
+    public Action OnApplied = delegate { };
+    
+    [Header("Effect")]
     [SerializeField] private EffectGiver effectGiver;
+
+    [Header("Settings")]
+    [SerializeField] private bool destroyWhenApplied = true;
     [SerializeField] private bool onTrigger = true;
     [SerializeField] private bool onCollision;
 
+    private bool _applied;
+    
     private void GiveEffect(GameObject other)
     {
+        if (_applied) return;
+        
         if (other.TryGetComponent<IController>(out var controller))
         {
             effectGiver.ApplyEffect(controller);
-            
-            Destroy(gameObject);
+
+            _applied = true;
+            OnApplied.Invoke();
+            if (destroyWhenApplied) Destroy(gameObject);
         }
     }
     
@@ -27,5 +40,12 @@ public class EffectOnCollision : MonoBehaviour
     {
         if (!onCollision || !effectGiver.HasEffect()) return;
         GiveEffect(other.gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        effectGiver.Dispose();
+        effectGiver = null;
+        OnApplied = null;
     }
 }
