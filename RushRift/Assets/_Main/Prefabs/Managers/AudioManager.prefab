@@ -63,6 +63,7 @@ MonoBehaviour:
   sounds:
   - name: SparksAttack
     loop: 0
+    playOnAwake: 0
     delaySeconds: 0
     clips:
     - {fileID: 8300000, guid: 9f21389d53f58d54caf989fc01fa10f3, type: 3}
@@ -70,12 +71,15 @@ MonoBehaviour:
     - {fileID: 8300000, guid: e87767d9fcb8da647a3fc625a3264144, type: 3}
     - {fileID: 8300000, guid: 1cdf863f8011c78468eef34b2177c0d6, type: 3}
     mixer: {fileID: 7930112030254647855, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 1
     volume: 1
+    volumeRange: {x: 0.8, y: 1}
     pitch: 1
     randomPitch: 1
-    pitchRange: {x: 1, y: 0.8}
+    pitchRange: {x: 0.95, y: 1.05}
   - name: LaserAttack
     loop: 0
+    playOnAwake: 0
     delaySeconds: 0
     clips:
     - {fileID: 8300000, guid: b1c86d5e0506f0c489ff079ab93793f5, type: 3}
@@ -89,10 +93,12 @@ MonoBehaviour:
     - {fileID: 8300000, guid: c5bbdf9fdc1c1f3498780b5b4bf840d4, type: 3}
     - {fileID: 8300000, guid: 94c35d2bfdf0dba42b074bc18fa4eb90, type: 3}
     mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 1
     volume: 1
+    volumeRange: {x: 0.8, y: 1}
     pitch: 1
     randomPitch: 1
-    pitchRange: {x: 1, y: 0.8}
+    pitchRange: {x: 0.95, y: 1.05}
 --- !u!82 &11858957848135684
 AudioSource:
   m_ObjectHideFlags: 0

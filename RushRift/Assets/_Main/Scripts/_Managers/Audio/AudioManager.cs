@@ -36,6 +36,14 @@ namespace Game
 
             _soundMap = sounds.ToDictionary(s => s.Name, s => s);
             _pool = new AudioSourcePool(gameObject, GetComponents<AudioSource>());
+
+            for (var i = 0; i < sounds.Length; i++)
+            {
+                var sound = sounds[i];
+                if (sound == null || !sound.PlayOnAwake) continue;
+                
+                PlaySound(sound);
+            }
         }
 
         /// <summary>

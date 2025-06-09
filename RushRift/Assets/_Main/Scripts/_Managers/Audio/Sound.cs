@@ -16,21 +16,32 @@ namespace Game
         /// </summary>
         public float Pitch => randomPitch ? Random.Range(pitchRange.x, pitchRange.y) : pitch;
         /// <summary>
+        /// Returns either a fixed volume or a randomized volume based on the volume range.
+        /// </summary>
+        public float Volume => randomVolume ? Random.Range(volumeRange.x, volumeRange.y) : volume;
+        /// <summary>
         /// Name used to reference this sound.
         /// </summary>
         public string Name => name;
+        /// <summary>
+        /// If the sound is played when the AudioManager is Initialized.
+        /// </summary>
+        public bool PlayOnAwake => playOnAwake;
 
         [Header("Settings")]
         [SerializeField] private string name;
         [SerializeField] private bool loop;
+        [SerializeField] private bool playOnAwake;
         [SerializeField] private float delaySeconds;
         
         [Header("Audio")]
         [SerializeField] private AudioClip[] clips;
         [SerializeField] private AudioMixerGroup mixer;
-        
+
         [Header("Reproduction")]
+        [SerializeField] private bool randomVolume;
         [SerializeField] private float volume;
+        [SerializeField] private Vector2 volumeRange;
         [SerializeField] private float pitch;
         [SerializeField] private bool randomPitch;
         [SerializeField] private Vector2 pitchRange;
@@ -42,7 +53,7 @@ namespace Game
         {
             if (mixer != null) source.outputAudioMixerGroup = mixer;
             
-            source.volume = volume;
+            source.volume = Volume;
             source.pitch = Pitch;
             source.loop = loop;
         }
