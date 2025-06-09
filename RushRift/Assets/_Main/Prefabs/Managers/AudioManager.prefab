@@ -61,6 +61,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sounds:
+  - name: LevelMusic
+    loop: 1
+    playOnAwake: 1
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 9192c6a01ae7ece4ebd394418961cfeb, type: 3}
+    mixer: {fileID: -8372473847836169598, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 0
+    volume: 1
+    volumeRange: {x: 0.8, y: 1}
+    pitch: 1
+    randomPitch: 0
+    pitchRange: {x: 0.95, y: 1.05}
   - name: SparksAttack
     loop: 0
     playOnAwake: 0
@@ -93,6 +106,23 @@ MonoBehaviour:
     - {fileID: 8300000, guid: c5bbdf9fdc1c1f3498780b5b4bf840d4, type: 3}
     - {fileID: 8300000, guid: 94c35d2bfdf0dba42b074bc18fa4eb90, type: 3}
     mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 1
+    volume: 1
+    volumeRange: {x: 0.8, y: 1}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.95, y: 1.05}
+  - name: OrbPickUp
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 5294c83c376e71c448a6ee9ed76439ac, type: 3}
+    - {fileID: 8300000, guid: 2be79fd91b68e0c41b671bc55a698508, type: 3}
+    - {fileID: 8300000, guid: 678b479bea39dcd40adfdee8a48fce8c, type: 3}
+    - {fileID: 8300000, guid: a6eb444cb2c904744814930529efefe8, type: 3}
+    - {fileID: 8300000, guid: 5db5ed497cd1a844bb5aa66c464b6410, type: 3}
+    mixer: {fileID: -3980701561750064647, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
     randomVolume: 1
     volume: 1
     volumeRange: {x: 0.8, y: 1}
