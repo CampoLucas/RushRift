@@ -5,17 +5,25 @@ using Random = UnityEngine.Random;
 
 namespace Game
 {
+    /// <summary>
+    /// Represents a single sound configuration, including clips, volume, pitch, looping, and mixer settings.
+    /// </summary>
     [System.Serializable]
     public class Sound : IDisposable
     {
+        /// <summary>
+        /// Returns either a fixed pitch or a randomized pitch based on the pitch range.
+        /// </summary>
         public float Pitch => randomPitch ? Random.Range(pitchRange.x, pitchRange.y) : pitch;
+        /// <summary>
+        /// Name used to reference this sound.
+        /// </summary>
         public string Name => name;
 
         [Header("Settings")]
         [SerializeField] private string name;
         [SerializeField] private bool loop;
-        [SerializeField] private bool playOnAwake;
-        [SerializeField] private ulong delay;
+        [SerializeField] private float delaySeconds;
         
         [Header("Audio")]
         [SerializeField] private AudioClip[] clips;
@@ -26,48 +34,58 @@ namespace Game
         [SerializeField] private float pitch;
         [SerializeField] private bool randomPitch;
         [SerializeField] private Vector2 pitchRange;
-
-        private AudioSource _source;
-
-        public void Initialize(GameObject gameObject)
+        
+        /// <summary>
+        /// Applies this sound's settings to the provided AudioSource.
+        /// </summary>
+        public void Initialize(AudioSource source)
         {
-            _source = gameObject.AddComponent<AudioSource>();
-            if (clips.Length > 0) _source.clip = clips[0];
-            if (mixer != null) _source.outputAudioMixerGroup = mixer;
+            if (mixer != null) source.outputAudioMixerGroup = mixer;
             
-            _source.volume = volume;
-            _source.pitch = Pitch;
-            _source.loop = loop;
-            _source.playOnAwake = playOnAwake;
+            source.volume = volume;
+            source.pitch = Pitch;
+            source.loop = loop;
         }
 
-        public void Play()
+        /// <summary>
+        /// Initializes and plays the sound clip using the provided AudioSource.
+        /// </summary>
+        /// <param name="source">The AudioSource used to play the clip.</param>
+        public void Play(AudioSource source)
         {
-            if (clips.Length == 0)
+            if (clips == null || clips.Length == 0)
             {
-                Debug.Log("Length is 0 capitan");
+                Debug.LogWarning($"WARNING: Sound '{name}' has no clips assigned.");
                 return;
             }
+            
+            Initialize(source);
+            
             var clipIndex = clips.Length > 1 ? Random.Range(0, clips.Length) : 0;
-            _source.clip = clips[clipIndex];
-            _source.pitch = Pitch;
+            source.clip = clips[clipIndex];
+            source.pitch = Pitch;
 
-            Debug.Log("Play audio");
-            if (delay > 0)
+            source.enabled = true;
+            
+            if (delaySeconds > 0)
             {
-                _source.Play(delay);
+                Debug.Log("SuperTest: Play Source delayed");
+                source.PlayDelayed(delaySeconds);
             }
             else
             {
-                _source.Play();
+                Debug.Log("SuperTest: Play Source");
+                source.Play();
             }
         }
 
+        /// <summary>
+        /// Frees references to clip and mixer for garbage collection.
+        /// </summary>
         public void Dispose()
         {
             clips = null;
             mixer = null;
-            _source = null;
         }
     }
 }
