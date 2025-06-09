@@ -28,6 +28,7 @@ namespace Game.LevelElements
 
         private void OnPickUpHandler()
         {
+            AudioManager.Play("OrbPickUp");
             orbVFX.gameObject.SetActive(false);
             orbFadeVFX.Play();
             StartCoroutine(FadeLight());
