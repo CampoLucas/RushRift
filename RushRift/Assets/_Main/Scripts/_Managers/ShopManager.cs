@@ -51,8 +51,8 @@ public class ShopManager : MonoBehaviour
         if (data.unlockedEffects.ContainsKey(perk)) data.unlockedEffects[perk] = true;
         else data.unlockedEffects.Add(perk, true);
 
-        SaveAndLoad.Save(data);
         DisablePurchase(thisButton, perk);
+        SaveAndLoad.Save(data);
 
     }
 
