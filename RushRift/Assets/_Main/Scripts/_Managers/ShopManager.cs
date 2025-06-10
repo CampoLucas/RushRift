@@ -67,4 +67,10 @@ public class ShopManager : MonoBehaviour
         if (!data.unlockedEffects.ContainsKey(perk)) return;
         if (data.unlockedEffects[perk] == true) buttonToDisable.interactable = false;
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        SceneManager.LoadScene("Level_1_Rework");
+    }
 }

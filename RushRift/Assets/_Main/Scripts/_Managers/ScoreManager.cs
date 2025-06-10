@@ -13,13 +13,15 @@ public class ScoreManager : MonoBehaviour
     private int playerCurrency;
     private SaveData data;
     private IObserver<int> _onPointsGainObserver;
+    private IObserver<int> _onWinLevelObserver;
 
     private void Start()
     {
         _onPointsGainObserver = new ActionObserver<int>(OnPointsGain);
+        _onWinLevelObserver = new ActionObserver<int>(OnWinLevel);
 
         EnemyController.OnEnemyGivesPoints.Attach(_onPointsGainObserver);
-        WinTrigger.OnWinGivePoints.Attach(_onPointsGainObserver);
+        WinTrigger.OnWinGivePoints.Attach(_onWinLevelObserver);
         data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
         else data = new();
@@ -33,6 +35,12 @@ public class ScoreManager : MonoBehaviour
         playerCurrency += currentPoints;
         data.playerCurrency = playerCurrency;
         scoreText.text = currentPoints.ToString();
+        
+    }
+
+    public void OnWinLevel(int points)
+    {
+        OnPointsGain(points);
         SaveAndLoad.Save(data);
     }
 }
