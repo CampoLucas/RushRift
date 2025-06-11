@@ -17,13 +17,11 @@ namespace Game.Entities.Dash
         
         protected override void OnStartEffect(Transform origin, DashComponent dash)
         {
-            Debug.Log("SuperTest: Add Dash damage");
             dash.SetUpdateStrategy(new DashDamage(origin, overlap, damage));
         }
 
         protected override void OnStopEffect(DashComponent dash)
         {
-            Debug.Log("SuperTest: Remove Dash damage");
             dash.SetUpdateStrategy(null);
         }
 

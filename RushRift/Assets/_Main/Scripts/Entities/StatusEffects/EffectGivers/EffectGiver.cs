@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 
 namespace Game.Entities
 {
     [System.Serializable]
-    public class EffectGiver
+    public class EffectGiver : IDisposable
     {
         [Header("Effect")]
         [SerializeField] private Effect effect;
@@ -25,5 +26,10 @@ namespace Game.Entities
         }
 
         public bool HasEffect() => effect != null;
+        
+        public void Dispose()
+        {
+            effect = null;
+        }
     }
 }

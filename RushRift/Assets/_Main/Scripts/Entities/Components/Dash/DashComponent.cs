@@ -71,7 +71,6 @@ namespace Game.Entities.Components
                 return energy.Value >= _data.Cost;
             }
 
-            Debug.Log("SuperTest: can't dash");
             return false;
         }
 

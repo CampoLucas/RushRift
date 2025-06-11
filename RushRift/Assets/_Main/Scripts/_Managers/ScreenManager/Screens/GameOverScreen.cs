@@ -10,7 +10,7 @@ public class GameOverScreen : MonoBehaviour, IScreen
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        if (Input.GetKeyDown(KeyCode.Escape)) SceneManager.LoadScene("Level_Hub");
+        if (Input.GetKeyDown(KeyCode.Escape)) SceneManager.LoadScene("Level_Hub_Rework");
     }
 
     public void Activate()

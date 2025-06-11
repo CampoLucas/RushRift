@@ -18,7 +18,8 @@ public  class ScriptableReference : MonoBehaviour
 
     private void Awake()
     {
-        _instance = this;
+        if (_instance == null) _instance = this;
+        else Destroy(gameObject);
         DontDestroyOnLoad(this.gameObject);
         
     }

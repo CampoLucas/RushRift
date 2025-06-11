@@ -14,14 +14,9 @@ namespace Game.Entities.Attribute
         
         public sealed override void StartEffect(IController controller)
         {
-            Debug.Log("SuperTest: Start Attribute Effect Strategy");
             if (TryGetAttribute(controller, out var atr))
             {
                 OnStartEffect(atr);
-            }
-            else
-            {
-                Debug.Log("SuperTest: no effect");
             }
         }
 

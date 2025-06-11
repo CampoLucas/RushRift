@@ -124,6 +124,32 @@ namespace Game.Entities.AttackSystem
             _lateUpdateSubject.NotifyAll(_moduleParams, delta);
         }
 
+        public void OnDraw(Transform origin)
+        {
+            if (_proxies == null || _proxies.Count == 0) return;
+            
+            for (var i = 0; i < _proxies.Count; i++)
+            {
+                var p = _proxies[i];
+                if (p == null) continue;
+                
+                p.OnDraw(origin);
+            }
+        }
+
+        public void OnDrawSelected(Transform origin)
+        {
+            if (_proxies == null || _proxies.Count == 0) return;
+            
+            for (var i = 0; i < _proxies.Count; i++)
+            {
+                var p = _proxies[i];
+                if (p == null) continue;
+                
+                p.OnDrawSelected(origin);
+            }
+        }
+
         public bool ModulesExecuted()
         {
             return _runningProxies.Count == 0;
