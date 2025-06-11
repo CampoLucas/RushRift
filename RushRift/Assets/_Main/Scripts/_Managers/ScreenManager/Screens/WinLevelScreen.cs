@@ -19,7 +19,6 @@ public class WinLevelScreen : MonoBehaviour, IScreen
     private void LoadNextLevel()
     {
         SceneManager.LoadScene(sceneToLoad);
-        LevelManager.Instance.ScreenManager.PopScreen();
     }
 
     public void Activate()

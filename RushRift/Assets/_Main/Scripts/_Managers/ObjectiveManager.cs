@@ -68,10 +68,8 @@ public class ObjectiveManager : MonoBehaviour
         if (!stopTimer)
         {
             _timer += Time.deltaTime;
-            _minutes = GetMinutes(_timer);
-            _seconds = GetSeconds(_timer);
-            _miliSeconds = GetMiliseconds(_timer);
-            FormatTimer(timerText,_minutes,_seconds,_miliSeconds);
+            _newTimer = GetNewTimer(_timer);
+            FormatTimer(timerText, _newTimer[0], _newTimer[1], _newTimer[2]);
         }
     }
 
@@ -83,19 +81,6 @@ public class ObjectiveManager : MonoBehaviour
         aux[2] = Mathf.FloorToInt((timer % 1) * 1000);
 
         return aux;
-    }
-
-    private int GetMinutes(float item)
-    {
-        return Mathf.FloorToInt(item / 60);
-    }
-    private int GetSeconds(float item)
-    {
-        return Mathf.FloorToInt(item % 60);
-    }
-    private int GetMiliseconds(float item)
-    {
-        return Mathf.FloorToInt((item % 1) * 1000);
     }
 
     private void FormatTimer(TMP_Text text, int minutes, int seconds, int miliseconds)
@@ -110,7 +95,7 @@ public class ObjectiveManager : MonoBehaviour
         if (!data.levelBestTimes.ContainsKey(currentLevel))
         {
             Debug.Log("Me cree");
-            data.levelBestTimes.TryAdd(currentLevel, _timer);
+            data.levelBestTimes.Add(currentLevel, _timer);
         }
         if (data.levelBestTimes[currentLevel] > _timer) data.levelBestTimes[currentLevel] = _timer; 
         Debug.Log(data.levelBestTimes[currentLevel]);

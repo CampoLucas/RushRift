@@ -60,8 +60,8 @@ public class WinTrigger : MonoBehaviour
         //}
 
         if (!other.CompareTag(triggerTag)) return;
-        OnWinSaveTimes.NotifyAll();
         OnWinGivePoints.NotifyAll(points);
+        OnWinSaveTimes.NotifyAll();
         LevelManager.Instance.ScreenManager.PushScreen(ScreenName.WinLevel);
     }
 
