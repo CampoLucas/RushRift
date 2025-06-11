@@ -28,7 +28,7 @@ namespace Game.LevelElements
 
         private void OnPickUpHandler()
         {
-            ScreenFlash.Instance.TriggerFlash("#F1FA00");
+            ScreenFlash.Instance.TriggerFlash("#F1FA00", 0.1f, 0.1f);
             AudioManager.Play("OrbPickUp");
             
             orbVFX.gameObject.SetActive(false);

@@ -177,14 +177,14 @@ namespace Game.Entities
         public override Vector3 MoveDirection() =>
             _moveDir;
         
+        
         public void OnPlayerDamage(float previousValue, float newValue, float delta)
         {
-            if (newValue < previousValue)
-            {
-                Debug.Log("Taking damage");
-                ScreenFlash.Instance.TriggerFlash("#FF0044");
-
-            }
+            Debug.Log("Taking damage");
+            ScreenFlash.Instance.TriggerFlash("#FF0044", .1f, .1f);
+            
+            
         }
+        
     }
 }
