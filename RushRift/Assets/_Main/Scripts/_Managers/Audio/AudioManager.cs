@@ -57,16 +57,23 @@ namespace Game
                 Debug.LogWarning($"WARNING: Instance is null.");
                 return;
             }
-            
+
             if (!_instance._soundMap.TryGetValue(name, out var sound))
             {
                 Debug.LogWarning($"WARNING: Sound '{name}' not found.");
                 return;
             }
-            
-            Debug.Log("SuperTest: play sound");
+
+            if (!sound.CanPlay())
+            {
+                Debug.Log($"Sound '{name}' skipped due to TimeBetweenPlays restriction.");
+                return;
+            }
+
             _instance.PlaySound(sound);
+            sound.RegisterPlayTime();
         }
+
 
         /// <summary>
         /// Plays the given sound using a pooled audio source.
