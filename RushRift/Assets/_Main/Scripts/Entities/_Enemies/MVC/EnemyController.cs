@@ -76,6 +76,8 @@ namespace Game.Entities
 
         private void OnDeath()
         {
+            AudioManager.Play("TurretDestruction");
+            
             OnEnemyDeathSubject.NotifyAll();
             OnEnemyGivesPoints.NotifyAll(points);
             runner.DisableAllRunners();
@@ -86,6 +88,7 @@ namespace Game.Entities
         {
             if (currentHealth >= previousHealth) return;
             
+            AudioManager.Play("TurretDamage");
             runner.DisableAllRunners();
             runner.SetRunnerActive(damageIndex);
            
