@@ -95,7 +95,6 @@ namespace Game.Entities.AttackSystem.Hitscan
             {
                 _detected = true;
                 trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
-                Debug.Log("SuperTest: hits entity");
                 var other = hit.collider.gameObject;
                 if (other.TryGetComponent<IController>(out var controller) &&
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
@@ -107,13 +106,11 @@ namespace Game.Entities.AttackSystem.Hitscan
             {
                 _detected = true;
                 trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
-                Debug.Log("SuperTest: hits ground");
                 // Play particles when collided with the ground
             }
             else
             {
                 _detected = false;
-                Debug.Log("SuperTest: Doesn't hit");
                 trail.SetPosition(spawn, spawnPos + (direction * Data.Range), Data.LineDuration, Data.Offset);
             }
             
