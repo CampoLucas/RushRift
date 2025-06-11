@@ -17,11 +17,11 @@ namespace Game.DesignPatterns.Observers
             _disposeOnDetach = disposeOnDetach;
         }
         
-        public bool Attach(TObserver observer) => observer != null && Subscribers.Add(observer);
+        public bool Attach(TObserver observer) => observer != null && Subscribers != null && Subscribers.Add(observer);
 
         public bool Detach(TObserver observer)
         {
-            if (Subscribers.Remove(observer))
+            if (Subscribers != null && Subscribers.Remove(observer))
             {
                 if (_disposeOnDetach) observer.Dispose();
                 return true;

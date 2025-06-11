@@ -6,18 +6,18 @@ namespace Game.Entities.Components
     public class Attribute<TData, TDataReturn> : IAttribute where TData : AttributeData<TDataReturn> where TDataReturn : IAttribute
     {
         public float Value { get; private set; }
-        public float MaxValue => _data.MaxValue + _maxModifier;
-        public float RegenRate => _data.RegenRate + _regenModifier;
-        public float StartRegenRate => _data.RegenRate != 0 ? _data.RegenRate : .1f;
-        public float StartMaxValue => _data.MaxValue;
+        public float MaxValue => Data.MaxValue + _maxModifier;
+        public float RegenRate => Data.RegenRate + _regenModifier;
+        public float StartRegenRate => Data.RegenRate != 0 ? Data.RegenRate : .1f;
+        public float StartMaxValue => Data.MaxValue;
         public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
         public ISubject OnValueDepleted{ get; private set; } = new Subject();
         
         protected IObserver<float> LateUpdateObserver;
+        protected TData Data;
         protected bool Disposed;
         
         private IObserver<float> _updateObserver;
-        private TData _data;
         private float _maxModifier;
         private float _prevValue;
         
@@ -30,7 +30,7 @@ namespace Game.Entities.Components
         
         public Attribute(TData data)
         {
-            _data = data;
+            Data = data;
             
             _updateObserver = new ActionObserver<float>(Update);
             _regenStrategy = new RegenStrategy<TData, TDataReturn>();
@@ -38,11 +38,11 @@ namespace Game.Entities.Components
             InitAttribute();
         }
         
-        public void Update(float delta)
+        protected virtual void Update(float delta)
         {
             if (Disposed/* || !_data.HasRegen*/) return;
 
-            _regenStrategy.Tick(delta, this, _data);
+            _regenStrategy.Tick(delta, this, Data);
             
             /*
             if (!_regenerating && !_startRegenDelay && _prevValue != Value)
@@ -111,10 +111,9 @@ namespace Game.Entities.Components
             }
             else
             {
-                _regenStrategy.NotifyValueChanged(_prevValue, Value, _data);
+                _regenStrategy.NotifyValueChanged(_prevValue, Value, Data);
             }
             
-            Debug.Log($"SuperTest: Attribute Decreased prev value: {_prevValue} curr value: {Value} amount {amount}");
         }
 
         public void Increase(float amount)
@@ -124,11 +123,9 @@ namespace Game.Entities.Components
 
             if (Value >= maxValue)
             {
-                Debug.Log("SuperTest: Increase Value is max value.");
                 return;
             }
             
-            Debug.Log($"SuperTest: Increase Value {amount}");
             _prevValue = Value;
 
             Value += amount;
@@ -139,7 +136,7 @@ namespace Game.Entities.Components
 
             OnIncrease(_prevValue);
             OnValueChanged.NotifyAll(Value, _prevValue, maxValue);
-            _regenStrategy.NotifyValueChanged(_prevValue, Value, _data);
+            _regenStrategy.NotifyValueChanged(_prevValue, Value, Data);
         }
 
         public void MaxValueModifier(float amount)
@@ -156,7 +153,7 @@ namespace Game.Entities.Components
         public void Dispose()
         {
             OnDispose();
-            _data = null;
+            Data = null;
 
             Disposed = true;
             
@@ -196,12 +193,11 @@ namespace Game.Entities.Components
         private void InitAttribute()
         {
             var prevValue = Value;
-            var startValue = _data.StartValue;
-            Debug.Log($"SuperTest: Init attribute curr {Value}");
+            var startValue = Data.StartValue;
             
             Value = startValue > MaxValue ? MaxValue : startValue;
             OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
-            _regenStrategy.NotifyValueChanged(Value, prevValue, _data);
+            _regenStrategy.NotifyValueChanged(Value, prevValue, Data);
         }
     }
 }

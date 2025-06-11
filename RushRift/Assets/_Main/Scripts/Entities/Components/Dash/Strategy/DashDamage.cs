@@ -22,7 +22,6 @@ namespace Game.Entities.Components
 
             if (_detection.Overlaps > 0)
             {
-                Debug.Log("SuperTest: does detect");
                 // Turn on effect
                 var collisions = _detection.Collisions;
                 for (var i = 0; i < _detection.Overlaps; i++)
@@ -31,13 +30,11 @@ namespace Game.Entities.Components
 
                     if (other == null)
                     {
-                        Debug.Log("SuperTest: other is null");
                         continue;
                     }
 
                     if (_damagedEntities.Contains(other.gameObject))
                     {
-                        Debug.Log("SuperTest: already contains other");
                         continue;
                     }
 
@@ -45,24 +42,20 @@ namespace Game.Entities.Components
 
                     if (!other.gameObject.TryGetComponent<IController>(out var controller))
                     {
-                        Debug.Log("SuperTest: controller is null");
                         continue;
                     }
                     
                     if (!controller.GetModel().TryGetComponent<HealthComponent>(out var health))
                     {
-                        Debug.Log("SuperTest: health component is null");
                         continue;
                     }
 
-                    Debug.Log($"SuperTest: Damage {other.gameObject.name}");
                     _damagedEntities.Add(other.gameObject);
                     health.Damage(_damage, currentPosition);
                 }
 
                 return true;
             }
-            Debug.Log("SuperTest: doesn't detect");
             // Turn off effect
 
             return false;

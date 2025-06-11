@@ -4,6 +4,7 @@ using Game.Inputs;
 using Game.Predicates;
 using Game.Utils;
 using System.Collections.Generic;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 
 namespace Game.Entities
@@ -28,6 +29,8 @@ namespace Game.Entities
         private Vector3 _moveDir;
         private Transform _camera;
         private SaveData saveData;
+
+        private IObserver<float, float, float> _onPlayerDamage;
         
         protected override void Awake()
         {
@@ -46,10 +49,18 @@ namespace Game.Entities
             }
 
             saveData = SaveAndLoad.Load();
-            for (int i = 0; i < ScriptableReference.Instance.effectsReferences.Count; i++)
+
+            var scriptableReference = ScriptableReference.Instance;
+
+            if (scriptableReference)
             {
-                effects.Add(ScriptableReference.Instance.effectsReferences[i].ID, ScriptableReference.Instance.effectsReferences[i].effect);
+                for (int i = 0; i < ScriptableReference.Instance.effectsReferences.Count; i++)
+                {
+                    effects.Add(ScriptableReference.Instance.effectsReferences[i].ID, ScriptableReference.Instance.effectsReferences[i].effect);
+                }
             }
+            
+            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
         }
 
         protected override void Start()
@@ -58,9 +69,11 @@ namespace Game.Entities
             
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
+                healthComponent.OnValueChanged.Attach(_onPlayerDamage);
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
 
+            if (saveData == null) return;
             effectsID = saveData.GetActiveEffects();
             if (effects == null || effects.Count == 0) return;
 
@@ -161,6 +174,17 @@ namespace Game.Entities
             }));
         }
 
-        public override Vector3 MoveDirection() => _moveDir;
+        public override Vector3 MoveDirection() =>
+            _moveDir;
+        
+        public void OnPlayerDamage(float previousValue, float newValue, float delta)
+        {
+            if (newValue < previousValue)
+            {
+                Debug.Log("Taking damage");
+                ScreenFlash.Instance.TriggerFlash("#FF0044");
+
+            }
+        }
     }
 }

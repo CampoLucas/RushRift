@@ -72,18 +72,16 @@ namespace Game.UI.Screens
             SetValue(currentHealth, previousHealth, maxHealth);
         }
 
-        public override void SetStartValue(float startValue, float startMaxValue)
+        public override void SetStartValue(float current, float max)
         {
-            Debug.Log($"SuperTest: SetStartValue {startValue}", gameObject);
-            primaryFill.fillAmount = startValue / startMaxValue;
-            if (showText) text.text = showMax ? $"{(int)startValue}/{startMaxValue}" : $"{(int)startValue}";
+            primaryFill.fillAmount = current / max;
+            if (showText) text.text = showMax ? $"{(int)current}/{max}" : $"{(int)current}";
         }
 
         private void SetValue(float current, float previous, float max)
         {
             primaryFill.fillAmount = current / max;
             
-            Debug.Log($"SuperTest: SetValue {current}", gameObject);
             if (showText) text.text = showMax ? $"{(int)current}/{max}" : $"{(int)current}";
             
             

@@ -22,10 +22,11 @@ public class ShopManager : MonoBehaviour
 
     private void Awake()
     {
-        dashDamagePerk.onClick.AddListener(() => OnPurchase(dashDamageCost,dashDamageEffect));
-        increaseCurrentEnergy.onClick.AddListener(() => OnPurchase(increaseCurrentEnergyCost,increaseCurrentEnergyEffect));
+        dashDamagePerk.onClick.AddListener(() => OnPurchase(dashDamagePerk, dashDamageCost,dashDamageEffect));
+        increaseCurrentEnergy.onClick.AddListener(() => OnPurchase(increaseCurrentEnergy, increaseCurrentEnergyCost,increaseCurrentEnergyEffect));
         dashCostText.text = dashDamageCost.ToString();
         increaseCurrentEnergyCostText.text =increaseCurrentEnergyCost.ToString();
+        
     }
 
     private void Start()
@@ -34,9 +35,12 @@ public class ShopManager : MonoBehaviour
         if (data != null) playerCurrency = data.playerCurrency;
         else data = new();
         scoreText.text = playerCurrency.ToString();
+        DisablePurchase(dashDamagePerk, dashDamageEffect);
+        DisablePurchase(increaseCurrentEnergy, increaseCurrentEnergyEffect);
     }
 
-    public void OnPurchase(int cost, int perk)
+
+    public void OnPurchase(Button thisButton, int cost, int perk)
     {
         if (playerCurrency < cost) return;
         playerCurrency -= cost;
@@ -47,11 +51,26 @@ public class ShopManager : MonoBehaviour
         if (data.unlockedEffects.ContainsKey(perk)) data.unlockedEffects[perk] = true;
         else data.unlockedEffects.Add(perk, true);
 
+        DisablePurchase(thisButton, perk);
         SaveAndLoad.Save(data);
+
     }
 
     public void LoadLevel()
     {
+        SceneManager.LoadScene("Level_1_Rework");
+    }
+
+
+    private void DisablePurchase(Button buttonToDisable, int perk)
+    {
+        if (!data.unlockedEffects.ContainsKey(perk)) return;
+        if (data.unlockedEffects[perk] == true) buttonToDisable.interactable = false;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
         SceneManager.LoadScene("Level_1_Rework");
     }
 }

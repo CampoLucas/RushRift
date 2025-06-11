@@ -149,12 +149,12 @@ namespace Game.Entities.AttackSystem
 
         public void OnDraw(Transform origin)
         {
-            
+            if (Current != null) Current.OnDraw(origin);
         }
 
         public void OnDrawSelected(Transform origin)
         {
-            
+            if (Current != null) Current.OnDrawSelected(origin);
         }
 
         public bool Attacking()

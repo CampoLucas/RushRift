@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -14,9 +15,10 @@ namespace Game.UI.Screens
 
         [Header("References")]
         [SerializeField] private RectTransform container;
+        [SerializeField] private TMP_Text text;
 
         [Header("Settings")]
-        [SerializeField] private int segmentsCount = 10;
+        //[SerializeField] private int segmentsCount = 10;
         [SerializeField] private float fadeDelay = 0.2f;
         [SerializeField] private float fadeSpeed = 0.5f; 
 
@@ -36,23 +38,33 @@ namespace Game.UI.Screens
             SetValue(currentHealth, previousHealth, maxHealth);
         }
 
-        public override void SetStartValue(float startValue, float startMaxValue)
+        public override void SetStartValue(float current, float max)
         {
-            if (!Mathf.Approximately(startMaxValue, _lastMax)) // Check if we need to regenerate segments
+            text.text = ValueText(current, max);
+            
+            if (!Mathf.Approximately(max, _lastMax)) // Check if we need to regenerate segments
             {
-                RebuildSegments(startMaxValue);
+                RebuildSegments(max);
             }
 
-            var filledSegments = Mathf.FloorToInt(startValue / _valuePerSegment);
+            var filledSegments = Mathf.FloorToInt(current / _valuePerSegment);
 
             for (var i = 0; i < _segments.Count; i++)
             {
                 _segments[i].SetColor(i < filledSegments ? filledColor : emptyColor);
             }
         }
+
+        private string ValueText(float current, float max)
+        {
+            //return $"<size=100%>{((int)current)}<voffset=.25em><size=50%>/{(int)max}";
+            return ((int)current).ToString();
+        }
         
         private void SetValue(float current, float previous, float max)
         {
+            text.text = ValueText(current, max);
+            
             if (!Mathf.Approximately(max, _lastMax)) // Check if we need to regenerate segments
             {
                 RebuildSegments(max);
@@ -80,11 +92,12 @@ namespace Game.UI.Screens
                 }
             }
 
+            // Stop any running coroutines
+            if (_secondaryCoroutine != null)
+                StopCoroutine(_secondaryCoroutine);
+                    
             if (current < previous)
             {
-                // Stop any running coroutines
-                if (_secondaryCoroutine != null)
-                    StopCoroutine(_secondaryCoroutine);
                 _secondaryCoroutine = StartCoroutine(FadeSegmentsCoroutine(current, previous, max));
             }
         }
@@ -94,8 +107,8 @@ namespace Game.UI.Screens
             _lastMax = max; // Store for next comparison
 
 
-            var newSegmentsCount = segmentsCount; // Calculate new segment count
-            _valuePerSegment = max / newSegmentsCount;
+            var newSegmentsCount = max; // Calculate new segment count
+            _valuePerSegment = 1;
 
             var currentCount = _segments.Count;
 
