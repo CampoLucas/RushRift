@@ -75,6 +75,8 @@ public class ScreenFlash : MonoBehaviour
 
     private void TriggerFlash(Color color)
     {
+        flashColor = color;
+
         if (_flashCoroutine != null)
         {
             StopCoroutine(_flashCoroutine);
@@ -82,8 +84,7 @@ public class ScreenFlash : MonoBehaviour
 
         _flashCoroutine = StartCoroutine(FlashCoroutine(color));
     }
-
-
+    
     #endregion
 
     #region Coroutine
