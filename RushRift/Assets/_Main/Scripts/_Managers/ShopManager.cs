@@ -18,7 +18,7 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private int increaseCurrentEnergyCost;
     [SerializeField] private int dashDamageCost;
     private int playerCurrency;
-    private SaveData data;
+
 
     private void Awake()
     {
@@ -31,9 +31,8 @@ public class ShopManager : MonoBehaviour
 
     private void Start()
     {
-        data = SaveAndLoad.Load();
+        var data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
-        else data = new();
         scoreText.text = playerCurrency.ToString();
         DisablePurchase(dashDamagePerk, dashDamageEffect);
         DisablePurchase(increaseCurrentEnergy, increaseCurrentEnergyEffect);
@@ -42,6 +41,7 @@ public class ShopManager : MonoBehaviour
 
     public void OnPurchase(Button thisButton, int cost, int perk)
     {
+        var data = SaveAndLoad.Load();
         if (playerCurrency < cost) return;
         playerCurrency -= cost;
         data.playerCurrency = playerCurrency;
@@ -64,6 +64,7 @@ public class ShopManager : MonoBehaviour
 
     private void DisablePurchase(Button buttonToDisable, int perk)
     {
+        var data = SaveAndLoad.Load();
         if (!data.unlockedEffects.ContainsKey(perk)) return;
         if (data.unlockedEffects[perk] == true) buttonToDisable.interactable = false;
     }

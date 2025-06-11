@@ -27,7 +27,6 @@ namespace Game.Entities
         private Dictionary<int, Effect> effects = new();
         private Vector3 _moveDir;
         private Transform _camera;
-        private SaveData saveData;
         
         protected override void Awake()
         {
@@ -45,7 +44,7 @@ namespace Game.Entities
                 joints.SetJoint(EntityJoint.Eyes, _camera);
             }
 
-            saveData = SaveAndLoad.Load();
+            var saveData = SaveAndLoad.Load();
 
             var scriptableReference = ScriptableReference.Instance;
 
@@ -67,7 +66,7 @@ namespace Game.Entities
             {
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
-
+            var saveData = SaveAndLoad.Load();
             if (saveData == null) return;
             effectsID = saveData.GetActiveEffects();
             if (effects == null || effects.Count == 0) return;

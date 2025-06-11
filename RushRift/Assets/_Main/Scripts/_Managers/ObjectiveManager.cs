@@ -14,14 +14,12 @@ public class ObjectiveManager : MonoBehaviour
     [SerializeField] private TMP_Text currentEnemiesText;
 
     private float _timer;
+    private bool _triggered;
     private bool stopTimer;
     private int _currentEnemies = 0;
     //private int _totalEnemies = 0;
     private int[] _newTimer = new int[3];
-    private int _minutes;
-    private int _seconds;
-    private int _miliSeconds;
-    private SaveData data;
+
 
 
     private IObserver _decreaseObserver;
@@ -39,7 +37,6 @@ public class ObjectiveManager : MonoBehaviour
         EnemyController.OnEnemyDeathSubject.Attach(_decreaseObserver);
         EnemyController.OnEnemySpawnSubject.Attach(_increaseObserver);
 
-        data = SaveAndLoad.Load();
         stopTimer = false;
     }
 
@@ -90,15 +87,18 @@ public class ObjectiveManager : MonoBehaviour
 
     private void OnWinLevel()
     {
+        if (_triggered) return;
+        _triggered = true;
+        Debug.Log("alen test: save timer");
         stopTimer = true;
-        
+        var data = SaveAndLoad.Load();
+
         if (!data.levelBestTimes.ContainsKey(currentLevel))
         {
-            Debug.Log("Me cree");
             data.levelBestTimes.Add(currentLevel, _timer);
         }
         if (data.levelBestTimes[currentLevel] > _timer) data.levelBestTimes[currentLevel] = _timer; 
-        Debug.Log(data.levelBestTimes[currentLevel]);
+
         _newTimer = GetNewTimer(data.levelBestTimes[currentLevel]);
         FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
         _newTimer = GetNewTimer(_timer);
