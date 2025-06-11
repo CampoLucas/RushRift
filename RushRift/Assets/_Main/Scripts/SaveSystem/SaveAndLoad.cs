@@ -5,7 +5,7 @@ using Game.Entities;
 
 public class SaveAndLoad
 {
-    private static string path = Application.persistentDataPath + "/save3.data";
+    private static string path = Application.persistentDataPath + "/save64mario.data";
     private static BinaryFormatter formatter;
     private static FileStream create;
     private static FileStream open;
