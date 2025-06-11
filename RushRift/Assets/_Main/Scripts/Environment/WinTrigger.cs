@@ -45,18 +45,22 @@ public class WinTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag(triggerTag)) return;
+        //if (!other.CompareTag(triggerTag)) return;
 
-        if (!string.IsNullOrEmpty(sceneToLoad))
-        {
-            OnWinGivePoints.NotifyAll(points);
-            Debug.Log($"🏁 WinTrigger: Loading scene '{sceneToLoad}'");
-            SceneManager.LoadScene(sceneToLoad);
-        }
-        else
-        {
-            Debug.LogWarning("WinTrigger: No scene assigned to load!");
-        }
+        //if (!string.IsNullOrEmpty(sceneToLoad))
+        //{
+        //    OnWinGivePoints.NotifyAll(points);
+        //    Debug.Log($"🏁 WinTrigger: Loading scene '{sceneToLoad}'");
+        //    SceneManager.LoadScene(sceneToLoad);
+        //}
+        //else
+        //{
+        //    Debug.LogWarning("WinTrigger: No scene assigned to load!");
+        //}
+
+        if (!other.CompareTag(triggerTag)) return;
+        OnWinGivePoints.NotifyAll(points);
+        LevelManager.Instance.ScreenManager.PushScreen(ScreenName.WinLevel);
     }
 
     #endregion

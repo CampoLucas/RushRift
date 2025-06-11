@@ -8,6 +8,7 @@ public class SaveData
 {
     public int playerCurrency;
     public Dictionary<int, bool> unlockedEffects = new();
+    public Dictionary<int, string> levelBestTimes = new();
     public CameraSettings Camera = new CameraSettings(.35f, 30);
 
     
@@ -24,6 +25,7 @@ public class SaveData
         return effects;
     }
 }
+
 
 [System.Serializable]
 public struct CameraSettings
