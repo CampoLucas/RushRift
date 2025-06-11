@@ -35,6 +35,7 @@ public class WinTrigger : MonoBehaviour
 
     #endregion
     public static ISubject<int> OnWinGivePoints = new Subject<int>();
+    public static ISubject OnWinSaveTimes = new Subject();
 
     #region Unity Events
 
@@ -59,6 +60,7 @@ public class WinTrigger : MonoBehaviour
         //}
 
         if (!other.CompareTag(triggerTag)) return;
+        OnWinSaveTimes.NotifyAll();
         OnWinGivePoints.NotifyAll(points);
         LevelManager.Instance.ScreenManager.PushScreen(ScreenName.WinLevel);
     }

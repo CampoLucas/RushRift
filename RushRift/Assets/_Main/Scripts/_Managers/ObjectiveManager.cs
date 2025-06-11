@@ -17,6 +17,7 @@ public class ObjectiveManager : MonoBehaviour
     private bool stopTimer;
     private int _currentEnemies = 0;
     //private int _totalEnemies = 0;
+    private int[] _newTimer = new int[3];
     private int _minutes;
     private int _seconds;
     private int _miliSeconds;
@@ -25,19 +26,20 @@ public class ObjectiveManager : MonoBehaviour
 
     private IObserver _decreaseObserver;
     private IObserver _increaseObserver;
-    private IObserver<int> _onWinLevelObserver;
+    private IObserver _onWinLevelObserver;
 
 
     private void Awake()
     {
         _decreaseObserver = new ActionObserver(DecreseEnemyQuantity);
         _increaseObserver = new ActionObserver(EnemyQuantity);
-        _onWinLevelObserver = new ActionObserver<int>(OnWinLevel);
+        _onWinLevelObserver = new ActionObserver(OnWinLevel);
 
-        WinTrigger.OnWinGivePoints.Attach(_onWinLevelObserver);
+        WinTrigger.OnWinSaveTimes.Attach(_onWinLevelObserver);
         EnemyController.OnEnemyDeathSubject.Attach(_decreaseObserver);
         EnemyController.OnEnemySpawnSubject.Attach(_increaseObserver);
 
+        data = SaveAndLoad.Load();
         stopTimer = false;
     }
 
@@ -69,8 +71,18 @@ public class ObjectiveManager : MonoBehaviour
             _minutes = GetMinutes(_timer);
             _seconds = GetSeconds(_timer);
             _miliSeconds = GetMiliseconds(_timer);
-            FormatTimer(timerText);
+            FormatTimer(timerText,_minutes,_seconds,_miliSeconds);
         }
+    }
+
+    private int[] GetNewTimer(float timer)
+    {
+        int[] aux = new int[3];
+        aux[0] = Mathf.FloorToInt(timer / 60);
+        aux[1] = Mathf.FloorToInt(timer % 60); 
+        aux[2] = Mathf.FloorToInt((timer % 1) * 1000);
+
+        return aux;
     }
 
     private int GetMinutes(float item)
@@ -86,27 +98,26 @@ public class ObjectiveManager : MonoBehaviour
         return Mathf.FloorToInt((item % 1) * 1000);
     }
 
-    private void FormatTimer(TMP_Text text)
+    private void FormatTimer(TMP_Text text, int minutes, int seconds, int miliseconds)
     {
-        text.text = string.Format("{0:00}:{1:00}:{2:000}", _minutes, _seconds, _miliSeconds);
+        text.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, miliseconds);
     }
 
-    private void OnWinLevel(int obj)
+    private void OnWinLevel()
     {
         stopTimer = true;
-        data = SaveAndLoad.Load();
+        
         if (!data.levelBestTimes.ContainsKey(currentLevel))
         {
             Debug.Log("Me cree");
-            data.levelBestTimes.TryAdd(currentLevel, _timer.ToString());
+            data.levelBestTimes.TryAdd(currentLevel, _timer);
         }
-        var aux = float.Parse(data.levelBestTimes[currentLevel]);
+        if (data.levelBestTimes[currentLevel] > _timer) data.levelBestTimes[currentLevel] = _timer; 
         Debug.Log(data.levelBestTimes[currentLevel]);
-        if (aux > _timer) data.levelBestTimes[currentLevel] = _timer.ToString();
-        bestTimerText.text = data.levelBestTimes[currentLevel].ToString();
-        FormatTimer(bestTimerText);
-        finalTimerText.text = timerText.text;
-        FormatTimer(timerText);
+        _newTimer = GetNewTimer(data.levelBestTimes[currentLevel]);
+        FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
+        _newTimer = GetNewTimer(_timer);
+        FormatTimer(finalTimerText, _newTimer[0], _newTimer[1], _newTimer[2]);
 
         SaveAndLoad.Save(data);
 
