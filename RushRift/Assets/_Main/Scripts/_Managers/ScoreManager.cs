@@ -11,7 +11,7 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private TMP_Text scoreText;
     private int currentPoints;
     private int playerCurrency;
-    private SaveData data;
+    private bool _triggered;
     private IObserver<int> _onPointsGainObserver;
     private IObserver<int> _onWinLevelObserver;
 
@@ -22,9 +22,6 @@ public class ScoreManager : MonoBehaviour
 
         EnemyController.OnEnemyGivesPoints.Attach(_onPointsGainObserver);
         WinTrigger.OnWinGivePoints.Attach(_onWinLevelObserver);
-        data = SaveAndLoad.Load();
-        if (data != null) playerCurrency = data.playerCurrency;
-        else data = new();
         scoreText.text = currentPoints.ToString();
     }
 
@@ -33,14 +30,17 @@ public class ScoreManager : MonoBehaviour
     {
         currentPoints += points;
         playerCurrency += currentPoints;
-        data.playerCurrency = playerCurrency;
         scoreText.text = currentPoints.ToString();
-        
     }
 
     public void OnWinLevel(int points)
     {
+        if (_triggered) return;
+        _triggered = true;
+        var data = SaveAndLoad.Load();
         OnPointsGain(points);
+        data.playerCurrency += playerCurrency;
         SaveAndLoad.Save(data);
+
     }
 }

@@ -82,6 +82,9 @@ namespace Game.Entities
             OnEnemyGivesPoints.NotifyAll(points);
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
+            OnEnemyDeathSubject.DetachAll();
+            OnEnemySpawnSubject.DetachAll();
+
         }
         
         private void OnDamage(float currentHealth, float previousHealth, float maxHealth)
@@ -92,6 +95,12 @@ namespace Game.Entities
             runner.DisableAllRunners();
             runner.SetRunnerActive(damageIndex);
            
+        }
+
+        private void OnDestroy()
+        {
+            OnEnemyDeathSubject.DetachAll();
+            OnEnemySpawnSubject.DetachAll();
         }
     }
 }

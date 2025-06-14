@@ -28,7 +28,6 @@ namespace Game.Entities
         private Dictionary<int, Effect> effects = new();
         private Vector3 _moveDir;
         private Transform _camera;
-        private SaveData saveData;
 
         private IObserver<float, float, float> _onPlayerDamage;
         
@@ -48,7 +47,7 @@ namespace Game.Entities
                 joints.SetJoint(EntityJoint.Eyes, _camera);
             }
 
-            saveData = SaveAndLoad.Load();
+            var saveData = SaveAndLoad.Load();
 
             var scriptableReference = ScriptableReference.Instance;
 
@@ -72,6 +71,8 @@ namespace Game.Entities
                 healthComponent.OnValueChanged.Attach(_onPlayerDamage);
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
+
+            var saveData = SaveAndLoad.Load();
 
             if (saveData == null) return;
             effectsID = saveData.GetActiveEffects();

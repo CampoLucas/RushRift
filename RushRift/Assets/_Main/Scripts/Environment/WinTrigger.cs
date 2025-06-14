@@ -35,6 +35,7 @@ public class WinTrigger : MonoBehaviour
 
     #endregion
     public static ISubject<int> OnWinGivePoints = new Subject<int>();
+    public static ISubject OnWinSaveTimes = new Subject();
 
     #region Unity Events
 
@@ -45,18 +46,30 @@ public class WinTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag(triggerTag)) return;
+        //if (!other.CompareTag(triggerTag)) return;
 
-        if (!string.IsNullOrEmpty(sceneToLoad))
-        {
-            OnWinGivePoints.NotifyAll(points);
-            Debug.Log($"🏁 WinTrigger: Loading scene '{sceneToLoad}'");
-            SceneManager.LoadScene(sceneToLoad);
-        }
-        else
-        {
-            Debug.LogWarning("WinTrigger: No scene assigned to load!");
-        }
+        //if (!string.IsNullOrEmpty(sceneToLoad))
+        //{
+        //    OnWinGivePoints.NotifyAll(points);
+        //    Debug.Log($"🏁 WinTrigger: Loading scene '{sceneToLoad}'");
+        //    SceneManager.LoadScene(sceneToLoad);
+        //}
+        //else
+        //{
+        //    Debug.LogWarning("WinTrigger: No scene assigned to load!");
+        //}
+
+        if (!other.CompareTag(triggerTag)) return;
+        Debug.Log("alen test: win trigger");
+        OnWinSaveTimes.NotifyAll();
+        OnWinGivePoints.NotifyAll(points);
+        LevelManager.Instance.ScreenManager.PushScreen(ScreenName.WinLevel);
+    }
+
+    private void OnDestroy()
+    {
+        OnWinGivePoints.DetachAll();
+        OnWinSaveTimes.DetachAll();
     }
 
     #endregion
