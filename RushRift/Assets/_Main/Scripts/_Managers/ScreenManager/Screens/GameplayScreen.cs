@@ -21,7 +21,7 @@ public class GameplayScreen : MonoBehaviour, IScreen
             if (!g) continue;
             gameplayObjects[i].SetActive(true);
         }
-        ScreenManager.onDispaused.NotifyAll();
+        ScreenManager.OnDispaused.NotifyAll();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -30,7 +30,7 @@ public class GameplayScreen : MonoBehaviour, IScreen
 
     public void Deactivate()
     {
-        ScreenManager.onPaused.NotifyAll();
+        ScreenManager.OnPaused.NotifyAll();
         gameObject.SetActive(false);
         //foreach (var behaviour in GetComponentsInChildren<Behaviour>())
         //{

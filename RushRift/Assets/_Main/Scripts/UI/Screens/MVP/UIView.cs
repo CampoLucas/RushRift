@@ -89,5 +89,10 @@ namespace Game.UI.Screens
             canvasGroup = null;
             StopCoroutine(_coroutine);
         }
+
+        private void OnDestroy()
+        {
+            Dispose();
+        }
     }
 }

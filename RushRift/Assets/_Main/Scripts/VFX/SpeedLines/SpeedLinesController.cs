@@ -46,8 +46,8 @@ namespace Game.VFX
                 _onUnpause = new ActionObserver(OnUnpause);
             }
 
-            var onPaused = ScreenManager.onPaused;
-            var onUnpause = ScreenManager.onDispaused;
+            var onPaused = ScreenManager.OnPaused;
+            var onUnpause = ScreenManager.OnDispaused;
             if (onPaused != null)
             {
                 onPaused.Attach(_onPaused);
@@ -61,8 +61,8 @@ namespace Game.VFX
 
         private void OnDisable()
         {
-            var onPaused = ScreenManager.onPaused;
-            var onUnpause = ScreenManager.onDispaused;
+            var onPaused = ScreenManager.OnPaused;
+            var onUnpause = ScreenManager.OnDispaused;
             if (onPaused != null)
             {
                 onPaused.Detach(_onPaused);

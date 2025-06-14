@@ -1,8 +1,9 @@
+using System;
 using Game.DesignPatterns.Observers;
 
 namespace Game.UI.Screens
 {
-    public class UIPresenter<TModel, TView>
+    public class UIPresenter<TModel, TView> : IDisposable
         where TModel : UIModel 
         where TView : UIView
     {

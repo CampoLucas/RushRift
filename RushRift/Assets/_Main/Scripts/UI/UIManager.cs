@@ -15,13 +15,13 @@ namespace Game.UI
         [Header("Views")]
         [SerializeField] private GameplayView gameplayView;
         [SerializeField] private GameOverView gameOverView;
-
+        
         private UIStateMachine _stateMachine;
         private IObserver _onGameOver;
         
         private void Awake()
         {
-            _onGameOver = new ActionObserver(OnGameOver);
+            _onGameOver = new ActionObserver(OnGameOverHandler);
             
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -84,10 +84,10 @@ namespace Game.UI
             _stateMachine.Update(Time.deltaTime);
         }
         
-        private void OnGameOver()
+        private void OnGameOverHandler()
         {
-            //_stateMachine.TransitionTo<GameOverState>(1, 2, .75f);
-            LevelManager.Instance.ScreenManager.PushScreen(ScreenName.GameOver);
+            _stateMachine.TransitionTo<GameOverState>(1, 2, .75f);
+            //LevelManager.Instance.ScreenManager.PushScreen(ScreenName.GameOver);
         }
 
         private void OnDestroy()

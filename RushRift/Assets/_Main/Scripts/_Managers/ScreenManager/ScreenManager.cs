@@ -12,22 +12,22 @@ public struct ScreenStruct
 
 public class ScreenManager : MonoBehaviour
 {
-
-    public Dictionary<ScreenName, Transform> screenTransformsDictionary = new Dictionary<ScreenName, Transform>();
-    public static ISubject onPaused = new Subject();
-    public static ISubject onDispaused = new Subject();
+    public static ISubject OnPaused = new Subject();
+    public static ISubject OnDispaused = new Subject();
+    
 
     [SerializeField] private ScreenName initialScreen;
     [SerializeField] private ScreenStruct[] screens;
 
-    private Stack<IScreen> _screenStack = new Stack<IScreen>();
-    private Dictionary<ScreenName, IScreen> _screenDictionary = new Dictionary<ScreenName, IScreen>();
+    private Dictionary<ScreenName, Transform> _transformsDictionary = new();
+    private Dictionary<ScreenName, IScreen> _screenDictionary = new();
+    private Stack<IScreen> _screenStack = new();
 
     private void Awake()
     {
-        for (int i = 0; i < screens.Length; i++)
+        for (var i = 0; i < screens.Length; i++)
         {
-            screenTransformsDictionary[screens[i].screenName] = screens[i].screenObject;
+            _transformsDictionary[screens[i].screenName] = screens[i].screenObject;
             _screenDictionary[screens[i].screenName] = screens[i].screenObject.GetComponent<IScreen>();
             //screens[i].screenObject.gameObject.SetActive(false);
         }
@@ -50,5 +50,28 @@ public class ScreenManager : MonoBehaviour
         if (_screenStack.Count <= 1) return;
         _screenStack.Pop().Free();
         _screenStack.Peek().Activate();
+    }
+
+    public Transform GetScreenTransform(ScreenName screenName)
+    {
+        return _transformsDictionary[ScreenName.Gameplay];
+    }
+
+    private void OnDestroy()
+    {
+        OnPaused.DetachAll();
+        OnDispaused.DetachAll();
+        
+        
+        screens = null;
+        _transformsDictionary.Clear();
+        _transformsDictionary = null;
+        
+        _screenDictionary.Clear();
+        _screenDictionary = null;
+        
+        _screenStack.Clear();
+        _screenStack = null;
+
     }
 }
