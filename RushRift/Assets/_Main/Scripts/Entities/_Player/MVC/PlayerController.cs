@@ -4,6 +4,7 @@ using Game.Inputs;
 using Game.Predicates;
 using Game.Utils;
 using System.Collections.Generic;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 
 namespace Game.Entities
@@ -27,6 +28,9 @@ namespace Game.Entities
         private Dictionary<int, Effect> effects = new();
         private Vector3 _moveDir;
         private Transform _camera;
+        private SaveData saveData;
+
+        private IObserver<float, float, float> _onPlayerDamage;
         
         protected override void Awake()
         {
@@ -44,7 +48,7 @@ namespace Game.Entities
                 joints.SetJoint(EntityJoint.Eyes, _camera);
             }
 
-            var saveData = SaveAndLoad.Load();
+            saveData = SaveAndLoad.Load();
 
             var scriptableReference = ScriptableReference.Instance;
 
@@ -56,6 +60,7 @@ namespace Game.Entities
                 }
             }
             
+            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
         }
 
         protected override void Start()
@@ -64,9 +69,10 @@ namespace Game.Entities
             
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
+                healthComponent.OnValueChanged.Attach(_onPlayerDamage);
                 LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
             }
-            var saveData = SaveAndLoad.Load();
+
             if (saveData == null) return;
             effectsID = saveData.GetActiveEffects();
             if (effects == null || effects.Count == 0) return;
@@ -168,6 +174,17 @@ namespace Game.Entities
             }));
         }
 
-        public override Vector3 MoveDirection() => _moveDir;
+        public override Vector3 MoveDirection() =>
+            _moveDir;
+        
+        
+        public void OnPlayerDamage(float previousValue, float newValue, float delta)
+        {
+            Debug.Log("Taking damage");
+            
+            AudioManager.Play("Grunt");
+            ScreenFlash.Instance.TriggerFlash("#FF0044", .1f, .1f);
+        }
+        
     }
 }

@@ -72,6 +72,6 @@ public class ShopManager : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        SceneManager.LoadScene("Level_1_Rework");
+        SceneManager.LoadScene("Level_1_ReRework");
     }
 }
