@@ -1,5 +1,6 @@
 using Game.Entities;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 
@@ -9,9 +10,7 @@ public class SaveData
     public int playerCurrency;
     public Dictionary<int, bool> unlockedEffects = new();
     public Dictionary<int, float> levelBestTimes = new();
-    public CameraSettings Camera = new CameraSettings(.35f, 30);
-
-    
+    public CameraSettings Camera = new CameraSettings(.35f, 30); 
     
     public List<int> GetActiveEffects()
     {

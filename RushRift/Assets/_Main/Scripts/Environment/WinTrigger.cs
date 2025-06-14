@@ -66,6 +66,12 @@ public class WinTrigger : MonoBehaviour
         LevelManager.Instance.ScreenManager.PushScreen(ScreenName.WinLevel);
     }
 
+    private void OnDestroy()
+    {
+        OnWinGivePoints.DetachAll();
+        OnWinSaveTimes.DetachAll();
+    }
+
     #endregion
 
     #region Editor Sync

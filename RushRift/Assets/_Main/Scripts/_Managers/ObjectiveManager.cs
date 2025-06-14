@@ -38,6 +38,7 @@ public class ObjectiveManager : MonoBehaviour
         EnemyController.OnEnemySpawnSubject.Attach(_increaseObserver);
 
         stopTimer = false;
+        var data = SaveAndLoad.Load();
     }
 
 
@@ -93,11 +94,9 @@ public class ObjectiveManager : MonoBehaviour
         stopTimer = true;
         var data = SaveAndLoad.Load();
 
-        if (!data.levelBestTimes.ContainsKey(currentLevel))
-        {
-            data.levelBestTimes.Add(currentLevel, _timer);
-        }
-        if (data.levelBestTimes[currentLevel] > _timer) data.levelBestTimes[currentLevel] = _timer; 
+        if (!data.levelBestTimes.ContainsKey(currentLevel)) data.levelBestTimes.Add(currentLevel, _timer);
+
+        if (data.levelBestTimes[currentLevel] > _timer) data.levelBestTimes[currentLevel] = _timer;
 
         _newTimer = GetNewTimer(data.levelBestTimes[currentLevel]);
         FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
