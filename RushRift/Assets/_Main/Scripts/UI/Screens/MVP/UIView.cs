@@ -87,7 +87,7 @@ namespace Game.UI.Screens
         public virtual void Dispose()
         {
             canvasGroup = null;
-            StopCoroutine(_coroutine);
+            if (_coroutine != null) StopCoroutine(_coroutine);
         }
 
         private void OnDestroy()

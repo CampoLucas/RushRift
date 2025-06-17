@@ -54,10 +54,14 @@ namespace Game.UI.Screens
         private ISubject _startSubject = new Subject();
         private ISubject _endSubject = new Subject();
 
-        public UIStatePresenter(TPresenter presenter)
+        protected UIStatePresenter()
+        {
+            Init();
+        }
+        
+        protected UIStatePresenter(TPresenter presenter) : this()
         {
             Presenter = presenter;
-            Init();
         }
         
         public virtual void Init()

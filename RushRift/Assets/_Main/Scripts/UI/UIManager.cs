@@ -42,23 +42,11 @@ namespace Game.UI
             if (player == null) return;
             var model = player.GetModel();
 
-            if (model == null || !model.TryGetComponent<HealthComponent>(out var health)) return;
-            if (!model.TryGetComponent<EnergyComponent>(out var energy)) return;
-
-            var healthBarData = new AttributeBarData(health, health.OnValueChanged);
-            var energyBarData = new AttributeBarData(energy, energy.OnValueChanged);
-            
-            var gameplayModel = new GameplayModel(healthBarData, energyBarData);
-            var gameplayPresenter = new GameplayPresenter(gameplayModel, gameplayView);
-
-            var gameOverModel = new GameOverModel();
-            var gameOverPresenter = new GameOverPresenter(gameOverModel, gameOverView);
-
             _stateMachine = new UIStateMachine();
-            _stateMachine.TryAddState(new GameplayState(gameplayPresenter));
-            _stateMachine.TryAddState(new GameOverState(gameOverPresenter));
+            _stateMachine.TryAddState(UIScreen.Gameplay, new GameplayState(model, gameplayView));
+            _stateMachine.TryAddState(UIScreen.GameOver, new GameOverState(gameOverView));
 
-            _stateMachine.TransitionTo<GameplayState>(0, .25f, 0);
+            _stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }
 
         private void Update()
@@ -86,7 +74,7 @@ namespace Game.UI
         
         private void OnGameOverHandler()
         {
-            _stateMachine.TransitionTo<GameOverState>(1, 2, .75f);
+            _stateMachine.TransitionTo(UIScreen.GameOver, 1, 2, .75f);
             //LevelManager.Instance.ScreenManager.PushScreen(ScreenName.GameOver);
         }
 

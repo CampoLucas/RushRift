@@ -7,10 +7,8 @@ namespace Game.UI.Screens
     {
         public BarView HeathBar => heathBar;
         public BarView EnergyBar => energyBar;
-        public BarView ManaBar => manaBar;
         
         [SerializeField] private BarView heathBar;
-        [FormerlySerializedAs("staminaBar")] [SerializeField] private BarView energyBar;
-        [SerializeField] private BarView manaBar;
+        [SerializeField] private BarView energyBar;
     }
 }

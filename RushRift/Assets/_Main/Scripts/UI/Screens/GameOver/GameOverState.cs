@@ -1,9 +1,11 @@
 namespace Game.UI.Screens
 {
-    public class GameOverState : UIStatePresenter<GameOverPresenter, GameOverModel, GameOverView>
+    public sealed class GameOverState : UIStatePresenter<GameOverPresenter, GameOverModel, GameOverView>
     {
-        public GameOverState(GameOverPresenter presenter) : base(presenter)
+        public GameOverState(GameOverView view) : base()
         {
+            var gameOverModel = new GameOverModel();
+            Presenter = new GameOverPresenter(gameOverModel, view);
         }
     }
 }
