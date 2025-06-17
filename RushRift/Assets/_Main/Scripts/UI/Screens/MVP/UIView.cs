@@ -5,10 +5,11 @@ using UnityEngine;
 
 namespace Game.UI.Screens
 {
-    [RequireComponent(typeof(CanvasGroup))]
+    [RequireComponent(typeof(CanvasGroup), typeof(Canvas))]
     public class UIView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private Canvas canvas;
         
         private bool _enabled;
         private bool _started;
@@ -18,24 +19,27 @@ namespace Game.UI.Screens
         protected virtual void Awake()
         {
             if (!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
+            if (!canvas) canvas = GetComponent<Canvas>();
         }
 
         public void Show()
         {
             Debug.Log("SuperTest: Show");
-            gameObject.SetActive(true);
+            //gameObject.SetActive(true);
+            canvas.enabled = true;
         }
 
         public void Hide()
         {
-            gameObject.SetActive(false);
+            //gameObject.SetActive(false);
+            canvas.enabled = false;
         }
         
         public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
         {
             var endTime = startTime + duration;
 
-            if (t > startTime && t < endTime)
+            if (t >= startTime)
             {
                 if (!_enabled)
                 {
@@ -44,13 +48,13 @@ namespace Game.UI.Screens
                     Show();
                     
                     onStart.NotifyAll();
-                    
-                    return;
                 }
-
-                canvasGroup.alpha = (t - startTime) / duration;
+                else
+                {
+                    canvasGroup.alpha = (t - startTime) / duration;
+                }
             }
-            else if (!_started && t >= endTime)
+            if (!_started && t >= endTime)
             {
                 _started = true;
                 canvasGroup.alpha = 1;
@@ -62,7 +66,7 @@ namespace Game.UI.Screens
         {
             var endTime = startTime + duration;
 
-            if (t > startTime && t < endTime)
+            if (t >= startTime)
             {
                 if (_started)
                 {
@@ -70,12 +74,13 @@ namespace Game.UI.Screens
                     onStart.NotifyAll();
 
                     canvasGroup.alpha = 1;
-                    return;
                 }
-
-                canvasGroup.alpha = 1 - ((t - startTime) / duration);
+                else
+                {
+                    canvasGroup.alpha = 1 - ((t - startTime) / duration);
+                }
             }
-            else if (_enabled && t >= endTime)
+            if (_enabled && t >= endTime)
             {
                 _enabled = false;
                 canvasGroup.alpha = 0;

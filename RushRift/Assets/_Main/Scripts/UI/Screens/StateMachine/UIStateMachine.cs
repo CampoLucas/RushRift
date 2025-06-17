@@ -55,7 +55,6 @@ namespace Game.UI.Screens
         {
             if (_effectTransition.TryGetValue(out var effectTransition))
             {
-                _timer += delta;
 
                 if (effectTransition.DoTransition(_timer))
                 {
@@ -66,6 +65,7 @@ namespace Game.UI.Screens
                 {
                     Debug.Log("SuperTest: Effect not over");
                 }
+                _timer += delta;
             }
             else if (TryGetTransition(out var transition))
             {
