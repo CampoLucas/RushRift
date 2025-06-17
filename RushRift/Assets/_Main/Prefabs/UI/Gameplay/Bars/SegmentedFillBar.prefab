@@ -2808,6 +2808,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6942511081131287129}
   - component: {fileID: 6581109950497464177}
+  - component: {fileID: 3552877940098713227}
   - component: {fileID: 9206601395143842854}
   m_Layer: 0
   m_Name: SegmentedFillBar
@@ -2853,9 +2854,22 @@ CanvasGroup:
   m_GameObject: {fileID: 8735652493208641529}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
+  m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &3552877940098713227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8735652493208641529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3967fb72047b4e52854bff194a2a9998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  View: {fileID: 9206601395143842854}
 --- !u!114 &9206601395143842854
 MonoBehaviour:
   m_ObjectHideFlags: 0

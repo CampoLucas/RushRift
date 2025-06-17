@@ -5,7 +5,7 @@ namespace Game.UI.Screens
 {
     public sealed class GameplayState : UIStatePresenter<GameplayPresenter, GameplayModel, GameplayView>
     {
-        public GameplayState(IModel playerModel, GameplayView view) : base()
+        public GameplayState(IModel playerModel, GameplayPresenter presenter) : base(presenter)
         {
             if (playerModel == null || !playerModel.TryGetComponent<HealthComponent>(out var health)) return;
             if (!playerModel.TryGetComponent<EnergyComponent>(out var energy)) return;
@@ -14,8 +14,7 @@ namespace Game.UI.Screens
             var energyBarData = new AttributeBarData(energy, energy.OnValueChanged);
             
             var gameplayModel = new GameplayModel(healthBarData, energyBarData);
-            Presenter = new GameplayPresenter(gameplayModel, view);
-            
+            presenter.Init(gameplayModel);
         }
     }
 }

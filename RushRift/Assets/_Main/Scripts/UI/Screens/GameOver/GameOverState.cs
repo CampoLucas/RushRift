@@ -2,10 +2,10 @@ namespace Game.UI.Screens
 {
     public sealed class GameOverState : UIStatePresenter<GameOverPresenter, GameOverModel, GameOverView>
     {
-        public GameOverState(GameOverView view) : base()
+        public GameOverState(GameOverPresenter presenter) : base(presenter)
         {
             var gameOverModel = new GameOverModel();
-            Presenter = new GameOverPresenter(gameOverModel, view);
+            presenter.Init(gameOverModel);
         }
     }
 }

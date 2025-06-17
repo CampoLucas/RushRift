@@ -2,6 +2,7 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.UI;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -46,8 +47,8 @@ namespace Game.VFX
                 _onUnpause = new ActionObserver(OnUnpause);
             }
 
-            var onPaused = ScreenManager.OnPaused;
-            var onUnpause = ScreenManager.OnDispaused;
+            var onPaused = UIManager.OnPaused;
+            var onUnpause = UIManager.OnUnPaused;
             if (onPaused != null)
             {
                 onPaused.Attach(_onPaused);
@@ -61,8 +62,8 @@ namespace Game.VFX
 
         private void OnDisable()
         {
-            var onPaused = ScreenManager.OnPaused;
-            var onUnpause = ScreenManager.OnDispaused;
+            var onPaused = UIManager.OnPaused;
+            var onUnpause = UIManager.OnUnPaused;
             if (onPaused != null)
             {
                 onPaused.Detach(_onPaused);

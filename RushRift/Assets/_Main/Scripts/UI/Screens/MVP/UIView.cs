@@ -22,6 +22,7 @@ namespace Game.UI.Screens
 
         public void Show()
         {
+            Debug.Log("SuperTest: Show");
             gameObject.SetActive(true);
         }
 
@@ -59,7 +60,6 @@ namespace Game.UI.Screens
 
         public void FadeOut(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
         {
-            Debug.Log("FadeOUTTT");
             var endTime = startTime + duration;
 
             if (t > startTime && t < endTime)

@@ -2,6 +2,8 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.Input;
+using Game.Inputs;
 using Game.UI.Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,11 +12,15 @@ namespace Game.UI
 {
     public class UIManager : MonoBehaviour
     {
+        public static readonly ISubject OnPaused = new Subject();
+        public static readonly ISubject OnUnPaused = new Subject();
+        
         [SerializeField] private PlayerController player;
         
         [Header("Views")]
-        [SerializeField] private GameplayView gameplayView;
-        [SerializeField] private GameOverView gameOverView;
+        [SerializeField] private GameplayPresenter gameplayPresenter;
+        [SerializeField] private GameOverPresenter gameOverPresenter;
+        [SerializeField] private PausePresenter pausePresenter;
         
         private UIStateMachine _stateMachine;
         private IObserver _onGameOver;
@@ -43,16 +49,23 @@ namespace Game.UI
             var model = player.GetModel();
 
             _stateMachine = new UIStateMachine();
-            _stateMachine.TryAddState(UIScreen.Gameplay, new GameplayState(model, gameplayView));
-            _stateMachine.TryAddState(UIScreen.GameOver, new GameOverState(gameOverView));
+
+            var gameplay = new GameplayState(model, gameplayPresenter);
+            var gameOver = new GameOverState(gameOverPresenter);
+            var pause = new PauseState(pausePresenter);
+            
+            _stateMachine.TryAddState(UIScreen.Gameplay, gameplay);
+            _stateMachine.TryAddState(UIScreen.GameOver, gameOver);
+            _stateMachine.TryAddState(UIScreen.Pause, pause);
+            
+            gameplay.AddTransition(UIScreen.Pause, new OnButtonDownPredicate(InputManager.PauseInput), .5f, .5f, 0);
+            pause.AddTransition(UIScreen.Gameplay, new OnButtonDownPredicate(InputManager.PauseInput),.5f, .5f, 0);
 
             _stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }
 
         private void Update()
         {
-            
-            
             // if (Input.GetKeyDown(KeyCode.G))
             // {
             //     _stateMachine.TransitionTo<GameplayState>(1, 1, .75f);
@@ -63,11 +76,11 @@ namespace Game.UI
             //    Application.Quit();
             //}
 
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                // restart scene
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            }
+            // if (Input.GetKeyDown(KeyCode.R))
+            // {
+            //     // restart scene
+            //     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            // }
 
             _stateMachine.Update(Time.deltaTime);
         }
@@ -80,12 +93,17 @@ namespace Game.UI
 
         private void OnDestroy()
         {
-            gameplayView = null;
-            gameOverView = null;
+            gameplayPresenter = null;
+            gameOverPresenter = null;
+            pausePresenter = null;
             player = null;
             
             if (_stateMachine != null) _stateMachine.Dispose();
             _onGameOver.Dispose();
+            
+            
+            OnPaused.DetachAll();
+            OnUnPaused.DetachAll();
         }
     }
 }

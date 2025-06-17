@@ -1,5 +1,6 @@
 using UnityEngine;
 using Game.DesignPatterns.Observers;
+using Game.UI;
 
 
 public class DisableBehaviour : MonoBehaviour
@@ -14,8 +15,8 @@ public class DisableBehaviour : MonoBehaviour
         _onDisableCall = new ActionObserver(OnDisableHandler);
         _onEnableCall = new ActionObserver(OnEnableHandler);
 
-        ScreenManager.OnPaused.Attach(_onDisableCall);
-        ScreenManager.OnDispaused.Attach(_onEnableCall);
+        UIManager.OnPaused.Attach(_onDisableCall);
+        UIManager.OnUnPaused.Attach(_onEnableCall);
     }
 
     public void SetBehaviour(Behaviour[] behaviours)

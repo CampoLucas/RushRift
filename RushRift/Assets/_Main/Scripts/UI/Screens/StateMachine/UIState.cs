@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using UnityEngine;
 
 namespace Game.UI.Screens
 {
     public abstract class UIState : IDisposable
     {
+        public HashSet<UITransition> Transitions { get; private set; } = new();
+        
         public virtual void Enable()
         {
             // show ui
@@ -38,7 +41,18 @@ namespace Game.UI.Screens
 
         public virtual void Dispose()
         {
+            foreach (var transition in Transitions)
+            {
+                transition.Dispose();
+            }
             
+            Transitions.Clear();
+            Transitions = null;
+        }
+
+        public void AddTransition(UIScreen to, IPredicate condition, float fadeOut = 0f, float fadeIn = 0f, float fadeInStart = 0f)
+        {
+            Transitions.Add(new UITransition(to, condition, fadeOut, fadeIn, fadeInStart));
         }
     }
     
@@ -64,7 +78,7 @@ namespace Game.UI.Screens
             Presenter = presenter;
         }
         
-        public virtual void Init()
+        private void Init()
         {
             _enableSubject.Attach(new ActionObserver(Enable));
             _disableSubject.Attach(new ActionObserver(Disable));
@@ -84,11 +98,13 @@ namespace Game.UI.Screens
 
         public override void FadeIn(float t, float startTime, float duration)
         {
+            Debug.Log("SuperTest: fade in");
             Presenter.FadeIn(t, startTime, duration, ref _enableSubject, ref _startSubject);
         }
 
         public override void FadeOut(float t, float startTime, float duration)
         {
+            Debug.Log("SuperTest: fade out");
             Presenter.FadeOut(t, startTime, duration, ref _endSubject, ref _disableSubject);
         }
 

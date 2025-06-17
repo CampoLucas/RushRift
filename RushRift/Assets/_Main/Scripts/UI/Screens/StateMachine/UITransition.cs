@@ -1,60 +1,52 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.UI.Screens
 {
     public class UITransition
     {
-        private NullCheck<UIState> _from;
-        private NullCheck<UIState> _to;
-        private NullCheck<UIEffect> _effect;
+        public UIScreen To { get; private set; }
         
-        private readonly float _duration;
-        private readonly float _fadeOutTime;
-        private readonly float _fadeOutStartTime;
-        private readonly float _fadeInTime;
-        private readonly float _fadeInStartTime;
+        private IPredicate _condition;
+        private readonly float _fadeout;
+        private readonly float _fadeIn;
+        private readonly float _fadeInStart;
 
-
-        private float _effectStartTime;
-        private bool _effectStarted;
-        private bool _effectEnded;
-
-        private float _timer;
-
-        public UITransition(UIState from, UIState to, float outTime, float outStartTime, float inTime, float inStartTime)
+        public UITransition(UIScreen to, IPredicate condition, float fadeOut, float fadeIn, float fadeInStartTime)
         {
-            _from.Set(from);
-            _to.Set(to);
+            To = to;
+            _condition = condition;
 
-            _duration = (outStartTime + outTime) - ((outStartTime + outTime) - (inStartTime + inTime));
-            _fadeOutTime = outTime;
-            _fadeOutStartTime = outStartTime;
-            _fadeInTime = inTime;
-            _fadeInStartTime = inStartTime;
-            //_effect.Set(effect);
+            _fadeout = fadeOut;
+            _fadeIn = fadeIn;
+            _fadeInStart = fadeInStartTime;
         }
 
-        public bool DoTransition(float delta)
+        public void Do(UIStateMachine stateMachine)
         {
-            _timer += delta;
-            if (_from.TryGetValue(out var fromState))
+            if (stateMachine.TransitionTo(To, _fadeout, _fadeIn, _fadeInStart))
             {
-                fromState.FadeOut(_timer, _fadeOutStartTime, _fadeOutTime);
+                Debug.Log("SuperTest: Transitioning");
             }
-
-            if (_effect.TryGetValue(out var trEffect))
+            else
             {
-                
+                Debug.Log("SuperTest: not Transitioning");
             }
+        }
 
-            if (_to.TryGetValue(out var toState))
-            {
-                toState.FadeIn(_timer, _fadeInStartTime, _fadeInTime);
-            }
+        public bool Evaluate()
+        {
+            return _condition?.Evaluate() ?? false;
+        }
 
-            return _timer >= _duration;
+        public void SetTransition(UIScreen to)
+        {
+            To = to;
         }
         
+        public void Dispose()
+        {
+            _condition?.Dispose();
+            _condition = null;
+        }
     }
 }

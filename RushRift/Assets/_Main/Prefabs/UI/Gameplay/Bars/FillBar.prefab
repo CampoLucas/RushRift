@@ -688,8 +688,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6019866802415388114}
-  - component: {fileID: 6631677422487270135}
   - component: {fileID: 6980987385036582080}
+  - component: {fileID: 4652902118347577034}
+  - component: {fileID: 6631677422487270135}
   m_Layer: 0
   m_Name: FillBar
   m_TagString: Untagged
@@ -718,6 +719,31 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 403.04, y: 40.03}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &6980987385036582080
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8467324337306999536}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &4652902118347577034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8467324337306999536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3967fb72047b4e52854bff194a2a9998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  View: {fileID: 6631677422487270135}
 --- !u!114 &6631677422487270135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,21 +764,10 @@ MonoBehaviour:
   text: {fileID: 7215203693355276273}
   useSecondaryFill: 1
   showText: 1
+  showMax: 0
   secondarySpeed: 0.3
   primaryFillColor: {r: 0.91372555, g: 0.14901961, b: 0.14509805, a: 1}
   secondaryFillColor: {r: 0.9137255, g: 0.8375563, b: 0.14509803, a: 1}
   backgroundColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
   borderColor: {r: 0, g: 0, b: 0, a: 1}
   textColor: {r: 1, g: 1, b: 1, a: 1}
---- !u!225 &6980987385036582080
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8467324337306999536}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0

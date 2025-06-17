@@ -891,6 +891,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3865846888541068633}
   - component: {fileID: 89623232224852766}
+  - component: {fileID: 1661219206662597639}
   - component: {fileID: 3072032665931637921}
   m_Layer: 0
   m_Name: HealthBar02
@@ -928,9 +929,22 @@ CanvasGroup:
   m_GameObject: {fileID: 5784037702263121144}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
+  m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1661219206662597639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5784037702263121144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3967fb72047b4e52854bff194a2a9998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  View: {fileID: 3072032665931637921}
 --- !u!114 &3072032665931637921
 MonoBehaviour:
   m_ObjectHideFlags: 0

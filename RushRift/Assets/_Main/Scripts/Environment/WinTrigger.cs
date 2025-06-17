@@ -63,7 +63,9 @@ public class WinTrigger : MonoBehaviour
         Debug.Log("alen test: win trigger");
         OnWinSaveTimes.NotifyAll();
         OnWinGivePoints.NotifyAll(points);
-        LevelManager.Instance.ScreenManager.PushScreen(ScreenName.WinLevel);
+        
+        // ToDo: LevelManager.GameWon(true);
+        //LevelManager.Instance.ScreenManager.PushScreen(ScreenName.WinLevel);
     }
 
     private void OnDestroy()
