@@ -24,15 +24,14 @@ namespace Game.UI.Screens
 
         public void Show()
         {
-            Debug.Log("SuperTest: Show");
-            //gameObject.SetActive(true);
             canvas.enabled = true;
+            canvasGroup.interactable = true;
         }
 
         public void Hide()
         {
-            //gameObject.SetActive(false);
             canvas.enabled = false;
+            canvasGroup.interactable = false;
         }
         
         public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)

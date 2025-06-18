@@ -8,18 +8,5 @@ namespace Game.UI.Screens
         {
             presenter.Init(new PauseModel());
         }
-
-        public override void Enable()
-        {
-            base.Enable();
-            Debug.Log("SuperTest: Pause enable");
-        }
-
-        public override void Start()
-        {
-            base.Start();
-            Debug.Log("SuperTest: Pause start");
-            
-        }
     }
 }

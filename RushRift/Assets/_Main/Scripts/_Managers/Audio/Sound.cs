@@ -83,12 +83,10 @@ namespace Game
             
             if (delaySeconds > 0)
             {
-                Debug.Log("SuperTest: Play Source delayed");
                 source.PlayDelayed(delaySeconds);
             }
             else
             {
-                Debug.Log("SuperTest: Play Source");
                 source.Play();
             }
         }

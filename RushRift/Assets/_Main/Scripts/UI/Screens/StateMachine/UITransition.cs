@@ -10,6 +10,7 @@ namespace Game.UI.Screens
         private readonly float _fadeout;
         private readonly float _fadeIn;
         private readonly float _fadeInStart;
+        //private readonly bool _doesFadeTransition;
 
         public UITransition(UIScreen to, IPredicate condition, float fadeOut, float fadeIn, float fadeInStartTime)
         {
@@ -19,18 +20,16 @@ namespace Game.UI.Screens
             _fadeout = fadeOut;
             _fadeIn = fadeIn;
             _fadeInStart = fadeInStartTime;
+
+            //_doesFadeTransition = fadeIn > 0 || fadeOut > 0;
         }
 
         public void Do(UIStateMachine stateMachine)
         {
-            if (stateMachine.TransitionTo(To, _fadeout, _fadeIn, _fadeInStart))
-            {
-                Debug.Log("SuperTest: Transitioning");
-            }
-            else
-            {
-                Debug.Log("SuperTest: not Transitioning");
-            }
+            stateMachine.TransitionTo(To, _fadeout, _fadeIn, _fadeInStart);
+            // if (_doesFadeTransition) stateMachine.TransitionTo(To, _fadeout, _fadeIn, _fadeInStart);
+            // else stateMachine.TryChangeState(To);
+
         }
 
         public bool Evaluate()

@@ -58,8 +58,8 @@ namespace Game.UI
             _stateMachine.TryAddState(UIScreen.GameOver, gameOver);
             _stateMachine.TryAddState(UIScreen.Pause, pause);
             
-            gameplay.AddTransition(UIScreen.Pause, new OnButtonDownPredicate(InputManager.PauseInput), .5f, .5f, 0);
-            pause.AddTransition(UIScreen.Gameplay, new OnButtonDownPredicate(InputManager.PauseInput),.5f, .5f, 0);
+            gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.PauseInput), 0, 0, 0);
+            pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),0, 0, 0);
 
             _stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }

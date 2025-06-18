@@ -44,8 +44,6 @@ namespace Game.UI.Screens
             if (!_states.TryGetValue(to, out var state)) return false;
 
             _timer = 0;
-            Debug.Log($"SuperTest: transition to {to}");
-            
             _effectTransition.Set(new UIEffectTransition(_current, state, fadeOut, 0, fadeIn, fadeInStartTime));
             _current = state;
             return true;
@@ -58,12 +56,7 @@ namespace Game.UI.Screens
 
                 if (effectTransition.DoTransition(_timer))
                 {
-                    Debug.Log("SuperTest: Effect over");
                     _effectTransition.Set(null);
-                }
-                else
-                {
-                    Debug.Log("SuperTest: Effect not over");
                 }
                 _timer += delta;
             }

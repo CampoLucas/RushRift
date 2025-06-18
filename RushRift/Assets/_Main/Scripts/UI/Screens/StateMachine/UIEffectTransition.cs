@@ -43,7 +43,6 @@ namespace Game.UI.Screens
             _timer += delta;
             if (_from.TryGetValue(out var fromState))
             {
-                Debug.Log($"SuperTest: Do fade out {_timer}");
                 fromState.FadeOut(_timer, _fadeOutStartTime, _fadeOutTime);
             }
 
@@ -54,7 +53,6 @@ namespace Game.UI.Screens
 
             if (_to.TryGetValue(out var toState))
             {
-                Debug.Log($"SuperTest: Do fade in {_timer}");
                 toState.FadeIn(_timer, _fadeInStartTime, _fadeInTime);
             }
 

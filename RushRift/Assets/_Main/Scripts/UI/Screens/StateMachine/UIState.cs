@@ -98,13 +98,11 @@ namespace Game.UI.Screens
 
         public override void FadeIn(float t, float startTime, float duration)
         {
-            Debug.Log("SuperTest: fade in");
             Presenter.FadeIn(t, startTime, duration, ref _enableSubject, ref _startSubject);
         }
 
         public override void FadeOut(float t, float startTime, float duration)
         {
-            Debug.Log("SuperTest: fade out");
             Presenter.FadeOut(t, startTime, duration, ref _endSubject, ref _disableSubject);
         }
 
