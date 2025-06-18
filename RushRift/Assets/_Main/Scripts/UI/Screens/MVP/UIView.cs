@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    [RequireComponent(typeof(CanvasGroup), typeof(Canvas))]
+    [RequireComponent(typeof(CanvasGroup), typeof(Canvas), typeof(GraphicRaycaster))]
     public class UIView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup canvasGroup;
@@ -26,12 +27,14 @@ namespace Game.UI.Screens
         {
             canvas.enabled = true;
             canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
         }
 
         public void Hide()
         {
             canvas.enabled = false;
             canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
         }
         
         public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
