@@ -1,3 +1,4 @@
+using Game.Inputs;
 using UnityEngine;
 
 namespace Game.UI.Screens
@@ -7,6 +8,13 @@ namespace Game.UI.Screens
         public PauseState(PausePresenter presenter) : base(presenter)
         {
             presenter.Init(new PauseModel());
+            
+            //AddTransition(UIScreen.Gameplay, new FuncPredicate(OptionClosed));
+        }
+
+        private bool OptionClosed()
+        {
+            return !Presenter.OnOptions && InputManager.OnButtonDown(InputManager.PauseInput);
         }
     }
 }

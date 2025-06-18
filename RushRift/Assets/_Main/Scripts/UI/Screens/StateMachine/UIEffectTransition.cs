@@ -30,7 +30,12 @@ namespace Game.UI.Screens
             _from.Set(from);
             _to.Set(to);
 
-            _duration = (outStartTime + outTime) - ((outStartTime + outTime) - (inStartTime + inTime));
+            //_duration = (outStartTime + outTime) - ((outStartTime + outTime) - (inStartTime + inTime));
+            var fadeInDuration = inStartTime + inTime;
+            var fadeOutDuration = outStartTime + outTime;
+
+            _duration = fadeOutDuration > fadeInDuration ? fadeOutDuration : fadeInDuration;
+            
             _fadeOutTime = outTime;
             _fadeOutStartTime = outStartTime;
             _fadeInTime = inTime;
