@@ -48,8 +48,8 @@ public class ShopManager : MonoBehaviour
         if (playerCurrency < 0) playerCurrency = 0;
         scoreText.text = playerCurrency.ToString();
 
-        if (data.unlockedEffects.ContainsKey(perk)) data.unlockedEffects[perk] = true;
-        else data.unlockedEffects.Add(perk, true);
+        if (data.UnlockedEffects.ContainsKey(perk)) data.UnlockedEffects[perk] = true;
+        else data.UnlockedEffects.Add(perk, true);
 
         SaveAndLoad.Save(data);
         DisablePurchase(thisButton, perk);
@@ -65,8 +65,8 @@ public class ShopManager : MonoBehaviour
     private void DisablePurchase(Button buttonToDisable, int perk)
     {
         var data = SaveAndLoad.Load();
-        if (!data.unlockedEffects.ContainsKey(perk)) return;
-        if (data.unlockedEffects[perk] == true) buttonToDisable.interactable = false;
+        if (!data.UnlockedEffects.ContainsKey(perk)) return;
+        if (data.UnlockedEffects[perk] == true) buttonToDisable.interactable = false;
     }
 
     private void OnTriggerEnter(Collider other)

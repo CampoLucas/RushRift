@@ -83,7 +83,7 @@ public class ObjectiveManager : MonoBehaviour
 
     private void FormatTimer(TMP_Text text, int minutes, int seconds, int miliseconds)
     {
-        text.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, miliseconds);
+        text.text = string.Format("{0:00}:{1:00}.{2:000}", minutes, seconds, miliseconds);
     }
 
     private void OnWinLevel()
@@ -94,11 +94,20 @@ public class ObjectiveManager : MonoBehaviour
         stopTimer = true;
         var data = SaveAndLoad.Load();
 
-        if (!data.levelBestTimes.ContainsKey(currentLevel)) data.levelBestTimes.Add(currentLevel, _timer);
+        if (data == null)
+        {
+            Debug.Log("data is null");
+        }
+        else if (data.BestTimes == null)
+        {
+            Debug.Log("levelBestTime is null");
+        }
+        
+        if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
 
-        if (data.levelBestTimes[currentLevel] > _timer) data.levelBestTimes[currentLevel] = _timer;
+        if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
 
-        _newTimer = GetNewTimer(data.levelBestTimes[currentLevel]);
+        _newTimer = GetNewTimer(data.BestTimes[currentLevel]);
         FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
         _newTimer = GetNewTimer(_timer);
         FormatTimer(finalTimerText, _newTimer[0], _newTimer[1], _newTimer[2]);

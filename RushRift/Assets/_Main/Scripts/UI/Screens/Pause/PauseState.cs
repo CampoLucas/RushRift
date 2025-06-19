@@ -11,10 +11,5 @@ namespace Game.UI.Screens
             
             //AddTransition(UIScreen.Gameplay, new FuncPredicate(OptionClosed));
         }
-
-        private bool OptionClosed()
-        {
-            return !Presenter.OnOptions && InputManager.OnButtonDown(InputManager.PauseInput);
-        }
     }
 }

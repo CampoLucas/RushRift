@@ -52,7 +52,17 @@ namespace Game.UI.Screens
 
         public void AddTransition(UIScreen to, IPredicate condition, float fadeOut = 0f, float fadeIn = 0f, float fadeInStart = 0f)
         {
-            Transitions.Add(new UITransition(to, condition, fadeOut, fadeIn, fadeInStart));
+            Transitions.Add(new UIScreenTransition(to, condition, fadeOut, fadeIn, fadeInStart));
+        }
+
+        public void AddTransition(SceneTransition sceneTransition, IPredicate condition)
+        {
+            Transitions.Add(new UISceneTransition(sceneTransition, condition));
+        }
+
+        public void AddTransition(string sceneName, IPredicate condition)
+        {
+            Transitions.Add(new UISceneTransition(sceneName, condition));
         }
     }
     

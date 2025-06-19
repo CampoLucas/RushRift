@@ -21,10 +21,12 @@ namespace Game.UI
         [SerializeField] private GameplayPresenter gameplayPresenter;
         [SerializeField] private GameOverPresenter gameOverPresenter;
         [SerializeField] private PausePresenter pausePresenter;
+        [SerializeField] private LevelWonPresenter levelWonPresenter;
 
         private static UIManager _instance;
         private UIStateMachine _stateMachine;
         private IObserver _onGameOver;
+        private IObserver _onLevelWon;
         
         private void Awake()
         {
@@ -36,6 +38,7 @@ namespace Game.UI
 
             _instance = this;
             _onGameOver = new ActionObserver(OnGameOverHandler);
+            _onLevelWon = new ActionObserver(OnLevelWonHandler);
             
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -45,9 +48,14 @@ namespace Game.UI
         {
             InitStateMachine();
 
-            if (LevelManager.TryGetGameOver(out var subject))
+            if (LevelManager.TryGetGameOver(out var gameOverSubject))
             {
-                subject.Attach(_onGameOver);
+                gameOverSubject.Attach(_onGameOver);
+            }
+
+            if (LevelManager.TryGetLevelWon(out var levelWonSubject))
+            {
+                levelWonSubject.Attach(_onLevelWon);
             }
         }
         
@@ -86,21 +94,29 @@ namespace Game.UI
             var gameplay = new GameplayState(model, gameplayPresenter);
             var gameOver = new GameOverState(gameOverPresenter);
             var pause = new PauseState(pausePresenter);
+            var levelWon = new LevelWonState(levelWonPresenter);
             
             _stateMachine.TryAddState(UIScreen.Gameplay, gameplay);
             _stateMachine.TryAddState(UIScreen.GameOver, gameOver);
             _stateMachine.TryAddState(UIScreen.Pause, pause);
+            _stateMachine.TryAddState(UIScreen.LevelWon, levelWon);
             
             gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.PauseInput), 0, .25f, 0);
             pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),.25f, 0, 0);
-
+            gameOver.AddTransition(SceneTransition.Current, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.R)));
+            gameOver.AddTransition(SceneTransition.First, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.Escape)));
+            
             _stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }
         
         private void OnGameOverHandler()
         {
             _stateMachine.TransitionTo(UIScreen.GameOver, 1, 2, .75f);
-            //LevelManager.Instance.ScreenManager.PushScreen(ScreenName.GameOver);
+        }
+        
+        private void OnLevelWonHandler()
+        {
+            _stateMachine.TransitionTo(UIScreen.LevelWon, 1, 2, .75f);
         }
 
         private void OnDestroy()

@@ -39,8 +39,8 @@ namespace Game.UI
             // init values from the save file
             var saveData = SaveAndLoad.Load();
 
-            sensibilitySlider.Value = saveData.Camera.Sensibility;
-            smoothnessSlider.Value = saveData.Camera.Smoothness;
+            sensibilitySlider.Value = saveData.camera.Sensibility;
+            smoothnessSlider.Value = saveData.camera.Smoothness;
         }
 
         public void OnSensibilityChangedHandler(float value)
@@ -50,7 +50,7 @@ namespace Game.UI
             // save value
             var saveData = SaveAndLoad.Load();
 
-            saveData.Camera.Sensibility = value;
+            saveData.camera.Sensibility = value;
             SaveAndLoad.Save(saveData);
         }
         
@@ -61,7 +61,7 @@ namespace Game.UI
             // Save value
             var saveData = SaveAndLoad.Load();
 
-            saveData.Camera.Smoothness = value;
+            saveData.camera.Smoothness = value;
             SaveAndLoad.Save(saveData);
         }
 

@@ -28,6 +28,8 @@ namespace Game.UI.Screens
             canvas.enabled = true;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
+            
+            OnShow();
         }
 
         public void Hide()
@@ -35,6 +37,8 @@ namespace Game.UI.Screens
             canvas.enabled = false;
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
+            
+            OnHide();
         }
         
         public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
@@ -100,6 +104,16 @@ namespace Game.UI.Screens
         private void OnDestroy()
         {
             Dispose();
+        }
+
+        protected virtual void OnShow()
+        {
+            
+        }
+
+        protected virtual void OnHide()
+        {
+            
         }
     }
 }

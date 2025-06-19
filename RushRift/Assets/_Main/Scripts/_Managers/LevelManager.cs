@@ -25,9 +25,7 @@ namespace Game
         private int _deadEnemies;
         private bool _gameOver;
         private bool _gameOverNotified;
-        //public ScreenManager ScreenManager => screenManager;
-        public ScoreManager ScoreManager => scoreManager;
-        public static LevelManager Instance => _instance;
+        
         
         private void Awake()
         {
@@ -86,6 +84,12 @@ namespace Game
         {
             if (_instance == null) return true;
             return _instance._gameOver;
+        }
+
+        public static int CurrentPoints()
+        {
+            if (_instance) return _instance.scoreManager.CurrentPoints;
+            return 0;
         }
 
         private void OnPlayerDeath()

@@ -4,7 +4,7 @@ namespace Game.UI.Screens
     {
         Gameplay,
         GameOver,
-        GameWon,
+        LevelWon,
         Pause
     }
 }
