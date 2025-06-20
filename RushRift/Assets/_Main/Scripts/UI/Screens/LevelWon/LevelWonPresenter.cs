@@ -35,7 +35,7 @@ namespace Game.UI.Screens
 
         private void OnLoadNextHandler()
         {
-            var sceneCount = SceneManager.sceneCount;
+            var sceneCount = SceneManager.sceneCountInBuildSettings;
             var currentIndex = SceneManager.GetActiveScene().buildIndex;
 
             var sceneToLoad = 0;

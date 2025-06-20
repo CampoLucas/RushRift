@@ -71,19 +71,19 @@ public class ObjectiveManager : MonoBehaviour
         }
     }
 
-    private int[] GetNewTimer(float timer)
+    private int[] GetNewTimer(float time)
     {
         int[] aux = new int[3];
-        aux[0] = Mathf.FloorToInt(timer / 60);
-        aux[1] = Mathf.FloorToInt(timer % 60); 
-        aux[2] = Mathf.FloorToInt((timer % 1) * 1000);
+        aux[0] = Mathf.FloorToInt(time / 60);
+        aux[1] = Mathf.FloorToInt(time % 60); 
+        aux[2] = Mathf.FloorToInt((time % 1) * 1000);
 
         return aux;
     }
 
     private void FormatTimer(TMP_Text text, int minutes, int seconds, int miliseconds)
     {
-        text.text = string.Format("{0:00}:{1:00}.{2:000}", minutes, seconds, miliseconds);
+        text.text = string.Format("{0:0}:{1:00}.{2:00}", minutes, seconds, miliseconds);
     }
 
     private void OnWinLevel()
