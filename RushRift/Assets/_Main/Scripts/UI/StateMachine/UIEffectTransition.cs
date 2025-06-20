@@ -3,7 +3,10 @@ using UnityEngine;
 
 namespace Game.UI.Screens
 {
-    public class UITransition
+    /// <summary>
+    /// The logic that visually fades in and out a screen when transitioning.
+    /// </summary>
+    public class UIEffectTransition
     {
         private NullCheck<UIState> _from;
         private NullCheck<UIState> _to;
@@ -22,12 +25,17 @@ namespace Game.UI.Screens
 
         private float _timer;
 
-        public UITransition(UIState from, UIState to, float outTime, float outStartTime, float inTime, float inStartTime)
+        public UIEffectTransition(UIState from, UIState to, float outTime, float outStartTime, float inTime, float inStartTime)
         {
             _from.Set(from);
             _to.Set(to);
 
-            _duration = (outStartTime + outTime) - ((outStartTime + outTime) - (inStartTime + inTime));
+            //_duration = (outStartTime + outTime) - ((outStartTime + outTime) - (inStartTime + inTime));
+            var fadeInDuration = inStartTime + inTime;
+            var fadeOutDuration = outStartTime + outTime;
+
+            _duration = fadeOutDuration > fadeInDuration ? fadeOutDuration : fadeInDuration;
+            
             _fadeOutTime = outTime;
             _fadeOutStartTime = outStartTime;
             _fadeInTime = inTime;

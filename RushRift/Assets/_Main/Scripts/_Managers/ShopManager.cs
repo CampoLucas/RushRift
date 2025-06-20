@@ -34,6 +34,12 @@ public class ShopManager : MonoBehaviour
         var data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
         scoreText.text = playerCurrency.ToString();
+
+        if (dashDamagePerk == null)
+        {
+            Debug.Log("SuperTest: dashDamagePerk is null");
+        }
+        
         DisablePurchase(dashDamagePerk, dashDamageEffect);
         DisablePurchase(increaseCurrentEnergy, increaseCurrentEnergyEffect);
     }
@@ -48,8 +54,8 @@ public class ShopManager : MonoBehaviour
         if (playerCurrency < 0) playerCurrency = 0;
         scoreText.text = playerCurrency.ToString();
 
-        if (data.unlockedEffects.ContainsKey(perk)) data.unlockedEffects[perk] = true;
-        else data.unlockedEffects.Add(perk, true);
+        if (data.UnlockedEffects.ContainsKey(perk)) data.UnlockedEffects[perk] = true;
+        else data.UnlockedEffects.Add(perk, true);
 
         SaveAndLoad.Save(data);
         DisablePurchase(thisButton, perk);
@@ -65,8 +71,18 @@ public class ShopManager : MonoBehaviour
     private void DisablePurchase(Button buttonToDisable, int perk)
     {
         var data = SaveAndLoad.Load();
-        if (!data.unlockedEffects.ContainsKey(perk)) return;
-        if (data.unlockedEffects[perk] == true) buttonToDisable.interactable = false;
+
+        if (data == null)
+        {
+            Debug.Log("SuperTest: data is null");
+        }
+        else if (data.UnlockedEffects == null)
+        {
+            Debug.Log("SuperTest: data.UnlockedEffects is null");
+        }
+        
+        if (!data.UnlockedEffects.ContainsKey(perk)) return;
+        if (data.UnlockedEffects[perk] == true) buttonToDisable.interactable = false;
     }
 
     private void OnTriggerEnter(Collider other)

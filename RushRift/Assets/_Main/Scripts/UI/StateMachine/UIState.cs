@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using UnityEngine;
 
 namespace Game.UI.Screens
 {
     public abstract class UIState : IDisposable
     {
+        public HashSet<UITransition> Transitions { get; private set; } = new();
+        
         public virtual void Enable()
         {
             // show ui
@@ -38,7 +41,28 @@ namespace Game.UI.Screens
 
         public virtual void Dispose()
         {
+            foreach (var transition in Transitions)
+            {
+                transition.Dispose();
+            }
             
+            Transitions.Clear();
+            Transitions = null;
+        }
+
+        public void AddTransition(UIScreen to, IPredicate condition, float fadeOut = 0f, float fadeIn = 0f, float fadeInStart = 0f)
+        {
+            Transitions.Add(new UIScreenTransition(to, condition, fadeOut, fadeIn, fadeInStart));
+        }
+
+        public void AddTransition(SceneTransition sceneTransition, IPredicate condition)
+        {
+            Transitions.Add(new UISceneTransition(sceneTransition, condition));
+        }
+
+        public void AddTransition(string sceneName, IPredicate condition)
+        {
+            Transitions.Add(new UISceneTransition(sceneName, condition));
         }
     }
     
@@ -54,13 +78,17 @@ namespace Game.UI.Screens
         private ISubject _startSubject = new Subject();
         private ISubject _endSubject = new Subject();
 
-        public UIStatePresenter(TPresenter presenter)
+        protected UIStatePresenter()
         {
-            Presenter = presenter;
             Init();
         }
         
-        public virtual void Init()
+        protected UIStatePresenter(TPresenter presenter) : this()
+        {
+            Presenter = presenter;
+        }
+        
+        private void Init()
         {
             _enableSubject.Attach(new ActionObserver(Enable));
             _disableSubject.Attach(new ActionObserver(Disable));

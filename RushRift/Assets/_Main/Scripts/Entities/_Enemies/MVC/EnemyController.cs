@@ -97,7 +97,7 @@ namespace Game.Entities
            
         }
 
-        private void OnDestroy()
+        protected override void OnDispose()
         {
             OnEnemyDeathSubject.DetachAll();
             OnEnemySpawnSubject.DetachAll();

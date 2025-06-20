@@ -6,7 +6,7 @@ namespace Game.UI.Screens
     {
         public virtual void Dispose()
         {
-            // ToDo: Dispose references
+            
         }
     }
 }

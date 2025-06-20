@@ -92,7 +92,6 @@ namespace Game
         /// <param name="sound">Sound data to apply and play.</param>
         private void Play(AudioSource source, Sound sound)
         {
-            Debug.Log("SuperTest: play");
             sound.Play(source);
             StartCoroutine(WaitForEnd(source));
         }

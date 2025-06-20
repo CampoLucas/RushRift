@@ -36,11 +36,10 @@ namespace Game.Inputs
             if (_instance != null && _instance != this)
             {
                 Destroy(this);
+                return;
             }
-            else
-            {
-                _instance = this;
-            }
+            
+            _instance = this;
             InitInputs();
         }
 
@@ -146,7 +145,7 @@ namespace Game.Inputs
             AddActionInput(SecondaryAttackInput, SecondaryAttackAction, SecondaryAttackStarted, SecondaryAttackCanceled);
             
             // Add Button Inputs
-            AddButtonInput(PauseInput, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.phase == InputActionPhase.Started, () => _playerControls.UI.Pause.phase == InputActionPhase.Canceled);
+            AddButtonInput(PauseInput, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
             AddButtonInput(JumpInput, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
         }
 

@@ -6,4 +6,9 @@ namespace Game
     {
         bool Evaluate(ref T args);
     }
+
+    public interface IPredicate : IDisposable
+    {
+        bool Evaluate();
+    }
 }

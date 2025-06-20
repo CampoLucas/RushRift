@@ -8,6 +8,8 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
+    public int CurrentPoints => currentPoints;
+    
     [SerializeField] private TMP_Text scoreText;
     private int currentPoints;
     private int playerCurrency;

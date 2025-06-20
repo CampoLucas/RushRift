@@ -1,18 +1,20 @@
+using System;
 using Game.DesignPatterns.Observers;
+using UnityEngine;
 
 namespace Game.UI.Screens
 {
-    public class UIPresenter<TModel, TView>
+    public class UIPresenter<TModel, TView> : MonoBehaviour, IDisposable
         where TModel : UIModel 
         where TView : UIView
     {
+        [SerializeField] protected TView View;
         protected TModel Model;
-        protected TView View;
 
-        public UIPresenter(TModel model, TView view)
+        public void Init(TModel model)
         {
             Model = model;
-            View = view;
+            OnInit();
         }
         
         public virtual void Begin()
@@ -42,6 +44,11 @@ namespace Game.UI.Screens
             
             View.Dispose();
             View = null;
+        }
+
+        protected virtual void OnInit()
+        {
+            
         }
     }
 }

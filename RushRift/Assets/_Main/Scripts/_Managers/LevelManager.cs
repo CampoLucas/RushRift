@@ -11,7 +11,7 @@ namespace Game
     [AddComponentMenu("Game/Level Manager")]
     public class LevelManager : MonoBehaviour
     {
-        [SerializeField] private ScreenManager screenManager;
+        //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
 
         private static LevelManager _instance;
@@ -25,9 +25,8 @@ namespace Game
         private int _deadEnemies;
         private bool _gameOver;
         private bool _gameOverNotified;
-        public ScreenManager ScreenManager => screenManager;
-        public ScoreManager ScoreManager => scoreManager;
-        public static LevelManager Instance => _instance;
+        private float _levelCompleteTime;
+        
         
         private void Awake()
         {
@@ -88,6 +87,23 @@ namespace Game
             return _instance._gameOver;
         }
 
+        public static int CurrentPoints()
+        {
+            if (_instance) return _instance.scoreManager.CurrentPoints;
+            return 0;
+        }
+
+        public static float LevelCompleteTime()
+        {
+            if (_instance) return _instance._levelCompleteTime;
+            return 0;
+        }
+
+        public static void SetLevelCompleteTime(float time)
+        {
+            if (_instance) _instance._levelCompleteTime = time;
+        }
+
         private void OnPlayerDeath()
         {
             if (!_gameOverNotified)
@@ -105,11 +121,6 @@ namespace Game
         private void OnEnemyDeath()
         {
             _deadEnemies += 1;
-
-            if (_deadEnemies >= _allEnemies)
-            {
-                _onLevelWon.NotifyAll();
-            }
         }
 
         private void OnDestroy()

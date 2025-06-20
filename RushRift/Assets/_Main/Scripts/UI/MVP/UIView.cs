@@ -2,13 +2,15 @@ using System;
 using System.Collections;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    [RequireComponent(typeof(CanvasGroup))]
+    [RequireComponent(typeof(CanvasGroup), typeof(Canvas), typeof(GraphicRaycaster))]
     public class UIView : MonoBehaviour, IDisposable
     {
         [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private Canvas canvas;
         
         private bool _enabled;
         private bool _started;
@@ -18,23 +20,32 @@ namespace Game.UI.Screens
         protected virtual void Awake()
         {
             if (!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
+            if (!canvas) canvas = GetComponent<Canvas>();
         }
 
         public void Show()
         {
-            gameObject.SetActive(true);
+            canvas.enabled = true;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+            
+            OnShow();
         }
 
         public void Hide()
         {
-            gameObject.SetActive(false);
+            canvas.enabled = false;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+            
+            OnHide();
         }
         
         public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
         {
             var endTime = startTime + duration;
 
-            if (t > startTime && t < endTime)
+            if (t >= startTime)
             {
                 if (!_enabled)
                 {
@@ -43,13 +54,13 @@ namespace Game.UI.Screens
                     Show();
                     
                     onStart.NotifyAll();
-                    
-                    return;
                 }
-
-                canvasGroup.alpha = (t - startTime) / duration;
+                else
+                {
+                    canvasGroup.alpha = (t - startTime) / duration;
+                }
             }
-            else if (!_started && t >= endTime)
+            if (!_started && t >= endTime)
             {
                 _started = true;
                 canvasGroup.alpha = 1;
@@ -59,10 +70,9 @@ namespace Game.UI.Screens
 
         public void FadeOut(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
         {
-            Debug.Log("FadeOUTTT");
             var endTime = startTime + duration;
 
-            if (t > startTime && t < endTime)
+            if (t >= startTime)
             {
                 if (_started)
                 {
@@ -70,12 +80,13 @@ namespace Game.UI.Screens
                     onStart.NotifyAll();
 
                     canvasGroup.alpha = 1;
-                    return;
                 }
-
-                canvasGroup.alpha = 1 - ((t - startTime) / duration);
+                else
+                {
+                    canvasGroup.alpha = 1 - ((t - startTime) / duration);
+                }
             }
-            else if (_enabled && t >= endTime)
+            if (_enabled && t >= endTime)
             {
                 _enabled = false;
                 canvasGroup.alpha = 0;
@@ -87,7 +98,22 @@ namespace Game.UI.Screens
         public virtual void Dispose()
         {
             canvasGroup = null;
-            StopCoroutine(_coroutine);
+            if (_coroutine != null) StopCoroutine(_coroutine);
+        }
+
+        private void OnDestroy()
+        {
+            Dispose();
+        }
+
+        protected virtual void OnShow()
+        {
+            
+        }
+
+        protected virtual void OnHide()
+        {
+            
         }
     }
 }
