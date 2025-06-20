@@ -52,15 +52,7 @@ namespace Game.UI.Screens
 
         private void OnResumeHandler()
         {
-            Debug.Log("SuperTest: Resume handler");
-            if (UIManager.SetScreen(UIScreen.Gameplay, .25f, 0, 0))
-            {
-                Debug.Log("SuperTest: go gameplay");
-            }
-            else
-            {
-                Debug.Log("SuperTest: couldn't go gameplay");
-            }
+            UIManager.SetScreen(UIScreen.Gameplay, .25f, 0, 0);
         }
 
         private void OnOptionsHandler()
