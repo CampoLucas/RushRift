@@ -24,10 +24,19 @@ public class SaveData
         get => _unlockedEffects ??= new Dictionary<int, bool>();
         private set => _unlockedEffects = value;
     }
+
+    /// <summary>
+    /// A property that in the case someone plays with an old save that didn't had the Camera class, it creates it.
+    /// </summary>
+    public CameraSettings Camera
+    {
+        get => _camera ??= new CameraSettings();
+        private set => _camera = value;
+    }
     
-    public CameraSettings camera = new(.35f, 30); 
     public int playerCurrency;
     
+    private CameraSettings _camera = new(); 
     private Dictionary<int, bool> _unlockedEffects = new();
     private Dictionary<int, float> _bestTimes = new();
     
@@ -46,20 +55,12 @@ public class SaveData
 
 
 [System.Serializable]
-public struct CameraSettings
+public class CameraSettings
 {
-    public float Sensibility;
-    public float Smoothness;
-    public bool InvertX;
-    public bool InvertY;
-    
-    public CameraSettings(float sensibility, float smoothness, bool invertX = false, bool invertY = false)
-    {
-        Sensibility = sensibility;
-        Smoothness = smoothness;
-        InvertX = invertX;
-        InvertY = invertY;
-    }
+    public float Sensibility = .35f;
+    public float Smoothness = 30;
+    public bool InvertX = false;
+    public bool InvertY = false;
 }
 
 
