@@ -90,18 +90,9 @@ public class ObjectiveManager : MonoBehaviour
     {
         if (_triggered) return;
         _triggered = true;
-        Debug.Log("alen test: save timer");
+        
         stopTimer = true;
         var data = SaveAndLoad.Load();
-
-        if (data == null)
-        {
-            Debug.Log("data is null");
-        }
-        else if (data.BestTimes == null)
-        {
-            Debug.Log("levelBestTime is null");
-        }
         
         if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
 

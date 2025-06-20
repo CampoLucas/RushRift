@@ -16,7 +16,6 @@ public class SaveAndLoad
         create = new FileStream(path, FileMode.Create);
         formatter.Serialize(create, data);
         create.Close();
-        Debug.Log("Game Saved");
     }
 
 
@@ -29,7 +28,6 @@ public class SaveAndLoad
             open = new FileStream(path, FileMode.Open);
             data = formatter.Deserialize(open) as SaveData;
             open.Close();
-            Debug.Log("Loaded Game");
             return data;
         }
         else
