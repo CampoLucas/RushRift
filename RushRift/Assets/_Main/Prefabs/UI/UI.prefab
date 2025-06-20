@@ -633,18 +633,18 @@ MonoBehaviour:
   effect: {fileID: 6180814080107469549}
   targetEntity: {fileID: 0}
   data:
-    minVelocity: 40
+    minVelocity: 30
     maxVelocity: 200
-    minRadiusRange: 10
-    maxRadiusRange: 6
-    minXScaleRange: {x: 15, y: 20}
-    maxXScaleRange: {x: 40, y: 60}
-    minYScaleRange: {x: 1, y: 3}
-    maxYScaleRange: {x: 1, y: 3}
+    minRadiusRange: 9
+    maxRadiusRange: 5
+    minXScaleRange: {x: 30, y: 45}
+    maxXScaleRange: {x: 50, y: 65}
+    minYScaleRange: {x: 1, y: 5}
+    maxYScaleRange: {x: 0.5, y: 3}
     minVelocityRange: {x: 10, y: 15}
     maxVelocityRange: {x: 18, y: 22}
-    minRateRange: 96
-    maxRateRange: 288
+    minRateRange: 200
+    maxRateRange: 500
     minFOV: 70
     maxFOV: 90
 --- !u!2083052967 &6180814080107469549
@@ -679,7 +679,7 @@ VisualEffect:
       - m_Value: {x: 18, y: 22}
         m_Name: VelocityRange
         m_Overridden: 1
-      - m_Value: {x: 0, y: 0.05}
+      - m_Value: {x: 0.1, y: 0.25}
         m_Name: Alpha
         m_Overridden: 1
     m_Vector3f:
@@ -730,7 +730,7 @@ VisualEffect:
           m_NumColorKeys: 2
           m_NumAlphaKeys: 4
         m_Name: ColorRadiant
-        m_Overridden: 1
+        m_Overridden: 0
     m_NamedObject:
       m_Array: []
     m_Bool:
@@ -1025,6 +1025,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4963387774193875788}
     m_Modifications:
+    - target: {fileID: 1241239702781502478, guid: 7310efbec7e37b34caea64d76350444d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -222.89996
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536380961900549032, guid: 7310efbec7e37b34caea64d76350444d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 173.89996
+      objectReference: {fileID: 0}
     - target: {fileID: 3164452355353728402, guid: 7310efbec7e37b34caea64d76350444d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1337,7 +1345,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 568524608278545788, guid: b25d9faaca0e19f41b8055ce5df3fc47, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0147566395
+      value: 0.011448766
       objectReference: {fileID: 0}
     - target: {fileID: 797608110736557366, guid: b25d9faaca0e19f41b8055ce5df3fc47, type: 3}
       propertyPath: m_AnchorMax.y
