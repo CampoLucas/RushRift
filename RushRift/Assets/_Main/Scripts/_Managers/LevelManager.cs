@@ -121,11 +121,6 @@ namespace Game
         private void OnEnemyDeath()
         {
             _deadEnemies += 1;
-
-            if (_deadEnemies >= _allEnemies)
-            {
-                _onLevelWon.NotifyAll();
-            }
         }
 
         private void OnDestroy()
