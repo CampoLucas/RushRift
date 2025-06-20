@@ -34,8 +34,6 @@ namespace Game.Entities.AttackSystem.Hitscan
         {
             _executed = false;
             _timer = 0;
-            
-            Debug.Log("Hitscan start");
         }
         
         private void OnLateUpdate(ModuleParams mParams, float delta)
