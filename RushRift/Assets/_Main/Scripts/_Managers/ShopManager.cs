@@ -34,6 +34,12 @@ public class ShopManager : MonoBehaviour
         var data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
         scoreText.text = playerCurrency.ToString();
+
+        if (dashDamagePerk == null)
+        {
+            Debug.Log("SuperTest: dashDamagePerk is null");
+        }
+        
         DisablePurchase(dashDamagePerk, dashDamageEffect);
         DisablePurchase(increaseCurrentEnergy, increaseCurrentEnergyEffect);
     }
@@ -65,6 +71,16 @@ public class ShopManager : MonoBehaviour
     private void DisablePurchase(Button buttonToDisable, int perk)
     {
         var data = SaveAndLoad.Load();
+
+        if (data == null)
+        {
+            Debug.Log("SuperTest: data is null");
+        }
+        else if (data.UnlockedEffects == null)
+        {
+            Debug.Log("SuperTest: data.UnlockedEffects is null");
+        }
+        
         if (!data.UnlockedEffects.ContainsKey(perk)) return;
         if (data.UnlockedEffects[perk] == true) buttonToDisable.interactable = false;
     }

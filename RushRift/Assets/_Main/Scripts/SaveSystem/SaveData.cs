@@ -7,17 +7,29 @@ using UnityEngine.Serialization;
 [System.Serializable]
 public class SaveData
 {
-    public int playerCurrency;
-
+    /// <summary>
+    /// A property that in the case someone plays with an old save that didn't had the BestTime dictionary, it creates it.
+    /// </summary>
     public Dictionary<int, float> BestTimes
     {
-        get => LevelBestTimes ??= new Dictionary<int, float>();
-        private set => LevelBestTimes = value;
+        get => _bestTimes ??= new Dictionary<int, float>();
+        private set => _bestTimes = value;
+    }
+
+    /// <summary>
+    /// A property that in the case someone plays with an old save that didn't had the UnlockedEffects dictionary, it creates it.
+    /// </summary>
+    public Dictionary<int, bool> UnlockedEffects
+    {
+        get => _unlockedEffects ??= new Dictionary<int, bool>();
+        private set => _unlockedEffects = value;
     }
     
-    public Dictionary<int, bool> UnlockedEffects = new();
-    public Dictionary<int, float> LevelBestTimes = new();
     public CameraSettings camera = new(.35f, 30); 
+    public int playerCurrency;
+    
+    private Dictionary<int, bool> _unlockedEffects = new();
+    private Dictionary<int, float> _bestTimes = new();
     
     public List<int> GetActiveEffects()
     {
