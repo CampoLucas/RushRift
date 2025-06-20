@@ -21,8 +21,14 @@ namespace Game.UI.Screens
         {
             base.OnShow();
             animator.enabled = true;
-            
-            
+
+            var data = SaveAndLoad.Load();
+            if (data.BestTimes.TryGetValue(SceneManager.GetActiveScene().buildIndex, out var bestTime))
+            {
+                var time = LevelManager.LevelCompleteTime();
+                
+                if (time <= bestTime) newBest.SetActive(true);
+            }
         }
     }
 }

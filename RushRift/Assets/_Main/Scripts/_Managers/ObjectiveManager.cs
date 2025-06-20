@@ -1,12 +1,15 @@
+using Game;
 using UnityEngine;
 using Game.DesignPatterns.Observers;
 using UnityEngine.UI;
 using TMPro;
 using Game.Entities;
+using UnityEngine.SceneManagement;
 
 public class ObjectiveManager : MonoBehaviour
 {
-    [SerializeField] private int currentLevel;
+    public int currentLevel => SceneManager.GetActiveScene().buildIndex;
+    //[SerializeField] private int currentLevel;// horrible, no asignes el numero del nivel con un serialize field, no hay manera de saber que nivel es fuera de esta clase.
     [SerializeField] private TMP_Text timerText;
     [SerializeField] private TMP_Text finalTimerText;
     [SerializeField] private TMP_Text bestTimerText;
@@ -92,6 +95,9 @@ public class ObjectiveManager : MonoBehaviour
         _triggered = true;
         
         stopTimer = true;
+        
+        LevelManager.SetLevelCompleteTime(_timer);
+        
         var data = SaveAndLoad.Load();
         
         if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);

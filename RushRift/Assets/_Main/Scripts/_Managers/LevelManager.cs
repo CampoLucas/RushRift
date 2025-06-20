@@ -25,6 +25,7 @@ namespace Game
         private int _deadEnemies;
         private bool _gameOver;
         private bool _gameOverNotified;
+        private float _levelCompleteTime;
         
         
         private void Awake()
@@ -90,6 +91,17 @@ namespace Game
         {
             if (_instance) return _instance.scoreManager.CurrentPoints;
             return 0;
+        }
+
+        public static float LevelCompleteTime()
+        {
+            if (_instance) return _instance._levelCompleteTime;
+            return 0;
+        }
+
+        public static void SetLevelCompleteTime(float time)
+        {
+            if (_instance) _instance._levelCompleteTime = time;
         }
 
         private void OnPlayerDeath()
