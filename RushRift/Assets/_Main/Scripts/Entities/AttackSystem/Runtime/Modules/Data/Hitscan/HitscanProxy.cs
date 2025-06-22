@@ -99,6 +99,13 @@ namespace Game.Entities.AttackSystem.Hitscan
                 {
                     healthComponent.Damage(Data.Damage, spawnPos);
                 }
+
+                LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
+                {
+                    scale = Data.ImpactSize,
+                    position = hit.point,
+                    rotation = Quaternion.identity,
+                }, out var emitter);
             }
             else if (Physics.Raycast(spawnPos, direction, out hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
             {
