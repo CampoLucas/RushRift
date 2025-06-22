@@ -7,27 +7,29 @@ namespace Game
     public class VisualEffectEmitter : VFXEmitter
     {
         [SerializeField] private VisualEffect effect;
+        [SerializeField] private float duration = .4f;
 
-        private bool _poolEnable;
+        private float _timer;
         
         private void Update()
         {
-            if (_poolEnable && !effect.HasAnySystemAwake())
+            if (_timer <= 0)
             {
                 Pool.Recycle(this);
             }
+
+            _timer -= Time.deltaTime;
         }
 
         protected override void OnPoolDisable()
         {
             effect.Stop();
-            _poolEnable = false;
         }
 
         protected override void OnPoolReset()
         {
+            _timer = duration;
             effect.Play();
-            _poolEnable = true;
         }
 
         protected override void OnDispose()

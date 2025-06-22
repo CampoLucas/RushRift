@@ -5,7 +5,7 @@ using Game.Entities;
 using MyTools.Global;
 using UnityEngine;
 
-namespace Game
+namespace Game.VFX
 {
     [System.Serializable]
     public class VFXPool : IDisposable
@@ -27,6 +27,7 @@ namespace Game
             if (!_vfxDictionary.TryGetValue(id, out var pool))
             {
                 pool = new PoolObject<VFXEmitter, VFXEmitterParams>(new VFXFactory(poolablePrefab), true);
+                _vfxDictionary[id] = pool;
             }
 
             return pool.TryGet(vfxEmitterParams.position, vfxEmitterParams.rotation, vfxEmitterParams, out poolable);

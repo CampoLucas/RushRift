@@ -112,6 +112,13 @@ namespace Game.Entities.AttackSystem.Hitscan
                 _detected = true;
                 trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
                 // Play particles when collided with the ground
+                
+                // LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
+                // {
+                //     scale = Data.ImpactSize,
+                //     position = hit.point,
+                //     rotation = Quaternion.identity,
+                // }, out var emitter);
             }
             else
             {
