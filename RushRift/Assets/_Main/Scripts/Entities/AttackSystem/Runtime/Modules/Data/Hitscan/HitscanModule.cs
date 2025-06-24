@@ -14,7 +14,8 @@ namespace Game.Entities.AttackSystem.Hitscan
         public LayerMask GroundMask => groundMask;
         public LayerMask EntityMask => entityMask;
         public ParticleSystem Muzzle => muzzleEffect;
-        public ParticleSystem Impact => impactEffect;
+        public string ImpactID => impactEffectID;
+        public float ImpactSize => impactSize;
         public ElectricArcController Line => line;
         public float LineDuration => lineDuration;
         public float Damage => damage;
@@ -48,7 +49,10 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         [Header("Visuals")]
         [SerializeField] private ParticleSystem muzzleEffect;
-        [SerializeField] private ParticleSystem impactEffect;
+        
+        [SerializeField] private string impactEffectID = "Hit";
+        [SerializeField] private float impactSize = 1;
+        
         [Header("Line")]
         [SerializeField] private ElectricArcController line;
         [SerializeField] private float lineDuration;

@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using Game.VFX;
 using UnityEngine;
 
 namespace Game
@@ -13,6 +12,7 @@ namespace Game
     {
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
+        [SerializeField] private VFXPool vfxPool; // Por ahora lo pongo aca para que no sea un singleton
 
         private static LevelManager _instance;
 
@@ -104,6 +104,13 @@ namespace Game
             if (_instance) _instance._levelCompleteTime = time;
         }
 
+        public static bool TryGetVFX(string id, VFXEmitterParams vfxParams, out VFXEmitter emitter)
+        {
+            if (_instance) return _instance.vfxPool.TryGetVFX(id, vfxParams, out emitter);
+            emitter = null;
+            return false;
+        }
+
         private void OnPlayerDeath()
         {
             if (!_gameOverNotified)
@@ -129,6 +136,7 @@ namespace Game
             _onGameOver.Dispose();
             _onPlayerDeath.Dispose();
             _onEnemyDeath.Dispose();
+            vfxPool.Dispose();
         }
     }
 }
