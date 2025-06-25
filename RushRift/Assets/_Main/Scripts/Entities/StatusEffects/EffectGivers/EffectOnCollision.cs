@@ -13,8 +13,14 @@ public class EffectOnCollision : MonoBehaviour
     [SerializeField] private bool destroyWhenApplied = true;
     [SerializeField] private bool onTrigger = true;
     [SerializeField] private bool onCollision;
+    [SerializeField] private bool onStay;
 
     private bool _applied;
+
+    public void ResetEffect()
+    {
+        _applied = false;
+    }
     
     private void GiveEffect(GameObject other)
     {
@@ -36,8 +42,22 @@ public class EffectOnCollision : MonoBehaviour
         GiveEffect(other.gameObject);
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        if (!onStay) return;
+        if (!onTrigger || !effectGiver.HasEffect()) return;
+        GiveEffect(other.gameObject);
+    }
+
     private void OnCollisionEnter(Collision other)
     {
+        if (!onCollision || !effectGiver.HasEffect()) return;
+        GiveEffect(other.gameObject);
+    }
+
+    private void OnCollisionStay(Collision other)
+    {
+        if (!onStay) return;
         if (!onCollision || !effectGiver.HasEffect()) return;
         GiveEffect(other.gameObject);
     }
