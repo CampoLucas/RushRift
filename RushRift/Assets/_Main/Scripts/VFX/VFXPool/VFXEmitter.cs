@@ -45,7 +45,7 @@ namespace Game
         
         public void Dispose()
         {
-            Pool.Remove(this);
+            if (Pool != null) Pool.Remove(this);
             Pool = null;
             
             OnDispose();
