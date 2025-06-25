@@ -2,6 +2,8 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.Input;
+using Game.Inputs;
 using Game.UI.Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,18 +12,33 @@ namespace Game.UI
 {
     public class UIManager : MonoBehaviour
     {
+        public static readonly ISubject OnPaused = new Subject();
+        public static readonly ISubject OnUnPaused = new Subject();
+        
         [SerializeField] private PlayerController player;
         
         [Header("Views")]
-        [SerializeField] private GameplayView gameplayView;
-        [SerializeField] private GameOverView gameOverView;
+        [SerializeField] private GameplayPresenter gameplayPresenter;
+        [SerializeField] private GameOverPresenter gameOverPresenter;
+        [SerializeField] private PausePresenter pausePresenter;
+        [SerializeField] private LevelWonPresenter levelWonPresenter;
 
+        private static UIManager _instance;
         private UIStateMachine _stateMachine;
         private IObserver _onGameOver;
+        private IObserver _onLevelWon;
         
         private void Awake()
         {
-            _onGameOver = new ActionObserver(OnGameOver);
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            _instance = this;
+            _onGameOver = new ActionObserver(OnGameOverHandler);
+            _onLevelWon = new ActionObserver(OnLevelWonHandler);
             
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -31,10 +48,40 @@ namespace Game.UI
         {
             InitStateMachine();
 
-            if (LevelManager.TryGetGameOver(out var subject))
+            if (LevelManager.TryGetGameOver(out var gameOverSubject))
             {
-                subject.Attach(_onGameOver);
+                gameOverSubject.Attach(_onGameOver);
             }
+
+            if (LevelManager.TryGetLevelWon(out var levelWonSubject))
+            {
+                levelWonSubject.Attach(_onLevelWon);
+            }
+        }
+        
+        private void Update()
+        {
+            _stateMachine.Update(Time.deltaTime);
+        }
+
+        // public static bool SetScreen(UIScreen screen)
+        // {
+        //     if (_instance)
+        //     {
+        //         return _instance._stateMachine.TryChangeState(screen);
+        //     }
+        //
+        //     return false;
+        // }
+
+        public static bool SetScreen(UIScreen screen, float fadeOutTime = 0, float fadeInTime = 0, float fadeInStartTime = 0)
+        {
+            if (_instance)
+            {
+                return _instance._stateMachine.TransitionTo(screen, fadeOutTime, fadeInTime, fadeInStartTime);
+            }
+
+            return false;
         }
 
         private void InitStateMachine()
@@ -42,62 +89,49 @@ namespace Game.UI
             if (player == null) return;
             var model = player.GetModel();
 
-            if (model == null || !model.TryGetComponent<HealthComponent>(out var health)) return;
-            if (!model.TryGetComponent<EnergyComponent>(out var energy)) return;
-
-            var healthBarData = new AttributeBarData(health, health.OnValueChanged);
-            var energyBarData = new AttributeBarData(energy, energy.OnValueChanged);
-            
-            var gameplayModel = new GameplayModel(healthBarData, energyBarData);
-            var gameplayPresenter = new GameplayPresenter(gameplayModel, gameplayView);
-
-            var gameOverModel = new GameOverModel();
-            var gameOverPresenter = new GameOverPresenter(gameOverModel, gameOverView);
-
             _stateMachine = new UIStateMachine();
-            _stateMachine.TryAddState(new GameplayState(gameplayPresenter));
-            _stateMachine.TryAddState(new GameOverState(gameOverPresenter));
 
-            _stateMachine.TransitionTo<GameplayState>(0, .25f, 0);
-        }
-
-        private void Update()
-        {
+            var gameplay = new GameplayState(model, gameplayPresenter);
+            var gameOver = new GameOverState(gameOverPresenter);
+            var pause = new PauseState(pausePresenter);
+            var levelWon = new LevelWonState(levelWonPresenter);
             
+            _stateMachine.TryAddState(UIScreen.Gameplay, gameplay);
+            _stateMachine.TryAddState(UIScreen.GameOver, gameOver);
+            _stateMachine.TryAddState(UIScreen.Pause, pause);
+            _stateMachine.TryAddState(UIScreen.LevelWon, levelWon);
             
-            // if (Input.GetKeyDown(KeyCode.G))
-            // {
-            //     _stateMachine.TransitionTo<GameplayState>(1, 1, .75f);
-            // }
-
-            //if (Input.GetKeyDown(KeyCode.Escape))
-            //{
-            //    Application.Quit();
-            //}
-
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                // restart scene
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            }
-
-            _stateMachine.Update(Time.deltaTime);
+            gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.PauseInput), 0, .25f, 0);
+            pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),.25f, 0, 0);
+            gameOver.AddTransition(SceneTransition.Current, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.R)));
+            gameOver.AddTransition(SceneTransition.First, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.Escape)));
+            
+            _stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }
         
-        private void OnGameOver()
+        private void OnGameOverHandler()
         {
-            //_stateMachine.TransitionTo<GameOverState>(1, 2, .75f);
-            LevelManager.Instance.ScreenManager.PushScreen(ScreenName.GameOver);
+            _stateMachine.TransitionTo(UIScreen.GameOver, 1, 2, .75f);
+        }
+        
+        private void OnLevelWonHandler()
+        {
+            _stateMachine.TransitionTo(UIScreen.LevelWon, 1, 2, .75f);
         }
 
         private void OnDestroy()
         {
-            gameplayView = null;
-            gameOverView = null;
+            gameplayPresenter = null;
+            gameOverPresenter = null;
+            pausePresenter = null;
             player = null;
             
             if (_stateMachine != null) _stateMachine.Dispose();
             _onGameOver.Dispose();
+            
+            
+            OnPaused.DetachAll();
+            OnUnPaused.DetachAll();
         }
     }
 }

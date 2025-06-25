@@ -14,14 +14,14 @@ public class PauseScreen : MonoBehaviour, IScreen
 
     private void Awake()
     {
-        resumeButton.onClick.AddListener(() => LevelManager.Instance.ScreenManager.PopScreen());
+        //resumeButton.onClick.AddListener(() => LevelManager.Instance.ScreenManager.PopScreen());
         restartButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().name));
         quitButton.onClick.AddListener(() => Application.Quit());
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) LevelManager.Instance.ScreenManager.PopScreen();
+        //if (Input.GetKeyDown(KeyCode.Escape)) LevelManager.Instance.ScreenManager.PopScreen();
     }
 
     

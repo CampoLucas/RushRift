@@ -23,14 +23,11 @@ namespace Game.Entities
         public void AddEffect(IEffectInstance effect)
         {
             _effects.Add(effect);
+            
             if (effect.TryGetUpdate(out var observer))
             {
                 _updatableEffects.Attach(observer);
             }
-            
-#if UNITY_EDITOR
-            Debug.Log("SuperTest: Effect Added");
-#endif
         }
 
         public void RemoveEffect(IEffectInstance effect)
@@ -44,10 +41,6 @@ namespace Game.Entities
             // Remove the effect from the effects list
             _effects.Remove(effect);
             effect.Dispose(); // Dispose all effect's reference, including subjects and observers created dynamically.
-            
-#if UNITY_EDITOR
-            Debug.Log("SuperTest: Effect Removed");
-#endif
         }
 
         public bool TryGetUpdate(out IObserver<float> observer)

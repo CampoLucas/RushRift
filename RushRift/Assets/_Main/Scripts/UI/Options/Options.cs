@@ -9,10 +9,18 @@ namespace Game.UI
     {
         public static ISubject<float> OnCameraSensibilityChanged = new Subject<float>();
         public static ISubject<float> OnCameraSmoothnessChanged = new Subject<float>();
+        public static ISubject<float> OnMasterVolumeChanged = new Subject<float>();
+        public static ISubject<float> OnMusicVolumeChanged = new Subject<float>();
+        public static ISubject<float> OnSFXVolumeChanged = new Subject<float>();
 
         [Header("Camera Settings")]
         [SerializeField] private OptionSlider sensibilitySlider;
         [SerializeField] private OptionSlider smoothnessSlider;
+
+        [Header("Sound Settings")]
+        [SerializeField] private OptionSlider masterSlider;
+        [SerializeField] private OptionSlider musicSlider;
+        [SerializeField] private OptionSlider sfxSlider;
 
         private Options _instance;
 
@@ -32,6 +40,10 @@ namespace Game.UI
             
             sensibilitySlider.OnValueChanged.AddListener(OnSensibilityChangedHandler);
             smoothnessSlider.OnValueChanged.AddListener(OnSmoothnessChangedHandler);
+            
+            masterSlider.OnValueChanged.AddListener(OnMasterChangedHandler);
+            musicSlider.OnValueChanged.AddListener(OnMusicChangedHandler);
+            sfxSlider.OnValueChanged.AddListener(OnSFXChangedHandler);
         }
 
         private void Start()
@@ -39,8 +51,11 @@ namespace Game.UI
             // init values from the save file
             var saveData = SaveAndLoad.Load();
 
-            sensibilitySlider.Value = saveData.Camera.Sensibility;
-            smoothnessSlider.Value = saveData.Camera.Smoothness;
+            sensibilitySlider.Value = saveData.Camera.sensibility;
+            smoothnessSlider.Value = saveData.Camera.smoothness;
+            masterSlider.Value = saveData.Sound.masterVolume;
+            musicSlider.Value = saveData.Sound.musicVolume;
+            sfxSlider.Value = saveData.Sound.sfxVolume;
         }
 
         public void OnSensibilityChangedHandler(float value)
@@ -50,7 +65,7 @@ namespace Game.UI
             // save value
             var saveData = SaveAndLoad.Load();
 
-            saveData.Camera.Sensibility = value;
+            saveData.Camera.sensibility = value;
             SaveAndLoad.Save(saveData);
         }
         
@@ -61,7 +76,40 @@ namespace Game.UI
             // Save value
             var saveData = SaveAndLoad.Load();
 
-            saveData.Camera.Smoothness = value;
+            saveData.Camera.smoothness = value;
+            SaveAndLoad.Save(saveData);
+        }
+        
+        public void OnMasterChangedHandler(float value)
+        {
+            OnMasterVolumeChanged.NotifyAll(value);
+            
+            // Save value
+            var saveData = SaveAndLoad.Load();
+
+            saveData.Sound.masterVolume = value;
+            SaveAndLoad.Save(saveData);
+        }
+        
+        public void OnMusicChangedHandler(float value)
+        {
+            OnMusicVolumeChanged.NotifyAll(value);
+            
+            // Save value
+            var saveData = SaveAndLoad.Load();
+
+            saveData.Sound.musicVolume = value;
+            SaveAndLoad.Save(saveData);
+        }
+        
+        public void OnSFXChangedHandler(float value)
+        {
+            OnSFXVolumeChanged.NotifyAll(value);
+            
+            // Save value
+            var saveData = SaveAndLoad.Load();
+
+            saveData.Sound.sfxVolume = value;
             SaveAndLoad.Save(saveData);
         }
 
@@ -81,6 +129,10 @@ namespace Game.UI
             
             OnCameraSensibilityChanged.DetachAll();
             //OnCameraSensibilityChanged.Dispose();
+            
+            OnMasterVolumeChanged.DetachAll();
+            OnMusicVolumeChanged.DetachAll();
+            OnSFXVolumeChanged.DetachAll();
         }
     }
 }

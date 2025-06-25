@@ -1,0 +1,54 @@
+using System;
+using Game.DesignPatterns.Observers;
+using UnityEngine;
+
+namespace Game.UI.Screens
+{
+    public class UIPresenter<TModel, TView> : MonoBehaviour, IDisposable
+        where TModel : UIModel 
+        where TView : UIView
+    {
+        [SerializeField] protected TView View;
+        protected TModel Model;
+
+        public void Init(TModel model)
+        {
+            Model = model;
+            OnInit();
+        }
+        
+        public virtual void Begin()
+        {
+            View.Show();
+        }
+
+        public virtual void End()
+        {
+            View.Hide();   
+        }
+
+        public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
+        {
+            View.FadeIn(t, startTime, duration, ref onStart, ref onEnd);
+        }
+
+        public void FadeOut(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
+        {
+            View.FadeOut(t, startTime, duration, ref onStart, ref onEnd);
+        }
+
+        public virtual void Dispose()
+        {
+            Model.Dispose();
+            Model = null;
+            
+            View.Dispose();
+            View = null;
+        }
+
+        protected virtual void OnInit()
+        {
+            
+        }
+    }
+}

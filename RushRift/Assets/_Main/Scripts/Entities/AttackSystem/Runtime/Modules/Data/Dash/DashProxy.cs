@@ -35,7 +35,6 @@ namespace Game.Entities.AttackSystem
                 if (!_dash) return;
             }
             
-            Debug.Log("Do dash");
             _dash.Get().StartDash();
         }
 #else
@@ -86,7 +85,6 @@ namespace Game.Entities.AttackSystem
                 }
             }
             
-            Debug.Log("Do dash");
             if (_dash.Get().StartDash() && _energy) _energy.Get().Decrease(_dash.Get().Cost);
         }
 #endif

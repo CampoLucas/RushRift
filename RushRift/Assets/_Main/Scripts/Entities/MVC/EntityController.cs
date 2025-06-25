@@ -106,11 +106,15 @@ namespace Game.Entities
             _fsm = null;
             
             StopAllCoroutines();
+            
+            OnDispose();
         }
 
         public void OnDestroy()
         {
             Dispose();
         }
+        
+        protected virtual void OnDispose() { }
     }
 }

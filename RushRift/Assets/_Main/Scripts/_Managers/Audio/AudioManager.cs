@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Game.DesignPatterns.Observers;
+using Game.UI;
 using UnityEngine;
-
+using UnityEngine.Audio;
 namespace Game
 {
     /// <summary>
@@ -16,9 +18,16 @@ namespace Game
         /// </summary>
         [SerializeField] private Sound[] sounds;
 
+        [Header("Audio Mixer")]
+        [SerializeField] private AudioMixer mixer;
+
         private static AudioManager _instance;
         private Dictionary<string, Sound> _soundMap;
         private AudioSourcePool _pool;
+
+        private ActionObserver<float> _onMasterVolumeChanged;
+        private ActionObserver<float> _onMusicVolumeChanged;
+        private ActionObserver<float> _onSFXVolumeChanged;
 
         private void Awake()
         {
@@ -46,6 +55,24 @@ namespace Game
             }
         }
 
+        private void Start()
+        {
+            var saveData = SaveAndLoad.Load();
+            var sound = saveData.Sound;
+            
+            SetMasterVolume(sound.masterVolume);
+            SetMusicVolume(sound.musicVolume);
+            SetSFXVolume(sound.sfxVolume);
+            
+            _onMasterVolumeChanged = new ActionObserver<float>(OnMasterVolumeChanged);
+            _onMusicVolumeChanged = new ActionObserver<float>(OnMusicVolumeChanged);
+            _onSFXVolumeChanged = new ActionObserver<float>(OnSFXVolumeChanged);
+
+            Options.OnMasterVolumeChanged.Attach(_onMasterVolumeChanged);
+            Options.OnMusicVolumeChanged.Attach(_onMusicVolumeChanged);
+            Options.OnSFXVolumeChanged.Attach(_onSFXVolumeChanged);
+        }
+
         /// <summary>
         /// Plays a sound by name if it exists in the audio manager.
         /// </summary>
@@ -57,16 +84,23 @@ namespace Game
                 Debug.LogWarning($"WARNING: Instance is null.");
                 return;
             }
-            
+
             if (!_instance._soundMap.TryGetValue(name, out var sound))
             {
                 Debug.LogWarning($"WARNING: Sound '{name}' not found.");
                 return;
             }
-            
-            Debug.Log("SuperTest: play sound");
+
+            if (!sound.CanPlay())
+            {
+                Debug.Log($"Sound '{name}' skipped due to TimeBetweenPlays restriction.");
+                return;
+            }
+
             _instance.PlaySound(sound);
+            sound.RegisterPlayTime();
         }
+
 
         /// <summary>
         /// Plays the given sound using a pooled audio source.
@@ -85,7 +119,6 @@ namespace Game
         /// <param name="sound">Sound data to apply and play.</param>
         private void Play(AudioSource source, Sound sound)
         {
-            Debug.Log("SuperTest: play");
             sound.Play(source);
             StartCoroutine(WaitForEnd(source));
         }
@@ -124,6 +157,59 @@ namespace Game
             
             _pool?.Dispose();
             _pool = null;
+
+
+            var masterSubject = Options.OnMasterVolumeChanged;
+            var musicSubject = Options.OnMusicVolumeChanged;
+            var sfxSubject = Options.OnSFXVolumeChanged;
+
+            if (_onMasterVolumeChanged != null)
+            {
+                if (masterSubject != null) masterSubject.Detach(_onMasterVolumeChanged);
+                _onMasterVolumeChanged.Dispose();
+            }
+            
+            if (_onMusicVolumeChanged != null)
+            {
+                if (musicSubject != null) musicSubject.Detach(_onMusicVolumeChanged);
+                _onMusicVolumeChanged.Dispose();
+            }
+            
+            if (_onSFXVolumeChanged != null)
+            {
+                if (sfxSubject != null) sfxSubject.Detach(_onMusicVolumeChanged);
+                _onSFXVolumeChanged.Dispose();
+            }
+        }
+
+        private void SetMasterVolume(float value)
+        {
+            mixer.SetFloat("MasterVolume", Mathf.Log10(value) * 20);
+        }
+        
+        private void SetMusicVolume(float value)
+        {
+            mixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
+        }
+        
+        private void SetSFXVolume(float value)
+        {
+            mixer.SetFloat("GameplayVolume", Mathf.Log10(value) * 20);
+        }
+        
+        private void OnSFXVolumeChanged(float obj)
+        {
+            SetSFXVolume(obj);
+        }
+
+        private void OnMusicVolumeChanged(float obj)
+        {
+            SetMusicVolume(obj);
+        }
+
+        private void OnMasterVolumeChanged(float obj)
+        {
+            SetMasterVolume(obj);
         }
     }
 }

@@ -45,6 +45,9 @@ namespace Game
         [SerializeField] private float pitch;
         [SerializeField] private bool randomPitch;
         [SerializeField] private Vector2 pitchRange;
+        [SerializeField] private float timeBetweenPlays = 0f;
+
+        private float _lastPlayTime = float.MinValue;
         
         /// <summary>
         /// Applies this sound's settings to the provided AudioSource.
@@ -80,14 +83,22 @@ namespace Game
             
             if (delaySeconds > 0)
             {
-                Debug.Log("SuperTest: Play Source delayed");
                 source.PlayDelayed(delaySeconds);
             }
             else
             {
-                Debug.Log("SuperTest: Play Source");
                 source.Play();
             }
+        }
+        
+        public bool CanPlay()
+        {
+            return Time.unscaledTime - _lastPlayTime >= timeBetweenPlays;
+        }
+
+        public void RegisterPlayTime()
+        {
+            _lastPlayTime = Time.unscaledTime;
         }
 
         /// <summary>

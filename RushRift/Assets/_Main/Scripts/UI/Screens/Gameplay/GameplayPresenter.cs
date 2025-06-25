@@ -1,42 +1,59 @@
+using System;
 using Game.DesignPatterns.Observers;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.UI.Screens
 {
     public class GameplayPresenter : UIPresenter<GameplayModel, GameplayView>
     {
-        private BarPresenter _healthBarPresenter;
-        private BarPresenter _energyBarPresenter;
-        
-        
-        public GameplayPresenter(GameplayModel model, GameplayView view) : base(model, view)
-        {
-            _healthBarPresenter = new BarPresenter(Model.HealthBar, View.HeathBar);
-            _energyBarPresenter = new BarPresenter(model.EnergyBar, View.EnergyBar);
-        }
+        [Header("Attributes")]
+        [SerializeField] private BarPresenter healthBarPresenter;
+        [SerializeField] private BarPresenter energyBarPresenter;
 
         public override void Begin()
         {
             base.Begin();
-            _healthBarPresenter.Begin();
-            _energyBarPresenter.Begin();
+            // Un Pause the game
+            UIManager.OnUnPaused.NotifyAll();
+            
+            // Set cursor
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            
+            // other presenters
+            healthBarPresenter.Begin();
+            energyBarPresenter.Begin();
+            
         }
 
         public override void End()
         {
             base.End();
-            _healthBarPresenter.End();
-            _energyBarPresenter.End();
+            // Pause the game
+            UIManager.OnPaused.NotifyAll();
+            
+            // other presenters
+            healthBarPresenter.End();
+            energyBarPresenter.End();
         }
 
         public override void Dispose()
         {
-            _healthBarPresenter.Dispose();
-            _healthBarPresenter = null;
+            healthBarPresenter.Dispose();
+            healthBarPresenter = null;
             
-            _energyBarPresenter.Dispose();
-            _energyBarPresenter = null;
+            energyBarPresenter.Dispose();
+            energyBarPresenter = null;
             
             base.Dispose();
+        }
+
+        protected override void OnInit()
+        {
+            base.OnInit();
+            healthBarPresenter.Init(Model.HealthBar);
+            energyBarPresenter.Init(Model.EnergyBar);
         }
     }
 }

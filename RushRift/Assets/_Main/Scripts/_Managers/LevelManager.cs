@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using Game.VFX;
 using UnityEngine;
 
 namespace Game
@@ -11,8 +10,9 @@ namespace Game
     [AddComponentMenu("Game/Level Manager")]
     public class LevelManager : MonoBehaviour
     {
-        [SerializeField] private ScreenManager screenManager;
+        //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
+        [SerializeField] private VFXPool vfxPool; // Por ahora lo pongo aca para que no sea un singleton
 
         private static LevelManager _instance;
 
@@ -25,9 +25,8 @@ namespace Game
         private int _deadEnemies;
         private bool _gameOver;
         private bool _gameOverNotified;
-        public ScreenManager ScreenManager => screenManager;
-        public ScoreManager ScoreManager => scoreManager;
-        public static LevelManager Instance => _instance;
+        private float _levelCompleteTime;
+        
         
         private void Awake()
         {
@@ -88,6 +87,30 @@ namespace Game
             return _instance._gameOver;
         }
 
+        public static int CurrentPoints()
+        {
+            if (_instance) return _instance.scoreManager.CurrentPoints;
+            return 0;
+        }
+
+        public static float LevelCompleteTime()
+        {
+            if (_instance) return _instance._levelCompleteTime;
+            return 0;
+        }
+
+        public static void SetLevelCompleteTime(float time)
+        {
+            if (_instance) _instance._levelCompleteTime = time;
+        }
+
+        public static bool TryGetVFX(string id, VFXEmitterParams vfxParams, out VFXEmitter emitter)
+        {
+            if (_instance) return _instance.vfxPool.TryGetVFX(id, vfxParams, out emitter);
+            emitter = null;
+            return false;
+        }
+
         private void OnPlayerDeath()
         {
             if (!_gameOverNotified)
@@ -105,11 +128,6 @@ namespace Game
         private void OnEnemyDeath()
         {
             _deadEnemies += 1;
-
-            if (_deadEnemies >= _allEnemies)
-            {
-                _onLevelWon.NotifyAll();
-            }
         }
 
         private void OnDestroy()
@@ -118,6 +136,7 @@ namespace Game
             _onGameOver.Dispose();
             _onPlayerDeath.Dispose();
             _onEnemyDeath.Dispose();
+            vfxPool.Dispose();
         }
     }
 }

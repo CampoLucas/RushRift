@@ -59,52 +59,50 @@ public class ScreenFlash : MonoBehaviour
 
     public static ScreenFlash Instance { get; private set; }
     
-
-    public void TriggerFlash(string hexColor)
+    public void TriggerFlash(string hexColor, float alpha, float duration)
     {
         if (ColorUtility.TryParseHtmlString(hexColor, out Color color))
         {
-            TriggerFlash(color);
+            TriggerFlash(color, alpha, duration);
         }
-        
         else
         {
             Debug.LogWarning($"Invalid hex color: {hexColor}");
         }
     }
 
-    private void TriggerFlash(Color color)
-    {
-        flashColor = color;
 
+    public void TriggerFlash(Color color, float alpha, float duration)
+    {
         if (_flashCoroutine != null)
         {
             StopCoroutine(_flashCoroutine);
         }
 
-        _flashCoroutine = StartCoroutine(FlashCoroutine(color));
+        _flashCoroutine = StartCoroutine(FlashCoroutine(color, alpha, duration));
     }
+
     
     #endregion
 
     #region Coroutine
 
-    private IEnumerator FlashCoroutine(Color color)
+    private IEnumerator FlashCoroutine(Color color, float alpha, float duration)
     {
         float timer = 0f;
 
-        while (timer < flashDuration)
+        while (timer < duration)
         {
             timer += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(timer / flashDuration);
-            float alpha = flashCurve.Evaluate(t) * flashAlpha;
+            float t = Mathf.Clamp01(timer / duration);
+            float curveAlpha = flashCurve.Evaluate(t) * alpha;
 
-            _image.color = new Color(color.r, color.g, color.b, alpha);
+            _image.color = new Color(color.r, color.g, color.b, curveAlpha);
             yield return null;
         }
 
-        // Optional: fade to 0 alpha instead of disabling the Image
         _image.color = new Color(color.r, color.g, color.b, 0f);
     }
+
     #endregion
 }

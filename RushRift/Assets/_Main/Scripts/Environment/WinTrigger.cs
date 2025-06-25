@@ -15,29 +15,16 @@ using UnityEditor.SceneManagement;
 [RequireComponent(typeof(Collider))]
 public class WinTrigger : MonoBehaviour
 {
-    #region Serialized Fields
+    public static readonly ISubject<int> OnWinGivePoints = new Subject<int>();
+    public static readonly ISubject OnWinSaveTimes = new Subject();
+    
     [Header("Points")]
     [SerializeField] private int points;
-
 
     [Header("Trigger Settings")]
     [Tooltip("Tag required to activate the trigger (default: Player).")]
     [SerializeField] private string triggerTag = "Player";
-
-    [Header("Scene Settings")]
-    [Tooltip("Scene to load when the player wins (use name from Build Settings).")]
-    [SerializeField] private string sceneToLoad = "";
-
-#if UNITY_EDITOR
-    [Tooltip("Scene asset to load (automatically sets scene name).")]
-    [SerializeField] private SceneAsset sceneAsset;
-#endif
-
-    #endregion
-    public static ISubject<int> OnWinGivePoints = new Subject<int>();
-
-    #region Unity Events
-
+    
     private void Reset()
     {
         GetComponent<Collider>().isTrigger = true;
@@ -46,33 +33,18 @@ public class WinTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag(triggerTag)) return;
+        OnWinSaveTimes.NotifyAll();
+        OnWinGivePoints.NotifyAll(points);
 
-        if (!string.IsNullOrEmpty(sceneToLoad))
+        if (LevelManager.TryGetLevelWon(out var levelWonSubject))
         {
-            OnWinGivePoints.NotifyAll(points);
-            Debug.Log($"🏁 WinTrigger: Loading scene '{sceneToLoad}'");
-            SceneManager.LoadScene(sceneToLoad);
-        }
-        else
-        {
-            Debug.LogWarning("WinTrigger: No scene assigned to load!");
+            levelWonSubject.NotifyAll();
         }
     }
 
-    #endregion
-
-    #region Editor Sync
-
-#if UNITY_EDITOR
-    private void OnValidate()
+    private void OnDestroy()
     {
-        if (sceneAsset != null)
-        {
-            string path = AssetDatabase.GetAssetPath(sceneAsset);
-            sceneToLoad = System.IO.Path.GetFileNameWithoutExtension(path);
-        }
+        OnWinGivePoints.DetachAll();
+        OnWinSaveTimes.DetachAll();
     }
-#endif
-
-    #endregion
 }

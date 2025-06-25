@@ -76,19 +76,31 @@ namespace Game.Entities
 
         private void OnDeath()
         {
+            AudioManager.Play("TurretDestruction");
+            
             OnEnemyDeathSubject.NotifyAll();
             OnEnemyGivesPoints.NotifyAll(points);
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
+            OnEnemyDeathSubject.DetachAll();
+            OnEnemySpawnSubject.DetachAll();
+
         }
         
         private void OnDamage(float currentHealth, float previousHealth, float maxHealth)
         {
             if (currentHealth >= previousHealth) return;
             
+            AudioManager.Play("TurretDamage");
             runner.DisableAllRunners();
             runner.SetRunnerActive(damageIndex);
            
+        }
+
+        protected override void OnDispose()
+        {
+            OnEnemyDeathSubject.DetachAll();
+            OnEnemySpawnSubject.DetachAll();
         }
     }
 }
