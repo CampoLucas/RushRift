@@ -67,7 +67,7 @@ public class SaveData
 [System.Serializable]
 public class CameraSettings
 {
-    public float sensibility = .35f;
+    public float sensibility = .1f;
     public float smoothness = 30;
     public bool invertX = false;
     public bool invertY = false;
