@@ -3512,8 +3512,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fc2991e38ef4a499db3172ca837e96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  screenManager: {fileID: 1695819103}
   scoreManager: {fileID: 0}
+  vfxPool:
+    vfxPrefabs:
+      data: []
 --- !u!43 &613197628
 Mesh:
   m_ObjectHideFlags: 0
@@ -3864,7 +3866,8 @@ MonoBehaviour:
   clampAngle: 70
   invertHorizontal: 0
   invertVertical: 0
-  sensivility: 0.35
+  sensibility: 0.3
+  smoothing: 10
 --- !u!1 &701219233
 GameObject:
   m_ObjectHideFlags: 0
@@ -6366,6 +6369,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 1531901270}
+  finalTimerText: {fileID: 0}
+  bestTimerText: {fileID: 0}
   currentEnemiesText: {fileID: 413758152}
 --- !u!114 &1214628676
 MonoBehaviour:
@@ -7381,6 +7386,30 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3021981754180124605, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3199872232910561575, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3199872232910561575, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3199872232910561575, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3199872232910561575, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3199872232910561575, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3199872232910561575, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
