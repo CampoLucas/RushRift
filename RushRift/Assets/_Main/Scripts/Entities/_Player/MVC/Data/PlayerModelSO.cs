@@ -33,6 +33,7 @@ namespace Game.Entities
         {
             return new ComboHandler(controller, comboData, new Dictionary<string, Func<bool>>
             {
+                { "Primary", PrimaryAttack },
                 { "Light", LightAttack },
                 { "Heavy", HeavyAttack },
                 { "HeavyCancel", HeavyAttackCancel },
@@ -40,9 +41,10 @@ namespace Game.Entities
             });
         }
         
-        private bool LightAttack() => InputManager.GetActionPerformed(InputManager.LightAttackInput);
-        private bool HeavyAttack() => InputManager.GetActionPerformed(InputManager.HeavyAttackInput);
-        private bool HeavyAttackCancel() => InputManager.GetActionCanceled(InputManager.HeavyAttackInput);
+        private bool PrimaryAttack() => InputManager.GetActionPerformed(InputManager.PrimaryAttackInput);
+        private bool LightAttack() => InputManager.GetActionPerformed(InputManager.PrimaryAttackTapInput);
+        private bool HeavyAttack() => InputManager.GetActionPerformed(InputManager.PrimaryAttackHoldInput);
+        private bool HeavyAttackCancel() => InputManager.GetActionCanceled(InputManager.PrimaryAttackHoldInput);
         private bool SecondaryAttack() => InputManager.GetActionPerformed(InputManager.SecondaryAttackInput);
         
         public override NullCheck<IModel> GetProxy()
