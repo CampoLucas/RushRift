@@ -42,7 +42,16 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "LightAttack",
+                    "name": "PrimaryAttack",
+                    "type": "Button",
+                    "id": "ec148bde-b1d7-431c-ba28-af3ba077f17d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrimaryAttackTap",
                     "type": "Button",
                     "id": "a999731e-b3bd-4a0a-bfc1-d2fc8610410f",
                     "expectedControlType": "Button",
@@ -51,7 +60,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "HeavyAttack",
+                    "name": "PrimaryAttackHold",
                     "type": "Button",
                     "id": "68704d61-1e6f-4aee-a367-5909455223f0",
                     "expectedControlType": "Button",
@@ -306,7 +315,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
-                    "action": "LightAttack",
+                    "action": "PrimaryAttackTap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -317,7 +326,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "LightAttack",
+                    "action": "PrimaryAttackTap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -328,7 +337,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
-                    "action": "HeavyAttack",
+                    "action": "PrimaryAttackHold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -339,7 +348,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "HeavyAttack",
+                    "action": "PrimaryAttackHold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -367,12 +376,45 @@
                 },
                 {
                     "name": "",
+                    "id": "1e6211b3-a54b-4a8c-a825-b9a421ad66d0",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "SecondaryAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "31b5a9c3-01ad-4fa2-88a1-47f680b2dcfc",
                     "path": "<Mouse>/position",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
                     "action": "MousePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "64a5d959-86f6-44df-8da5-3a28ab9b4919",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "PrimaryAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "95957cbd-f1b1-4b40-8f0e-d29eccc1f9d5",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "PrimaryAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
