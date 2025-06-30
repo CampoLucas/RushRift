@@ -4,23 +4,23 @@ using UnityEngine;
 
 namespace Game
 {
-    public class VFXFactory : IFactory<VFXEmitter, VFXEmitterParams>
+    public class Effect : IFactory<EffectEmitter, VFXEmitterParams>
     {
-        private VFXEmitter _product;
+        private EffectEmitter _product;
 
-        public VFXFactory(VFXEmitter product)
+        public Effect(EffectEmitter product)
         {
             _product = product;
         }
         
-        public VFXEmitter Create()
+        public EffectEmitter Create()
         {
             return Object.Instantiate(_product);
         }
 
-        public VFXEmitter[] Create(int quantity)
+        public EffectEmitter[] Create(int quantity)
         {
-            var products = new VFXEmitter[quantity];
+            var products = new EffectEmitter[quantity];
 
             for (var i = 0; i < quantity; i++)
             {

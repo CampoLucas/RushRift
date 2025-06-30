@@ -8,13 +8,13 @@ using UnityEngine;
 namespace Game.VFX
 {
     [System.Serializable]
-    public class VFXPool : IDisposable
+    public class EffectPool : IDisposable
     {
-        [SerializeField] private SerializedDictionary<string, VFXEmitter> vfxPrefabs = new();
+        [SerializeField] private SerializedDictionary<string, EffectEmitter> vfxPrefabs = new();
 
-        private Dictionary<string, IPoolObject<VFXEmitter, VFXEmitterParams>> _vfxDictionary = new();
+        private Dictionary<string, IPoolObject<EffectEmitter, VFXEmitterParams>> _vfxDictionary = new();
 
-        public bool TryGetVFX(string id, VFXEmitterParams vfxEmitterParams, out VFXEmitter poolable)
+        public bool TryGetVFX(string id, VFXEmitterParams vfxEmitterParams, out EffectEmitter poolable)
         {
             // Check if there is a prefab with that id
             if (!vfxPrefabs.TryGetValue(id, out var poolablePrefab))
@@ -26,7 +26,7 @@ namespace Game.VFX
             // Check if there is a pool created with that id
             if (!_vfxDictionary.TryGetValue(id, out var pool))
             {
-                pool = new PoolObject<VFXEmitter, VFXEmitterParams>(new VFXFactory(poolablePrefab), true);
+                pool = new PoolObject<EffectEmitter, VFXEmitterParams>(new Effect(poolablePrefab), true);
                 _vfxDictionary[id] = pool;
             }
 
