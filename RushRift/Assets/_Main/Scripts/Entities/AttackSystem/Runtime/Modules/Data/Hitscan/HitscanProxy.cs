@@ -4,6 +4,8 @@ using Game.DesignPatterns.Pool;
 using Game.Entities.Components;
 using UnityEngine;
 using System;
+using System.Linq;
+using Game.Detection;
 using Unity.VisualScripting;
 using Object = UnityEngine.Object;
 
@@ -88,12 +90,12 @@ namespace Game.Entities.AttackSystem.Hitscan
 #if false
             if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.EntityMask))
 #else
-            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.EntityMask)) // Checks if it collided with an entity
+            if (HitEntity(spawnPos, direction, .5f, out var point, out var collider)) // Checks if it collided with an entity
 #endif
             {
                 _detected = true;
-                trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
-                var other = hit.collider.gameObject;
+                trail.SetPosition(spawn, point, Data.LineDuration, Data.Offset);
+                var other = collider.gameObject;
                 if (other.TryGetComponent<IController>(out var controller) &&
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                 {
@@ -103,11 +105,11 @@ namespace Game.Entities.AttackSystem.Hitscan
                 LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
                 {
                     scale = Data.ImpactSize,
-                    position = hit.point,
+                    position = point,
                     rotation = Quaternion.identity,
                 }, out var emitter);
             }
-            else if (Physics.Raycast(spawnPos, direction, out hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
+            else if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
             {
                 _detected = true;
                 trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
@@ -136,6 +138,38 @@ namespace Game.Entities.AttackSystem.Hitscan
         {
             Gizmos.color = _detected ? Color.green : Color.red;
             Gizmos.DrawRay(_startPos, _direction * Data.Range);
+        }
+
+        private Collider[] _colliders = new Collider[3];
+        private bool HitEntity(Vector3 spawnPos, Vector3 direction, float handRadius, out Vector3 closestPoint, out Collider collider)
+        {
+            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.EntityMask))
+            {
+                closestPoint = hit.point;
+                collider = hit.collider;
+                return true;
+            }
+
+            if (Physics.OverlapSphereNonAlloc(spawnPos, handRadius, _colliders, Data.EntityMask) > 0)
+            {
+                collider = _colliders.FirstOrDefault();
+
+                if (collider == null)
+                {
+                    Debug.LogError("ERROR: The collider in HitScan proxy is null");
+                    closestPoint = Vector3.zero;
+                }
+                else
+                {
+                    closestPoint = collider.ClosestPoint(spawnPos);
+                }
+                
+                return true;
+            }
+
+            collider = null;
+            closestPoint = Vector3.zero;
+            return false;
         }
     }
 }
