@@ -24,9 +24,13 @@ namespace Game.Entities.Components
         private float _dashStartTime;
         private float _nextDashTime;
 
+        private Vector3 _startPos;
+        private Vector3 _endPos;
 
+        private IMovement _movement;
+        
         public DashComponent(CharacterController controller, Transform origin, Transform cameraTransform,
-            IDashStartStrategy startStrategy, DashData data)
+            IDashStartStrategy startStrategy, DashData data, IMovement movement)
         {
             _controller = controller;
             _origin = origin;
@@ -37,6 +41,8 @@ namespace Game.Entities.Components
             // Assign dash strategy
             _startStrategy = startStrategy;
             _updateObserver = new ActionObserver<float>(OnUpdate);
+
+            _movement = movement;
         }
 
         private void OnUpdate(float delta)
@@ -55,9 +61,13 @@ namespace Game.Entities.Components
             _controller.Move(moveVector); // Move by the difference
             //_updateStrategy?.OnDashUpdate(_origin, position);
 
-            if (progress >= 1f || (_updateStrategy != null && _updateStrategy.OnDashUpdate(_origin, position)))
+            if (_isDashing && (progress >= 1f || (_updateStrategy != null && _updateStrategy.OnDashUpdate(_origin, position))))
             {
                 _isDashing = false;
+                _endPos = _origin.position;
+                
+                //_movement.ApplyImpulse((_endPos - _startPos) / delta); 
+                _movement.ApplyImpulse(((_endPos - _startPos) / elapsed) * _data.Dampening);
                 
                 OnStopDash.NotifyAll();
                 _updateStrategy?.Reset();
@@ -77,7 +87,8 @@ namespace Game.Entities.Components
         public bool StartDash()
         {
             if (_isDashing) return false;
-            
+
+            _startPos = _origin.position;
             _startStrategy.StartDash(_origin, _cameraTransform, out _dashStartPosition, out _dashEndPosition, out var dir);
 
             if (_dashStartPosition != _dashEndPosition)
@@ -154,6 +165,8 @@ namespace Game.Entities.Components
             
             _startStrategy.Dispose();
             _startStrategy = null;
+
+            _movement = null;
         }
     }
 }

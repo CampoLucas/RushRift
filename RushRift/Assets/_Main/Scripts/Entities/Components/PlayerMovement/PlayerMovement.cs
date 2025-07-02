@@ -60,7 +60,7 @@ namespace Game.Entities.Components
             HandleMovement(delta);
 
             var pos = _origin.position;
-            Velocity = (_prevPosition - pos) / delta;
+            Velocity = (pos - _prevPosition) / delta;
             _moveAmount = Velocity.magnitude;
             _prevPosition = pos;
         }
