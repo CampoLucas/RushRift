@@ -13,7 +13,7 @@ namespace Game.Entities
     {
         #region States
 
-        public static HashedKey IdleState = new("Idle");
+        //public static HashedKey IdleState = new("Idle");
         public static HashedKey MoveState = new("Move");
         public static HashedKey RunState = new("Run");
         public static HashedKey JumpState = new("Jump");
@@ -107,29 +107,29 @@ namespace Game.Entities
 
             var playerModel = model as PlayerModelSO;
             
-            var idleState = new IdleState();
-            var moveState = new MoveState();
-            var jumpState = new JumpState(playerModel.Jump);
-            var fallState = new MoveState();
+            //var idleState = new IdleState();
+            var moveState = new MoveState(MoveType.Grounded);
+            var jumpState = new JumpState(playerModel.Jump, MoveType.Air);
+            var fallState = new MoveState(MoveType.Air);
 
-            _fsm.AddState(IdleState, idleState);
+            //_fsm.AddState(IdleState, idleState);
             _fsm.AddState(MoveState, moveState);
             _fsm.AddState(JumpState, jumpState);
             _fsm.AddState(FallState, fallState);
             
-            _fsm.SetRootState(IdleState);
-            _fsm.SetState(IdleState);
+            //_fsm.SetRootState(IdleState);
+            _fsm.SetState(MoveState);
 
             // Idle Transitions
-            idleState.AddTransition(MoveState, new IsMovingPredicate());
-            idleState.AddTransition(JumpState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new IsGroundedPredicate(),
-                new InputButtonPredicate<EntityArgs>(InputManager.JumpInput, InputButtonPredicate<EntityArgs>.State.Down)
-            }));
+            // idleState.AddTransition(MoveState, new IsMovingPredicate());
+            // idleState.AddTransition(JumpState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // {
+            //     new IsGroundedPredicate(),
+            //     new InputButtonPredicate<EntityArgs>(InputManager.JumpInput, InputButtonPredicate<EntityArgs>.State.Down)
+            // }));
             
             // Move Transitions
-            moveState.AddTransition(IdleState, new IsMovingPredicate(false));
+            //moveState.AddTransition(IdleState, new IsMovingPredicate(false));
             moveState.AddTransition(JumpState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
             {
                 new IsGroundedPredicate(),
@@ -146,26 +146,26 @@ namespace Game.Entities
             {
                 new StateCompletedPredicate(),
                 new IsGroundedPredicate(),
-                new IsMovingPredicate(),
+                //new IsMovingPredicate(),
             }));
-            jumpState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new StateCompletedPredicate(),
-                new IsGroundedPredicate(),
-                new IsMovingPredicate(false),
-            }));
+            // jumpState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // {
+            //     new StateCompletedPredicate(),
+            //     new IsGroundedPredicate(),
+            //     new IsMovingPredicate(false),
+            // }));
             
             // Fall Transitions
             fallState.AddTransition(MoveState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
             {
                 new IsGroundedPredicate(),
-                new IsMovingPredicate(),
+                //new IsMovingPredicate(),
             }));
-            fallState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new IsGroundedPredicate(),
-                new IsMovingPredicate(false),
-            }));
+            // fallState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // {
+            //     new IsGroundedPredicate(),
+            //     new IsMovingPredicate(false),
+            // }));
             
             // Any State
             _fsm.AddAnyTransition(FallState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]

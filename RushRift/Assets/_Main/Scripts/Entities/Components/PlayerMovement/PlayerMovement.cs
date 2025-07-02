@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
 using Game.Detection;
 using Game.Utils;
@@ -9,8 +10,8 @@ namespace Game.Entities.Components
     {
         public Vector3 Velocity { get; private set; }
         public bool Grounded => _grounded || _coyoteTimer > 0;
-        public float MaxSpeed => _data.MaxSpeed + _speedModifier;
-        public float BaseMaxSpeed => _data.MaxSpeed;
+        public float MaxSpeed => _currentProfile ? _currentProfile.Get().MaxSpeed + _speedModifier : 0;
+        public float BaseMaxSpeed => _currentProfile ? _currentProfile.Get().MaxSpeed : 0;
         
         private PlayerMovementData _data;
         private CharacterController _controller;
@@ -25,7 +26,7 @@ namespace Game.Entities.Components
         private float _moveAmount;
         
         private float _accelTimer;
-        private float _decelTimer;
+        private float _decTimer;
         private float _coyoteTimer;
         private bool _grounded;
         private bool _gravity = true;
@@ -34,6 +35,9 @@ namespace Game.Entities.Components
 
         private IObserver<float> _tick;
         private IObserver<float> _lateTick;
+
+        private NullCheck<MovementProfile> _currentProfile;
+        private Dictionary<MoveType, MovementProfile> _profilesDictionary;
 
         public PlayerMovement(PlayerMovementData data, CharacterController controller, Transform origin, Transform orientation)
         {
@@ -44,6 +48,9 @@ namespace Game.Entities.Components
             _detection = _data.Detector.Get(origin);
             _tick = new ActionObserver<float>(Tick);
             _lateTick = new ActionObserver<float>(LateTick);
+
+            data.TryCreateProfilesDictionary(out _profilesDictionary);
+            SetProfile(MoveType.Grounded);
         }
 
         private void Tick(float delta)
@@ -113,6 +120,14 @@ namespace Game.Entities.Components
             _velocity.y = velocity;
         }
 
+        public void SetProfile(MoveType type)
+        {
+            if (_profilesDictionary.TryGetValue(type, out var newProfile))
+            {
+                _currentProfile = newProfile;
+            }
+        }
+
         #region Component Methods
 
         public bool TryGetUpdate(out IObserver<float> observer)
@@ -154,20 +169,6 @@ namespace Game.Entities.Components
         }
 
         #endregion
-        
-        
-        public void Dispose()
-        {
-            _data = null;
-            _controller = null;
-            _detection?.Dispose();
-            _detection = null;
-            _orientation = null;
-            _tick?.Dispose();
-            _tick = null;
-            _lateTick?.Dispose();
-            _lateTick = null;
-        }
 
         private void GroundChecks(float delta)
         {
@@ -205,7 +206,7 @@ namespace Game.Entities.Components
             var horizontalVel = _velocity.XOZ();
             var targetVel = _moveDirection * MaxSpeed;
 
-            var moveMultiplier = Grounded ? 1f : _data.AirControl;
+            var moveMultiplier = _currentProfile.Get().Control;
             targetVel *= moveMultiplier;
 
             var deltaVel = targetVel - horizontalVel;
@@ -217,11 +218,11 @@ namespace Game.Entities.Components
             // Calculates the velocity when acceleration or decelerating 
             if (isMoving)
             {
-                CalculateDeltaVelocity(ref deltaVel, _data.AccelRate, _data.AccelCurve, ref _accelTimer, delta);
+                CalculateDeltaVelocity(ref deltaVel, _currentProfile.Get().Accel, _currentProfile.Get().AccelCurve, ref _accelTimer, delta);
             }
             else
             {
-                CalculateDeltaVelocity(ref deltaVel, _data.DecelRate, _data.DecelCurve, ref _decelTimer, delta);
+                CalculateDeltaVelocity(ref deltaVel, _currentProfile.Get().Dec, _currentProfile.Get().DecCurve, ref _decTimer, delta);
             }
 
             horizontalVel += deltaVel;
@@ -249,6 +250,28 @@ namespace Game.Entities.Components
             var curveFactor = curve.Evaluate(Mathf.Clamp01(timer));
 
             deltaVel = Vector3.ClampMagnitude(deltaVel, rate * delta * curveFactor);
-        } 
+        }
+        
+        public void Dispose()
+        {
+            _data = null;
+            _controller = null;
+            _orientation = null;
+            _origin = null;
+            
+            _detection?.Dispose();
+            _detection = null;
+            
+            _tick?.Dispose();
+            _tick = null;
+            
+            _lateTick?.Dispose();
+            _lateTick = null;
+
+            _currentProfile = null;
+            
+            _profilesDictionary?.Clear();
+            _profilesDictionary = null;
+        }
     }
 }
