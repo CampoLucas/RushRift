@@ -11,6 +11,7 @@ namespace Game.Entities.Components
         public float Cooldown => cooldown;
         public AnimationCurve SpeedCurve => speedCurve;
         public float Cost => cost;
+        public float Dampening => dampening;
         
         [Header("Settings")]
         [SerializeField] private float distance = 5f;
@@ -18,13 +19,14 @@ namespace Game.Entities.Components
         [SerializeField] private float cooldown = .3f;
         [SerializeField] private AnimationCurve speedCurve;
         [SerializeField] private float cost = 5;
+        [SerializeField] private float dampening = 0.5f;
 
         [Header("Strategy")]
         [SerializeField] private DashStrategy strategy;
 
-        public DashComponent GetComponent(CharacterController controller, Transform origin, Transform cameraTransform)
+        public DashComponent GetComponent(CharacterController controller, Transform origin, Transform cameraTransform, IMovement movement)
         {
-            return new DashComponent(controller, origin, cameraTransform, GetStrategy(), this);
+            return new DashComponent(controller, origin, cameraTransform, GetStrategy(), this, movement);
         }
 
         private IDashStartStrategy GetStrategy()

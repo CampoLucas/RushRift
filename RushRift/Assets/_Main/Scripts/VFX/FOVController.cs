@@ -1,5 +1,7 @@
 using UnityEngine;
 using Cinemachine;
+using Game.Entities;
+using Game.Entities.Components;
 
 /// <summary>
 /// 🎥 Dynamically adjusts Cinemachine FOV based on player forward speed.
@@ -21,8 +23,8 @@ public class FOVController : MonoBehaviour
     [SerializeField, Range(0.1f, 50f)] private float lerpSpeed = 25f;
 
     [Header("🏃 Player Reference")]
-    [Tooltip("Reference to the PlayerMovement script.")]
-    [SerializeField] private PlayerMovement playerMovement;
+    [Tooltip("Reference to the Player Controller script.")]
+    [SerializeField] private PlayerController playerController;
 
     [Tooltip("Threshold forward input to trigger FOV change.")]
     [SerializeField, Range(0f, 1f)] private float forwardThreshold = 0.1f;
@@ -48,20 +50,20 @@ public class FOVController : MonoBehaviour
 
     private void Update()
     {
-        if (playerMovement == null) return;
+        if (playerController == null || playerController.TryGetComponent<IMovement>(out var movement)) return;
 
         // Get current movement direction and orientation
-        Vector3 velocity = playerMovement.GetVelocity();
-        Vector3 forward = playerMovement.GetOrientation().forward;
-        float speed = velocity.magnitude;
+        var velocity = movement.Velocity;
+        var forward = playerController.Origin.forward;
+        var speed = velocity.magnitude;
 
         // Measure how much of the movement is in the forward direction
-        float forwardAmount = Vector3.Dot(velocity.normalized, forward);
+        var forwardAmount = Vector3.Dot(velocity.normalized, forward);
 
         if (forwardAmount >= forwardThreshold && speed > 0.1f)
         {
             // Moving forward — lower FOV
-            targetFOV = Mathf.Lerp(startFOV, maxFOV, speed / playerMovement.GetMaxSpeed());
+            targetFOV = Mathf.Lerp(startFOV, maxFOV, speed / movement.BaseMaxSpeed);
         }
         else
         {

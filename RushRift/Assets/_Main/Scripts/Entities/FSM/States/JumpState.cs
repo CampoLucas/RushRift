@@ -5,28 +5,44 @@ namespace Game.Entities
 {
     public class JumpState : State<EntityArgs>
     {
+        private readonly MoveType _moveType;
         private JumpData _data;
-
+        private NullCheck<IMovement> _movement;
+        
         private float _gravity;
         private float _velocity;
         private float _elapsedTime;
         
 
-        public JumpState(JumpData data)
+        public JumpState(JumpData data, MoveType moveType)
         {
+            _moveType = moveType;
             _data = data;
         }
 
         protected override void OnStart(ref EntityArgs args)
         {
+            if (!_movement)
+            {
+                Debug.Log("SuperTest: It doesn't have movement.");
+                if (args.Controller.GetModel().TryGetComponent<IMovement>(out var movement))
+                {
+                    _movement.Set(movement);
+                }
+            }
+
+            if (_movement.TryGetValue(out var m))
+            {
+                m.SetProfile(_moveType);
+                m.EnableGravity(false);
+            }
+            
             _elapsedTime = 0f;
-            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
-            movement.EnableGravity(false);
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
         {
-            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            if (!_movement.TryGetValue(out var movement)) return;
 
             movement.AddMoveDir(args.Controller.MoveDirection());
             
@@ -41,8 +57,8 @@ namespace Game.Entities
 
         protected override void OnExit(ref EntityArgs args)
         {
-            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
-            movement.EnableGravity(true);
+            if (!_movement) return;
+            _movement.Get().EnableGravity(true);
         }
 
         protected override bool OnCompleted(ref EntityArgs args)

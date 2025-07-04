@@ -19,7 +19,7 @@ namespace Game.Entities
                 var movement = Data.PlayerMovement.GetMovement(characterController, controller.Origin, controller.Joints.GetJoint(EntityJoint.Eyes));
                 TryAddComponent(movement);
 
-                TryAddComponent(Data.Dash.GetComponent(characterController, controller.Origin, Camera.main.transform));
+                TryAddComponent(Data.Dash.GetComponent(characterController, controller.Origin, Camera.main.transform, movement));
                 //TryAddComponent(Data.SpeedLines.GetComponent(controller.SpeedLines, movement.MoveAmount));
             }
 

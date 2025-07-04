@@ -4,36 +4,46 @@ using UnityEngine.VFX;
 
 namespace Game.Entities
 {
+    /// <summary>
+    /// The main MonoBehaviour that wires the Model and View at runtime
+    /// </summary>
     public abstract class EntityController : MonoBehaviour, IController
     {
+        /// <summary>
+        /// Reference to the GameObject's transform
+        /// </summary>
         public Transform Origin { get; private set; }
         public VisualEffect SpeedLines => speedLines;
+        /// <summary>
+        /// Collections of transforms that represents the entity joints
+        /// </summary>
         public Joints<EntityJoint> Joints => joints;
 
         [Header("Data")]
-        [SerializeField] protected EntityModelSO model;
-        [SerializeField] protected EntityViewSO view;
+        [SerializeField] protected EntityModelSO model; // ScriptableObject used to create the model proxy
+        [SerializeField] protected EntityViewSO view; // ScriptableObject used to create the view proxy
 
         [Header("References")]
         [SerializeField] protected Joints<EntityJoint> joints;
         [SerializeField] private Animator[] animator;
         [SerializeField] private VisualEffect speedLines;
 
-        protected EntityStateMachine _fsm;
+        protected EntityStateMachine _fsm; // Optional state machine for entity behavior
         
-        private IModel _model;
-        private IView _view;
+        private IModel _model; // Runtime model proxy instance
+        private IView _view; // Runtime view proxy instance
 
         protected virtual void Awake()
         {
             Origin = transform;
 
-            // Create the model
+            // Create the model proxy and initialize it
             if (model.GetProxy().TryGetValue(out _model))
             {
                 _model.Init(this);
             }
 
+            // Create the view proxy and initialize it
             if (view.GetProxy().TryGetValue(out _view))
             {
                 _view.Init(animator);
@@ -64,26 +74,26 @@ namespace Game.Entities
             _model.FixedUpdate(delta);
         }
 
+        /// <summary>
+        /// Exposes the runtime model instance
+        /// </summary>
+        /// <returns></returns>
         public IModel GetModel() => _model;
+        /// <summary>
+        /// Exposes the runtime view instance
+        /// </summary>
+        /// <returns></returns>
         public IView GetView() => _view;
+        /// <summary>
+        /// Used to provide input direction (must be implemented by subclasses)
+        /// </summary>
+        /// <returns></returns>
         public abstract Vector3 MoveDirection();
+        /// <summary>
+        /// Optional override to setup the FSM
+        /// </summary>
         protected virtual void InitStateMachine() { }
-
-        public Coroutine DoCoroutine(IEnumerator routine)
-        {
-            return StartCoroutine(routine);
-        }
-
-        public void EndCoroutine(Coroutine coroutine)
-        {
-            StopCoroutine(coroutine);
-        }
-
-        public void EndAllCoroutines()
-        {
-            StopAllCoroutines();
-        }
-
+        
         public void OnDrawGizmos()
         {
             if (_model != null) _model.OnDraw(transform);
@@ -94,6 +104,9 @@ namespace Game.Entities
             if (_model != null) _model.OnDrawSelected(transform);
         }
 
+        /// <summary>
+        /// Cleans up model, view, FSM and all coroutines.
+        /// </summary>
         public virtual void Dispose()
         {
             if (_model != null) _model.Dispose();
@@ -115,6 +128,9 @@ namespace Game.Entities
             Dispose();
         }
         
+        /// <summary>
+        /// Hook for subclass specific disposal
+        /// </summary>
         protected virtual void OnDispose() { }
     }
 }

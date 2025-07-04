@@ -1,3 +1,5 @@
+using Game.Entities;
+using Game.Entities.Components;
 using UnityEngine;
 
 /// <summary>
@@ -27,7 +29,7 @@ public class JumpPad : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        if (other.TryGetComponent(out PlayerMovement movement))
+        if (other.TryGetComponent(out IController controller) && controller.GetModel().TryGetComponent<IMovement>(out var movement))
         {
             // Get pad direction
             Vector3 direction = transform.TransformDirection(launchDirection.normalized);
