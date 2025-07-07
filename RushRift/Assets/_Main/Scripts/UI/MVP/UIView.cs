@@ -11,6 +11,9 @@ namespace Game.UI.Screens
     {
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Canvas canvas;
+
+        [Header("Trailer Settings")]
+        [SerializeField] private bool hideCanvas;
         
         private bool _enabled;
         private bool _started;
@@ -25,9 +28,12 @@ namespace Game.UI.Screens
 
         public void Show()
         {
-            canvas.enabled = true;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
+            if (!hideCanvas)
+            {
+                canvas.enabled = true;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
             
             OnShow();
         }
