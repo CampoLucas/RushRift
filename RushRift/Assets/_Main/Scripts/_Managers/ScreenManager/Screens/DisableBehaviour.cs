@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Game.DesignPatterns.Observers;
 using Game.UI;
@@ -19,9 +20,23 @@ public class DisableBehaviour : MonoBehaviour
         UIManager.OnUnPaused.Attach(_onEnableCall);
     }
 
-    public void SetBehaviour(Behaviour[] behaviours)
+    public bool TrySetBehaviour(Behaviour[] behaviours)
     {
-        behavioursToDisable = behaviours;
+        var behavioursToAdd = new List<Behaviour>();
+        
+        for (var i = 0; i < behaviours.Length; i++)
+        {
+            var behaviour = behaviours[i];
+            if (behaviour == null || behaviour == this) continue;
+            
+            behavioursToAdd.Add(behaviour);
+        }
+
+        var behavioursAdded = behavioursToAdd.Count;
+        behavioursToDisable = behavioursToAdd.ToArray();
+        
+        behavioursToAdd.Clear();
+        return behavioursAdded > 0;
     }
 
     private void OnDisableHandler()
