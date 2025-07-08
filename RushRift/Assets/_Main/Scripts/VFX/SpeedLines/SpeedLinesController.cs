@@ -77,7 +77,7 @@ namespace Game.VFX
 
         private void Update()
         {
-            if (effect.pause) return;
+            if (effect.pause || _moveAmount == null) return;
             var on = data.SetEffect(_moveAmount(), effect) > 0;
             
             if (on && !_started)
