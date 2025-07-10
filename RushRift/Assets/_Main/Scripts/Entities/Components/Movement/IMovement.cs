@@ -16,5 +16,6 @@ namespace Game.Entities.Components
         float MoveAmount();
         void EnableGravity(bool value);
         void SetYVelocity(float velocity);
+        void SetProfile(MoveType type);
     }
 }

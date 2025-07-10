@@ -31,8 +31,8 @@ namespace Game
         {
             var saveData = SaveAndLoad.Load();
 
-            sensibility = saveData.Camera.Sensibility;
-            smoothing = saveData.Camera.Smoothness;
+            sensibility = saveData.Camera.sensibility;
+            smoothing = saveData.Camera.smoothness;
 
             _onSensibilityChanged = new ActionObserver<float>(OnSensibilityChanged);
             _onSmoothnessChanged = new ActionObserver<float>(OnSmoothnessChanged);

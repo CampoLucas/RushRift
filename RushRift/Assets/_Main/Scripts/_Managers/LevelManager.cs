@@ -1,6 +1,7 @@
 using Game.DesignPatterns.Observers;
 using Game.VFX;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game
 {
@@ -12,7 +13,7 @@ namespace Game
     {
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
-        [SerializeField] private VFXPool vfxPool; // Por ahora lo pongo aca para que no sea un singleton
+        [FormerlySerializedAs("vfxPool")] [SerializeField] private EffectPool effectPool; // Por ahora lo pongo aca para que no sea un singleton
 
         private static LevelManager _instance;
 
@@ -104,9 +105,9 @@ namespace Game
             if (_instance) _instance._levelCompleteTime = time;
         }
 
-        public static bool TryGetVFX(string id, VFXEmitterParams vfxParams, out VFXEmitter emitter)
+        public static bool TryGetVFX(string id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
         {
-            if (_instance) return _instance.vfxPool.TryGetVFX(id, vfxParams, out emitter);
+            if (_instance) return _instance.effectPool.TryGetVFX(id, vfxParams, out emitter);
             emitter = null;
             return false;
         }
@@ -136,7 +137,7 @@ namespace Game
             _onGameOver.Dispose();
             _onPlayerDeath.Dispose();
             _onEnemyDeath.Dispose();
-            vfxPool.Dispose();
+            effectPool.Dispose();
         }
     }
 }

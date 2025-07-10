@@ -5,25 +5,46 @@ namespace Game.Entities
 {
     public class MoveState : State<EntityArgs>
     {
-        public MoveState()
+        private readonly MoveType _moveType;
+        private NullCheck<IMovement> _movement;
+        
+        public MoveState(MoveType moveType)
         {
-            
+            _moveType = moveType;
         }
 
         protected override void OnStart(ref EntityArgs args)
         {
-            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
-            //movement.SetData(_data);
+            if (!_movement)
+            {
+                Debug.Log("SuperTest: It doesn't have movement.");
+                if (args.Controller.GetModel().TryGetComponent<IMovement>(out var movement))
+                {
+                    _movement.Set(movement);
+                }
+            }
+
+            if (_movement)
+            {
+                Debug.Log($"SuperTest: Set move profile to {_moveType}");
+                _movement.Get().SetProfile(_moveType);
+            }
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
         {
             var controller = args.Controller;
-            if (!controller.GetModel().TryGetComponent<IMovement>(out var movement))
+            if (!_movement)
             {
                 return;
             }
-            movement.AddMoveDir(controller.MoveDirection());
+            _movement.Get().AddMoveDir(controller.MoveDirection());
+        }
+
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            _movement.Dispose();
         }
     }
 }

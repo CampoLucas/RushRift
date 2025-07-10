@@ -47,6 +47,11 @@ MonoBehaviour:
   children:
     collection: []
   animation: Attack Release
+  useNormalizedTime: 0
+  layer: 0
+  startFrame: 0
+  framesPerSecond: 24
+  animationDuration: 0
   delay: 0
 --- !u!114 &11400000
 MonoBehaviour:
@@ -67,7 +72,8 @@ MonoBehaviour:
     - {fileID: -4047193210219181004}
     - {fileID: -8428048307710999693}
     - {fileID: 4486367842339909572}
-  transitions: []
+  transitions:
+  - {fileID: 11400000, guid: 6a3c4572162cf0742887a1e99e002e22, type: 2}
 --- !u!114 &4486367842339909572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84,4 +90,9 @@ MonoBehaviour:
   children:
     collection: []
   animation: Empty
+  useNormalizedTime: 0
+  layer: 0
+  startFrame: 0
+  framesPerSecond: 24
+  animationDuration: 0
   delay: -1

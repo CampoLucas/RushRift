@@ -26,7 +26,7 @@ namespace Game.UI
 
         private void OnValueChangedHandler(float value)
         {
-            valueText.text = value.ToString("00.00");
+            valueText.text = value.ToString("0.00");
         }
 
         private void OnDestroy()

@@ -34,11 +34,21 @@ public class SaveData
         private set => _camera = value;
     }
     
+    /// <summary>
+    /// A property that in the case someone plays with an old save that didn't had the Sound class, it creates it.
+    /// </summary>
+    public SoundSettings Sound
+    {
+        get => _sound ??= new SoundSettings();
+        private set => _sound = value;
+    }
+    
     public int playerCurrency;
     
-    private CameraSettings _camera = new(); 
     private Dictionary<int, bool> _unlockedEffects = new();
     private Dictionary<int, float> _bestTimes = new();
+    private CameraSettings _camera = new();
+    private SoundSettings _sound = new();
     
     public List<int> GetActiveEffects()
     {
@@ -57,10 +67,18 @@ public class SaveData
 [System.Serializable]
 public class CameraSettings
 {
-    public float Sensibility = .35f;
-    public float Smoothness = 30;
-    public bool InvertX = false;
-    public bool InvertY = false;
+    public float sensibility = .1f;
+    public float smoothness = 30;
+    public bool invertX = false;
+    public bool invertY = false;
+}
+
+[System.Serializable]
+public class SoundSettings
+{
+    public float masterVolume = 1;
+    public float musicVolume = 1;
+    public float sfxVolume = 1;
 }
 
 

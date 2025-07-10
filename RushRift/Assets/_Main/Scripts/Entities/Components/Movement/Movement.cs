@@ -175,6 +175,11 @@ namespace Game.Entities.Components
             _verticalVelocity = velocity;
         }
 
+        public void SetProfile(MoveType type)
+        {
+            
+        }
+
 
         public void Dispose()
         {

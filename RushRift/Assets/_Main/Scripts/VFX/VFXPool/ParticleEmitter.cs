@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Entities
 {
-    public class ParticleEmitter : VFXEmitter
+    public class ParticleEmitter : EffectEmitter
     {
         [SerializeField] private ParticleSystem particle;
         
