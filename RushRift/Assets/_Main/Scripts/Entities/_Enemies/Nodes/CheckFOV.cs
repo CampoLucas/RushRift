@@ -11,10 +11,16 @@ namespace Game.BehaviourTree.Nodes
     {
         public FieldOfViewData FOV => fov;
         public bool IfAny => ifAny;
+        public bool UseJoints => useJoins;
+        public EntityJoint Joint => joint;
         
         [SerializeField] private FieldOfViewData fov;
         [SerializeField] private bool ifAny;
 
+        [Header("Joints")]
+        [SerializeField] private bool useJoins;
+        [SerializeField] private EntityJoint joint;
+        
         protected override INode OnCreateNode()
         {
             return new CheckFOVProxy(this);
@@ -49,7 +55,10 @@ namespace Game.BehaviourTree.Nodes
         protected override void OnStart()
         {
             if (_controller == null) return;
-            if (!_origin) _origin.Set(_controller.Origin);
+            if (!_origin)
+            {
+                _origin.Set(Data.UseJoints ? _controller.Joints.GetJoint(Data.Joint) : _controller.Origin);
+            }
             if (_enemyComp == null) _controller.GetModel().TryGetComponent(out _enemyComp);
             if (_target || _enemyComp == null) return;
             if (_enemyComp.TryGetTarget(out var target)) _target.Set(target);
@@ -58,6 +67,7 @@ namespace Game.BehaviourTree.Nodes
         protected override NodeState OnUpdate()
         {
             if (_origin == false || _target == false) return NodeState.Failure;
+            
             _fovParams = FOVParams.GetFOVParams(_origin.Get().position, _origin.Get().forward, _target.Get().position);
             return _fov.Evaluate(ref _fovParams) ? NodeState.Success : NodeState.Failure;
         }
