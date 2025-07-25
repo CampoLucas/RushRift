@@ -12,126 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4effd1cb90d94e5980c1af96ff7100a1, type: 3}
   m_Name: PlayerModel
   m_EditorClassIdentifier: 
-  playerMovement:
-    profiles:
-    - type: 0
-      profile:
-        maxSpeed: 35
-        acceleration: 1000
-        deceleration: 1000
-        control: 1
-        accelerationCurve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.25
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        decelerationCurve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.05
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-    - type: 1
-      profile:
-        maxSpeed: 35
-        acceleration: 1200
-        deceleration: 25
-        control: 0.75
-        accelerationCurve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.25
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        decelerationCurve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.05
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-    gravity: -19.62
-    coyoteTime: 0.15
-    detector:
-      offset: {x: 0, y: 0.02, z: 0}
-      radius: 0.5
-      maxCollisions: 3
-      mask:
-        serializedVersion: 2
-        m_Bits: 8
-  jump:
+  jumpOld:
     force: 20
     duration: 0.8
     curve:
@@ -158,7 +39,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  dash:
+  dashOld:
     distance: 30
     duration: 0.2
     cooldown: 0.25
@@ -189,6 +70,71 @@ MonoBehaviour:
     cost: 1
     dampening: 0.15
     strategy: 1
+  movement:
+    enabled: 1
+    order: 4
+    speed: 5000
+    maxSpeed: 35
+    drag: 0.15
+    minThreshold: 0.01
+    maxThreshold: 0.05
+    airMultiplier: 0.7
+    airForwardMultiplier: 0.7
+    airFallMultiplier: 0.005
+    slidingEnabled: 1
+    sliding:
+      maxSlopeAngle: 45
+      multiplier: 0.1
+      speedScaling: 30
+      slideForce: 160
+      recoverSpeed: 3
+      keepSlipperyValueOnAir: 1
+      recoverOnAir: 1
+      airRecoverSpeed: 4
+      maxSpeedModifier: 3
+      fallTriggerSpeed: 30
+      fallMaxAmount: 0.1
+  airResistance:
+    enabled: 1
+    order: 10
+    airResistance: 0.98
+  jump:
+    enabled: 1
+    order: 2
+    force: 8
+    cooldown: 0.25
+  dash:
+    enabled: 1
+    order: 99
+    force: 120
+    duration: 0.25
+    momentumMultiplier: 0.25
+  gravity:
+    enabled: 1
+    order: 1
+    groundGravity: 100
+    fallGravity: 600
+    maxFallSpeed: 80
+    curveDuration: 1
+    startMultiplier: 1
+    endMultiplier: 2.5
+    groundDistance: 0
+    hoverSpeed: 15
+    correctionDistance: 0.5
+  groundDetection:
+    enabled: 1
+    order: 0
+    radius: 0.55
+    offset: 1.2
+    distance: 1.25
+    layer:
+      serializedVersion: 2
+      m_Bits: 8
+  input:
+    enabled: 1
+    order: -1
+    sensitivity: 50
+    sensitivityMultiplier: 1
   comboData: {fileID: 11400000, guid: 0b705b981d3638540927ff120005df2d, type: 2}
   health:
     startValue: 10

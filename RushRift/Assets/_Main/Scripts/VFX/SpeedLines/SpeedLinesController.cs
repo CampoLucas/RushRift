@@ -21,6 +21,7 @@ namespace Game.VFX
         private bool _started;
         private IObserver _onPaused;
         private IObserver _onUnpause;
+        private Rigidbody _rigidbody;
 
         private void Awake()
         {
@@ -32,6 +33,11 @@ namespace Game.VFX
             if (targetEntity.GetModel().TryGetComponent<IMovement>(out var movement))
             {
                 _moveAmount = movement.MoveAmount;
+            }
+
+            if (targetEntity && targetEntity.TryGetComponent<Rigidbody>(out var rb))
+            {
+                _rigidbody = rb;
             }
         }
         
@@ -77,8 +83,9 @@ namespace Game.VFX
 
         private void Update()
         {
-            if (effect.pause || _moveAmount == null) return;
-            var on = data.SetEffect(_moveAmount(), effect) > 0;
+            //if (effect.pause || _moveAmount == null) return;
+            if (effect.pause || !_rigidbody) return;
+            var on = data.SetEffect(_rigidbody.velocity.magnitude, effect) > 0;
             
             if (on && !_started)
             {

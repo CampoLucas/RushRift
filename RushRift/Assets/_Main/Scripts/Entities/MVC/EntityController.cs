@@ -37,6 +37,8 @@ namespace Game.Entities
         {
             Origin = transform;
 
+            SetJoins();
+            
             // Create the model proxy and initialize it
             if (model.GetProxy().TryGetValue(out _model))
             {
@@ -72,6 +74,11 @@ namespace Game.Entities
         {
             var delta = Time.fixedDeltaTime;
             _model.FixedUpdate(delta);
+        }
+
+        protected virtual void SetJoins()
+        {
+            
         }
 
         /// <summary>

@@ -33,22 +33,22 @@ namespace Game.Entities
         
         protected override void Awake()
         {
+            // _camera = Camera.main.transform;
+            //
+            // if (_camera)
+            // {
+            //     if (_camera.gameObject.TryGetComponent<JointsContainer>(out var cameraJoints))
+            //     {
+            //         Debug.Log("SuperTest: Add camera joins");
+            //         joints.AddJoint(cameraJoints.Joints);
+            //     }
+            //     
+            //     
+            //     //joints.SetJoint(EntityJoint.Eyes, _camera);
+            // }
+
             base.Awake();
-            _camera = Camera.main.transform;
-
-            if (_camera)
-            {
-                if (_camera.gameObject.TryGetComponent<JointsContainer>(out var cameraJoints))
-                {
-                    joints.AddJoint(cameraJoints.Joints);
-                }
-                
-                
-                joints.SetJoint(EntityJoint.Eyes, _camera);
-            }
-
-            var saveData = SaveAndLoad.Load();
-
+            
             var scriptableReference = ScriptableReference.Instance;
 
             if (scriptableReference)
@@ -92,6 +92,20 @@ namespace Game.Entities
             //}
         }
 
+        protected override void SetJoins()
+        {
+            _camera = Camera.main.transform;
+
+            if (!_camera) return;
+            if (_camera.gameObject.TryGetComponent<JointsContainer>(out var cameraJoints))
+            {
+                joints.AddJoint(cameraJoints.Joints);
+            }
+                
+                
+            //joints.SetJoint(EntityJoint.Eyes, _camera);
+        }
+
         protected override void Update()
         {
             var inputDir = InputManager.GetValueVector(InputManager.MoveInput).XOZ();
@@ -120,59 +134,59 @@ namespace Game.Entities
             //_fsm.SetRootState(IdleState);
             _fsm.SetState(MoveState);
 
-            // Idle Transitions
-            // idleState.AddTransition(MoveState, new IsMovingPredicate());
-            // idleState.AddTransition(JumpState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // // Idle Transitions
+            // // idleState.AddTransition(MoveState, new IsMovingPredicate());
+            // // idleState.AddTransition(JumpState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // // {
+            // //     new IsGroundedPredicate(),
+            // //     new InputButtonPredicate<EntityArgs>(InputManager.JumpInput, InputButtonPredicate<EntityArgs>.State.Down)
+            // // }));
+            //
+            // // Move Transitions
+            // //moveState.AddTransition(IdleState, new IsMovingPredicate(false));
+            // moveState.AddTransition(JumpState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
             // {
             //     new IsGroundedPredicate(),
             //     new InputButtonPredicate<EntityArgs>(InputManager.JumpInput, InputButtonPredicate<EntityArgs>.State.Down)
             // }));
-            
-            // Move Transitions
-            //moveState.AddTransition(IdleState, new IsMovingPredicate(false));
-            moveState.AddTransition(JumpState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new IsGroundedPredicate(),
-                new InputButtonPredicate<EntityArgs>(InputManager.JumpInput, InputButtonPredicate<EntityArgs>.State.Down)
-            }));
-            
-            // Jump Transitions
-            jumpState.AddTransition(FallState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new StateCompletedPredicate(),
-                new IsGroundedPredicate(false),
-            }));
-            jumpState.AddTransition(MoveState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new StateCompletedPredicate(),
-                new IsGroundedPredicate(),
-                //new IsMovingPredicate(),
-            }));
-            // jumpState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            //
+            // // Jump Transitions
+            // jumpState.AddTransition(FallState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // {
+            //     new StateCompletedPredicate(),
+            //     new IsGroundedPredicate(false),
+            // }));
+            // jumpState.AddTransition(MoveState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
             // {
             //     new StateCompletedPredicate(),
             //     new IsGroundedPredicate(),
-            //     new IsMovingPredicate(false),
+            //     //new IsMovingPredicate(),
             // }));
-            
-            // Fall Transitions
-            fallState.AddTransition(MoveState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new IsGroundedPredicate(),
-                //new IsMovingPredicate(),
-            }));
-            // fallState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // // jumpState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // // {
+            // //     new StateCompletedPredicate(),
+            // //     new IsGroundedPredicate(),
+            // //     new IsMovingPredicate(false),
+            // // }));
+            //
+            // // Fall Transitions
+            // fallState.AddTransition(MoveState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
             // {
             //     new IsGroundedPredicate(),
-            //     new IsMovingPredicate(false),
+            //     //new IsMovingPredicate(),
             // }));
-            
-            // Any State
-            _fsm.AddAnyTransition(FallState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
-            {
-                new CompareStatePredicate(JumpState, false),
-                new IsGroundedPredicate(false),
-            }));
+            // // fallState.AddTransition(IdleState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // // {
+            // //     new IsGroundedPredicate(),
+            // //     new IsMovingPredicate(false),
+            // // }));
+            //
+            // // Any State
+            // _fsm.AddAnyTransition(FallState, new CompositePredicate<EntityArgs>(new IPredicate<EntityArgs>[]
+            // {
+            //     new CompareStatePredicate(JumpState, false),
+            //     new IsGroundedPredicate(false),
+            // }));
         }
 
         public override Vector3 MoveDirection() =>
