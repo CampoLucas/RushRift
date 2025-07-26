@@ -80,16 +80,14 @@ namespace Game.Entities.Components.MotionController
 
         private void ApplyMovement(in MotionContext context, in float delta)
         {
-            var velocity = context.Velocity;
-            
             // Find the velocity relative to where the player is looking.
-            var localVel = GetLookVelocity(context.Origin, velocity);
+            var localVel = GetLookVelocity(context.Origin, context.Velocity);
             
             // Apply drag to prevent the player from sliding.
             ApplyDrag(context, localVel, Slippery, delta);
             
             // Clamp the max speed.
-            ClampHorizontal(context, ref velocity);
+            ClampHorizontal(context);
             
             // If speed is over max speed, ignores the input so it doesn't exceed it.
             DirCorrection(context, localVel);
@@ -100,7 +98,7 @@ namespace Game.Entities.Components.MotionController
             
             if (!grounded)
             {
-                var fallSpeed = Mathf.Max(0, -velocity.y); // Only care about downward speed;
+                var fallSpeed = Mathf.Max(0, -context.Velocity.y); // Only care about downward speed;
                 
                 // Scale air control as a function of fall speed (e.g., linear or exponential)
                 var controlBoost = 1f + fallSpeed * Config.AirFallMultiplier;
@@ -123,22 +121,22 @@ namespace Game.Entities.Components.MotionController
             if (grounded && (Slippery >= .1f || angle > maxAngle))
             {
                 // This keeps the player from sticking to the slopes
-                var intoSlope = Vector3.Dot(velocity, normal) < 0f;
+                var intoSlope = Vector3.Dot(context.Velocity, normal) < 0f;
                 if (intoSlope)
                 {
-                    velocity = SlideVector(velocity, normal);
+                    context.Velocity = SlideVector(context.Velocity, normal);
                 }
                 
                 // controlled sliding force
                 var slopeDir = Vector3.ProjectOnPlane(Vector3.down, normal).normalized;
 
                 var slopeFactor = Mathf.Clamp01((angle - maxAngle) / (90f - maxAngle));
-                var speed = velocity.magnitude;
-                var speedFactor = Mathf.Clamp01((speed + Mathf.Max(0, -velocity.y) * 1.5f) / 20f);
+                var speed = context.Velocity.magnitude;
+                var speedFactor = Mathf.Clamp01((speed + Mathf.Max(0, -context.Velocity.y) * 1.5f) / 20f);
 
-                var finalSlideForce = Config.Sliding.SlideForce * slopeFactor * (1f + speedFactor) * _slippery;
+                var finalSlideForce = Config.Sliding.SlideForce * slopeFactor * (1f + speedFactor) * Slippery;
 
-                context.Velocity = velocity;
+                //context.Velocity = velocity;
                 context.AddForce(slopeDir * finalSlideForce, ForceMode.Acceleration);
 
                 // During sliding, apply force based on velocity direction or world space to avoid killing momentum
@@ -147,7 +145,12 @@ namespace Game.Entities.Components.MotionController
             }
             else
             {
-                context.Velocity = velocity;
+                if (grounded)
+                {
+                    //context.Velocity = SlideVector(context.Velocity, normal);
+                }
+                
+                //context.Velocity = velocity;
                 // Regular slope-aligned movement
                 moveDirForward = Vector3.ProjectOnPlane(forward, normal).normalized;
                 moveDirRight = Vector3.ProjectOnPlane(right, normal).normalized;
@@ -185,19 +188,18 @@ namespace Game.Entities.Components.MotionController
             }
         }
         
-        private void ClampHorizontal(in MotionContext context, ref Vector3 velocity)
+        private void ClampHorizontal(in MotionContext context)
         {
             var max = GetMaxSpeed(Config.MaxSpeed);
-            var horizontalSpeed = velocity.XOZ();
+            var horizontalSpeed = context.Velocity.XOZ();
 
             //Limit diagonal running. This will also cause a full stop if sliding fast and un-crouching, so not optimal.
             if (horizontalSpeed.magnitude <= max) return;
             
             var clampedVel = horizontalSpeed.normalized * max;
-            clampedVel.y = velocity.y;
+            clampedVel.y = context.Velocity.y;
             
-            velocity = clampedVel;
-            context.Velocity = velocity;
+            context.Velocity = clampedVel;
         }
         
         private void DirCorrection(in MotionContext context, in Vector3 localVelocity)

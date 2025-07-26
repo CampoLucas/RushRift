@@ -9,13 +9,16 @@ namespace Game.Entities.Components.MotionController
 {
     public class MotionController : IEntityComponent
     {
-        // private Transform _orientationTransform;
-        // private Transform _lookTransform;
         private Rigidbody _rb;
         private MotionContext _context;
         private List<BaseMotionHandler> _handlers;
+
+        private DesignPatterns.Observers.IObserver<float> _updateObserver;
+        private DesignPatterns.Observers.IObserver<float> _lateUpdateObserver;
+        private DesignPatterns.Observers.IObserver<float> _fixedUpdateObserver;
         private IObserver _onPaused;
         private IObserver _onUnPaused;
+        
         private Vector3 _pauseVelocity;
         private RigidbodyConstraints _pauseConstrains;
 
@@ -49,6 +52,9 @@ namespace Game.Entities.Components.MotionController
             {
                 t.OnLateUpdate(_context, delta);
             }
+
+            // _context.Dash = false;
+            // _context.Jump = false;
         }
 
         private void FixedUpdate(float delta)
@@ -100,19 +106,22 @@ namespace Game.Entities.Components.MotionController
         
         public bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
-            observer = new ActionObserver<float>(Update);
+            _updateObserver ??= new ActionObserver<float>(Update);
+            observer = _updateObserver;
             return true;
         }
 
         public bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
-            observer = new ActionObserver<float>(LateUpdate);
+            _lateUpdateObserver ??= new ActionObserver<float>(LateUpdate);
+            observer = _lateUpdateObserver;
             return true;
         }
 
         public bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
-            observer = new ActionObserver<float>(FixedUpdate);
+            _fixedUpdateObserver ??= new ActionObserver<float>(FixedUpdate);
+            observer = _fixedUpdateObserver;
             return true;
         }
 
@@ -156,6 +165,25 @@ namespace Game.Entities.Components.MotionController
             // _orientationTransform = null;
             // _lookTransform = null;
             _rb = null;
+            
+            _updateObserver?.Dispose();
+            _updateObserver = null;
+            
+            _fixedUpdateObserver?.Dispose();
+            _fixedUpdateObserver = null;
+            
+            _lateUpdateObserver?.Dispose();
+            _lateUpdateObserver = null;
+        }
+
+        public void Dash()
+        {
+            _context.Dash = true;
+        }
+
+        public void Jump()
+        {
+            _context.Jump = true;
         }
     }
 }
