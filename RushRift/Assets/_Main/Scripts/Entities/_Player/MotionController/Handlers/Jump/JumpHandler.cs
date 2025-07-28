@@ -15,7 +15,8 @@ namespace Game.Entities.Components.MotionController
         public override void OnUpdate(in MotionContext context, in float delta)
         {
             base.OnUpdate(in context, in delta);
-            
+
+            context.IsJumping = !_readyToJump;
             if (_readyToJump) return;
 
             if (_timer > 0)

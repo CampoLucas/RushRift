@@ -49,12 +49,21 @@ namespace Game.Entities.Components.MotionController
             {
                 _hovering = false;
                 _airTime += delta;
-            
-                // Gravity curve: start soft, then grow stronger
-                var start = Config.StartMult;
+
+                float effectiveGravity;
+                
                 var end = Config.EndMult;
-                var gravityMultiplier = Mathf.Lerp(start, end, Mathf.Clamp01(_airTime / Config.CurveDur)); // 1 second to full gravity
-                var effectiveGravity = Config.FallGrav * gravityMultiplier;
+                if (context.IsJumping)
+                {
+                    // Gravity curve: start soft, then grow stronger
+                    var start = Config.StartMult;
+                    var gravityMultiplier = Mathf.Lerp(start, end, Mathf.Clamp01(_airTime / Config.CurveDur)); // 1 second to full gravity
+                    effectiveGravity = Config.FallGrav * gravityMultiplier;
+                }
+                else
+                {
+                    effectiveGravity = Config.FallGrav * end;
+                }
 
                 context.AddForce(Vector3.down * (effectiveGravity * delta), ForceMode.Acceleration);
             }

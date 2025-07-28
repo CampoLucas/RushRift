@@ -30,9 +30,13 @@ namespace Game.Entities.Components.MotionController
         // Slippery
         public float Slippery;
         
-        // inputs
+        // Jump
         public bool Jump;
+        public bool IsJumping;
+        
+        // Dash
         public bool Dash;
+        public bool IsDashing;
 
         #endregion
 
