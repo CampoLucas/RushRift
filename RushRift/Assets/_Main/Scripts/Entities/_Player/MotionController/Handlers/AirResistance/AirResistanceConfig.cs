@@ -11,9 +11,9 @@ namespace Game.Entities.Components.MotionController
         [Tooltip("Used to scale the horizontal velocity while mid-air.")]
         [Range(0, 1)] [SerializeField] private float airResistance = .98f;
 
-        public override BaseMotionHandler GetHandler()
+        public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
-            return new AirResistanceHandler(this);
+            controller.TryAddHandler(new AirResistanceHandler(this), rebuildHandlers);
         }
     }
 }

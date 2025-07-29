@@ -21,9 +21,9 @@ namespace Game.Entities.Components.MotionController
         // [SerializeField] private float height;
         
         
-        public override BaseMotionHandler GetHandler()
+        public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
-            return new DashHandler(this);
+            controller.TryAddHandler(new DashHandler(this), rebuildHandlers);
         }
     }
 }

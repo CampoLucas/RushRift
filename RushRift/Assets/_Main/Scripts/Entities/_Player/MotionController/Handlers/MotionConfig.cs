@@ -12,6 +12,6 @@ namespace Game.Entities.Components.MotionController
         [SerializeField] private bool enabled = true;
         [SerializeField] private int order;
 
-        public abstract BaseMotionHandler GetHandler();
+        public abstract void AddHandler(in MotionController controller, in bool rebuildHandlers);
     }
 }

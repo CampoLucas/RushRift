@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace Game.Entities.Components.MotionController
 {
-    public class BaseMotionHandler : IDisposable
+    public abstract class BaseMotionHandler : IDisposable
     {
         public virtual HandlerUpdateType UpdateType => HandlerUpdateType.None; // To use multiple updates: HandlerUpdateType.Update | HandlerUpdateType.FixedUpdate
+        public abstract int Order();
+
         public virtual void OnUpdate(in MotionContext context, in float delta) { }
         public virtual void OnLateUpdate(in MotionContext context, in float delta) { }
         public virtual void OnFixedUpdate(in MotionContext context, in float delta) { }

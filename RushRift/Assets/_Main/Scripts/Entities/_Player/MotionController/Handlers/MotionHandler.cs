@@ -1,3 +1,5 @@
+using Unity.VisualScripting;
+
 namespace Game.Entities.Components.MotionController
 {
     public class MotionHandler<TConfig> : BaseMotionHandler 
@@ -14,5 +16,7 @@ namespace Game.Entities.Components.MotionController
         {
             Config = null;
         }
+
+        public override int Order() => Config.Order;
     }
 }

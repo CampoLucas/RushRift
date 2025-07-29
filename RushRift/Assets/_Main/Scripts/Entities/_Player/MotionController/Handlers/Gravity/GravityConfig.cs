@@ -34,9 +34,9 @@ namespace Game.Entities.Components.MotionController
         [Tooltip("Used to disable the ground gravity is it is hovering.")]
         [SerializeField] private float correctionDistance = .5f;
         
-        public override BaseMotionHandler GetHandler()
+        public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
-            return new GravityHandler(this);
+            controller.TryAddHandler(new GravityHandler(this), rebuildHandlers);
         }
     }
 }

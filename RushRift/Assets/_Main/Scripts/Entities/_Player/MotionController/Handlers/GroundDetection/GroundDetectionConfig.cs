@@ -18,9 +18,9 @@ namespace Game.Entities.Components.MotionController
         [SerializeField] private float distance = 1.25f;
         [SerializeField] private LayerMask layer;
         
-        public override BaseMotionHandler GetHandler()
+        public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
-            return new GroundDetectionHandler(this);
+            controller.TryAddHandler(new GroundDetectionHandler(this), rebuildHandlers);
         }
     }
 }

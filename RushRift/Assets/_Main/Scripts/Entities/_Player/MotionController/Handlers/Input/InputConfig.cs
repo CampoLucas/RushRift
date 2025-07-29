@@ -12,9 +12,9 @@ namespace Game.Entities.Components.MotionController
         [SerializeField] private float sensitivity = 50;
         [SerializeField] private float sensitivityMultiplier = 1;
         
-        public override BaseMotionHandler GetHandler()
+        public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
-            return new InputHandler(this);
+            controller.TryAddHandler(new InputHandler(this), rebuildHandlers);
         }
     }
 }

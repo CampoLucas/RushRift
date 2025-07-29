@@ -12,9 +12,9 @@ namespace Game.Entities.Components.MotionController
         [SerializeField] private float force = 8f;
         [SerializeField] private float cooldown = .25f;
         
-        public override BaseMotionHandler GetHandler()
+        public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
-            return new JumpHandler(this);
+            controller.TryAddHandler(new JumpHandler(this), rebuildHandlers);
         }
     }
 }

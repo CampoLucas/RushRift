@@ -39,9 +39,9 @@ namespace Game.Entities.Components.MotionController
         [SerializeField] private bool slidingEnabled;
         [SerializeField] private Sliding sliding;
         
-        public override BaseMotionHandler GetHandler()
+        public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
-            return new MovementHandler(this);
+            controller.TryAddHandler(new MovementHandler(this), rebuildHandlers);
         }
     }
 

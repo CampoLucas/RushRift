@@ -11,14 +11,17 @@ namespace Game.Entities.Components.MotionController
     {
         private Rigidbody _rb;
         private MotionContext _context;
-        private List<BaseMotionHandler> _handlers;
+        private List<BaseMotionHandler> _handlers = new();
+        private Dictionary<Type, BaseMotionHandler> _handlersDict = new();
 
+        // Observers
         private DesignPatterns.Observers.IObserver<float> _updateObserver;
         private DesignPatterns.Observers.IObserver<float> _lateUpdateObserver;
         private DesignPatterns.Observers.IObserver<float> _fixedUpdateObserver;
         private IObserver _onPaused;
         private IObserver _onUnPaused;
         
+        // RigidBody values
         private Vector3 _pauseVelocity;
         private RigidbodyConstraints _pauseConstrains;
 
@@ -29,13 +32,66 @@ namespace Game.Entities.Components.MotionController
             // _lookTransform = look;
 
             _context = new MotionContext(rigidBody, collider, rigidBody.transform, look, orientation);
-            _handlers = BuildHandlers(handlerConfigs);
-
+            BuildHandlers(handlerConfigs, false);
+            RebuildHandlers();
+            
             _onPaused = new ActionObserver(PauseHandler);
             _onUnPaused = new ActionObserver(UnPauseHandler);
             
             UIManager.OnPaused.Attach(_onPaused);
             UIManager.OnUnPaused.Attach(_onUnPaused);
+        }
+
+        public bool TryAddHandler<THandler>(THandler newHandler, bool rebuildHandlers = true) where THandler : BaseMotionHandler
+        {
+            if (newHandler == null) return false;
+
+            var type = typeof(THandler);
+
+            if (!_handlersDict.TryAdd(type, newHandler))
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning($"WARNING[MotionController] Handler of type {type} already exists. Skipping duplicate.");
+#endif
+                newHandler.Dispose();
+                return false;
+            }
+            
+            _handlers.Add(newHandler);
+
+            if (rebuildHandlers)
+            {
+                RebuildHandlers();
+            }
+            
+            return true;
+        }
+
+        public bool TryGetHandler<THandler>(out THandler handler) where THandler : BaseMotionHandler
+        {
+            handler = default;
+            var type = typeof(THandler);
+
+            if (!_handlersDict.TryGetValue(type, out var comp) || comp is not THandler castedHandler)
+                return false;
+
+            handler = castedHandler;
+            return true;
+        }
+
+        public bool RemoveHandler<THandler>(bool dispose = true, bool rebuildHandlers = true)
+        {
+            var type = typeof(THandler);
+            if (!_handlersDict.Remove(type, out var handler)) return false;
+            _handlers.Remove(handler);
+
+            if (rebuildHandlers)
+            {
+                RebuildHandlers();
+            }
+            
+            if (dispose) handler.Dispose();
+            return true;
         }
 
         private void Update(float delta)
@@ -85,23 +141,20 @@ namespace Game.Entities.Components.MotionController
             _rb.velocity = _pauseVelocity;
         }
 
-        private List<BaseMotionHandler> BuildHandlers(MotionConfig[] configs)
+        private void BuildHandlers(MotionConfig[] configs, in bool rebuildHandlers)
         {
-            var handlers = new List<(float order, BaseMotionHandler handler)>();
-
             foreach (var config in configs)
             {
                 if (config == null || !config.Enabled)
                     continue;
 
-                var handler = config.GetHandler();
-                if (handler != null)
-                    handlers.Add((config.Order, handler));
+                config.AddHandler(this, rebuildHandlers);
             }
+        }
 
-            handlers.Sort((a, b) => a.order.CompareTo(b.order));
-
-            return handlers.Select(pair => pair.handler).ToList();
+        public void RebuildHandlers()
+        {
+            _handlers.Sort((a, b) => a.Order().CompareTo(b.Order()));
         }
         
         public bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
@@ -143,8 +196,8 @@ namespace Game.Entities.Components.MotionController
         
         public void Dispose()
         {
-            UIManager.OnPaused.Attach(_onPaused);
-            UIManager.OnUnPaused.Attach(_onUnPaused);
+            UIManager.OnPaused.Detach(_onPaused);
+            UIManager.OnUnPaused.Detach(_onUnPaused);
             
             _onPaused?.Dispose();
             _onUnPaused?.Dispose();
@@ -157,10 +210,12 @@ namespace Game.Entities.Components.MotionController
                 t?.Dispose();
             }
             
+            _handlersDict?.Clear();
             _handlers?.Clear();
             _context?.Dispose();
 
             _handlers = null;
+            _handlersDict = null;
             _context = null;
             // _orientationTransform = null;
             // _lookTransform = null;
@@ -174,16 +229,6 @@ namespace Game.Entities.Components.MotionController
             
             _lateUpdateObserver?.Dispose();
             _lateUpdateObserver = null;
-        }
-
-        public void Dash()
-        {
-            _context.Dash = true;
-        }
-
-        public void Jump()
-        {
-            _context.Jump = true;
         }
     }
 }
