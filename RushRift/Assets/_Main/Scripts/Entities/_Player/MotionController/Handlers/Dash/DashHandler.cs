@@ -1,3 +1,4 @@
+using Game.Entities.Components.MotionController.Strategies;
 using UnityEngine;
 
 namespace Game.Entities.Components.MotionController
@@ -12,12 +13,16 @@ namespace Game.Entities.Components.MotionController
         private float _radius;
         private float _height;
         private float _halfHeight;
+
+        private CompositeDashDirStrategy _dirStrategy;
+        private CompositeDashUpdateStrategy _updateStrategy;
+        private CompositeDashEndStrategy _endStrategy;
         
-        
-        public DashHandler(DashConfig config) : base(config)
+        public DashHandler(DashConfig config, CompositeDashDirStrategy dirStrategy, CompositeDashUpdateStrategy updateStrategy, CompositeDashEndStrategy endStrategy) : base(config)
         {
-            // _height = Mathf.Max(Config.Height, Config.Radius * 2f);
-            // _halfHeight = (_height / 2f) - Config.Radius;
+            _dirStrategy = dirStrategy;
+            _updateStrategy = updateStrategy;
+            _endStrategy = endStrategy;
         }
 
         public override void OnUpdate(in MotionContext context, in float delta)
@@ -38,28 +43,13 @@ namespace Game.Entities.Components.MotionController
         private void StartDash(in MotionContext context)
         {
             _isDashing = true;
-            
-            context.Velocity = Vector3.zero;
-
-#if true
+#if false
             _dashDir = context.Look.forward;
 #else
-            var forward = context.Look.forward;
-            var groundNormal = context.Normal;
-
-            var dot = Vector3.Dot(forward, groundNormal);
-            
-            // If looking into the ground (dot > threshold), flatten the direction
-            if (dot > 0.1f && context.Grounded)
-            {
-                _dashDir = Vector3.ProjectOnPlane(forward, groundNormal).normalized;
-            }
-            else
-            {
-                _dashDir = forward.normalized;
-            }
+            _dashDir = _dirStrategy.GetDir(context);
+            Debug.Log($"Dash dir is {_dashDir}");
 #endif
-            
+            context.Velocity = Vector3.zero;
             
             _elapsed = 0;
 
@@ -73,9 +63,7 @@ namespace Game.Entities.Components.MotionController
             if (_elapsed < Config.Duration)
             {
                 var distance = Config.Force * delta;
-
                 var up = context.Orientation.up;
-                
                 var center = context.Position + context.Collider.center;
                 var point1 = center + up * _halfHeight;
                 var point2 = center - up * _halfHeight;
@@ -86,33 +74,16 @@ namespace Game.Entities.Components.MotionController
                     context.Velocity = Vector3.zero;
                     context.MovePosition(context.Position + _dashDir * (hit.distance - 0.01f));
 
-                    Debug.Log("DashTest: Returning");
-                    
+                    return true;
+                }
+
+                if (_updateStrategy.OnDashUpdate(context, delta))
+                {
                     return true;
                 }
                 
-                Debug.Log("DashTest: Moving");
-                
-
-#if true
                 context.Velocity = _dashDir * Config.Force;
-#else
-                Vector3 dashDir = _dashDir;
-
-                if (context.Grounded)
-                {
-                    float dot = Vector3.Dot(dashDir, context.Normal);
-
-                    if (dot > 0.1f)
-                    {
-                        dashDir = Vector3.ProjectOnPlane(dashDir, context.Normal).normalized;
-                    }
-                }
-
-                context.Velocity = dashDir * Config.Force;
-#endif
                 
-
                 _elapsed += Time.deltaTime;
                 return false;
             }
@@ -125,6 +96,8 @@ namespace Game.Entities.Components.MotionController
             // Apply leftover momentum
             context.Velocity = _dashDir * (Config.Force * Config.MomentumMult);
 
+            _endStrategy.OnDashEnd(context);
+            
             _isDashing = false;
         }
 
@@ -134,6 +107,20 @@ namespace Game.Entities.Components.MotionController
             
             Gizmos.color = Color.cyan;
             Gizmos.DrawRay(transform.position, _dashDir * 2);
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            
+            _dirStrategy?.Dispose();
+            _dirStrategy = null;
+            
+            _updateStrategy?.Dispose();
+            _updateStrategy = null;
+            
+            _endStrategy?.Dispose();
+            _endStrategy = null;
         }
     }
 }
