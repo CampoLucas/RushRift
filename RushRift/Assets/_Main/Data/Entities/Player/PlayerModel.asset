@@ -108,10 +108,33 @@ MonoBehaviour:
     order: 99
     force: 120
     duration: 0.25
-    cooldown: 0.25
+    cooldown: -6
     momentumMultiplier: 0.25
     cost: 1
-    _dirStrategy: 1
+    dirStrategy:
+      strategy: 5
+      lookConfig:
+        weight: 2
+      inputConfig:
+        weight: 1
+      momentumConfig:
+        weight: 0.5
+      dashTargetConfig:
+        weight: 15
+        layer:
+          serializedVersion: 2
+          m_Bits: 512
+        range: 15
+        maxColliders: 5
+        fovBuilder:
+          checkAngle: 1
+          angle: 45
+          checkRange: 0
+          range: 0
+          checkView: 1
+          mask:
+            serializedVersion: 2
+            m_Bits: 200
   gravity:
     enabled: 1
     order: 1

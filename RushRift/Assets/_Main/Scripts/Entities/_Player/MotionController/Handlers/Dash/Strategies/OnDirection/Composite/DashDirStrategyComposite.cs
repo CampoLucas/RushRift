@@ -3,17 +3,17 @@ using UnityEngine;
 
 namespace Game.Entities.Components.MotionController.Strategies
 {
-    public class CompositeDashDirStrategy : IDashDirStrategy
+    public class DashDirStrategyComposite : IDashDirStrategy
     {
         private HashSet<IDashDirStrategy> _strategies = new();
         
-        public Vector3 GetDir(in MotionContext context)
+        public Vector3 GetDir(in MotionContext context, in DashConfig config)
         {
             var dir = Vector3.zero;
             
             foreach (var strategy in _strategies)
             {
-                dir += strategy.GetDir(context);
+                dir += strategy.GetDir(context, config);
             }
 
             return dir.normalized;

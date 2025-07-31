@@ -14,14 +14,14 @@ namespace Game.Entities.Components.MotionController
         private float _height;
         private float _halfHeight;
 
-        private CompositeDashDirStrategy _dirStrategy;
-        private CompositeDashUpdateStrategy _updateStrategy;
+        private DashDirStrategyComposite _dirStrategyComposite;
+        private DashUpdateStrategyComposite _updateStrategyComposite;
         private CompositeDashEndStrategy _endStrategy;
         
-        public DashHandler(DashConfig config, CompositeDashDirStrategy dirStrategy, CompositeDashUpdateStrategy updateStrategy, CompositeDashEndStrategy endStrategy) : base(config)
+        public DashHandler(DashConfig config, DashDirStrategyComposite dirStrategyComposite, DashUpdateStrategyComposite updateStrategyComposite, CompositeDashEndStrategy endStrategy) : base(config)
         {
-            _dirStrategy = dirStrategy;
-            _updateStrategy = updateStrategy;
+            _dirStrategyComposite = dirStrategyComposite;
+            _updateStrategyComposite = updateStrategyComposite;
             _endStrategy = endStrategy;
         }
 
@@ -46,7 +46,7 @@ namespace Game.Entities.Components.MotionController
 #if false
             _dashDir = context.Look.forward;
 #else
-            _dashDir = _dirStrategy.GetDir(context);
+            _dashDir = _dirStrategyComposite.GetDir(context, Config);
             Debug.Log($"Dash dir is {_dashDir}");
 #endif
             context.Velocity = Vector3.zero;
@@ -77,7 +77,7 @@ namespace Game.Entities.Components.MotionController
                     return true;
                 }
 
-                if (_updateStrategy.OnDashUpdate(context, delta))
+                if (_updateStrategyComposite.OnDashUpdate(context, delta))
                 {
                     return true;
                 }
@@ -113,11 +113,11 @@ namespace Game.Entities.Components.MotionController
         {
             base.Dispose();
             
-            _dirStrategy?.Dispose();
-            _dirStrategy = null;
+            _dirStrategyComposite?.Dispose();
+            _dirStrategyComposite = null;
             
-            _updateStrategy?.Dispose();
-            _updateStrategy = null;
+            _updateStrategyComposite?.Dispose();
+            _updateStrategyComposite = null;
             
             _endStrategy?.Dispose();
             _endStrategy = null;

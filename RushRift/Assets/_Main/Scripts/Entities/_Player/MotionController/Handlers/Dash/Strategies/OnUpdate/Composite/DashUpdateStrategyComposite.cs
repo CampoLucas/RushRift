@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Game.Entities.Components.MotionController.Strategies
 {
-    public class CompositeDashUpdateStrategy : IDashUpdateStrategy
+    public class DashUpdateStrategyComposite : IDashUpdateStrategy
     {
         private HashSet<IDashUpdateStrategy> _strategies = new();
         

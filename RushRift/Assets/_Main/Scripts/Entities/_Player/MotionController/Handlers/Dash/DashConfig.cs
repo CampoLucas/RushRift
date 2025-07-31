@@ -24,33 +24,23 @@ namespace Game.Entities.Components.MotionController
         [Header("Usage")]
         [SerializeField] private float cost = 1;
 
-        [Header("Strategy")]
-        [SerializeField] private DashDirStrategy _dirStrategy;
-        //[SerializeField] private DashUpdateStrategy _updateStrategy;
-        //[SerializeField] private DashEndStrategy _dirStrategy;
+        [Header("Strategies")]
+        [SerializeField] private DashDirConfigComposite dirStrategy;
+
         
         
         public override void AddHandler(in MotionController controller, in bool rebuildHandlers)
         {
             // create the composite strategies here...
             
-            controller.TryAddHandler(new DashHandler(this, GetDirStrategy(), GetUpdateStrategy(), GetEndStrategy()), rebuildHandlers);
+            controller.TryAddHandler(new DashHandler(this, dirStrategy.GetStrategy(), GetUpdateStrategy(), GetEndStrategy()), rebuildHandlers);
         }
 
-        private CompositeDashDirStrategy GetDirStrategy()
+        
+
+        private DashUpdateStrategyComposite GetUpdateStrategy()
         {
-            var strategy = new CompositeDashDirStrategy();
-
-            if ((_dirStrategy & DashDirStrategy.Look) != 0) strategy.Add(new LookDirStrategy());
-            if ((_dirStrategy & DashDirStrategy.Input) != 0) strategy.Add(new InputDirStrategy());
-            if ((_dirStrategy & DashDirStrategy.Momentum) != 0) strategy.Add(new MomentumDirStrategy());
-
-            return strategy;
-        }
-
-        private CompositeDashUpdateStrategy GetUpdateStrategy()
-        {
-            var strategy = new CompositeDashUpdateStrategy();
+            var strategy = new DashUpdateStrategyComposite();
 
             return strategy;
         }
@@ -63,15 +53,17 @@ namespace Game.Entities.Components.MotionController
         }
     }
 
-    [Flags]
-    public enum DashDirStrategy
-    {
-        Look         = 1 << 0,
-        Input        = 1 << 1,
-        Momentum     = 1 << 2,
-        //Target       = 1 << 3,
-        //LastMove     = 1 << 4,
-        //Fixed        = 1 << 5,
-        //Escape       = 1 << 6,
-    }
+    
+
+    // [Flags]
+    // public enum DashUpdateStrategy
+    // {
+    //     Damage = 1 << 0,
+    // }
+    //
+    // [Flags]
+    // public enum DashEndStrategy
+    // {
+    //     TransferMomentum = 1 << 0,
+    // }
 }

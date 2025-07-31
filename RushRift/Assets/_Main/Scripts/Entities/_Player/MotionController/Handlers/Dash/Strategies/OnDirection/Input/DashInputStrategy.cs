@@ -3,9 +3,13 @@ using UnityEngine;
 
 namespace Game.Entities.Components.MotionController.Strategies
 {
-    public class InputDirStrategy : IDashDirStrategy
+    public class DashInputStrategy : DashDirStrategy<DashDirConfig>
     {
-        public Vector3 GetDir(in MotionContext context)
+        public DashInputStrategy(DashDirConfig config) : base(config)
+        {
+        }
+        
+        protected override Vector3 OnGetDir(in MotionContext context, in DashConfig config)
         {
             var moveDir = context.MoveDirection;
             
@@ -19,11 +23,6 @@ namespace Game.Entities.Components.MotionController.Strategies
 
             return (forward * moveDir.z + right * moveDir.x).normalized;
 
-        }
-        
-        public void Dispose()
-        {
-            
         }
     }
 }

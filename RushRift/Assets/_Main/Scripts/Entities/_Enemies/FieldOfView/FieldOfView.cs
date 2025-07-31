@@ -5,7 +5,6 @@ namespace Game.Entities.Enemies.Components
     public class FieldOfView : IPredicate<FOVParams>
     {
         private IPredicate<FOVParams>[] _predicates;
-        private FOVParams _params;
         private bool _ifAny;
 
         public FieldOfView(IPredicate<FOVParams>[] predicates, bool ifAny = false)
