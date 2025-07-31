@@ -5,6 +5,10 @@ namespace Game.Entities.Components.MotionController
 {
     public class DashHandler : MotionHandler<DashConfig>
     {
+        public DashDirStrategyComposite DirStrategy { get; private set; }
+        public DashUpdateStrategyComposite UpdateStrategy { get; private set; }
+        public CompositeDashEndStrategy EndStrategy { get; private set; }
+        
         private bool _isDashing;
         private Vector3 _dashDir;
         private float _elapsed;
@@ -13,16 +17,12 @@ namespace Game.Entities.Components.MotionController
         private float _radius;
         private float _height;
         private float _halfHeight;
-
-        private DashDirStrategyComposite _dirStrategy;
-        private DashUpdateStrategyComposite _updateStrategy;
-        private CompositeDashEndStrategy _endStrategy;
         
         public DashHandler(DashConfig config, DashDirStrategyComposite dirStrategy, DashUpdateStrategyComposite updateStrategy, CompositeDashEndStrategy endStrategy) : base(config)
         {
-            _dirStrategy = dirStrategy;
-            _updateStrategy = updateStrategy;
-            _endStrategy = endStrategy;
+            DirStrategy = dirStrategy;
+            UpdateStrategy = updateStrategy;
+            EndStrategy = endStrategy;
         }
 
         public override void OnUpdate(in MotionContext context, in float delta)
@@ -30,7 +30,7 @@ namespace Game.Entities.Components.MotionController
             base.OnUpdate(in context, in delta);
             if (!_isDashing && context.Dash) StartDash(context);
 
-            if (_isDashing && _updateStrategy.OnDashUpdate(context, delta))
+            if (_isDashing && UpdateStrategy.OnDashUpdate(context, delta))
             {
                 _isDashing = false;
             }
@@ -61,7 +61,7 @@ namespace Game.Entities.Components.MotionController
 #if false
             _dashDir = context.Look.forward;
 #else
-            _dashDir = _dirStrategy.GetDir(context, Config);
+            _dashDir = DirStrategy.GetDir(context, Config);
 #endif
             context.Velocity = Vector3.zero;
             
@@ -71,7 +71,7 @@ namespace Game.Entities.Components.MotionController
             _height = Mathf.Max(context.Collider.height, _radius * 2f);
             _halfHeight = (_height / 2f) - _radius;
             
-            _updateStrategy.OnReset();
+            UpdateStrategy.OnReset();
         }
 
         private bool PerformDash(in MotionContext context, in float delta)
@@ -112,7 +112,7 @@ namespace Game.Entities.Components.MotionController
             // Apply leftover momentum
             context.Velocity = _dashDir * (Config.Force * Config.MomentumMult);
 
-            _endStrategy.OnDashEnd(context);
+            EndStrategy.OnDashEnd(context);
             
             _isDashing = false;
         }
@@ -129,14 +129,14 @@ namespace Game.Entities.Components.MotionController
         {
             base.Dispose();
             
-            _dirStrategy?.Dispose();
-            _dirStrategy = null;
+            DirStrategy?.Dispose();
+            DirStrategy = null;
             
-            _updateStrategy?.Dispose();
-            _updateStrategy = null;
+            UpdateStrategy?.Dispose();
+            UpdateStrategy = null;
             
-            _endStrategy?.Dispose();
-            _endStrategy = null;
+            EndStrategy?.Dispose();
+            EndStrategy = null;
         }
 
         public float GetCost() => Config.Cost;

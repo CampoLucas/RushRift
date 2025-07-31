@@ -19,10 +19,10 @@ namespace Game.Entities.Components.MotionController.Strategies
         {
             var composite = new DashDirStrategyComposite();
 
-            if ((strategy & DashDirEnum.Look) != 0) composite.Add(GetLookStrat());
-            if ((strategy & DashDirEnum.Input) != 0) composite.Add(GetInputStrat());
-            if ((strategy & DashDirEnum.Momentum) != 0) composite.Add(GetMomentumDirStrat());
-            if ((strategy & DashDirEnum.Target) != 0) composite.Add(GetTargetDirStrat());
+            if ((strategy & DashDirEnum.Look) != 0) composite.Add(DashDirEnum.Look, GetLookStrat());
+            if ((strategy & DashDirEnum.Input) != 0) composite.Add(DashDirEnum.Input,GetInputStrat());
+            if ((strategy & DashDirEnum.Momentum) != 0) composite.Add(DashDirEnum.Momentum,GetMomentumDirStrat());
+            if ((strategy & DashDirEnum.Target) != 0) composite.Add(DashDirEnum.Target,GetTargetDirStrat());
 
             return composite;
         }

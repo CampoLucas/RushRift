@@ -235,7 +235,6 @@ namespace Game.Entities.Components.MotionController
         {
             if (!TryGetHandler<DashHandler>(out var dash) || dash.IsDashing()) return false;
             
-            Debug.Log("SuperTest: SSSSSSTart dash");
             _context.Dash = true;
             return true;
         }

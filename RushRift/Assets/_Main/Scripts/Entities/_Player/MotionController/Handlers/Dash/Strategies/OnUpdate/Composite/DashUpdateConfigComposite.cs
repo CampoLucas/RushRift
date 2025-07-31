@@ -14,7 +14,7 @@ namespace Game.Entities.Components.MotionController.Strategies
         {
             var composite = new DashUpdateStrategyComposite();
 
-            if ((strategy & DashUpdateEnum.Damage) != 0) composite.Add(GetDamageStrat());
+            if ((strategy & DashUpdateEnum.Damage) != 0) composite.Add(DashUpdateEnum.Damage, GetDamageStrat());
 
             return composite;
         }

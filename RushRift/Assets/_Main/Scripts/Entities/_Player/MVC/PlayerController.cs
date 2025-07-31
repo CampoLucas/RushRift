@@ -76,6 +76,7 @@ namespace Game.Entities
 
             if (saveData == null) return;
             effectsID = saveData.GetActiveEffects();
+            Debug.Log($"SuperTest: Active effects {effects.Count}");
             if (effects == null || effects.Count == 0) return;
 
             for (int i = 0; i < effectsID.Count; i++)

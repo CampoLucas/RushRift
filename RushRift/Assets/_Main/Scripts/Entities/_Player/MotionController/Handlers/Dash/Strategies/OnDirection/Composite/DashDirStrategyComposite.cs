@@ -5,32 +5,66 @@ namespace Game.Entities.Components.MotionController.Strategies
 {
     public class DashDirStrategyComposite : IDashDirStrategy
     {
-        private HashSet<IDashDirStrategy> _strategies = new();
+        private List<DashDirEnum> _strategies = new();
+        private Dictionary<DashDirEnum,IDashDirStrategy> _strategiesDict = new();
         
         public Vector3 GetDir(in MotionContext context, in DashConfig config)
         {
             var dir = Vector3.zero;
-            
-            foreach (var strategy in _strategies)
+
+            for (var i = 0; i < _strategies.Count; i++)
             {
-                dir += strategy.GetDir(context, config);
+                var s = _strategiesDict[_strategies[i]];
+                if (s == null)
+                {
+#if UNITY_EDITOR
+                    Debug.LogWarning($"WARNING: Null strategy in {nameof(DashDirStrategyComposite)}'s GetDir method.");    
+#endif
+                    continue;
+                }
+
+                dir += s.GetDir(context, config);
             }
 
             return dir.normalized;
         }
 
-        public bool Add(IDashDirStrategy strategy) => _strategies.Add(strategy);
-        public bool Remove(IDashDirStrategy strategy) => _strategies.Remove(strategy);
+        public bool Add(DashDirEnum id, IDashDirStrategy strategy)
+        {
+            if (_strategiesDict.ContainsKey(id))
+            {
+                return false;
+            }    
+            
+            _strategies.Add(id);
+            _strategiesDict[id] = strategy;
+            return true;
+        }
+
+        public bool Remove(DashDirEnum id)
+        {
+            if (!_strategiesDict.Remove(id, out var strategy))
+            {
+                return false;
+            }
+
+            _strategies.Remove(id);
+            strategy.Dispose();
+            return true;
+        }
         
         public void Dispose()
         {
             foreach (var strategy in _strategies)
             {
-                strategy.Dispose();
+                _strategiesDict[strategy].Dispose();
             }
             
             _strategies.Clear();
             _strategies = null;
+            
+            _strategiesDict.Clear();
+            _strategiesDict = null;
         }
     }
 }

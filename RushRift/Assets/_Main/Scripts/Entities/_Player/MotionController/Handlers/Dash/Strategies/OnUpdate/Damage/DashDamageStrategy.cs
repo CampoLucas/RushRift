@@ -24,6 +24,7 @@ namespace Game.Entities.Components.MotionController.Strategies
         
         public bool OnDashUpdate(in MotionContext context, in float delta)
         {
+            Debug.Log("SuperTest: Damage Dash update");
             if (_detection == null)
             {
 #if UNITY_EDITOR
