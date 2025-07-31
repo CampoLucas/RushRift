@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Game.Entities.Components.MotionController.Strategies
@@ -5,7 +6,15 @@ namespace Game.Entities.Components.MotionController.Strategies
     public class DashUpdateStrategyComposite : IDashUpdateStrategy
     {
         private HashSet<IDashUpdateStrategy> _strategies = new();
-        
+
+        public void OnReset()
+        {
+            foreach (var strategy in _strategies)
+            {
+                strategy.OnReset();
+            }
+        }
+
         public bool OnDashUpdate(in MotionContext context, in float delta)
         {
             foreach (var strategy in _strategies)

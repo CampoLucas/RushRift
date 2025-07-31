@@ -10,13 +10,13 @@ namespace Game.Entities.Components.MotionController
         public float Force => force;
         public float Duration => duration;
         public float MomentumMult => momentumMultiplier;
-        public float Cooldown => cooldown;
+        //public float Cooldown => cooldown;
         public float Cost => cost;
         
         [Header("General")]
         [SerializeField] private float force = 120f;
         [SerializeField] private float duration = .25f;
-        [SerializeField] private float cooldown = .25f;
+        //[SerializeField] private float cooldown = .25f;
         
         [Header("Momentum")]
         [SerializeField] private float momentumMultiplier = .25f;
@@ -26,6 +26,7 @@ namespace Game.Entities.Components.MotionController
 
         [Header("Strategies")]
         [SerializeField] private DashDirConfigComposite dirStrategy;
+        [SerializeField] private DashUpdateConfigComposite updateStrategy;
 
         
         
@@ -33,16 +34,7 @@ namespace Game.Entities.Components.MotionController
         {
             // create the composite strategies here...
             
-            controller.TryAddHandler(new DashHandler(this, dirStrategy.GetStrategy(), GetUpdateStrategy(), GetEndStrategy()), rebuildHandlers);
-        }
-
-        
-
-        private DashUpdateStrategyComposite GetUpdateStrategy()
-        {
-            var strategy = new DashUpdateStrategyComposite();
-
-            return strategy;
+            controller.TryAddHandler(new DashHandler(this, dirStrategy.GetStrategy(), updateStrategy.GetStrategy(), GetEndStrategy()), rebuildHandlers);
         }
 
         private CompositeDashEndStrategy GetEndStrategy()
@@ -55,11 +47,7 @@ namespace Game.Entities.Components.MotionController
 
     
 
-    // [Flags]
-    // public enum DashUpdateStrategy
-    // {
-    //     Damage = 1 << 0,
-    // }
+    
     //
     // [Flags]
     // public enum DashEndStrategy

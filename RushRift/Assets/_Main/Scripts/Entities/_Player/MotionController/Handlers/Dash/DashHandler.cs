@@ -14,20 +14,25 @@ namespace Game.Entities.Components.MotionController
         private float _height;
         private float _halfHeight;
 
-        private DashDirStrategyComposite _dirStrategyComposite;
-        private DashUpdateStrategyComposite _updateStrategyComposite;
+        private DashDirStrategyComposite _dirStrategy;
+        private DashUpdateStrategyComposite _updateStrategy;
         private CompositeDashEndStrategy _endStrategy;
         
-        public DashHandler(DashConfig config, DashDirStrategyComposite dirStrategyComposite, DashUpdateStrategyComposite updateStrategyComposite, CompositeDashEndStrategy endStrategy) : base(config)
+        public DashHandler(DashConfig config, DashDirStrategyComposite dirStrategy, DashUpdateStrategyComposite updateStrategy, CompositeDashEndStrategy endStrategy) : base(config)
         {
-            _dirStrategyComposite = dirStrategyComposite;
-            _updateStrategyComposite = updateStrategyComposite;
+            _dirStrategy = dirStrategy;
+            _updateStrategy = updateStrategy;
             _endStrategy = endStrategy;
         }
 
         public override void OnUpdate(in MotionContext context, in float delta)
         {
             if (!_isDashing && context.Dash) StartDash(context);
+
+            if (_isDashing && _updateStrategy.OnDashUpdate(context, delta))
+            {
+                _isDashing = false;
+            }
         }
 
         public override void OnFixedUpdate(in MotionContext context, in float delta)
@@ -46,7 +51,7 @@ namespace Game.Entities.Components.MotionController
 #if false
             _dashDir = context.Look.forward;
 #else
-            _dashDir = _dirStrategyComposite.GetDir(context, Config);
+            _dashDir = _dirStrategy.GetDir(context, Config);
             Debug.Log($"Dash dir is {_dashDir}");
 #endif
             context.Velocity = Vector3.zero;
@@ -56,10 +61,17 @@ namespace Game.Entities.Components.MotionController
             _radius = context.Collider.radius;
             _height = Mathf.Max(context.Collider.height, _radius * 2f);
             _halfHeight = (_height / 2f) - _radius;
+            
+            _updateStrategy.OnReset();
         }
 
         private bool PerformDash(in MotionContext context, in float delta)
         {
+            if (!_isDashing)
+            {
+                return true;
+            }
+            
             if (_elapsed < Config.Duration)
             {
                 var distance = Config.Force * delta;
@@ -74,11 +86,6 @@ namespace Game.Entities.Components.MotionController
                     context.Velocity = Vector3.zero;
                     context.MovePosition(context.Position + _dashDir * (hit.distance - 0.01f));
 
-                    return true;
-                }
-
-                if (_updateStrategyComposite.OnDashUpdate(context, delta))
-                {
                     return true;
                 }
                 
@@ -113,11 +120,11 @@ namespace Game.Entities.Components.MotionController
         {
             base.Dispose();
             
-            _dirStrategyComposite?.Dispose();
-            _dirStrategyComposite = null;
+            _dirStrategy?.Dispose();
+            _dirStrategy = null;
             
-            _updateStrategyComposite?.Dispose();
-            _updateStrategyComposite = null;
+            _updateStrategy?.Dispose();
+            _updateStrategy = null;
             
             _endStrategy?.Dispose();
             _endStrategy = null;

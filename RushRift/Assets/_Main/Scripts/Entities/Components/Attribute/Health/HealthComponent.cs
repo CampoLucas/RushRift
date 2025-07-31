@@ -36,6 +36,11 @@ namespace Game.Entities.Components
             base.Decrease(amount);
         }
 
+        public void Intakill(Vector3 position)
+        {
+            Damage(Value, position);
+        }
+
         protected override void OnDecrease(float previousValue)
         {
             _damaged = true;
