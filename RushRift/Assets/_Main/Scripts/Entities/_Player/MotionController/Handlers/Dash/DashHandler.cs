@@ -27,12 +27,22 @@ namespace Game.Entities.Components.MotionController
 
         public override void OnUpdate(in MotionContext context, in float delta)
         {
+            base.OnUpdate(in context, in delta);
             if (!_isDashing && context.Dash) StartDash(context);
 
             if (_isDashing && _updateStrategy.OnDashUpdate(context, delta))
             {
                 _isDashing = false;
             }
+            
+            // Reset the dash input
+            context.Dash = false;
+        }
+
+        public override void OnLateUpdate(in MotionContext context, in float delta)
+        {
+            base.OnLateUpdate(in context, in delta);
+
         }
 
         public override void OnFixedUpdate(in MotionContext context, in float delta)
@@ -52,7 +62,6 @@ namespace Game.Entities.Components.MotionController
             _dashDir = context.Look.forward;
 #else
             _dashDir = _dirStrategy.GetDir(context, Config);
-            Debug.Log($"Dash dir is {_dashDir}");
 #endif
             context.Velocity = Vector3.zero;
             
@@ -128,6 +137,18 @@ namespace Game.Entities.Components.MotionController
             
             _endStrategy?.Dispose();
             _endStrategy = null;
+        }
+
+        public float GetCost() => Config.Cost;
+        public bool IsDashing() => _isDashing;
+        public bool CanDash(IController controller)
+        {
+            if (!_isDashing && controller.GetModel().TryGetComponent<EnergyComponent>(out var energy))
+            {
+                return energy.Value >= Config.Cost;
+            }
+
+            return false;
         }
     }
 }

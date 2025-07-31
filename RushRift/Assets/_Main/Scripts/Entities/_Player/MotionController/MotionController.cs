@@ -230,5 +230,14 @@ namespace Game.Entities.Components.MotionController
             _lateUpdateObserver?.Dispose();
             _lateUpdateObserver = null;
         }
+
+        public bool StartDash()
+        {
+            if (!TryGetHandler<DashHandler>(out var dash) || dash.IsDashing()) return false;
+            
+            Debug.Log("SuperTest: SSSSSSTart dash");
+            _context.Dash = true;
+            return true;
+        }
     }
 }
