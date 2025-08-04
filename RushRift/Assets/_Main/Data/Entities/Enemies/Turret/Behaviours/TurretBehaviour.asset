@@ -42,7 +42,7 @@ MonoBehaviour:
       angle: 0
       checkRange: 1
       range: 45
-      checkView: 1
+      checkView: 0
       mask:
         serializedVersion: 2
         m_Bits: 712
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 695ea80574c13e74d909536d4b988ee2
   children: []
-  position: {x: -197.66675, y: 738.6666}
+  position: {x: -197.66672, y: 738.6666}
   previousPosition: {x: -197.66675, y: 738.6666}
   behaviourData: {fileID: 11400000}
   useJoints: 1
@@ -159,7 +159,7 @@ MonoBehaviour:
   instant: 0
   rotationSpeed: 15
   lockY: 0
-  yOffset: 2
+  yOffset: 1.5
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -323,7 +323,8 @@ MonoBehaviour:
   position: {x: -746.20874, y: 858.6666}
   previousPosition: {x: -738.00006, y: 858.6666}
   behaviourData: {fileID: 11400000}
-  threshold: 1
+  threshold: 0.99999
+  yOffset: 1.5
   useJoins: 1
   joint: 1
 --- !u!114 &6422692701173399565

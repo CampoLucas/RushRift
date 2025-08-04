@@ -10,10 +10,12 @@ namespace Game.BehaviourTree.Nodes
     public class IsLookingAtTarget : ConditionalData
     {
         public float Threshold => threshold;
+        public float YOffset => yOffset;
         public bool UseJoints => useJoins;
         public EntityJoint Joint => joint;
         
         [SerializeField] private float threshold = .95f;
+        [SerializeField] private float yOffset; 
         
         [Header("Joints")]
         [SerializeField] private bool useJoins;
@@ -57,11 +59,12 @@ namespace Game.BehaviourTree.Nodes
         {
             if (_origin == false || _target == false) return NodeState.Failure;
             var origin = _origin.Get();
-            return IsLookingAt(origin.position, origin.forward, _target.Get().position) ? NodeState.Success : NodeState.Failure;
+            return IsLookingAt(origin.position, origin.forward, _target.Get().position, Data.Threshold) ? NodeState.Success : NodeState.Failure;
         }
 
         public bool IsLookingAt(Vector3 origin, Vector3 forward, Vector3 targetPosition, float threshold = 0.95f)
         {
+            targetPosition.y += Data.YOffset;
             var toTarget = (targetPosition - origin).normalized;
             var dot = Vector3.Dot(forward.normalized, toTarget);
             return dot >= threshold;

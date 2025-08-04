@@ -29,11 +29,12 @@ namespace Game.ScreenEffects
             // _onUnPaused = new ActionObserver(OnUnPausedHandler);
         }
         
-        // private void Start()
-        // {
-        //     // UIManager.OnPaused.Attach(_onPaused);
-        //     // UIManager.OnUnPaused.Attach(_onUnPaused);
-        // }
+        private void Start()
+        {
+            EffectRadius = 1;
+            // UIManager.OnPaused.Attach(_onPaused);
+            // UIManager.OnUnPaused.Attach(_onUnPaused);
+        }
 
         private void OnPausedHandler()
         {
@@ -69,7 +70,7 @@ namespace Game.ScreenEffects
             // in animation
             for (float t = 0; Math.Abs(currRadius - targetRadius) > .01f; t += Time.deltaTime * inSpeed)
             {
-                currRadius = Mathf.Lerp(1, targetRadius, t);
+                currRadius = Mathf.Lerp(currRadius, targetRadius, t);
                 EffectRadius = currRadius;
                 yield return null;
             }

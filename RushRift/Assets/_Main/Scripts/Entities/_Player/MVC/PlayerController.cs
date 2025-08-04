@@ -199,7 +199,7 @@ namespace Game.Entities
             Debug.Log("Taking damage");
             
             AudioManager.Play("Grunt");
-            ScreenFlash.Instance.TriggerFlash("#FF0044", .1f, .1f);
+            //ScreenFlash.Instance.TriggerFlash("#FF0044", .1f, .1f);
         }
         
     }
