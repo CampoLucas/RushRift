@@ -13,14 +13,11 @@ namespace Game.Entities
         {
             base.Init(controller);
 
-            if (controller.Origin.gameObject.TryGetComponent<CharacterController>(out var characterController))
+            var playerObject = controller.Origin.gameObject;
+            if (playerObject.TryGetComponent<Rigidbody>(out var rigidBody) && playerObject.TryGetComponent<CapsuleCollider>(out var collider))
             {
-                //var movement = Data.MoveSpeed.GetMovement(characterController);
-                var movement = Data.PlayerMovement.GetMovement(characterController, controller.Origin, controller.Joints.GetJoint(EntityJoint.Eyes));
+                var movement = Data.GetMotionController(rigidBody, collider, controller.Origin, controller.Joints.GetJoint(EntityJoint.Eyes));
                 TryAddComponent(movement);
-
-                TryAddComponent(Data.Dash.GetComponent(characterController, controller.Origin, Camera.main.transform, movement));
-                //TryAddComponent(Data.SpeedLines.GetComponent(controller.SpeedLines, movement.MoveAmount));
             }
 
             TryAddComponent(Data.GetComboComponent(controller));

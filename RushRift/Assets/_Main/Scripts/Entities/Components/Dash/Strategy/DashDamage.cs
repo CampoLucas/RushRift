@@ -37,9 +37,7 @@ namespace Game.Entities.Components
                     {
                         continue;
                     }
-
-
-
+                    
                     if (!other.gameObject.TryGetComponent<IController>(out var controller))
                     {
                         continue;

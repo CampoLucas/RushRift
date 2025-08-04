@@ -1,4 +1,5 @@
 using Game.Entities.Components;
+using Game.Entities.Components.MotionController;
 using UnityEngine;
 
 namespace Game.Entities.Dash
@@ -7,21 +8,33 @@ namespace Game.Entities.Dash
     {
         public sealed override void StartEffect(IController controller)
         {
-            if (controller.GetModel().TryGetComponent<DashComponent>(out var dash))
+            Debug.Log("SuperTest: Start Dash Effect.");
+            if (!controller.GetModel().TryGetComponent<MotionController>(out var motion))
             {
-                OnStartEffect(controller.Origin, dash);
+#if UNITY_EDITOR
+                Debug.LogWarning($"WARNING: The entity doesn't contain the MotionController.");
+#endif
+                return;
             }
+            if (!motion.TryGetHandler<DashHandler>(out var dash))
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning($"WARNING: The MotionController doesn't contain the DashHandler.");
+#endif
+                return;
+            }
+            OnStartEffect(controller.Origin, dash);
         }
 
         public sealed override void StopEffect(IController controller)
         {
-            if (controller.GetModel().TryGetComponent<DashComponent>(out var dash))
+            if (controller.GetModel().TryGetComponent<MotionController>(out var motion) && motion.TryGetHandler<DashHandler>(out var dash))
             {
                 OnStopEffect(dash);
             }
         }
         
-        protected abstract void OnStartEffect( Transform origin, DashComponent dash);
-        protected abstract void OnStopEffect(DashComponent dash);
+        protected abstract void OnStartEffect( Transform origin, DashHandler dash);
+        protected abstract void OnStopEffect(DashHandler dash);
     }
 }

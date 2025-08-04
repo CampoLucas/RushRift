@@ -1,5 +1,7 @@
 using Game.Detection;
 using Game.Entities.Components;
+using Game.Entities.Components.MotionController;
+using Game.Entities.Components.MotionController.Strategies;
 using UnityEngine;
 
 namespace Game.Entities.Dash
@@ -9,20 +11,20 @@ namespace Game.Entities.Dash
     /// </summary>
     public class AddDashDamage : DashEffectStrategy
     {
-        [Header("Detection")]
-        [SerializeField] private SphereOverlapData overlap;
-
-        [Header("Damage")]
-        [SerializeField] private float damage;
+        [SerializeField] private DashTargetConfig targetConfig;
+        [SerializeField] private DashDamageConfig dashDamageConfig;
         
-        protected override void OnStartEffect(Transform origin, DashComponent dash)
+        protected override void OnStartEffect(Transform origin, DashHandler dash)
         {
-            dash.SetUpdateStrategy(new DashDamage(origin, overlap, damage));
+            Debug.Log("SuperTest: Add Dash Damage Strategies");
+            dash.DirStrategy.Add(DashDirEnum.Target, new DashTargetStrategy(targetConfig));
+            dash.UpdateStrategy.Add(DashUpdateEnum.Damage, new DashDamageStrategy(dashDamageConfig));
         }
 
-        protected override void OnStopEffect(DashComponent dash)
+        protected override void OnStopEffect(DashHandler dash)
         {
-            dash.SetUpdateStrategy(null);
+            dash.DirStrategy.Remove(DashDirEnum.Target);
+            dash.UpdateStrategy.Remove(DashUpdateEnum.Damage);
         }
 
         public override string Description()

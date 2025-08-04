@@ -14,7 +14,18 @@ namespace Game.Entities
         {
             var j = jointMap[joint];
 
-            return j ? j : defaultJoint;
+            //return j ? j : defaultJoint;
+            if (j)
+            {
+                return j;
+            }
+            else
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning($"WARNING: The requested joint is null, returning the default joint {defaultJoint.gameObject.name}");
+#endif
+                return defaultJoint;
+            }
         }
 
         public void SetJoint(T joint, Transform value)
