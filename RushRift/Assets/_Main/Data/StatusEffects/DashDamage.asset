@@ -12,14 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 147f2355252b4c51acdfeba20f8c229a, type: 3}
   m_Name: AddDashDamage
   m_EditorClassIdentifier: 
-  overlap:
-    offset: {x: 0, y: 2.36, z: 0}
-    radius: 2
-    maxCollisions: 5
-    mask:
+  targetConfig:
+    weight: 15
+    layer:
       serializedVersion: 2
       m_Bits: 512
-  damage: 500
+    range: 5
+    maxColliders: 5
+    fovBuilder:
+      checkAngle: 1
+      angle: 45
+      checkRange: 0
+      range: 0
+      checkView: 1
+      mask:
+        serializedVersion: 2
+        m_Bits: 200
+  dashDamageConfig:
+    <InstaKill>k__BackingField: 1
+    <Damage>k__BackingField: 0
+    <DetectionData>k__BackingField:
+      offset: {x: 0, y: 2.36, z: 0}
+      radius: 3
+      maxCollisions: 5
+      mask:
+        serializedVersion: 2
+        m_Bits: 512
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
