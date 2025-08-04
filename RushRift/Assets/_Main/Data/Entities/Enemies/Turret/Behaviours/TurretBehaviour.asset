@@ -15,8 +15,7 @@ MonoBehaviour:
   guid: bad894dcfc9bc004ebffafe67807f189
   children:
   - {fileID: -6814332282639265595}
-  - {fileID: -3349230201451974667}
-  - {fileID: -4562655285050628618}
+  - {fileID: 7870774838628615780}
   position: {x: -186.34555, y: 491.33334}
   previousPosition: {x: -186.34555, y: 489.56003}
   behaviourData: {fileID: 11400000}
@@ -34,8 +33,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 472e49d2a462a3b4da69100be84257d1
   children: []
-  position: {x: -343.6789, y: 611.3333}
-  previousPosition: {x: -343.6789, y: 609.56}
+  position: {x: -428.6667, y: 610}
+  previousPosition: {x: -428.6667, y: 610}
   behaviourData: {fileID: 11400000}
   fov:
     FOVs:
@@ -46,8 +45,10 @@ MonoBehaviour:
       checkView: 1
       mask:
         serializedVersion: 2
-        m_Bits: 192
+        m_Bits: 712
   ifAny: 0
+  useJoins: 0
+  joint: 0
 --- !u!114 &-6742053613094033581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,6 +67,36 @@ MonoBehaviour:
   position: {x: -17.333374, y: 118}
   previousPosition: {x: -16.666748, y: 118}
   behaviourData: {fileID: 11400000}
+--- !u!114 &-5687904714133394737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da082a5d1714d0a8c6cf2c2a94b73ef, type: 3}
+  m_Name: CheckFOV
+  m_EditorClassIdentifier: 
+  guid: 2955e2cddea16434a9e824213237754e
+  children: []
+  position: {x: -563.3334, y: 860}
+  previousPosition: {x: -564, y: 860}
+  behaviourData: {fileID: 11400000}
+  fov:
+    FOVs:
+    - checkAngle: 1
+      angle: 15
+      checkRange: 0
+      range: 0
+      checkView: 0
+      mask:
+        serializedVersion: 2
+        m_Bits: 512
+  ifAny: 0
+  useJoins: 1
+  joint: 1
 --- !u!114 &-4562655285050628618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80,8 +111,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 36a91832822724f4aa821dd406f2d742
   children: []
-  position: {x: -9.012283, y: 610.00006}
-  previousPosition: {x: -9.012283, y: 608.22675}
+  position: {x: -320, y: 860}
+  previousPosition: {x: -320, y: 861.3333}
   behaviourData: {fileID: 11400000}
   behaviour: {fileID: 11400000, guid: 87cf1f42e77666d49b492895ad4c12c8, type: 2}
   waitUntilFinished: 1
@@ -98,10 +129,9 @@ MonoBehaviour:
   m_Name: RepeatForTime
   m_EditorClassIdentifier: 
   guid: 06238efe6f65ed1478eb90d443e157ed
-  children:
-  - {fileID: -1763924997084066979}
-  position: {x: -186.66667, y: 610}
-  previousPosition: {x: -186.34555, y: 610.00006}
+  children: []
+  position: {x: -33.666748, y: 664.6666}
+  previousPosition: {x: -33.666748, y: 665.33325}
   behaviourData: {fileID: 11400000}
   duration: 2
   randomDuration: 0
@@ -121,13 +151,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 695ea80574c13e74d909536d4b988ee2
   children: []
-  position: {x: -168.34561, y: 728.6667}
-  previousPosition: {x: -168.34561, y: 726.8934}
+  position: {x: -197.66675, y: 738.6666}
+  previousPosition: {x: -197.66675, y: 738.6666}
   behaviourData: {fileID: 11400000}
   useJoints: 1
   joint: 1
   instant: 0
-  rotationSpeed: 35
+  rotationSpeed: 20
   lockY: 0
   yOffset: 2
 --- !u!114 &11400000
@@ -155,6 +185,11 @@ MonoBehaviour:
   - {fileID: -4562655285050628618}
   - {fileID: 166955038570871335}
   - {fileID: -3349230201451974667}
+  - {fileID: -5687904714133394737}
+  - {fileID: 7870774838628615780}
+  - {fileID: 7075909005984343782}
+  - {fileID: 5824425285034466280}
+  - {fileID: 6422692701173399565}
 --- !u!114 &166955038570871335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,4 +286,91 @@ MonoBehaviour:
   - {fileID: 166955038570871335}
   position: {x: 278.98767, y: 492.6667}
   previousPosition: {x: 278.98767, y: 490.89337}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &5824425285034466280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704a44276c7ccd142b594c9a25dd93b7, type: 3}
+  m_Name: Invert
+  m_EditorClassIdentifier: 
+  guid: aada6fb9eaa512d46a15be0333fcaf24
+  children:
+  - {fileID: 6422692701173399565}
+  position: {x: -437.33337, y: 861.3333}
+  previousPosition: {x: -437.33337, y: 861.3333}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &6422692701173399565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da082a5d1714d0a8c6cf2c2a94b73ef, type: 3}
+  m_Name: CheckFOV
+  m_EditorClassIdentifier: 
+  guid: 752b63dd2ce58aa47b07732c87fb86a8
+  children: []
+  position: {x: -447.33334, y: 968}
+  previousPosition: {x: -447.33334, y: 968}
+  behaviourData: {fileID: 11400000}
+  fov:
+    FOVs:
+    - checkAngle: 0
+      angle: 0
+      checkRange: 0
+      range: 0
+      checkView: 0
+      mask:
+        serializedVersion: 2
+        m_Bits: 256
+  ifAny: 0
+  useJoins: 0
+  joint: 0
+--- !u!114 &7075909005984343782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
+  m_Name: SequencerData
+  m_EditorClassIdentifier: 
+  guid: 2580983ff52afa946aa603fa032b9d6a
+  children:
+  - {fileID: -5687904714133394737}
+  - {fileID: 5824425285034466280}
+  - {fileID: -4562655285050628618}
+  position: {x: -428.6667, y: 738.6666}
+  previousPosition: {x: -428.6667, y: 739.33325}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &7870774838628615780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f1eaefeeef145298f060deabbc5702a, type: 3}
+  m_Name: SelectorData
+  m_EditorClassIdentifier: 
+  guid: b0ec9739f868bb146898cb6d47df0676
+  children:
+  - {fileID: 7075909005984343782}
+  - {fileID: -1763924997084066979}
+  position: {x: -269.3333, y: 610}
+  previousPosition: {x: -270.66663, y: 610}
   behaviourData: {fileID: 11400000}
