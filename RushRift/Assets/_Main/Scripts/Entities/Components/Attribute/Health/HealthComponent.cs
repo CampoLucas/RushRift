@@ -6,7 +6,7 @@ namespace Game.Entities.Components
     public class HealthComponent : Attribute<HealthComponentData, HealthComponent>
     {
         public Vector3 DamagePosition { get; private set; }
-        public ISubject OnHealthChanged { get; private set; } = new Subject();
+        //public ISubject OnHealthChanged { get; private set; } = new Subject();
         
         private bool _damaged;
         private float _healthLost;
@@ -55,8 +55,8 @@ namespace Game.Entities.Components
         protected override void OnDispose()
         {
             base.OnDispose();
-            OnHealthChanged.Dispose();
-            OnHealthChanged = null;
+            //OnHealthChanged.Dispose();
+            //OnHealthChanged = null;
         }
     }
 }
