@@ -1481,6 +1481,7 @@ GameObject:
   - component: {fileID: 4036694657418605575}
   - component: {fileID: 4025288467119005644}
   - component: {fileID: 3486766384206959456}
+  - component: {fileID: 3349244231182772924}
   m_Layer: 9
   m_Name: EnemyTurret
   m_TagString: Untagged
@@ -1518,7 +1519,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   model: {fileID: 11400000, guid: 9e03c5b78329a8f4780cb84fd849424c, type: 2}
-  view: {fileID: 11400000, guid: 5c646f6e934b4cd4faf3ee0b9f7ecba1, type: 2}
   joints:
     defaultJoint: {fileID: 3396198388266674332}
     jointMap:
@@ -1547,7 +1547,6 @@ MonoBehaviour:
       enumType: 0
   animator:
   - {fileID: 8390996798022735615}
-  speedLines: {fileID: 0}
   target: {fileID: 0}
   runner: {fileID: 4036694657418605575}
   damageIndex: 1
@@ -1611,6 +1610,18 @@ MonoBehaviour:
   behavioursToDisable:
   - {fileID: 3947552943855110621}
   - {fileID: 4036694657418605575}
+--- !u!114 &3349244231182772924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6713962002373540701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dca0dbec47d845a7b8952b485c78896a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6774804265165595017
 GameObject:
   m_ObjectHideFlags: 0

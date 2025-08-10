@@ -213,6 +213,7 @@ GameObject:
   - component: {fileID: 4036694657418605575}
   - component: {fileID: 9144629799034848130}
   - component: {fileID: 3640446910479672643}
+  - component: {fileID: 2079511186650249885}
   m_Layer: 9
   m_Name: EnemyPH
   m_TagString: Untagged
@@ -250,7 +251,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   model: {fileID: 11400000, guid: 98655a84338e62740b26800a97a07287, type: 2}
-  view: {fileID: 11400000, guid: 5c646f6e934b4cd4faf3ee0b9f7ecba1, type: 2}
   joints:
     defaultJoint: {fileID: 3396198388266674332}
     jointMap:
@@ -279,11 +279,11 @@ MonoBehaviour:
       enumType: 0
   animator:
   - {fileID: 209896415292165565}
-  speedLines: {fileID: 0}
   target: {fileID: 0}
   runner: {fileID: 4036694657418605575}
   damageIndex: 1
   deathIndex: 2
+  points: 0
 --- !u!95 &209896415292165565
 Animator:
   serializedVersion: 5
@@ -369,6 +369,18 @@ MonoBehaviour:
   - {fileID: 3947552943855110621}
   - {fileID: 209896415292165565}
   - {fileID: 4036694657418605575}
+--- !u!114 &2079511186650249885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6713962002373540701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dca0dbec47d845a7b8952b485c78896a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6791211632471973386
 GameObject:
   m_ObjectHideFlags: 0

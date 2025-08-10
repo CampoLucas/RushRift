@@ -15,20 +15,17 @@ namespace Game.Entities
         /// Reference to the GameObject's transform
         /// </summary>
         public Transform Origin { get; private set; }
-        public VisualEffect SpeedLines => speedLines;
         /// <summary>
         /// Collections of transforms that represents the entity joints
         /// </summary>
         public Joints<EntityJoint> Joints => joints;
 
         [Header("Data")]
-        [SerializeField] protected EntityModelSO model; // ScriptableObject used to create the model proxy
-        [SerializeField] protected EntityViewSO view; // ScriptableObject used to create the view proxy
+        [SerializeField] protected EntityModelSO model; // ScriptableObject used to create the model proxy // ScriptableObject used to create the view proxy
 
         [Header("References")]
         [SerializeField] protected Joints<EntityJoint> joints;
         [SerializeField] private Animator[] animator;
-        [SerializeField] private VisualEffect speedLines;
 
         protected EntityStateMachine _fsm; // Optional state machine for entity behavior
         
@@ -48,7 +45,7 @@ namespace Game.Entities
             }
 
             // Create the view proxy and initialize it
-            if (view.GetProxy().TryGetValue(out _view))
+            if (TryGetComponent<IView>(out _view))
             {
                 _view.Init(animator);
             }
@@ -118,10 +115,11 @@ namespace Game.Entities
         /// </summary>
         public virtual void Dispose()
         {
+            model = null;
             if (_model != null) _model.Dispose();
             _model = null;
             
-            if (_view != null) _view.Dispose();
+            //if (_view != null) _view.Dispose();
             _view = null;
             
             if (_fsm != null) _fsm.Dispose();

@@ -6,16 +6,9 @@ namespace Game.Entities
     /// Generic runtime view class created from a ScriptableObject. Handles animation logic
     /// </summary>
     /// <typeparam name="TData">The type of ViewSO</typeparam>
-    public class EntityView<TData>: IView
-        where TData : EntityViewSO
+    public class EntityView : MonoBehaviour, IView
     {
-        protected TData ViewData; // Reference to the view data (SO)
         protected Animator[] Animators; // Array of Animator components used to play animations
-
-        public EntityView(TData viewData)
-        {
-            ViewData = viewData;
-        }
 
         /// <summary>
         /// Initializes the view with an array of Animators
@@ -65,8 +58,12 @@ namespace Game.Entities
         /// </summary>
         public void Dispose()
         {
-            ViewData = null;
             Animators = null;
+        }
+        
+        private void OnDestroy()
+        {
+            Dispose();
         }
     }
 }

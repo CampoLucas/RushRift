@@ -1,4 +1,4 @@
-namespace _Main.Scripts.Entities._Traps
+namespace Game.Entities
 {
     public class LaserView
     {
