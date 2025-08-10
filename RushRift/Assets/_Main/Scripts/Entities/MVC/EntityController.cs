@@ -1,4 +1,6 @@
 using System.Collections;
+using Game.DesignPatterns.Observers;
+using Game.UI;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -124,7 +126,7 @@ namespace Game.Entities
             
             if (_fsm != null) _fsm.Dispose();
             _fsm = null;
-            
+
             StopAllCoroutines();
             
             OnDispose();
