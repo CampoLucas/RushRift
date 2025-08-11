@@ -8,10 +8,13 @@ namespace Game.Entities.Components
 {
     public class LaserComponent : IEntityComponent
     {
+        public ISubject<Vector3> SetLengthSubject { get; private set; } = new Subject<Vector3>();
+        
         private LineDetect _detection;
         private IObserver<float> _updateObserver;
         private bool _disposed;
 
+        private Vector3 _prevEndPos;
         private Vector3 _endPos;
         private bool _isBlocked;
         private RaycastHit _blockHit;
@@ -20,16 +23,19 @@ namespace Game.Entities.Components
         {
             _detection = componentData.GetDetection(origin);
         }
-        
+
+
         private void OnUpdate(float delta)
         {
-            Debug.Log("SuperTest: Update laser");
-            if (!_detection.Detect(out _endPos, out _isBlocked, out _blockHit)) return;
+            _prevEndPos = _endPos;
+            var overlapping = _detection.Detect(out _endPos, out _isBlocked, out _blockHit);
+            
+            if (_endPos != _prevEndPos) SetLengthSubject.NotifyAll(_endPos);
+            
+            if (!overlapping) return;
 
             var overlaps = _detection.Overlaps;
 
-            Debug.Log("Is Overlaping");
-            
             for (var i = 0; i < overlaps; i++)
             {
                 var hit = _detection.Hits[i];
@@ -41,7 +47,6 @@ namespace Game.Entities.Components
                 if (controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                 {
                     //Kill now
-                    Debug.Log("KillPlayer");
                     // Temp
                     healthComponent.Intakill(hit.point);
                 }

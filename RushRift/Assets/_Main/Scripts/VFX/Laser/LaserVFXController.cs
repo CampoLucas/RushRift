@@ -2,8 +2,11 @@ using UnityEngine;
 
 namespace Game.VFX
 {
-    public class LaserVFXController : ElectricArcController
+    public class LaserVFXController : MonoBehaviour
     {
-        private Transform _cameraTransform;
+        public void SetEndPos(Vector3 endPos)
+        {
+            Debug.Log($"Set Pos to {endPos}");
+        }
     }
 }

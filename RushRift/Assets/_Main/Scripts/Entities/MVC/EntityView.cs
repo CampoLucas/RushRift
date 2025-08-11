@@ -58,8 +58,11 @@ namespace Game.Entities
         /// </summary>
         public void Dispose()
         {
+            OnDispose();
             Animators = null;
         }
+        
+        protected virtual void OnDispose() { }
         
         private void OnDestroy()
         {
