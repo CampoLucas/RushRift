@@ -1,3 +1,4 @@
+using System;
 using Game;
 using UnityEngine;
 using Game.DesignPatterns.Observers;
@@ -9,6 +10,7 @@ using UnityEngine.SceneManagement;
 public class ObjectiveManager : MonoBehaviour
 {
     public int currentLevel => SceneManager.GetActiveScene().buildIndex;
+    
     //[SerializeField] private int currentLevel;// horrible, no asignes el numero del nivel con un serialize field, no hay manera de saber que nivel es fuera de esta clase.
     [SerializeField] private TMP_Text timerText;
     [SerializeField] private TMP_Text finalTimerText;
@@ -37,8 +39,8 @@ public class ObjectiveManager : MonoBehaviour
         _onWinLevelObserver = new ActionObserver(OnWinLevel);
 
         WinTrigger.OnWinSaveTimes.Attach(_onWinLevelObserver);
-        EnemyController.OnEnemyDeathSubject.Attach(_decreaseObserver);
-        EnemyController.OnEnemySpawnSubject.Attach(_increaseObserver);
+        LevelManager.OnEnemyDeathSubject.Attach(_decreaseObserver);
+        LevelManager.OnEnemySpawnSubject.Attach(_increaseObserver);
 
         stopTimer = false;
         var data = SaveAndLoad.Load();
@@ -112,5 +114,23 @@ public class ObjectiveManager : MonoBehaviour
         SaveAndLoad.Save(data);
 
     }
-    
+
+    private void OnDestroy()
+    {
+        WinTrigger.OnWinSaveTimes.Detach(_onWinLevelObserver);
+        LevelManager.OnEnemyDeathSubject.Detach(_decreaseObserver);
+        LevelManager.OnEnemySpawnSubject.Detach(_increaseObserver);
+        
+        _onWinLevelObserver?.Dispose();
+        _onWinLevelObserver = null;
+        _decreaseObserver?.Dispose();
+        _decreaseObserver = null;
+        _increaseObserver?.Dispose();
+        _increaseObserver = null;
+
+        timerText = null;
+        bestTimerText = null;
+        currentEnemiesText = null;
+        finalTimerText = null;
+    }
 }
