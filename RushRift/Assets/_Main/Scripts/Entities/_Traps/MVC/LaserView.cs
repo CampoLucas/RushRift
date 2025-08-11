@@ -23,7 +23,7 @@ namespace Game.Entities
 
         private void Start()
         {
-            if (_controller.GetModel().TryGetComponent<LaserComponent>(out var laser))
+            if (_controller != null && _controller.GetModel().TryGetComponent<LaserComponent>(out var laser))
             {
                 _setLengthSubject = laser.SetLengthSubject;
                 _setLengthSubject.Attach(_setLengthObserver);

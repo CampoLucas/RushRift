@@ -13,7 +13,7 @@ namespace Game.Entities
     public class EntityModel<TData> : IModel
         where TData : EntityModelSO
     {
-        protected TData Data; // Reference to the data (SO)
+        private TData _data; // Reference to the data (SO)
 
         private Dictionary<Type, IEntityComponent> _componentsDict = new();
         private ISubject<float> _updateSubject = new Subject<float>();
@@ -22,14 +22,17 @@ namespace Game.Entities
 
         public EntityModel(TData data)
         {
-            Data = data;
+            _data = data;
         }
-        
+
         /// <summary>
         /// Initializes the model with a controller reference
         /// </summary>
         /// <param name="controller">The assigned controller for the model</param>
-        public virtual void Init(IController controller) { }
+        public virtual void Init(IController controller)
+        {
+            _data.Init(controller, this);
+        }
 
         #region UpdateMethods
 
@@ -228,7 +231,7 @@ namespace Game.Entities
 
             _componentsDict = null;
 
-            Data = null;
+            _data = null;
         }
     }
 }

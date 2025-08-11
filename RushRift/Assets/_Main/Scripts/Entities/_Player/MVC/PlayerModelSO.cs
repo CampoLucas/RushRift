@@ -72,7 +72,21 @@ namespace Game.Entities
         
         public override NullCheck<IModel> GetProxy()
         {
-            return new NullCheck<IModel>(new PlayerModel(this));
+            return new NullCheck<IModel>(new EntityModel<PlayerModelSO>(this));
+        }
+
+        public override void Init(in IController controller, in IModel model)
+        {
+            var playerObject = controller.Origin.gameObject;
+            if (playerObject.TryGetComponent<Rigidbody>(out var rigidBody) && playerObject.TryGetComponent<CapsuleCollider>(out var collider))
+            {
+                var movement = GetMotionController(rigidBody, collider, controller.Origin, controller.Joints.GetJoint(EntityJoint.Eyes));
+                model.TryAddComponent(movement);
+            }
+
+            model.TryAddComponent(GetComboComponent(controller));
+            model.TryAddComponent(Health.GetComponent()); 
+            model.TryAddComponent(Energy.GetComponent());
         }
     }
 }
