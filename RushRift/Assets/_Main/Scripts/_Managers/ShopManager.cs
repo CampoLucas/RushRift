@@ -35,13 +35,31 @@ public class ShopManager : MonoBehaviour
         if (data != null) playerCurrency = data.playerCurrency;
         scoreText.text = playerCurrency.ToString();
 
+        if (data.LevelsMedalsTimes.Count > 0)
+        {
+            Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[1].bronze.time}");
+            Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
+        }
+        
+
         if (dashDamagePerk == null)
         {
             Debug.Log("SuperTest: dashDamagePerk is null");
         }
-        
+
         DisablePurchase(dashDamagePerk, dashDamageEffect);
         DisablePurchase(increaseCurrentEnergy, increaseCurrentEnergyEffect);
+
+        //if (data.LevelsMedalsTimes.Count != 0) return;  //linea para que solo cargue los tiempos una vez al arrancar el juego
+
+        foreach (var item in ScriptableReference.Instance.medalReferences)
+        {
+            data.LevelsMedalsTimes.Add(item.levelNumber, item.levelMedalTimes);
+        }
+
+
+
+        SaveAndLoad.Save(data);
     }
 
 
@@ -60,11 +78,6 @@ public class ShopManager : MonoBehaviour
         SaveAndLoad.Save(data);
         DisablePurchase(thisButton, perk);
 
-    }
-
-    public void LoadLevel()
-    {
-        SceneManager.LoadScene("Level_1_Rework");
     }
 
 

@@ -99,10 +99,25 @@ public class ObjectiveManager : MonoBehaviour
         LevelManager.SetLevelCompleteTime(_timer);
         
         var data = SaveAndLoad.Load();
-        
+
+        var medals = data.LevelsMedalsTimes[currentLevel];
+
+
+
         if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
 
         if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
+
+        if (data.LevelsMedalsTimes[currentLevel].bronze.time > _timer) medals.bronze.isAcquired = true;
+
+        if (data.LevelsMedalsTimes[currentLevel].silver.time > _timer) medals.silver.isAcquired = true;
+
+        if (data.LevelsMedalsTimes[currentLevel].gold.time > _timer) medals.gold.isAcquired = true;
+
+        data.LevelsMedalsTimes[currentLevel] = medals;
+
+        Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[1].bronze.time}");
+        Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
 
         _newTimer = GetNewTimer(data.BestTimes[currentLevel]);
         FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
