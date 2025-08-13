@@ -8,7 +8,6 @@ namespace Game.Entities
 {
     public class LaserView : EntityView
     {
-        [SerializeField] private Transform laserEnd;
         [SerializeField] private LaserVFXController laserVfx;
 
         private IController _controller;
@@ -32,7 +31,6 @@ namespace Game.Entities
 
         private void SetLaserLengthHandler(Vector3 endPos)
         {
-            laserEnd.transform.position = endPos;
             laserVfx.SetEndPos(endPos);
         }
 
