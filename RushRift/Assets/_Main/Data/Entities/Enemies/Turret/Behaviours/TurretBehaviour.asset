@@ -42,7 +42,7 @@ MonoBehaviour:
       angle: 0
       checkRange: 1
       range: 45
-      checkView: 1
+      checkView: 0
       mask:
         serializedVersion: 2
         m_Bits: 712
@@ -151,15 +151,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 695ea80574c13e74d909536d4b988ee2
   children: []
-  position: {x: -197.66675, y: 738.6666}
-  previousPosition: {x: -197.66675, y: 738.6666}
+  position: {x: -197.66669, y: 757.3332}
+  previousPosition: {x: -197.66669, y: 751.9999}
   behaviourData: {fileID: 11400000}
   useJoints: 1
   joint: 1
   instant: 0
   rotationSpeed: 20
   lockY: 0
-  yOffset: 2
+  yOffset: 1.5
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,6 +190,7 @@ MonoBehaviour:
   - {fileID: 7075909005984343782}
   - {fileID: 5824425285034466280}
   - {fileID: 6422692701173399565}
+  - {fileID: 5918855332674748784}
 --- !u!114 &166955038570871335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +306,27 @@ MonoBehaviour:
   position: {x: -437.33337, y: 861.3333}
   previousPosition: {x: -437.33337, y: 861.3333}
   behaviourData: {fileID: 11400000}
+--- !u!114 &5918855332674748784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3db2ffa27d614e3092112a09db1f0278, type: 3}
+  m_Name: IsLookingAtTarget
+  m_EditorClassIdentifier: 
+  guid: 37729457b89d1e14d8126042a74baed2
+  children: []
+  position: {x: -746.20874, y: 858.6666}
+  previousPosition: {x: -738.00006, y: 858.6666}
+  behaviourData: {fileID: 11400000}
+  threshold: 0.99999
+  yOffset: 1.5
+  useJoins: 1
+  joint: 1
 --- !u!114 &6422692701173399565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,8 +341,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 752b63dd2ce58aa47b07732c87fb86a8
   children: []
-  position: {x: -447.33334, y: 968}
-  previousPosition: {x: -447.33334, y: 968}
+  position: {x: -437.3334, y: 974.0024}
+  previousPosition: {x: -447.3334, y: 976.0302}
   behaviourData: {fileID: 11400000}
   fov:
     FOVs:
@@ -328,13 +350,13 @@ MonoBehaviour:
       angle: 0
       checkRange: 0
       range: 0
-      checkView: 0
+      checkView: 1
       mask:
         serializedVersion: 2
         m_Bits: 256
   ifAny: 0
-  useJoins: 0
-  joint: 0
+  useJoins: 1
+  joint: 1
 --- !u!114 &7075909005984343782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,8 +371,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 2580983ff52afa946aa603fa032b9d6a
   children:
-  - {fileID: -5687904714133394737}
-  - {fileID: 5824425285034466280}
+  - {fileID: 5918855332674748784}
   - {fileID: -4562655285050628618}
   position: {x: -428.6667, y: 738.6666}
   previousPosition: {x: -428.6667, y: 739.33325}

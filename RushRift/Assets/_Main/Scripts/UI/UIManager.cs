@@ -4,6 +4,7 @@ using Game.Entities;
 using Game.Entities.Components;
 using Game.Input;
 using Game.Inputs;
+using Game.ScreenEffects;
 using Game.UI.Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -23,8 +24,13 @@ namespace Game.UI
         [SerializeField] private PausePresenter pausePresenter;
         [SerializeField] private LevelWonPresenter levelWonPresenter;
 
+        [Header("Effects")]
+        [SerializeField] private FadeScreen screenFade;
+        [SerializeField] private ScreenDamageEffect screenDamage;
+
         private static UIManager _instance;
         private UIStateMachine _stateMachine;
+        private IObserver<float, float, float> _onHealthChanged;
         private IObserver _onGameOver;
         private IObserver _onLevelWon;
         
@@ -37,6 +43,7 @@ namespace Game.UI
             }
 
             _instance = this;
+            _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver(OnGameOverHandler);
             _onLevelWon = new ActionObserver(OnLevelWonHandler);
             
@@ -57,8 +64,13 @@ namespace Game.UI
             {
                 levelWonSubject.Attach(_onLevelWon);
             }
+
+            if (player.GetModel().TryGetComponent<HealthComponent>(out var health))
+            {
+                health.OnValueChanged.Attach(_onHealthChanged);
+            }
         }
-        
+
         private void Update()
         {
             _stateMachine.Update(Time.deltaTime);
@@ -123,8 +135,30 @@ namespace Game.UI
             _stateMachine.TransitionTo(UIScreen.LevelWon, 1, 2, .75f);
         }
 
+        private void OnHealthChangedHandler(float current, float previous, float max)
+        {
+            if (current < previous) screenDamage.DoEffect(0.1f);
+        }
+
         private void OnDestroy()
         {
+            if (LevelManager.TryGetGameOver(out var gameOverSubject))
+            {
+                gameOverSubject.Detach(_onGameOver);
+            }
+
+            if (LevelManager.TryGetLevelWon(out var levelWonSubject))
+            {
+                levelWonSubject.Detach(_onLevelWon);
+            }
+
+            var model = player.GetModel();
+            if (model != null && model.TryGetComponent<HealthComponent>(out var health))
+            {
+                health.OnValueChanged.Detach(_onHealthChanged);
+            }
+            
+            
             gameplayPresenter = null;
             gameOverPresenter = null;
             pausePresenter = null;
@@ -132,6 +166,12 @@ namespace Game.UI
             
             if (_stateMachine != null) _stateMachine.Dispose();
             _onGameOver.Dispose();
+            _onLevelWon.Dispose();
+            _onHealthChanged.Dispose();
+
+            _onGameOver = null;
+            _onLevelWon = null;
+            _onHealthChanged = null;
             
             
             OnPaused.DetachAll();
