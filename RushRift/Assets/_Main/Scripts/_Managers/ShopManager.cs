@@ -39,6 +39,10 @@ public class ShopManager : MonoBehaviour
         {
             Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[1].bronze.time}");
             Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
+            Debug.Log($"Mi tiempo de silver es: {data.LevelsMedalsTimes[1].silver.time}");
+            Debug.Log($"Mi medalla de silver está adquirida: {data.LevelsMedalsTimes[1].silver.isAcquired}");
+            Debug.Log($"Mi tiempo de gold es: {data.LevelsMedalsTimes[1].gold.time}");
+            Debug.Log($"Mi medalla de gold está adquirida: {data.LevelsMedalsTimes[1].gold.isAcquired}");
         }
         
 
@@ -54,6 +58,7 @@ public class ShopManager : MonoBehaviour
 
         foreach (var item in ScriptableReference.Instance.medalReferences)
         {
+            if (data.LevelsMedalsTimes.ContainsKey(item.levelNumber)) continue;
             data.LevelsMedalsTimes.Add(item.levelNumber, item.levelMedalTimes);
         }
 

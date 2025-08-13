@@ -116,8 +116,12 @@ public class ObjectiveManager : MonoBehaviour
 
         data.LevelsMedalsTimes[currentLevel] = medals;
 
-        Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[1].bronze.time}");
-        Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
+        Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[currentLevel].bronze.time}");
+        Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[currentLevel].bronze.isAcquired}");
+        Debug.Log($"Mi tiempo de silver es: {data.LevelsMedalsTimes[currentLevel].silver.time}");
+        Debug.Log($"Mi medalla de silver está adquirida: {data.LevelsMedalsTimes[currentLevel].silver.isAcquired}");
+        Debug.Log($"Mi tiempo de gold es: {data.LevelsMedalsTimes[currentLevel].gold.time}");
+        Debug.Log($"Mi medalla de gold está adquirida: {data.LevelsMedalsTimes[currentLevel].gold.isAcquired}");
 
         _newTimer = GetNewTimer(data.BestTimes[currentLevel]);
         FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
