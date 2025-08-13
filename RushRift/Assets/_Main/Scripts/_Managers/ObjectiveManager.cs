@@ -16,6 +16,19 @@ public class ObjectiveManager : MonoBehaviour
     //[SerializeField] private TMP_Text totalEnemiesText;
     [SerializeField] private TMP_Text currentEnemiesText;
 
+    //Esto es solo de prueba por el momento, modificar para que quede con el nuevo sistema de UI presenter
+    [SerializeField] private TMP_Text bronzeText;
+    [SerializeField] private TMP_Text silverText;
+    [SerializeField] private TMP_Text goldText;
+
+    [SerializeField] private Image bronzeAcquired;
+    [SerializeField] private Image silverAcquired;
+    [SerializeField] private Image goldAcquired;
+
+    [SerializeField] private Sprite acquiredIcon;
+    [SerializeField] private Sprite normalIcon;
+    //
+
     private float _timer;
     private bool _triggered;
     private bool stopTimer;
@@ -127,6 +140,24 @@ public class ObjectiveManager : MonoBehaviour
         FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
         _newTimer = GetNewTimer(_timer);
         FormatTimer(finalTimerText, _newTimer[0], _newTimer[1], _newTimer[2]);
+
+        //Esto es solo de prueba por el momento, modificar para que quede con el nuevo sistema de UI presenter
+        _newTimer = GetNewTimer(data.LevelsMedalsTimes[currentLevel].bronze.time);
+        FormatTimer(bronzeText, _newTimer[0], _newTimer[1], _newTimer[2]);
+        _newTimer = GetNewTimer(data.LevelsMedalsTimes[currentLevel].silver.time);
+        FormatTimer(silverText, _newTimer[0], _newTimer[1], _newTimer[2]);
+        _newTimer = GetNewTimer(data.LevelsMedalsTimes[currentLevel].gold.time);
+        FormatTimer(goldText, _newTimer[0], _newTimer[1], _newTimer[2]);
+
+        if (medals.bronze.isAcquired) bronzeAcquired.sprite = acquiredIcon;
+        else bronzeAcquired.sprite = normalIcon;
+
+        if (medals.silver.isAcquired) silverAcquired.sprite = acquiredIcon;
+        else silverAcquired.sprite = normalIcon;
+
+        if (medals.gold.isAcquired) goldAcquired.sprite = acquiredIcon;
+        else goldAcquired.sprite = normalIcon;
+        //
 
         SaveAndLoad.Save(data);
 

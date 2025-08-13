@@ -29,6 +29,9 @@ namespace Game.UI.Screens
                 
                 if (time <= bestTime) newBest.SetActive(true);
             }
+
+
+
         }
     }
 }
