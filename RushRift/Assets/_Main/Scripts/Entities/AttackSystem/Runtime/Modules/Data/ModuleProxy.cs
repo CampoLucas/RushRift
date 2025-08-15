@@ -55,9 +55,9 @@ namespace Game.Entities.AttackSystem
         public void Init()
         {
             BeforeInit();
-            if (TryGetStart(out var start)) _onStartSubject.Attach(start);
-            if (TryGetEnd(out var end)) _onEndSubject.Attach(end);
-            if (TryGetUpdate(out var update)) _onUpdateSubject.Attach(update);
+            //if (TryGetStart(out var start)) _onStartSubject.Attach(start);
+            //if (TryGetEnd(out var end)) _onEndSubject.Attach(end);
+            //if (TryGetUpdate(out var update)) _onUpdateSubject.Attach(update);
             
             
             if (_childrenToAdd is { Length: > 0 })
@@ -75,6 +75,8 @@ namespace Game.Entities.AttackSystem
             {
                 _started = true;
                 _running = true;
+                
+                Debug.Log("SuperTest: Notify Module Start");
                 _onStartSubject.NotifyAll(mParams);
                 for (var i = 0; i < _children.Count; i++)
                 {

@@ -233,7 +233,7 @@ namespace Game.Entities.Components.MotionController
 
         public bool StartDash()
         {
-            if (!TryGetHandler<DashHandler>(out var dash) || dash.IsDashing()) return false;
+            //if (!TryGetHandler<DashHandler>(out var dash) || dash.IsDashing()) return false;
             
             _context.Dash = true;
             return true;
