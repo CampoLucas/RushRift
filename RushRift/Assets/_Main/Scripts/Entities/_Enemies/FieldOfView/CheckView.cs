@@ -13,7 +13,15 @@ namespace Game.Entities.Enemies.Components
 
         public bool Evaluate(ref FOVParams args)
         {
-            return !Physics.Raycast(args.OriginPosition, args.Direction, args.Distance, _mask);
+            var pos = args.OriginPosition;
+            var dir = args.Direction;
+            var dis = args.Distance;
+            
+            var inView = !Physics.Raycast(pos, dir, dis, _mask);
+#if UNITY_EDITOR
+            Debug.DrawRay(pos, dir * dis, inView ? Color.green : Color.red);      
+#endif
+            return inView;
         }
 
         public void Dispose()
