@@ -8,6 +8,9 @@ namespace Game.Entities.Components.MotionController
         private float _airTime;
         private bool _hovering;
 
+        private Vector3 _pos;
+        private Vector3 _groundPos;
+
         public GravityHandler(GravityConfig config) : base(config)
         {
         }
@@ -21,8 +24,11 @@ namespace Game.Entities.Components.MotionController
         private void ApplyGravity(in MotionContext context, in float delta)
         {
             var pos = context.Position;
+
+            _pos = pos;
+            _groundPos = context.GroundPos;
             
-            if (context.Grounded && !context.Jump)
+            if (context.Grounded && !context.IsJumping)
             {
                 _airTime = 0;
 
@@ -32,6 +38,7 @@ namespace Game.Entities.Components.MotionController
                 {
                     _hovering = false;
                     context.AddForce(Vector3.down * (Config.GndGrav * delta), ForceMode.Acceleration);
+                    Debug.Log("MoveTest: apply gravity");
                 }
                 else
                 {
@@ -42,6 +49,7 @@ namespace Game.Entities.Components.MotionController
                         context.Velocity = context.Velocity.XOZ();
                     }
                     
+                    Debug.Log("MoveTest: hover");
                     Hover(context, delta);
                 }
             }
@@ -98,11 +106,26 @@ namespace Game.Entities.Components.MotionController
             var pos = context.Position;
             var targetY = context.GroundPos.y + Config.GndDist;
 
-            context.Position = new Vector3(pos.x, Mathf.Lerp(pos.y, targetY, Config.HoverSpeed * delta),
-                pos.z);
+            if (context.Velocity.y < 0) context.Velocity = context.Velocity.XOZ();
+#if false
+            context.Position = new Vector3(pos.x, Mathf.Lerp(pos.y, targetY, Config.HoverSpeed * delta), pos.z);
+#elif false
+            context.Position = context.Position.XOZ(targetY);
+#else
+            context.MovePosition(context.Position.XOZ(targetY));
+#endif
+            //context.Velocity = context.Velocity.XOZ();
 
             // ToDo: test this, it is an alternative option
             //context.Position = pos.XOZ(Mathf.Lerp(pos.y, targetY, _config.HoverSpeed * Time.fixedDeltaTime));
+        }
+
+        public override void OnDraw(Transform transform)
+        {
+            base.OnDraw(transform);
+            Gizmos.color = _hovering ? Color.magenta : Color.yellow;
+            Gizmos.DrawSphere(_pos, .1f);
+            Gizmos.DrawCube(_groundPos, Vector3.one * .1f);
         }
     }
 }

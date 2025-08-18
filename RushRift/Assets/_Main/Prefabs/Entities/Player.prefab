@@ -4998,6 +4998,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1343605122638024750}
   - component: {fileID: 5050218275519897064}
+  - component: {fileID: 1901144150787704524}
   - component: {fileID: 5842538790836895472}
   - component: {fileID: 7981733825534306698}
   - component: {fileID: 1000959784041531099}
@@ -5039,7 +5040,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   model: {fileID: 11400000, guid: 1b439137366ea7c43a91c78b51a87ab9, type: 2}
-  view: {fileID: 11400000, guid: 5c646f6e934b4cd4faf3ee0b9f7ecba1, type: 2}
   joints:
     defaultJoint: {fileID: 1343605122638024750}
     jointMap:
@@ -5069,8 +5069,19 @@ MonoBehaviour:
   animator:
   - {fileID: 0}
   - {fileID: 0}
-  speedLines: {fileID: 0}
   effectsID: 
+--- !u!114 &1901144150787704524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5623607920778510774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dca0dbec47d845a7b8952b485c78896a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5842538790836895472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5085,6 +5096,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   behavioursToDisable:
   - {fileID: 5050218275519897064}
+  - {fileID: 1901144150787704524}
 --- !u!136 &7981733825534306698
 CapsuleCollider:
   m_ObjectHideFlags: 0

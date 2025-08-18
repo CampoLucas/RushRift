@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Game.DesignPatterns.Observers;
 using Game.UI;
+using Game.Utils;
 
 
 public class DisableBehaviour : MonoBehaviour
@@ -43,9 +44,26 @@ public class DisableBehaviour : MonoBehaviour
     {
         for (int i = 0; i < behavioursToDisable.Length; i++)
         {
-            var b = behavioursToDisable[i];
-            if (b == null) continue;
-            b.enabled = false;
+            var behaviour = behavioursToDisable[i];
+            if (behaviour == null)
+            {
+#if UNITY_EDITOR
+                var o = gameObject;
+                Debug.LogError($"ERROR: Trying to disable a null behaviour in {o.name}", o);
+#endif
+                continue;
+            }
+
+            if (behaviour.IsNullOrMissingReference())
+            {
+#if UNITY_EDITOR
+                var o = gameObject;
+                Debug.LogError($"ERROR: Trying to disable a missing behaviour in {o.name}", o);
+#endif
+                continue;
+            }
+            
+            behaviour.enabled = false;
         }
     }
 
@@ -53,7 +71,26 @@ public class DisableBehaviour : MonoBehaviour
     {
         for (int i = 0; i < behavioursToDisable.Length; i++)
         {
-            behavioursToDisable[i].enabled = true;
+            var behaviour = behavioursToDisable[i];
+            if (behaviour == null)
+            {
+#if UNITY_EDITOR
+                var o = gameObject;
+                Debug.LogError($"ERROR: Trying to enable a null behaviour in {o.name}", o);
+#endif
+                continue;
+            }
+
+            if (behaviour.IsNullOrMissingReference())
+            {
+#if UNITY_EDITOR
+                var o = gameObject;
+                Debug.LogError($"ERROR: Trying to enable a missing behaviour in {o.name}", o);
+#endif
+                continue;
+            }
+            
+            behaviour.enabled = true;
         }
     }
 

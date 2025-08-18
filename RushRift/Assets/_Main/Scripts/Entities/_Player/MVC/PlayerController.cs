@@ -69,7 +69,7 @@ namespace Game.Entities
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
                 healthComponent.OnValueChanged.Attach(_onPlayerDamage);
-                LevelManager.GetPlayerReference(healthComponent.OnValueDepleted);
+                LevelManager.GetPlayerReference(healthComponent.OnEmptyValue);
             }
 
             var saveData = SaveAndLoad.Load();

@@ -11,6 +11,10 @@ namespace Game
     [AddComponentMenu("Game/Level Manager")]
     public class LevelManager : MonoBehaviour
     {
+        public static readonly ISubject OnEnemyDeathSubject = new Subject(); // ToDo: Move it to the a EnemyManager and dispose of all references
+        public static readonly ISubject OnEnemySpawnSubject = new Subject();
+        public static readonly ISubject<int> OnEnemyGivesPoints = new Subject<int>();
+        
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
         [FormerlySerializedAs("vfxPool")] [SerializeField] private EffectPool effectPool; // Por ahora lo pongo aca para que no sea un singleton
@@ -138,6 +142,10 @@ namespace Game
             _onPlayerDeath.Dispose();
             _onEnemyDeath.Dispose();
             effectPool.Dispose();
+            
+            OnEnemyDeathSubject.DetachAll();
+            OnEnemySpawnSubject.DetachAll();
+            OnEnemyGivesPoints.DetachAll();
         }
     }
 }

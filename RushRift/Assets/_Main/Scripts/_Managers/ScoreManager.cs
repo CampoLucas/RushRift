@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Game.DesignPatterns.Observers;
 using Game;
@@ -14,15 +15,15 @@ public class ScoreManager : MonoBehaviour
     private int currentPoints;
     private int playerCurrency;
     private bool _triggered;
-    private IObserver<int> _onPointsGainObserver;
-    private IObserver<int> _onWinLevelObserver;
+    private Game.DesignPatterns.Observers.IObserver<int> _onPointsGainObserver;
+    private Game.DesignPatterns.Observers.IObserver<int> _onWinLevelObserver;
 
     private void Start()
     {
         _onPointsGainObserver = new ActionObserver<int>(OnPointsGain);
         _onWinLevelObserver = new ActionObserver<int>(OnWinLevel);
 
-        EnemyController.OnEnemyGivesPoints.Attach(_onPointsGainObserver);
+        LevelManager.OnEnemyGivesPoints.Attach(_onPointsGainObserver);
         WinTrigger.OnWinGivePoints.Attach(_onWinLevelObserver);
         scoreText.text = currentPoints.ToString();
     }
@@ -44,5 +45,19 @@ public class ScoreManager : MonoBehaviour
         data.playerCurrency += playerCurrency;
         SaveAndLoad.Save(data);
 
+    }
+
+    private void OnDestroy()
+    {
+        LevelManager.OnEnemyGivesPoints.Detach(_onPointsGainObserver);
+        WinTrigger.OnWinGivePoints.Detach(_onWinLevelObserver);
+        
+        _onPointsGainObserver?.Dispose();
+        _onPointsGainObserver = null;
+        
+        _onWinLevelObserver?.Dispose();
+        _onWinLevelObserver = null;
+
+        scoreText = null;
     }
 }

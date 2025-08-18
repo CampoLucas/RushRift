@@ -11,7 +11,7 @@ namespace Game.Entities.Components
         public float StartRegenRate => Data.RegenRate != 0 ? Data.RegenRate : .1f;
         public float StartMaxValue => Data.MaxValue;
         public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
-        public ISubject OnValueDepleted{ get; private set; } = new Subject();
+        public ISubject OnEmptyValue{ get; private set; } = new Subject();
         
         protected IObserver<float> LateUpdateObserver;
         protected TData Data;
@@ -23,12 +23,9 @@ namespace Game.Entities.Components
         
         // Regeneration variables
         private IRegenStrategy<TData, TDataReturn> _regenStrategy;
-        // private bool _regenerating;
-        // private bool _startRegenDelay;
-        // private float _regenDelayTimer;
         private float _regenModifier;
         
-        public Attribute(TData data)
+        protected Attribute(TData data)
         {
             Data = data;
             
@@ -106,8 +103,8 @@ namespace Game.Entities.Components
 
             if (IsEmpty())
             {
-                Value = 0;
-                OnValueDepleted.NotifyAll();
+                OnEmptyHandler();
+                
             }
             else
             {
@@ -131,7 +128,7 @@ namespace Game.Entities.Components
             Value += amount;
             if (Value >= maxValue)
             {
-                Value = maxValue;
+                OnFullHandler();
             }
 
             OnIncrease(_prevValue);
@@ -187,6 +184,8 @@ namespace Game.Entities.Components
         protected virtual void OnDecrease(float previousValue) { }
         protected virtual void OnIncrease(float previousValue) { }
         protected virtual void OnDispose() { }
+        protected virtual void OnEmpty() { }
+        protected virtual void OnFull() { }
 
         #endregion
 
@@ -198,6 +197,22 @@ namespace Game.Entities.Components
             Value = startValue > MaxValue ? MaxValue : startValue;
             OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
             _regenStrategy.NotifyValueChanged(Value, prevValue, Data);
+        }
+
+        private void OnEmptyHandler()
+        {
+            Value = 0;
+            
+            OnEmpty();
+            OnEmptyValue.NotifyAll();
+        }
+
+        private void OnFullHandler()
+        {
+            Value = MaxValue;
+            
+            OnFull();
+            // It doesn't have a subject.
         }
     }
 }

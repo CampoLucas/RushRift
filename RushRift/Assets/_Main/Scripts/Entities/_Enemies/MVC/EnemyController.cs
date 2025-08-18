@@ -9,10 +9,6 @@ namespace Game.Entities
 {
     public class EnemyController : EntityController
     {
-        public static ISubject OnEnemyDeathSubject = new Subject(); // ToDo: Move it to the a EnemyManager and dispose of all references
-        public static ISubject OnEnemySpawnSubject = new Subject();
-        public static ISubject<int> OnEnemyGivesPoints = new Subject<int>();
-        
         [Header("Target")]
         [SerializeField] private Transform target;
 
@@ -41,7 +37,7 @@ namespace Game.Entities
         protected override void Start()
         {
             base.Start();
-            OnEnemySpawnSubject.NotifyAll();
+            LevelManager.OnEnemySpawnSubject.NotifyAll();
             if (target) Init(target);
         }
 
@@ -56,10 +52,10 @@ namespace Game.Entities
 
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
-                LevelManager.GetEnemiesReference(healthComponent.OnValueDepleted);
+                LevelManager.GetEnemiesReference(healthComponent.OnEmptyValue);
                 
                 healthComponent.OnValueChanged.Attach(_onDamageObserver);
-                healthComponent.OnValueDepleted.Attach(_onDeathObserver);
+                healthComponent.OnEmptyValue.Attach(_onDeathObserver);
             }
         }
 
@@ -78,13 +74,10 @@ namespace Game.Entities
         {
             AudioManager.Play("TurretDestruction");
             
-            OnEnemyDeathSubject.NotifyAll();
-            OnEnemyGivesPoints.NotifyAll(points);
+            LevelManager.OnEnemyDeathSubject.NotifyAll();
+            LevelManager.OnEnemyGivesPoints.NotifyAll(points);
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
-            OnEnemyDeathSubject.DetachAll();
-            OnEnemySpawnSubject.DetachAll();
-
         }
         
         private void OnDamage(float currentHealth, float previousHealth, float maxHealth)
@@ -95,12 +88,6 @@ namespace Game.Entities
             runner.DisableAllRunners();
             runner.SetRunnerActive(damageIndex);
            
-        }
-
-        protected override void OnDispose()
-        {
-            OnEnemyDeathSubject.DetachAll();
-            OnEnemySpawnSubject.DetachAll();
         }
     }
 }

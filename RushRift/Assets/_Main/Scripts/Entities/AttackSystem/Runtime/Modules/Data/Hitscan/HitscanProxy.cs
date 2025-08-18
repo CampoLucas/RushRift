@@ -34,6 +34,7 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         private void OnStart(ModuleParams mParams)
         {
+            Debug.Log("SuperTestModule: hitscan");
             _executed = false;
             _timer = 0;
         }

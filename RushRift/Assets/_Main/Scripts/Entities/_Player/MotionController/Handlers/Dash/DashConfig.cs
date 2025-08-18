@@ -10,13 +10,13 @@ namespace Game.Entities.Components.MotionController
         public float Force => force;
         public float Duration => duration;
         public float MomentumMult => momentumMultiplier;
-        //public float Cooldown => cooldown;
+        public float Cooldown => cooldown;
         public float Cost => cost;
         
         [Header("General")]
         [SerializeField] private float force = 120f;
         [SerializeField] private float duration = .25f;
-        //[SerializeField] private float cooldown = .25f;
+        [SerializeField] private float cooldown = .25f;
         
         [Header("Momentum")]
         [SerializeField] private float momentumMultiplier = .25f;
