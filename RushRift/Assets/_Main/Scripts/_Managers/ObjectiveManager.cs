@@ -8,26 +8,10 @@ using UnityEngine.SceneManagement;
 
 public class ObjectiveManager : MonoBehaviour
 {
-    public int currentLevel => SceneManager.GetActiveScene().buildIndex;
-    //[SerializeField] private int currentLevel;// horrible, no asignes el numero del nivel con un serialize field, no hay manera de saber que nivel es fuera de esta clase.
     [SerializeField] private TMP_Text timerText;
-    [SerializeField] private TMP_Text finalTimerText;
-    [SerializeField] private TMP_Text bestTimerText;
     //[SerializeField] private TMP_Text totalEnemiesText;
     [SerializeField] private TMP_Text currentEnemiesText;
 
-    //Esto es solo de prueba por el momento, modificar para que quede con el nuevo sistema de UI presenter
-    [SerializeField] private TMP_Text bronzeText;
-    [SerializeField] private TMP_Text silverText;
-    [SerializeField] private TMP_Text goldText;
-
-    [SerializeField] private Image bronzeAcquired;
-    [SerializeField] private Image silverAcquired;
-    [SerializeField] private Image goldAcquired;
-
-    [SerializeField] private Sprite acquiredIcon;
-    [SerializeField] private Sprite normalIcon;
-    //
 
     private float _timer;
     private bool _triggered;
@@ -82,25 +66,12 @@ public class ObjectiveManager : MonoBehaviour
         if (!stopTimer)
         {
             _timer += Time.deltaTime;
-            _newTimer = GetNewTimer(_timer);
-            FormatTimer(timerText, _newTimer[0], _newTimer[1], _newTimer[2]);
+            _newTimer = TimerFormatter.GetNewTimer(_timer);
+            TimerFormatter.FormatTimer(timerText, _newTimer[0], _newTimer[1], _newTimer[2]);
         }
     }
 
-    private int[] GetNewTimer(float time)
-    {
-        int[] aux = new int[3];
-        aux[0] = Mathf.FloorToInt(time / 60);
-        aux[1] = Mathf.FloorToInt(time % 60); 
-        aux[2] = Mathf.FloorToInt((time % 1) * 1000);
-
-        return aux;
-    }
-
-    private void FormatTimer(TMP_Text text, int minutes, int seconds, int miliseconds)
-    {
-        text.text = string.Format("{0:0}:{1:00}.{2:00}", minutes, seconds, miliseconds);
-    }
+    
 
     private void OnWinLevel()
     {
@@ -108,58 +79,8 @@ public class ObjectiveManager : MonoBehaviour
         _triggered = true;
         
         stopTimer = true;
-        
+
         LevelManager.SetLevelCompleteTime(_timer);
-        
-        var data = SaveAndLoad.Load();
-
-        var medals = data.LevelsMedalsTimes[currentLevel];
-
-
-
-        if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
-
-        if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
-
-        if (data.LevelsMedalsTimes[currentLevel].bronze.time > _timer) medals.bronze.isAcquired = true;
-
-        if (data.LevelsMedalsTimes[currentLevel].silver.time > _timer) medals.silver.isAcquired = true;
-
-        if (data.LevelsMedalsTimes[currentLevel].gold.time > _timer) medals.gold.isAcquired = true;
-
-        data.LevelsMedalsTimes[currentLevel] = medals;
-
-        Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[currentLevel].bronze.time}");
-        Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[currentLevel].bronze.isAcquired}");
-        Debug.Log($"Mi tiempo de silver es: {data.LevelsMedalsTimes[currentLevel].silver.time}");
-        Debug.Log($"Mi medalla de silver está adquirida: {data.LevelsMedalsTimes[currentLevel].silver.isAcquired}");
-        Debug.Log($"Mi tiempo de gold es: {data.LevelsMedalsTimes[currentLevel].gold.time}");
-        Debug.Log($"Mi medalla de gold está adquirida: {data.LevelsMedalsTimes[currentLevel].gold.isAcquired}");
-
-        _newTimer = GetNewTimer(data.BestTimes[currentLevel]);
-        FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
-        _newTimer = GetNewTimer(_timer);
-        FormatTimer(finalTimerText, _newTimer[0], _newTimer[1], _newTimer[2]);
-
-        //Esto es solo de prueba por el momento, modificar para que quede con el nuevo sistema de UI presenter
-        _newTimer = GetNewTimer(data.LevelsMedalsTimes[currentLevel].bronze.time);
-        FormatTimer(bronzeText, _newTimer[0], _newTimer[1], _newTimer[2]);
-        _newTimer = GetNewTimer(data.LevelsMedalsTimes[currentLevel].silver.time);
-        FormatTimer(silverText, _newTimer[0], _newTimer[1], _newTimer[2]);
-        _newTimer = GetNewTimer(data.LevelsMedalsTimes[currentLevel].gold.time);
-        FormatTimer(goldText, _newTimer[0], _newTimer[1], _newTimer[2]);
-
-        if (medals.bronze.isAcquired) bronzeAcquired.sprite = acquiredIcon;
-        else bronzeAcquired.sprite = normalIcon;
-
-        if (medals.silver.isAcquired) silverAcquired.sprite = acquiredIcon;
-        else silverAcquired.sprite = normalIcon;
-
-        if (medals.gold.isAcquired) goldAcquired.sprite = acquiredIcon;
-        else goldAcquired.sprite = normalIcon;
-        //
-
-        SaveAndLoad.Save(data);
 
     }
     
