@@ -87,11 +87,15 @@ namespace Game.Entities.AttackSystem.Hitscan
 
             if (AddSpread)
             {
-                direction += Vector3.one * Random.Range(-Spread, Spread);
-                direction.Normalize();
+                // Get a random point in a unit circle
+                var spread = Random.insideUnitCircle * Spread;
+                
+                // Build a rotation offset relative to the forward direction
+                var spreadRotation = Quaternion.Euler(spread.y, spread.x, 0);
+                direction = spreadRotation * direction;
             }
             
-            return direction;
+            return direction.normalized;
         }
         
         
