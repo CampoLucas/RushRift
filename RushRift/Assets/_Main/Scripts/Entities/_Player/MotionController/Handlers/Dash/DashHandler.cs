@@ -12,6 +12,7 @@ namespace Game.Entities.Components.MotionController
         private bool _isDashing;
         private Vector3 _dashDir;
         private float _elapsed;
+        private float _elapsedCooldown;
         
         // Collision Prevention
         private float _radius;
@@ -28,10 +29,28 @@ namespace Game.Entities.Components.MotionController
         public override void OnUpdate(in MotionContext context, in float delta)
         {
             base.OnUpdate(in context, in delta);
-            if (!_isDashing && context.Dash) StartDash(context);
+
+            Debug.Log($"SuperTest: Cooldown {_elapsedCooldown}");
+            
+            if (!_isDashing)
+            {
+                if (_elapsedCooldown > 0)
+                {
+                    _elapsedCooldown -= delta;
+                }
+                else if (context.Dash)
+                {
+                    _elapsedCooldown = Config.Cooldown;
+                    StartDash(context);
+                }
+            }
+            
+            
+            if (!_isDashing && _elapsedCooldown <= 0 && context.Dash) StartDash(context);
 
             if (_isDashing && UpdateStrategy.OnDashUpdate(context, delta))
             {
+                //_elapsedCooldown = Config.Cooldown;
                 _isDashing = false;
             }
             
@@ -51,6 +70,7 @@ namespace Game.Entities.Components.MotionController
 
             if (_isDashing && PerformDash(context, delta))
             {
+                //_elapsedCooldown = Config.Cooldown;
                 StopDash(context);
             }
         }
@@ -143,7 +163,12 @@ namespace Game.Entities.Components.MotionController
         public bool IsDashing() => _isDashing;
         public bool CanDash(IController controller)
         {
-            if (!_isDashing && controller.GetModel().TryGetComponent<EnergyComponent>(out var energy))
+            if (_isDashing || _elapsedCooldown > 0)
+            {
+                return false;
+            }
+            
+            if (controller.GetModel().TryGetComponent<EnergyComponent>(out var energy))
             {
                 return energy.Value >= Config.Cost;
             }

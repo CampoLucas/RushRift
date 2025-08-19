@@ -1,3 +1,4 @@
+using System;
 using Game;
 using UnityEngine;
 using Game.DesignPatterns.Observers;
@@ -9,7 +10,6 @@ using UnityEngine.SceneManagement;
 public class ObjectiveManager : MonoBehaviour
 {
     public int currentLevel => SceneManager.GetActiveScene().buildIndex;
-    //[SerializeField] private int currentLevel;// horrible, no asignes el numero del nivel con un serialize field, no hay manera de saber que nivel es fuera de esta clase.
     [SerializeField] private TMP_Text timerText;
     [SerializeField] private TMP_Text finalTimerText;
     [SerializeField] private TMP_Text bestTimerText;
@@ -37,8 +37,8 @@ public class ObjectiveManager : MonoBehaviour
         _onWinLevelObserver = new ActionObserver(OnWinLevel);
 
         WinTrigger.OnWinSaveTimes.Attach(_onWinLevelObserver);
-        EnemyController.OnEnemyDeathSubject.Attach(_decreaseObserver);
-        EnemyController.OnEnemySpawnSubject.Attach(_increaseObserver);
+        LevelManager.OnEnemyDeathSubject.Attach(_decreaseObserver);
+        LevelManager.OnEnemySpawnSubject.Attach(_increaseObserver);
 
         stopTimer = false;
         var data = SaveAndLoad.Load();
@@ -69,25 +69,11 @@ public class ObjectiveManager : MonoBehaviour
         if (!stopTimer)
         {
             _timer += Time.deltaTime;
-            _newTimer = GetNewTimer(_timer);
-            FormatTimer(timerText, _newTimer[0], _newTimer[1], _newTimer[2]);
+            _newTimer = TimerFormatter.GetNewTimer(_timer);
+            TimerFormatter.FormatTimer(timerText, _newTimer[0], _newTimer[1], _newTimer[2]);
         }
     }
 
-    private int[] GetNewTimer(float time)
-    {
-        int[] aux = new int[3];
-        aux[0] = Mathf.FloorToInt(time / 60);
-        aux[1] = Mathf.FloorToInt(time % 60); 
-        aux[2] = Mathf.FloorToInt((time % 1) * 1000);
-
-        return aux;
-    }
-
-    private void FormatTimer(TMP_Text text, int minutes, int seconds, int miliseconds)
-    {
-        text.text = string.Format("{0:0}:{1:00}.{2:00}", minutes, seconds, miliseconds);
-    }
 
     private void OnWinLevel()
     {
@@ -104,13 +90,26 @@ public class ObjectiveManager : MonoBehaviour
 
         if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
 
-        _newTimer = GetNewTimer(data.BestTimes[currentLevel]);
-        FormatTimer(bestTimerText,_newTimer[0],_newTimer[1],_newTimer[2]);
-        _newTimer = GetNewTimer(_timer);
-        FormatTimer(finalTimerText, _newTimer[0], _newTimer[1], _newTimer[2]);
-
         SaveAndLoad.Save(data);
 
     }
-    
+
+    private void OnDestroy()
+    {
+        WinTrigger.OnWinSaveTimes.Detach(_onWinLevelObserver);
+        LevelManager.OnEnemyDeathSubject.Detach(_decreaseObserver);
+        LevelManager.OnEnemySpawnSubject.Detach(_increaseObserver);
+        
+        _onWinLevelObserver?.Dispose();
+        _onWinLevelObserver = null;
+        _decreaseObserver?.Dispose();
+        _decreaseObserver = null;
+        _increaseObserver?.Dispose();
+        _increaseObserver = null;
+
+        timerText = null;
+        bestTimerText = null;
+        currentEnemiesText = null;
+        finalTimerText = null;
+    }
 }

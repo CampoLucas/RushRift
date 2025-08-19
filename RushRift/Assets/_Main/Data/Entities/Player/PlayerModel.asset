@@ -76,7 +76,7 @@ MonoBehaviour:
     speed: 5000
     maxSpeed: 35
     drag: 0.15
-    minThreshold: 0.01
+    minThreshold: 0
     maxThreshold: 0.05
     airMultiplier: 0.7
     airForwardMultiplier: 0.7
@@ -97,7 +97,7 @@ MonoBehaviour:
   airResistance:
     enabled: 1
     order: 10
-    airResistance: 0.96
+    airResistance: 0.98
   jump:
     enabled: 1
     order: 2
@@ -106,8 +106,9 @@ MonoBehaviour:
   dash:
     enabled: 1
     order: 99
-    force: 80
-    duration: 0.25
+    force: 145
+    duration: 0.3
+    cooldown: 0.15
     momentumMultiplier: 0.25
     cost: 1
     dirStrategy:
@@ -178,6 +179,7 @@ MonoBehaviour:
     max: 10
     regenDelay: 2
     regenRate: 0
+    onZeroHealth: 0
   energy:
     startValue: 0
     max: 5

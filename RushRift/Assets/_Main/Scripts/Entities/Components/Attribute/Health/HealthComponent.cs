@@ -1,5 +1,7 @@
+using System;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Game.Entities.Components
 {
@@ -7,7 +9,7 @@ namespace Game.Entities.Components
     {
         public Vector3 DamagePosition { get; private set; }
         //public ISubject OnHealthChanged { get; private set; } = new Subject();
-        
+
         private bool _damaged;
         private float _healthLost;
 
@@ -45,18 +47,6 @@ namespace Game.Entities.Components
         {
             _damaged = true;
             _healthLost = Value - previousValue;
-        }
-
-        public override void OnDraw(Transform origin)
-        {
-            
-        }
-
-        protected override void OnDispose()
-        {
-            base.OnDispose();
-            //OnHealthChanged.Dispose();
-            //OnHealthChanged = null;
         }
     }
 }

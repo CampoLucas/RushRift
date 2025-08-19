@@ -13,9 +13,16 @@ namespace Game.BehaviourTree.Nodes
         public bool IfAny => ifAny;
         public bool UseJoints => useJoins;
         public EntityJoint Joint => joint;
+
         
         [SerializeField] private FieldOfViewData fov;
         [SerializeField] private bool ifAny;
+        
+        [Header("Offsets")]
+        [SerializeField] private Vector3 originOffset;
+        [SerializeField] private bool originRelative;
+        [SerializeField] private Vector3 targetOffset;
+        [SerializeField] private bool targetRelative;
 
         [Header("Joints")]
         [SerializeField] private bool useJoins;
@@ -24,6 +31,24 @@ namespace Game.BehaviourTree.Nodes
         protected override INode OnCreateNode()
         {
             return new CheckFOVProxy(this);
+        }
+
+        public Vector3 GetOriginPos(Transform transform)
+        {
+            var pos = transform.position;
+            if (originOffset == Vector3.zero) return pos;
+
+            pos += originRelative ? transform.InverseTransformPoint(originOffset) : originOffset;
+            return pos;
+        }
+        
+        public Vector3 GetTargetPos(Transform transform)
+        {
+            var pos = transform.position;
+            if (targetOffset == Vector3.zero) return pos;
+
+            pos += targetRelative ? transform.InverseTransformPoint(targetOffset) : targetOffset;
+            return pos;
         }
 
         public override void OnDrawSelected(Transform origin)
@@ -68,7 +93,7 @@ namespace Game.BehaviourTree.Nodes
         {
             if (_origin == false || _target == false) return NodeState.Failure;
             
-            _fovParams = FOVParams.GetFOVParams(_origin.Get().position, _origin.Get().forward, _target.Get().position);
+            _fovParams = FOVParams.GetFOVParams(Data.GetOriginPos(_origin.Get()), _origin.Get().forward, Data.GetTargetPos(_target.Get()));
             return _fov.Evaluate(ref _fovParams) ? NodeState.Success : NodeState.Failure;
         }
 
