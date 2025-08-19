@@ -10,29 +10,29 @@ using UnityEngine.SceneManagement;
 
 namespace _Main.Scripts.Tools
 {
-    internal static class HierarchySortTools
+    internal static class HierarchySort
     {
         [MenuItem("Tools/Hierarchy/Sort Selected Naturally (A→Z)")]
-        static void SortSelectedAsc() => SortSelected(true);
+        private static void SortSelectedAsc() => SortSelected(true);
 
         [MenuItem("Tools/Hierarchy/Sort Selected Naturally (Z→A)")]
-        static void SortSelectedDesc() => SortSelected(false);
+        private static void SortSelectedDesc() => SortSelected(false);
 
         [MenuItem("Tools/Hierarchy/Sort Children Naturally (A→Z)")]
-        static void SortChildrenAsc() => SortChildren(true);
+        private static void SortChildrenAsc() => SortChildren(true);
 
         [MenuItem("Tools/Hierarchy/Sort Children Naturally (Z→A)")]
-        static void SortChildrenDesc() => SortChildren(false);
+        private static void SortChildrenDesc() => SortChildren(false);
 
         [MenuItem("Tools/Hierarchy/Sort Selected Naturally (A→Z)", true)]
         [MenuItem("Tools/Hierarchy/Sort Selected Naturally (Z→A)", true)]
         [MenuItem("Tools/Hierarchy/Sort Children Naturally (A→Z)", true)]
         [MenuItem("Tools/Hierarchy/Sort Children Naturally (Z→A)", true)]
-        static bool ValidateHasSelection() => Selection.transforms != null && Selection.transforms.Length > 0;
+        private static bool ValidateHasSelection() => Selection.transforms != null && Selection.transforms.Length > 0;
 
-        static readonly NaturalUnityNameComparer NameComparer = new NaturalUnityNameComparer();
+        private static readonly NaturalUnityNameComparer NameComparer = new NaturalUnityNameComparer();
 
-        static void SortSelected(bool ascending)
+        private static void SortSelected(bool ascending)
         {
             var selected = Selection.transforms;
             var groups = selected.GroupBy(t => new ParentKey(t.parent, t.gameObject.scene));
@@ -54,7 +54,7 @@ namespace _Main.Scripts.Tools
             }
         }
 
-        static void SortChildren(bool ascending)
+        private static void SortChildren(bool ascending)
         {
             foreach (var parent in Selection.transforms)
             {
@@ -75,7 +75,7 @@ namespace _Main.Scripts.Tools
             }
         }
 
-        readonly struct ParentKey
+        private readonly struct ParentKey
         {
             public readonly Transform parent;
             public readonly Scene scene;
@@ -84,7 +84,7 @@ namespace _Main.Scripts.Tools
             public override bool Equals(object obj) => obj is ParentKey k && k.parent == parent && k.scene == scene;
         }
 
-        sealed class NaturalUnityNameComparer : IComparer<string>
+        private sealed class NaturalUnityNameComparer : IComparer<string>
         {
             static readonly Regex ParenNumber = new Regex(@"^\s*(.*?)(?:\s*\((\d+)\))?\s*$",
                 RegexOptions.Compiled | RegexOptions.CultureInvariant);

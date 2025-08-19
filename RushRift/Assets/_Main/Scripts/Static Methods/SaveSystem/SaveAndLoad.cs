@@ -18,7 +18,9 @@ public class SaveAndLoad
         _create = new FileStream(Path, FileMode.Create);
         _formatter.Serialize(_create, data);
         _create.Close();
+#if UNITY_EDITOR
         Debug.Log($"Saved data at: {Path}");
+#endif
     }
 
     public static SaveData Load()
@@ -34,9 +36,25 @@ public class SaveAndLoad
         }
         else
         {
+#if UNITY_EDITOR
             Debug.LogWarning($"Save file not found in {Path}, creating new save");
+#endif
             Save(data);
             return data;
         }
+    }
+
+    public static void Reset()
+    {
+        Save(new SaveData());
+    }
+
+
+    public static void AddMoney(int amount)
+    {
+        var data = Load();
+
+        data.playerCurrency += amount;
+        Save(data);
     }
 }
