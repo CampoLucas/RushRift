@@ -48,7 +48,8 @@ namespace Game.Entities.Components.MotionController.Strategies
                         continue;
                     }
 
-                    if (_damagedEntities.Contains(other.gameObject) || !other.gameObject.TryGetComponent<IController>(out var controller) || !controller.GetModel().TryGetComponent<HealthComponent>(out var health))
+                    if (_damagedEntities.Contains(other.gameObject) || 
+                        !other.gameObject.TryGetComponent<IController>(out var controller))
                     {
                         continue;
                     }
@@ -63,9 +64,19 @@ namespace Game.Entities.Components.MotionController.Strategies
                     //     continue;
                     // }
 
-                    _damagedEntities.Add(other.gameObject);
-                    if (_config.InstaKill) health.Intakill(context.Position);
-                    else health.Damage(_config.Damage, context.Position);
+                    var model = controller.GetModel();
+                    if (model.TryGetComponent<HealthComponent>(out var health))
+                    {
+                        _damagedEntities.Add(other.gameObject);
+                        if (_config.InstaKill) health.Intakill(context.Position);
+                        else health.Damage(_config.Damage, context.Position);
+                    }
+                    else if (model.TryGetComponent<DestroyableComponent>(out var destroyable))
+                    {
+                        destroyable.DestroyEntity();
+                    }
+
+                    
                 }
                 
                 Debug.Log("SuperTest: Detected something");

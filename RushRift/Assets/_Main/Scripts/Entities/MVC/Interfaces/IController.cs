@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -34,5 +35,8 @@ namespace Game.Entities
         /// </summary>
         /// <returns></returns>
         Vector3 MoveDirection();
+
+        bool TryGetObserver(string key, out IObserver observer);
+        bool TryGetSubject(string key, out ISubject subject);
     }
 }
