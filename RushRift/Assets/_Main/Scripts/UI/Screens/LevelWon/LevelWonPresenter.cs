@@ -9,6 +9,8 @@ namespace Game.UI.Screens
     public class LevelWonPresenter : UIPresenter<LevelWonModel, LevelWonView>
     {
         [SerializeField] private Button continueButton;
+        [SerializeField] private Button retryButton;
+        [SerializeField] private Button hubButton;
 
         public override void Begin()
         {
@@ -19,6 +21,7 @@ namespace Game.UI.Screens
             // Set Cursor
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
+            CheckTime();
         }
 
         public override void End()
@@ -31,6 +34,20 @@ namespace Game.UI.Screens
         private void Awake()
         {
             continueButton.onClick.AddListener(OnLoadNextHandler);
+            retryButton.onClick.AddListener(RetryLevelHandler);
+            hubButton.onClick.AddListener(HubLevelHandler);
+            
+        }
+
+        private void HubLevelHandler()
+        {
+            SceneManager.LoadScene(0);
+        }
+
+        private void RetryLevelHandler()
+        {
+            var currentIndex = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentIndex);
         }
 
         private void OnLoadNextHandler()
@@ -39,6 +56,7 @@ namespace Game.UI.Screens
             var currentIndex = SceneManager.GetActiveScene().buildIndex;
 
             var sceneToLoad = 0;
+
             
             if (currentIndex < sceneCount - 1)
             {
@@ -48,9 +66,26 @@ namespace Game.UI.Screens
             SceneManager.LoadScene(sceneToLoad);
         }
 
+        private void CheckTime()
+        {
+            var data = SaveAndLoad.Load();
+            var currentTime = LevelManager.LevelCompleteTime();
+            var currentIndex = SceneManager.GetActiveScene().buildIndex;
+
+
+            if (currentTime > data.LevelsMedalsTimes[currentIndex].bronze.time)
+            {
+                continueButton.interactable = false;
+                return;
+            }
+
+        }
+
         private void OnDestroy()
         {
             continueButton.onClick.RemoveAllListeners();
+            retryButton.onClick.RemoveAllListeners();
+            hubButton.onClick.RemoveAllListeners();
         }
     }
 }

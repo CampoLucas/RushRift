@@ -16,6 +16,12 @@ public class SaveData
         private set => _bestTimes = value;
     }
 
+    public Dictionary<int, medalTimes> LevelsMedalsTimes
+    {
+        get => _levelsMedalsTimes ??= new Dictionary<int, medalTimes>();
+        private set => _levelsMedalsTimes = value;
+    }
+
     /// <summary>
     /// A property that in the case someone plays with an old save that didn't had the UnlockedEffects dictionary, it creates it.
     /// </summary>
@@ -47,6 +53,7 @@ public class SaveData
     
     private Dictionary<int, bool> _unlockedEffects = new();
     private Dictionary<int, float> _bestTimes = new();
+    private Dictionary<int, medalTimes> _levelsMedalsTimes = new();
     private CameraSettings _camera = new();
     private SoundSettings _sound = new();
     
@@ -80,5 +87,6 @@ public class SoundSettings
     public float musicVolume = 1;
     public float sfxVolume = 1;
 }
+
 
 
