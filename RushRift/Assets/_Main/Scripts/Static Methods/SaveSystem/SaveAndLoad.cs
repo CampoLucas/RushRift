@@ -5,11 +5,12 @@ using Game.Entities;
 
 public class SaveAndLoad
 {
-    //private static string path = Application.persistentDataPath + "/save64mario.data";
     private static readonly string Path = $"{Application.persistentDataPath}/rushrift_{Application.version}.save";
     private static BinaryFormatter _formatter;
     private static FileStream _create;
     private static FileStream _open;
+
+    public static string SaveFilePath => Path;
 
     public static void Save(SaveData data)
     {
@@ -17,8 +18,8 @@ public class SaveAndLoad
         _create = new FileStream(Path, FileMode.Create);
         _formatter.Serialize(_create, data);
         _create.Close();
+        Debug.Log($"Saved data at: {Path}");
     }
-
 
     public static SaveData Load()
     {
@@ -33,11 +34,9 @@ public class SaveAndLoad
         }
         else
         {
-            Debug.LogWarning($"Save file not found in {Path}, creating new save" );
+            Debug.LogWarning($"Save file not found in {Path}, creating new save");
             Save(data);
             return data;
         }
     }
-} 
-    
-
+}
