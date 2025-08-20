@@ -8005,6 +8005,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2e8fa2d21204674bb06a2295100a356, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _lockMouse: 1
 --- !u!1 &751210900
 GameObject:
   m_ObjectHideFlags: 0
@@ -12891,6 +12892,9 @@ MonoBehaviour:
   finalTimerText: {fileID: 0}
   bestTimerText: {fileID: 0}
   currentEnemiesText: {fileID: 413758152}
+  timerTexts: []
+  finalTimerTexts: []
+  bestTimerTexts: []
 --- !u!114 &1214628676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18291,6 +18295,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1685105573807279176, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_Size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1685105573807279176, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_Value
       value: 1
       objectReference: {fileID: 0}
@@ -18674,10 +18682,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4780963860088895516, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 96.492004
-      objectReference: {fileID: 0}
     - target: {fileID: 4788015103501408367, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_Name
       value: UI
@@ -18720,7 +18724,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.050376836
+      value: 0.0026341998
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x
