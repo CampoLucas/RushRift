@@ -28,6 +28,8 @@ namespace Game.Inputs
 
         private PlayerControls _playerControls;
 
+        [SerializeField] private bool _lockMouse = true;
+
         #region InputFlags
 
         private bool _heavyFlag;
@@ -62,15 +64,26 @@ namespace Game.Inputs
         private void OnEnable()
         {
             if (_playerControls == null) _playerControls = new();
-            
             _playerControls.Enable();
+            ApplyCursorState();
         }
 
         private void OnDisable()
         {
             if (_playerControls == null) return;
-            
             _playerControls.Disable();
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus) ApplyCursorState();
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
         }
 
         public static bool OnButton(HashedKey key)
@@ -124,7 +137,6 @@ namespace Game.Inputs
 
         private void InitInputs()
         {
-            // Set hashes
             MoveInput = new HashedKey("move");
             LookInput = new HashedKey("look");
             InteractInput = new HashedKey("interact");
@@ -136,12 +148,10 @@ namespace Game.Inputs
             PauseInput = new HashedKey("pause");
             MousePosition = new HashedKey("mouse-pos");
             
-            // Add Value Inputs
             AddValueInput(MoveInput, MoveValue);
             AddValueInput(LookInput, LookValue);
             AddValueInput(MousePosition, MousePosValue);
             
-            // Add Action Inputs
             AddActionInput(InteractInput, InteractAction, InteractActionStarted, InteractActionCanceled);
             AddActionInput(JumpInput, JumpAction, JumpActionStarted, JumpActionCanceled);
             AddActionInput(PrimaryAttackTapInput, PrimaryAttackTap, PrimaryAttackTapStarted, PrimaryAttackTapCanceled);
@@ -149,9 +159,22 @@ namespace Game.Inputs
             AddActionInput(SecondaryAttackInput, SecondaryAttackAction, SecondaryAttackStarted, SecondaryAttackCanceled);
             AddActionInput(PrimaryAttackInput, PrimaryAttack, PrimaryAttackStarted, PrimaryAttackCanceled);
             
-            // Add Button Inputs
             AddButtonInput(PauseInput, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
             AddButtonInput(JumpInput, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
+        }
+
+        private void ApplyCursorState()
+        {
+            if (_lockMouse)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
         }
 
         #region Add Inputs Methods

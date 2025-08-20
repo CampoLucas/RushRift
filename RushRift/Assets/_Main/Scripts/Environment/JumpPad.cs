@@ -1,49 +1,86 @@
-using Game.Entities;
-using Game.Entities.Components;
 using UnityEngine;
 
-/// <summary>
-/// 🟩 Launches the player when they enter the trigger zone.
-/// </summary>
-[AddComponentMenu("Player/Environment/Jump Pad")]
+[DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
 public class JumpPad : MonoBehaviour
 {
-    #region Serialized Fields
-
-    [Header("Launch Settings")]
-    [Tooltip("Vertical force applied to the player.")]
-    [SerializeField, Range(5f, 1000f)] private float launchForce = 20f;
-
-    [Tooltip("Extra forward push applied based on pad direction.")]
-    [SerializeField, Range(0f, 20f)] private float forwardBoost;
-
-    [Tooltip("Launch direction override. Uses transform.up by default.")]
-    [SerializeField] private Vector3 launchDirection = Vector3.up;
-
-    #endregion
-
-    #region Unity Methods
-
-    private void OnTriggerEnter(Collider other)
+    public enum DirectionSource
     {
-        if (!other.CompareTag("Player")) return;
-
-        if (other.TryGetComponent(out IController controller) && controller.GetModel().TryGetComponent<IMovement>(out var movement))
-        {
-            // Get pad direction
-            Vector3 direction = transform.TransformDirection(launchDirection.normalized);
-            Vector3 impulse = direction * launchForce;
-
-            // Add optional horizontal boost
-            if (forwardBoost > 0)
-            {
-                impulse += transform.forward * forwardBoost;
-            }
-
-            movement.ApplyImpulse(impulse);
-        }
+        WorldUp,
+        PadUp,
+        CustomVector,
+        TransformForward
     }
 
-    #endregion
+    [SerializeField] float launchSpeed = 12f;
+    [SerializeField] DirectionSource directionSource = DirectionSource.PadUp;
+    [SerializeField] Vector3 customDirection = Vector3.up;
+    [SerializeField] Transform directionTransform;
+    [SerializeField] bool resetTangentialVelocity = false;
+    [SerializeField] bool triggerOnlyOnEnter = true;
+
+    void Reset()
+    {
+        var c = GetComponent<Collider>();
+        if (c) c.isTrigger = true;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (triggerOnlyOnEnter) TryLaunch(other);
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        if (!triggerOnlyOnEnter) TryLaunch(other);
+    }
+
+    void TryLaunch(Collider other)
+    {
+        var rb = other.attachedRigidbody ? other.attachedRigidbody : other.GetComponentInParent<Rigidbody>();
+        if (!rb) return;
+        if (!rb.gameObject.CompareTag("Player")) return;
+
+        var dir = GetDirection();
+        var v = rb.velocity;
+
+        float along = Vector3.Dot(v, dir);
+        var tangential = v - dir * along;
+        if (resetTangentialVelocity) tangential = Vector3.zero;
+
+        rb.velocity = tangential + dir * Mathf.Max(launchSpeed, 0f);
+    }
+
+    Vector3 GetDirection()
+    {
+        Vector3 dir;
+        switch (directionSource)
+        {
+            case DirectionSource.WorldUp:
+                dir = Vector3.up;
+                break;
+            case DirectionSource.PadUp:
+                dir = transform.up;
+                break;
+            case DirectionSource.CustomVector:
+                dir = customDirection;
+                break;
+            case DirectionSource.TransformForward:
+                dir = directionTransform ? directionTransform.forward : Vector3.forward;
+                break;
+            default:
+                dir = transform.up;
+                break;
+        }
+
+        if (dir.sqrMagnitude < 1e-6f) dir = Vector3.up;
+        return dir.normalized;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        var dir = GetDirection();
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawRay(transform.position, dir * Mathf.Max(launchSpeed * 0.25f, 0.25f));
+    }
 }

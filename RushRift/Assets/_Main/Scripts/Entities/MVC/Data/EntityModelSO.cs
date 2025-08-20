@@ -10,5 +10,7 @@ namespace Game.Entities
         /// </summary>
         /// <returns>A new model proxy</returns>
         public abstract NullCheck<IModel> GetProxy();
+
+        public abstract void Init(in IController controller, in IModel model);
     }
 }

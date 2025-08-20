@@ -35,13 +35,36 @@ public class ShopManager : MonoBehaviour
         if (data != null) playerCurrency = data.playerCurrency;
         scoreText.text = playerCurrency.ToString();
 
+        if (data.LevelsMedalsTimes.Count > 0)
+        {
+            Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[1].bronze.time}");
+            Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
+            Debug.Log($"Mi tiempo de silver es: {data.LevelsMedalsTimes[1].silver.time}");
+            Debug.Log($"Mi medalla de silver está adquirida: {data.LevelsMedalsTimes[1].silver.isAcquired}");
+            Debug.Log($"Mi tiempo de gold es: {data.LevelsMedalsTimes[1].gold.time}");
+            Debug.Log($"Mi medalla de gold está adquirida: {data.LevelsMedalsTimes[1].gold.isAcquired}");
+        }
+        
+
         if (dashDamagePerk == null)
         {
             Debug.Log("SuperTest: dashDamagePerk is null");
         }
-        
+
         DisablePurchase(dashDamagePerk, dashDamageEffect);
         DisablePurchase(increaseCurrentEnergy, increaseCurrentEnergyEffect);
+
+        //if (data.LevelsMedalsTimes.Count != 0) return;  //linea para que solo cargue los tiempos una vez al arrancar el juego
+
+        foreach (var item in ScriptableReference.Instance.medalReferences)
+        {
+            if (data.LevelsMedalsTimes.ContainsKey(item.levelNumber)) continue;
+            data.LevelsMedalsTimes.Add(item.levelNumber, item.levelMedalTimes);
+        }
+
+
+
+        SaveAndLoad.Save(data);
     }
 
 
@@ -60,11 +83,6 @@ public class ShopManager : MonoBehaviour
         SaveAndLoad.Save(data);
         DisablePurchase(thisButton, perk);
 
-    }
-
-    public void LoadLevel()
-    {
-        SceneManager.LoadScene("Level_1_Rework");
     }
 
 

@@ -10,10 +10,13 @@ public struct EffectsReferences
     public Effect effect;
 }
 
+
+
 public  class ScriptableReference : MonoBehaviour
 {
     private static ScriptableReference _instance;
     public List<EffectsReferences> effectsReferences = new();
+    public List<LevelMedalsSO> medalReferences = new();
     public static ScriptableReference Instance => _instance;
 
     private void Awake()

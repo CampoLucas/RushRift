@@ -184,6 +184,12 @@ namespace Game.Entities.Components.MotionController
             {
                 t.OnDraw(origin);
             }
+            
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(origin.position, _rb.velocity.normalized * 5);
+#if UNITY_EDITOR
+            UnityEditor.Handles.Label(origin.position,$"V:{_rb.velocity.magnitude:0.00} X{_rb.velocity.x:0.00} Y{_rb.velocity.y:0.00} Z{_rb.velocity.z:0.00}");
+#endif
         }
 
         public void OnDrawSelected(Transform origin)
@@ -233,7 +239,7 @@ namespace Game.Entities.Components.MotionController
 
         public bool StartDash()
         {
-            if (!TryGetHandler<DashHandler>(out var dash) || dash.IsDashing()) return false;
+            //if (!TryGetHandler<DashHandler>(out var dash) || dash.IsDashing()) return false;
             
             _context.Dash = true;
             return true;

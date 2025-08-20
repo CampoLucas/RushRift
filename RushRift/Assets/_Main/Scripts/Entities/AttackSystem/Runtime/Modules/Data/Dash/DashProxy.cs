@@ -10,10 +10,12 @@ namespace Game.Entities.AttackSystem
     {
         private NullCheck<MotionController> _motion;
         private NullCheck<EnergyComponent> _energy;
+        private IController _controller;
         
         public DashProxy(DashModule data, IModuleProxy[] children, IController controller, bool disposeData = false) : base(data, children, disposeData)
         {
             if (controller == null || !controller.Origin) return;
+            _controller = controller;
             
             if (controller.GetModel().TryGetComponent<MotionController>(out var motion)) _motion.Set(motion);
             if (controller.GetModel().TryGetComponent<EnergyComponent>(out var energy)) _energy.Set(energy);
@@ -57,8 +59,17 @@ namespace Game.Entities.AttackSystem
 
             var motion = _motion.Get();
             
-            if (!motion.StartDash() || !_energy || !motion.TryGetHandler<DashHandler>(out var dash)) return;
+            //if (!motion.StartDash() || !_energy || !motion.TryGetHandler<DashHandler>(out var dash)) return;
+            if (!motion.TryGetHandler<DashHandler>(out var dash) || !dash.CanDash(_controller)) return;
+            Debug.Log("Dash");
             _energy.Get().Decrease(dash.GetCost());
+            motion.StartDash();
+        }
+
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            _controller = null;
         }
     }
 }
