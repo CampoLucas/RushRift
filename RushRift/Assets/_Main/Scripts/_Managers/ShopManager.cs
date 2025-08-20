@@ -38,11 +38,11 @@ public class ShopManager : MonoBehaviour
         if (data.LevelsMedalsTimes.Count > 0)
         {
             Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[1].bronze.time}");
-            Debug.Log($"Mi medalla de bronze está adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
+            Debug.Log($"Mi medalla de bronze estï¿½ adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
             Debug.Log($"Mi tiempo de silver es: {data.LevelsMedalsTimes[1].silver.time}");
-            Debug.Log($"Mi medalla de silver está adquirida: {data.LevelsMedalsTimes[1].silver.isAcquired}");
+            Debug.Log($"Mi medalla de silver estï¿½ adquirida: {data.LevelsMedalsTimes[1].silver.isAcquired}");
             Debug.Log($"Mi tiempo de gold es: {data.LevelsMedalsTimes[1].gold.time}");
-            Debug.Log($"Mi medalla de gold está adquirida: {data.LevelsMedalsTimes[1].gold.isAcquired}");
+            Debug.Log($"Mi medalla de gold estï¿½ adquirida: {data.LevelsMedalsTimes[1].gold.isAcquired}");
         }
         
 
@@ -106,6 +106,6 @@ public class ShopManager : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        SceneManager.LoadScene("Level_1_ReRework");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }
