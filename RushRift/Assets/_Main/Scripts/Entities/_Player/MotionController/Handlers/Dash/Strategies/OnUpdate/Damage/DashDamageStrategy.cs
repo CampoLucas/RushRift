@@ -22,8 +22,15 @@ namespace Game.Entities.Components.MotionController.Strategies
             _damagedEntities.Clear();
         }
         
-        public bool OnDashUpdate(in MotionContext context, in float delta)
+        public bool OnUpdate(in MotionContext context, in float delta)
         {
+            return false;
+        }
+
+        public bool OnLateUpdate(in MotionContext context, in float delta)
+        {
+            return false;
+            
             Debug.Log("SuperTest: Damage Dash update");
             if (_detection == null)
             {
@@ -88,12 +95,42 @@ namespace Game.Entities.Components.MotionController.Strategies
             Debug.Log("SuperTest: Detected nothing");
             return false;
         }
-        
+
+        public bool OnCollision(in MotionContext context, in Collider other)
+        {
+            // if it doesn't work, cast a sphere cast, because it will technically only work on only one entity at a time
+            if (_damagedEntities.Contains(other.gameObject) || 
+                !other.gameObject.TryGetComponent<IController>(out var controller))
+            {
+                return true;
+            }
+            
+            var model = controller.GetModel();
+            if (model.TryGetComponent<HealthComponent>(out var health))
+            {
+                _damagedEntities.Add(other.gameObject);
+                if (_config.InstaKill) health.Intakill(context.Position);
+                else health.Damage(_config.Damage, context.Position);
+
+                return _config.StopWhenKilling;
+            }
+            
+            if (model.TryGetComponent<DestroyableComponent>(out var destroyable))
+            {
+                destroyable.DestroyEntity();
+
+                return _config.StopWhenDestroying;
+            }
+
+            return true;
+        }
+
         public void Dispose()
         {
             _detection?.Dispose();
             _detection = null;
 
+            _damagedEntities.Clear();
             _damagedEntities = null;
 
             _config = null;
