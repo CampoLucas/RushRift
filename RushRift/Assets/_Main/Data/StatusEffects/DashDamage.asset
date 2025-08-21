@@ -29,17 +29,10 @@ MonoBehaviour:
         serializedVersion: 2
         m_Bits: 200
   dashDamageConfig:
-    <InstaKill>k__BackingField: 1
-    <Damage>k__BackingField: 0
-    <DetectionData>k__BackingField:
-      offset: {x: 0, y: 2.36, z: 0}
-      radius: 3
-      maxCollisions: 5
-      mask:
-        serializedVersion: 2
-        m_Bits: 512
-    stopWhenKillingEntities: 1
-    stopWhenDestroyingEntities: 0
+    instaKill: 1
+    damage: 100
+    stopOnDamage: 1
+    stopOnDestroy: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
