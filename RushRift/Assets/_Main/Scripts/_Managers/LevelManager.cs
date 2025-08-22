@@ -31,8 +31,9 @@ namespace Game
         private bool _gameOver;
         private bool _gameOverNotified;
         private float _levelCompleteTime;
-        
-        
+        public static bool CanUseTerminal { get; set; } = true;
+
+
         private void Awake()
         {
             _instance = this;

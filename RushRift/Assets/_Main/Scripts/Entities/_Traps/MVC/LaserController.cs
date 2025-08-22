@@ -1,6 +1,7 @@
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.LevelElements.Terminal;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -16,6 +17,9 @@ namespace Game.Entities
             base.Awake();
 
             _onDieObserver = new ActionObserver(OnDieHandler);
+
+            AddObserver(Terminal.ON_ARGUMENT, new ActionObserver(OnHandler));
+            AddObserver(Terminal.OFF_ARGUMENT, new ActionObserver(OffHandler));
         }
 
         protected override void Start()
@@ -48,6 +52,16 @@ namespace Game.Entities
         private void OnDieHandler()
         {
             Destroy(gameObject);
+        }
+
+        private void OnHandler()
+        {
+            Debug.Log("SuperTest: Laser on");
+        }
+
+        private void OffHandler()
+        {
+            Debug.Log("SuperTest: Laser off");
         }
     }
 }

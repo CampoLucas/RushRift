@@ -6,6 +6,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using Game.Detection;
+using Game.LevelElements.Terminal;
 using Unity.VisualScripting;
 using Object = UnityEngine.Object;
 
@@ -101,6 +102,10 @@ namespace Game.Entities.AttackSystem.Hitscan
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                 {
                     healthComponent.Damage(Data.Damage, spawnPos);
+                }
+                else if (LevelManager.CanUseTerminal && other.TryGetComponent<Terminal>(out var terminal))
+                {
+                    terminal.Do();
                 }
 
                 LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
