@@ -49,6 +49,13 @@ namespace Game.Entities
 
             base.Awake();
             
+            
+            
+            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
+        }
+
+        protected override void Start()
+        {
             var scriptableReference = ScriptableReference.Instance;
 
             if (scriptableReference)
@@ -59,11 +66,6 @@ namespace Game.Entities
                 }
             }
             
-            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
-        }
-
-        protected override void Start()
-        {
             base.Start();
             
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
