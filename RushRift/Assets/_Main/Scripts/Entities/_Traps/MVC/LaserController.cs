@@ -11,6 +11,7 @@ namespace Game.Entities
     {
         private ActionObserver _onDieObserver;
         private ISubject _onDieSubject;
+        private NullCheck<LaserComponent> _laserComp;
 
         protected override void Awake()
         {
@@ -57,11 +58,26 @@ namespace Game.Entities
         private void OnHandler()
         {
             Debug.Log("SuperTest: Laser on");
+            if (!_laserComp.TryGetValue(out var laserComp))
+            {
+                if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
+                else return;
+            }
+
+            laserComp.TurnOn();
         }
 
         private void OffHandler()
         {
             Debug.Log("SuperTest: Laser off");
+            
+            if (!_laserComp.TryGetValue(out var laserComp))
+            {
+                if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
+                else return;
+            }
+
+            laserComp.TurnOff();
         }
     }
 }

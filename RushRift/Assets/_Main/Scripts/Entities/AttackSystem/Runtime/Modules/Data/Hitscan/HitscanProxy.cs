@@ -103,7 +103,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                 {
                     healthComponent.Damage(Data.Damage, spawnPos);
                 }
-                else if (LevelManager.CanUseTerminal && other.TryGetComponent<Terminal>(out var terminal))
+                else if (LevelManager.CanUseTerminal && other.layer == 12 && other.TryGetComponent<Terminal>(out var terminal))
                 {
                     terminal.Do();
                 }
