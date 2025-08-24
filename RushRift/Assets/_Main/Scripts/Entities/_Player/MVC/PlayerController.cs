@@ -75,7 +75,9 @@ namespace Game.Entities
             var saveData = SaveAndLoad.Load();
 
             if (saveData == null) return;
-            effectsID = saveData.GetActiveEffects();
+            //effectsID = saveData.GetActiveEffects();
+            effectsID.AddRange(saveData.GetActiveEffects());
+            
             Debug.Log($"SuperTest: Active effects {effects.Count}");
             if (effects == null || effects.Count == 0) return;
 
