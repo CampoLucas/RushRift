@@ -4,9 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
+public enum UpgradeEnum
+{
+    DashAttack,
+    GainEnergyOnKill,
+    Lightning,
+}
+
+[System.Serializable]
 public struct EffectsReferences
 {
-    public int ID;
+    public UpgradeEnum upgradeEnum;
     public Effect effect;
 }
 

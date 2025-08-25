@@ -1,6 +1,7 @@
 using Game.DesignPatterns.Observers;
 using Game.VFX;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 namespace Game
@@ -95,6 +96,12 @@ namespace Game
         public static int CurrentPoints()
         {
             if (_instance) return _instance.scoreManager.CurrentPoints;
+            return 0;
+        }
+
+        public static int GetCurrentLevel()
+        {
+            if (_instance) return SceneManager.GetActiveScene().buildIndex;
             return 0;
         }
 
