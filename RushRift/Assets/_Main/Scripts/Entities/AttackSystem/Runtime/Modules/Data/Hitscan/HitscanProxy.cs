@@ -6,6 +6,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using Game.Detection;
+using Game.LevelElements.Terminal;
 using Unity.VisualScripting;
 using Object = UnityEngine.Object;
 
@@ -91,7 +92,7 @@ namespace Game.Entities.AttackSystem.Hitscan
 #if false
             if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.EntityMask))
 #else
-            if (HitEntity(spawnPos, direction, .5f, out var point, out var collider)) // Checks if it collided with an entity
+            if (HitEntity(spawnPos, direction, Data.Radius, out var point, out var collider)) // Checks if it collided with an entity
 #endif
             {
                 _detected = true;
@@ -101,6 +102,10 @@ namespace Game.Entities.AttackSystem.Hitscan
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                 {
                     healthComponent.Damage(Data.Damage, spawnPos);
+                }
+                else if (LevelManager.CanUseTerminal && other.layer == 12 && other.TryGetComponent<Terminal>(out var terminal))
+                {
+                    terminal.Do();
                 }
 
                 LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
@@ -144,13 +149,14 @@ namespace Game.Entities.AttackSystem.Hitscan
         private Collider[] _colliders = new Collider[3];
         private bool HitEntity(Vector3 spawnPos, Vector3 direction, float handRadius, out Vector3 closestPoint, out Collider collider)
         {
-            if (Physics.SphereCast(spawnPos, Data.Radius, direction, out var hit, Data.Range, Data.EntityMask))
+            if (Physics.SphereCast(spawnPos, handRadius, direction, out var hit, Data.Range, Data.EntityMask))
             {
                 closestPoint = hit.point;
                 collider = hit.collider;
                 return true;
             }
 
+            //if (Physics.OverlapSphere(spawnPos, Data.Radius, Data.EntityMask) > 0)
             if (Physics.OverlapSphereNonAlloc(spawnPos, handRadius, _colliders, Data.EntityMask) > 0)
             {
                 collider = _colliders.FirstOrDefault();

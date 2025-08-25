@@ -10,7 +10,7 @@ namespace Game.Entities
     /// Interface used to abstract interactions with any type of controller,
     /// allowing systems (AI, animations, input, etc.) to work without knowing the specific controller implementation.
     /// </summary>
-    public interface IController : IDisposable
+    public interface IController : IDisposable, DesignPatterns.Observers.IObserver<string>
     {
         /// <summary>
         /// World origin point for the entity (usually its transform)

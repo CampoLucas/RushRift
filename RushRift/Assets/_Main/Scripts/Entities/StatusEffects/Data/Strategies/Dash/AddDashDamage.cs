@@ -16,7 +16,6 @@ namespace Game.Entities.Dash
         
         protected override void OnStartEffect(Transform origin, DashHandler dash)
         {
-            Debug.Log("SuperTest: Add Dash Damage Strategies");
             dash.DirStrategy.Add(DashDirEnum.Target, new DashTargetStrategy(targetConfig));
             dash.UpdateStrategy.Add(DashUpdateEnum.Damage, new DashDamageStrategy(dashDamageConfig));
         }

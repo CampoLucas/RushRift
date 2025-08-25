@@ -8,7 +8,6 @@ namespace Game.Entities.Dash
     {
         public sealed override void StartEffect(IController controller)
         {
-            Debug.Log("SuperTest: Start Dash Effect.");
             if (!controller.GetModel().TryGetComponent<MotionController>(out var motion))
             {
 #if UNITY_EDITOR
