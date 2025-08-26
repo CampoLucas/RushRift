@@ -3,6 +3,8 @@ using Game.VFX;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using System.Collections.Generic;
+
 
 namespace Game
 {
@@ -15,9 +17,10 @@ namespace Game
         public static readonly ISubject OnEnemyDeathSubject = new Subject(); // ToDo: Move it to the a EnemyManager and dispose of all references
         public static readonly ISubject OnEnemySpawnSubject = new Subject();
         public static readonly ISubject<int> OnEnemyGivesPoints = new Subject<int>();
-        
+
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
+        [SerializeField] private ScriptableReferenceSO scriptableReference;
         [FormerlySerializedAs("vfxPool")] [SerializeField] private EffectPool effectPool; // Por ahora lo pongo aca para que no sea un singleton
 
         private static LevelManager _instance;
@@ -27,19 +30,23 @@ namespace Game
         private IObserver _onPlayerDeath;
         private IObserver _onEnemyDeath;
 
+        private Dictionary<UpgradeEnum, Entities.Effect> effectsReferencesDic = new();
+
         private int _allEnemies;
         private int _deadEnemies;
         private bool _gameOver;
         private bool _gameOverNotified;
         private float _levelCompleteTime;
-        
-        
+
+
         private void Awake()
         {
             _instance = this;
-            
+
             _onPlayerDeath = new ActionObserver(OnPlayerDeath);
             _onEnemyDeath = new ActionObserver(OnEnemyDeath);
+
+            FillEffectsDic();
         }
 
         public static void GetPlayerReference(ISubject onDeath)
@@ -51,7 +58,17 @@ namespace Game
 
             onDeath.Attach(_instance._onPlayerDeath);
         }
-        
+
+        public static Entities.Effect GetEffect(UpgradeEnum upgrade)
+        {
+            return _instance.effectsReferencesDic[upgrade];
+        }
+
+        public static List<LevelMedalsSO> GetMedals()
+        {
+            return _instance.scriptableReference.medalReferences;
+        }
+
         public static void GetEnemiesReference(ISubject onDeath)
         {
             if (_instance == null)
@@ -140,6 +157,16 @@ namespace Game
         private void OnEnemyDeath()
         {
             _deadEnemies += 1;
+        }
+
+        private void FillEffectsDic()
+        {
+            for (int i = 0; i < _instance.scriptableReference.effectsReferences.Count; i++)
+            {
+                var key = _instance.scriptableReference.effectsReferences[i].upgradeEnum;
+                var value = _instance.scriptableReference.effectsReferences[i].effect;
+                effectsReferencesDic.Add(key, value);
+            }
         }
 
         private void OnDestroy()

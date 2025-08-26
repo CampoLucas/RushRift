@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Game.Entities;
+using Game;
 
 public class ShopManager : MonoBehaviour
 {
@@ -45,7 +46,9 @@ public class ShopManager : MonoBehaviour
 
         //if (data.LevelsMedalsTimes.Count != 0) return;  //linea para que solo cargue los tiempos una vez al arrancar el juego
 
-        foreach (var item in ScriptableReference.Instance.medalReferences)
+        var medals = LevelManager.GetMedals();
+
+        foreach (var item in medals)
         {
             if (data.LevelsMedalsTimes.ContainsKey(item.levelNumber)) continue;
             data.LevelsMedalsTimes.Add(item.levelNumber, item.levelMedalTimes);
