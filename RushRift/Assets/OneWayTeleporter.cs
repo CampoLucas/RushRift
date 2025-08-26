@@ -68,31 +68,31 @@ public class OneWayTeleporter : ObserverComponent
     private static readonly Collider[] _overlapBuffer = new Collider[32];
     private Collider _collider;
 
-    void Awake() => _collider = GetComponent<Collider>();
+    private void Awake() => _collider = GetComponent<Collider>();
 
-    void Reset()
+    private void Reset()
     {
         var c = GetComponent<Collider>();
         if (c) c.isTrigger = true;
         Log("Reset: set collider to trigger");
     }
 
-    void OnDisable() => _occupants.Clear();
+    private void OnDisable() => _occupants.Clear();
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (!other) return;
         _occupants.Add(other);
         TryTeleport(other);
     }
 
-    void OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {
         if (!other) return;
         _occupants.Remove(other);
     }
 
-    void TryTeleport(Collider other)
+    private void TryTeleport(Collider other)
     {
         if (!canBeUsed) { Log("Blocked: canBeUsed is false"); return; }
         if (!destination) { Log("No destination assigned"); return; }
@@ -114,8 +114,7 @@ public class OneWayTeleporter : ObserverComponent
 
         var rb = root.GetComponent<Rigidbody>();
         var axis = GetExitAxisNormalized();
-
-        // Compute target pose (with clearance along axis to avoid instant ground contact)
+        
         var baseExit = destination.TransformPoint(exitLocalOffset);
         var targetPos = baseExit + axis * Mathf.Max(0f, exitClearanceAlongAxis);
         var targetRot = alignToDestinationRotation ? destination.rotation : root.transform.rotation;
@@ -176,7 +175,7 @@ public class OneWayTeleporter : ObserverComponent
         _lastTeleportTime[id] = now;
     }
 
-    Vector3 GetExitAxisNormalized()
+    private Vector3 GetExitAxisNormalized()
     {
         Vector3 a = exitAxis switch
         {
@@ -189,7 +188,7 @@ public class OneWayTeleporter : ObserverComponent
         return a.normalized;
     }
 
-    IEnumerator TempIgnore(GameObject root)
+    private IEnumerator TempIgnore(GameObject root)
     {
         var myCols = GetComponents<Collider>();
         var otherCols = root.GetComponentsInChildren<Collider>();
@@ -205,7 +204,7 @@ public class OneWayTeleporter : ObserverComponent
                 if (a && b) Physics.IgnoreCollision(a, b, false);
     }
 
-    IEnumerator ReinforceVelocity(Rigidbody rb, Vector3 targetVel, int frames)
+    private IEnumerator ReinforceVelocity(Rigidbody rb, Vector3 targetVel, int frames)
     {
         for (int i = 0; i < frames; i++)
         {
@@ -235,7 +234,7 @@ public class OneWayTeleporter : ObserverComponent
         }
     }
 
-    void RecheckAndTeleportOccupants()
+    private void RecheckAndTeleportOccupants()
     {
         int teleported = 0;
         if (_occupants.Count > 0)
@@ -247,9 +246,11 @@ public class OneWayTeleporter : ObserverComponent
                 teleported++;
             }
         }
+        
         else
         {
             int count = OverlapSelfNonAlloc(_overlapBuffer);
+            
             for (int i = 0; i < count; i++)
             {
                 var col = _overlapBuffer[i];
@@ -261,7 +262,7 @@ public class OneWayTeleporter : ObserverComponent
         Log($"Recheck complete: teleported {teleported} occupant(s).");
     }
 
-    int OverlapSelfNonAlloc(Collider[] buffer)
+    private int OverlapSelfNonAlloc(Collider[] buffer)
     {
         if (!_collider) return 0;
 
@@ -271,12 +272,14 @@ public class OneWayTeleporter : ObserverComponent
             var half = Vector3.Scale(box.size * 0.5f, box.transform.lossyScale);
             return Physics.OverlapBoxNonAlloc(center, half, buffer, box.transform.rotation, ~0, QueryTriggerInteraction.Collide);
         }
+        
         if (_collider is SphereCollider sphere)
         {
             var center = sphere.transform.TransformPoint(sphere.center);
             var radius = sphere.radius * MaxAbsComponent(sphere.transform.lossyScale);
             return Physics.OverlapSphereNonAlloc(center, radius, buffer, ~0, QueryTriggerInteraction.Collide);
         }
+        
         if (_collider is CapsuleCollider capsule)
         {
             GetCapsuleWorld(capsule, out var p0, out var p1, out var r);
@@ -287,7 +290,7 @@ public class OneWayTeleporter : ObserverComponent
         return Physics.OverlapBoxNonAlloc(b.center, b.extents, buffer, _collider.transform.rotation, ~0, QueryTriggerInteraction.Collide);
     }
 
-    static void GetCapsuleWorld(CapsuleCollider cc, out Vector3 p0, out Vector3 p1, out float radius)
+    private static void GetCapsuleWorld(CapsuleCollider cc, out Vector3 p0, out Vector3 p1, out float radius)
     {
         var t = cc.transform;
         var lossy = t.lossyScale;
@@ -305,9 +308,9 @@ public class OneWayTeleporter : ObserverComponent
         p1 = center - axis * halfCyl;
     }
 
-    static float MaxAbsComponent(Vector3 v) => Mathf.Max(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
+    private static float MaxAbsComponent(Vector3 v) => Mathf.Max(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         if (!destination) return;
         var axis = GetExitAxisNormalized();
@@ -322,7 +325,7 @@ public class OneWayTeleporter : ObserverComponent
         Gizmos.DrawRay(to, axis.normalized * 0.6f); // visualize flip/min-speed axis
     }
 
-    void Log(string msg)
+    private void Log(string msg)
     {
         if (!debugLogs) return;
         Debug.Log($"[OneWayTeleporter] {name}: {msg}", this);
