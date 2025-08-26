@@ -67,6 +67,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: b8ae57da44b706c4cad255bf830ea801
   children:
+  - {fileID: 4793730193199021174}
   - {fileID: -1800804781773706783}
   - {fileID: 8956781148690887682}
   - {fileID: -5104240956827610012}
@@ -84,7 +85,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdcad80ea3d04262997149c93f7febcb, type: 3}
-  m_Name: TurretAttackBehaviour
+  m_Name: TurretAttackBehaviour_Laser
   m_EditorClassIdentifier: 
   root: {fileID: -4103202272616270955}
   nodes:
@@ -94,6 +95,30 @@ MonoBehaviour:
   - {fileID: -5104240956827610012}
   - {fileID: 6585132550256397882}
   - {fileID: -1800804781773706783}
+  - {fileID: 4793730193199021174}
+--- !u!114 &4793730193199021174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e4ca69602c241c686d45dc20ef67e0b, type: 3}
+  m_Name: Rotate
+  m_EditorClassIdentifier: 
+  guid: 6d84141ccd78c8a4e978ac7278e4b56b
+  children: []
+  position: {x: -382.6667, y: 240.6667}
+  previousPosition: {x: -382.6667, y: 240.6667}
+  behaviourData: {fileID: 11400000}
+  useJoints: 1
+  joint: 1
+  instant: 1
+  rotationSpeed: 0
+  lockY: 0
+  yOffset: 1.5
 --- !u!114 &6585132550256397882
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ namespace Game.Entities.AttackSystem
         public float Delay => delay;
         public Vector3 Offset => offset;
         public float ForwardOffset => forwardOffset;
+        public float Spacing => spacing;
         public ProjectileData PData => pData;
         public EntityJoint SpawnJoint => spawnJoint;
         public EntityJoint OriginJoint => originJoint;
@@ -20,6 +21,9 @@ namespace Game.Entities.AttackSystem
         [SerializeField] private Projectile prefab;
         [SerializeField] private int amount;
         [SerializeField] private float delay;
+
+        [Header("Multiple Projectiles")]
+        [SerializeField] private float spacing = .1f;
 
         [Header("Spawn Position")]
         [SerializeField] private Vector3 offset;
