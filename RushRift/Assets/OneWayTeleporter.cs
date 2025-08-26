@@ -34,20 +34,30 @@ public class OneWayTeleporter : ObserverComponent
     private float extraExitSpeed = 0f;
 
     [Header("Exit Velocity Control")]
-    [SerializeField, Tooltip("If enabled, flips the velocity component along an axis on exit (e.g., falling in becomes shooting upward).")]
+    [SerializeField, Tooltip("Flips the velocity component along the exit axis (e.g., falling in becomes shooting upward).")]
     private bool flipVelocityAlongExitAxis = true;
-    [SerializeField, Tooltip("Axis used to flip the component of velocity on exit.")]
+    [SerializeField, Tooltip("Only flip if the object is moving against the axis (dot<0).")]
+    private bool onlyFlipIfAgainstAxis = true;
+    [SerializeField, Tooltip("Guarantee at least this speed along the positive exit axis after teleport.")]
+    private float minExitSpeedAlongAxis = 0f;
+    [SerializeField, Tooltip("Axis used for flipping / min speed checks.")]
     private ExitAxisSource exitAxis = ExitAxisSource.DestinationUp;
     [SerializeField, Tooltip("Used when ExitAxis is Custom. Will be normalized; if zero, falls back to world up.")]
     private Vector3 customExitAxis = Vector3.up;
-    [SerializeField, Tooltip("Only flip if the object is moving against the axis (e.g., dot<0). Prevents flipping upward motion downward.")]
-    private bool onlyFlipIfAgainstAxis = true;
+    [SerializeField, Tooltip("Move the exit position a bit along the axis to avoid instant ground contact.")]
+    private float exitClearanceAlongAxis = 0.15f;
 
     [Header("Safety")]
     [SerializeField, Tooltip("Minimum time between teleports for the same object.")]
     private float reTriggerCooldown = 0.2f;
     [SerializeField, Tooltip("Temporarily ignore collisions between the teleporter and the teleported object for one fixed update.")]
     private bool temporarilyIgnoreTeleporterColliders = true;
+
+    [Header("Post-Teleport Enforcement")]
+    [SerializeField, Tooltip("Re-apply the computed exit velocity for a few physics frames to fight other scripts overriding it.")]
+    private bool reinforceExitVelocity = true;
+    [SerializeField, Tooltip("How many FixedUpdate frames to re-apply the exit velocity for.")]
+    private int reinforceFrames = 1;
 
     [Header("Debug")]
     [SerializeField, Tooltip("If enabled, prints detailed debug logs for this teleporter.")]
@@ -58,37 +68,31 @@ public class OneWayTeleporter : ObserverComponent
     private static readonly Collider[] _overlapBuffer = new Collider[32];
     private Collider _collider;
 
-    private void Awake()
-    {
-        _collider = GetComponent<Collider>();
-    }
+    void Awake() => _collider = GetComponent<Collider>();
 
-    private void Reset()
+    void Reset()
     {
         var c = GetComponent<Collider>();
         if (c) c.isTrigger = true;
         Log("Reset: set collider to trigger");
     }
 
-    private void OnDisable()
-    {
-        _occupants.Clear();
-    }
+    void OnDisable() => _occupants.Clear();
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (!other) return;
         _occupants.Add(other);
         TryTeleport(other);
     }
 
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit(Collider other)
     {
         if (!other) return;
         _occupants.Remove(other);
     }
 
-    private void TryTeleport(Collider other)
+    void TryTeleport(Collider other)
     {
         if (!canBeUsed) { Log("Blocked: canBeUsed is false"); return; }
         if (!destination) { Log("No destination assigned"); return; }
@@ -109,7 +113,11 @@ public class OneWayTeleporter : ObserverComponent
         }
 
         var rb = root.GetComponent<Rigidbody>();
-        var targetPos = destination.TransformPoint(exitLocalOffset);
+        var axis = GetExitAxisNormalized();
+
+        // Compute target pose (with clearance along axis to avoid instant ground contact)
+        var baseExit = destination.TransformPoint(exitLocalOffset);
+        var targetPos = baseExit + axis * Mathf.Max(0f, exitClearanceAlongAxis);
         var targetRot = alignToDestinationRotation ? destination.rotation : root.transform.rotation;
 
         if (rb)
@@ -124,15 +132,23 @@ public class OneWayTeleporter : ObserverComponent
                     v = destination.TransformDirection(local);
                 }
 
-                if (flipVelocityAlongExitAxis)
+                // Flip along axis (bounce effect)
+                float dot = Vector3.Dot(v, axis);
+                if (flipVelocityAlongExitAxis && (!onlyFlipIfAgainstAxis || dot < 0f))
                 {
-                    var a = GetExitAxisNormalized();
-                    var dot = Vector3.Dot(v, a);
-                    if (!onlyFlipIfAgainstAxis || dot < 0f)
+                    var vNew = v - 2f * dot * axis; // reflect component along axis
+                    Log($"Flip axis={axis} dot={dot:0.###} | vel {v} -> {vNew}");
+                    v = vNew;
+                }
+
+                // Ensure a minimum upward speed along axis
+                if (minExitSpeedAlongAxis > 0f)
+                {
+                    float along = Vector3.Dot(v, axis);
+                    if (along < minExitSpeedAlongAxis)
                     {
-                        var vNew = v - 2f * dot * a; // flip component along axis, keep tangential
-                        Log($"Flip along axis={a} dot={dot:0.###} | vel {v} -> {vNew}");
-                        v = vNew;
+                        v += axis * (minExitSpeedAlongAxis - along);
+                        Log($"Min speed along axis enforced: {along:0.###} -> {minExitSpeedAlongAxis:0.###}");
                     }
                 }
             }
@@ -141,27 +157,26 @@ public class OneWayTeleporter : ObserverComponent
                 v = Vector3.zero;
             }
 
-            if (extraExitSpeed != 0f)
-                v += destination.forward * extraExitSpeed;
+            if (extraExitSpeed != 0f) v += destination.forward * extraExitSpeed;
 
-            Log($"Teleporting {root.name} -> pos={targetPos}, rot={(alignToDestinationRotation ? destination.rotation.eulerAngles : root.transform.rotation.eulerAngles)}, vel={v}");
+            Log($"Teleport {root.name} -> pos={targetPos}, rot={(alignToDestinationRotation ? destination.rotation.eulerAngles : root.transform.rotation.eulerAngles)}, vel={v}");
             rb.position = targetPos;
             rb.rotation = targetRot;
             rb.velocity = v;
 
-            if (temporarilyIgnoreTeleporterColliders)
-                StartCoroutine(TempIgnore(root));
+            if (temporarilyIgnoreTeleporterColliders) StartCoroutine(TempIgnore(root));
+            if (reinforceExitVelocity && reinforceFrames > 0) StartCoroutine(ReinforceVelocity(rb, v, reinforceFrames));
         }
         else
         {
-            Log($"Teleporting {root.name} (no Rigidbody) -> pos={targetPos}");
+            Log($"Teleport {root.name} (no Rigidbody) -> pos={targetPos}");
             root.transform.SetPositionAndRotation(targetPos, targetRot);
         }
 
         _lastTeleportTime[id] = now;
     }
 
-    private Vector3 GetExitAxisNormalized()
+    Vector3 GetExitAxisNormalized()
     {
         Vector3 a = exitAxis switch
         {
@@ -174,7 +189,7 @@ public class OneWayTeleporter : ObserverComponent
         return a.normalized;
     }
 
-    private IEnumerator TempIgnore(GameObject root)
+    IEnumerator TempIgnore(GameObject root)
     {
         var myCols = GetComponents<Collider>();
         var otherCols = root.GetComponentsInChildren<Collider>();
@@ -188,6 +203,17 @@ public class OneWayTeleporter : ObserverComponent
         foreach (var a in myCols)
             foreach (var b in otherCols)
                 if (a && b) Physics.IgnoreCollision(a, b, false);
+    }
+
+    IEnumerator ReinforceVelocity(Rigidbody rb, Vector3 targetVel, int frames)
+    {
+        for (int i = 0; i < frames; i++)
+        {
+            yield return new WaitForFixedUpdate();
+            if (!rb) yield break;
+            rb.velocity = targetVel;
+            Log($"Reinforce frame {i + 1}/{frames}: vel={rb.velocity}");
+        }
     }
 
     public override void OnNotify(string arg)
@@ -209,10 +235,9 @@ public class OneWayTeleporter : ObserverComponent
         }
     }
 
-    private void RecheckAndTeleportOccupants()
+    void RecheckAndTeleportOccupants()
     {
         int teleported = 0;
-
         if (_occupants.Count > 0)
         {
             foreach (var col in _occupants)
@@ -233,11 +258,10 @@ public class OneWayTeleporter : ObserverComponent
                 teleported++;
             }
         }
-
         Log($"Recheck complete: teleported {teleported} occupant(s).");
     }
 
-    private int OverlapSelfNonAlloc(Collider[] buffer)
+    int OverlapSelfNonAlloc(Collider[] buffer)
     {
         if (!_collider) return 0;
 
@@ -263,7 +287,7 @@ public class OneWayTeleporter : ObserverComponent
         return Physics.OverlapBoxNonAlloc(b.center, b.extents, buffer, _collider.transform.rotation, ~0, QueryTriggerInteraction.Collide);
     }
 
-    private static void GetCapsuleWorld(CapsuleCollider cc, out Vector3 p0, out Vector3 p1, out float radius)
+    static void GetCapsuleWorld(CapsuleCollider cc, out Vector3 p0, out Vector3 p1, out float radius)
     {
         var t = cc.transform;
         var lossy = t.lossyScale;
@@ -281,26 +305,24 @@ public class OneWayTeleporter : ObserverComponent
         p1 = center - axis * halfCyl;
     }
 
-    private static float MaxAbsComponent(Vector3 v) => Mathf.Max(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
+    static float MaxAbsComponent(Vector3 v) => Mathf.Max(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
 
-    private void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         if (!destination) return;
+        var axis = GetExitAxisNormalized();
+
         Gizmos.color = canBeUsed ? Color.magenta : new Color(0.5f, 0.5f, 0.5f);
-        var to = destination.TransformPoint(exitLocalOffset);
+        var to = destination.TransformPoint(exitLocalOffset) + axis * Mathf.Max(0f, exitClearanceAlongAxis);
         Gizmos.DrawLine(transform.position, to);
         Gizmos.DrawWireSphere(to, 0.15f);
         Gizmos.DrawRay(to, destination.forward * 0.4f);
 
-        // Visualize flip axis
-        var a = (exitAxis == ExitAxisSource.DestinationUp) ? (destination ? destination.up : Vector3.up)
-              : (exitAxis == ExitAxisSource.DestinationForward) ? (destination ? destination.forward : Vector3.forward)
-              : (customExitAxis.sqrMagnitude < 1e-6f ? Vector3.up : customExitAxis.normalized);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(to, a.normalized * 0.6f);
+        Gizmos.DrawRay(to, axis.normalized * 0.6f); // visualize flip/min-speed axis
     }
 
-    private void Log(string msg)
+    void Log(string msg)
     {
         if (!debugLogs) return;
         Debug.Log($"[OneWayTeleporter] {name}: {msg}", this);
