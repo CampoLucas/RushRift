@@ -9,7 +9,10 @@ namespace Game.Entities.Components
     public class LaserComponent : IEntityComponent
     {
         public ISubject<Vector3> SetLengthSubject { get; private set; } = new Subject<Vector3>();
-        
+        public ISubject<Vector3> OnActivateSubject { get; private set; } = new Subject<Vector3>();
+        public ISubject<Vector3> OnDeactivateSubject { get; private set; } = new Subject<Vector3>();
+
+        private LaserComponentData _data;
         private LineDetect _detection;
         private IObserver<float> _updateObserver;
         private bool _disposed;
@@ -19,13 +22,41 @@ namespace Game.Entities.Components
         private bool _isBlocked;
         private RaycastHit _blockHit;
 
+        private bool _state;
+        private bool _prevState;
+
         public LaserComponent(Transform origin, LaserComponentData componentData)
         {
+            _data = componentData;
             _detection = componentData.GetDetection(origin);
+            _state = componentData.StartOn;
+            _prevState = !_state;
         }
 
 
         private void OnUpdate(float delta)
+        {
+            if (_state)
+            {
+                ActivatedUpdate();
+                if (_prevState != _state)
+                {
+                    OnActivateSubject.NotifyAll(_endPos);
+                }
+                
+            }
+            else
+            {
+                if (_prevState != _state)
+                {
+                    OnDeactivateSubject.NotifyAll(_endPos);
+                }
+            }
+
+            _prevState = _state;
+        }
+
+        private void ActivatedUpdate()
         {
             _prevEndPos = _endPos;
             var overlapping = _detection.Detect(out _endPos, out _isBlocked, out _blockHit);
@@ -43,16 +74,19 @@ namespace Game.Entities.Components
                 if (!hit.collider.gameObject.TryGetComponent<IController>(out var controller)) continue;
 
                 // if destroyable, destroy, don't do damage
-                
-                if (controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
+                var model = controller.GetModel();
+                if (_data.DestroyDestroyables &&
+                    model.TryGetComponent<DestroyableComponent>(out var destroyableComponent))
+                {
+                    destroyableComponent.DestroyEntity();
+                }
+                else if (model.TryGetComponent<HealthComponent>(out var healthComponent))
                 {
                     //Kill now
                     // Temp
                     healthComponent.Intakill(hit.point);
                 }
             }
-            
-            
         }
         
         public bool TryGetUpdate(out IObserver<float> observer)
@@ -89,6 +123,20 @@ namespace Game.Entities.Components
             
             _detection?.Dispose();
             _detection = null;
+
+            _data = null;
+            
+            SetLengthSubject.DetachAll();
+            SetLengthSubject.Dispose();
+            SetLengthSubject = null;
+            
+            OnActivateSubject.DetachAll();
+            OnActivateSubject.Dispose();
+            OnActivateSubject = null;
+            
+            OnDeactivateSubject.DetachAll();
+            OnDeactivateSubject.Dispose();
+            OnDeactivateSubject = null;
         }
 
         public void OnDraw(Transform origin)
@@ -102,6 +150,16 @@ namespace Game.Entities.Components
         public void OnDrawSelected(Transform origin)
         {
             
+        }
+
+        public void TurnOn()
+        {
+            _state = true;
+        }
+
+        public void TurnOff()
+        {
+            _state = false;
         }
     }
 }

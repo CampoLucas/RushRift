@@ -109,7 +109,7 @@ MonoBehaviour:
     force: 150
     duration: 0.1
     cooldown: 0.1
-    momentumMultiplier: 0.25
+    momentumMultiplier: 0.2
     cost: 1
     dirStrategy:
       strategy: 1
@@ -138,15 +138,10 @@ MonoBehaviour:
     updateStrategy:
       strategy: 0
       damageConfig:
-        <InstaKill>k__BackingField: 1
-        <Damage>k__BackingField: 500
-        <DetectionData>k__BackingField:
-          offset: {x: 0, y: 2.36, z: 0}
-          radius: 3.5
-          maxCollisions: 5
-          mask:
-            serializedVersion: 2
-            m_Bits: 512
+        instaKill: 1
+        damage: 100
+        stopOnDamage: 1
+        stopOnDestroy: 0
   gravity:
     enabled: 1
     order: 1

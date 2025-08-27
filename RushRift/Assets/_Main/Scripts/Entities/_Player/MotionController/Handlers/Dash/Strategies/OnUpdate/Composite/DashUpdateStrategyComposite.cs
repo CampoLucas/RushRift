@@ -18,7 +18,7 @@ namespace Game.Entities.Components.MotionController.Strategies
                 if (s == null)
                 {
 #if UNITY_EDITOR
-                    Debug.LogWarning($"WARNING: Null strategy in {nameof(DashUpdateStrategyComposite)}'s OnReset method.");    
+                    Debug.LogError($"ERROR: Null strategy in {nameof(DashUpdateStrategyComposite)}'s OnReset method.");    
 #endif
                     continue;
                 }
@@ -27,9 +27,9 @@ namespace Game.Entities.Components.MotionController.Strategies
             }
         }
 
-        public bool OnDashUpdate(in MotionContext context, in float delta)
+        public bool OnUpdate(in MotionContext context, in float delta)
         {
-            Debug.Log($"SuperTest: strategies {_strategies.Count}");
+            //Debug.Log($"SuperTest: strategies {_strategies.Count}");
             
             for (var i = 0; i < _strategies.Count; i++)
             {
@@ -37,12 +37,58 @@ namespace Game.Entities.Components.MotionController.Strategies
                 if (s == null)
                 {
 #if UNITY_EDITOR
-                    Debug.LogWarning($"WARNING: Null strategy in {nameof(DashUpdateStrategyComposite)}'s OnReset method.");    
+                    Debug.LogError($"ERROR: Null strategy in {nameof(DashUpdateStrategyComposite)}'s OnUpdate method.");    
 #endif
                     continue;
                 }
 
-                if (s.OnDashUpdate(context, delta))
+                if (s.OnUpdate(context, delta))
+                {
+                    return true; // true means that the dash is over
+                }
+            }
+
+            return false;
+        }
+
+        public bool OnLateUpdate(in MotionContext context, in float delta)
+        {
+            //Debug.Log($"SuperTest: strategies {_strategies.Count}");
+            
+            for (var i = 0; i < _strategies.Count; i++)
+            {
+                var s = _strategiesDict[_strategies[i]];
+                if (s == null)
+                {
+#if UNITY_EDITOR
+                    Debug.LogError($"ERROR: Null strategy in {nameof(DashUpdateStrategyComposite)}'s OnLateUpdate method.");    
+#endif
+                    continue;
+                }
+
+                if (s.OnLateUpdate(context, delta))
+                {
+                    return true; // true means that the dash is over
+                }
+            }
+
+            return false;
+        }
+
+        public bool OnCollision(in MotionContext context, in Collider other)
+        {
+            for (var i = 0; i < _strategies.Count; i++)
+            {
+                var s = _strategiesDict[_strategies[i]];
+                if (s == null)
+                {
+#if UNITY_EDITOR
+                    Debug.LogError($"ERROR: Null strategy in {nameof(DashUpdateStrategyComposite)}'s OnCollision method.");    
+#endif
+                    continue;
+                }
+
+                if (s.OnCollision(context, other))
                 {
                     return true; // true means that the dash is over
                 }
@@ -56,7 +102,7 @@ namespace Game.Entities.Components.MotionController.Strategies
             if (_strategiesDict.ContainsKey(id))
             {
 #if UNITY_EDITOR
-                Debug.Log($"WARNING: Already contains the {id.DisplayName()} strategy");
+                Debug.LogError($"ERROR: Already contains the {id.DisplayName()} strategy");
 #endif
                 return false;
             }    

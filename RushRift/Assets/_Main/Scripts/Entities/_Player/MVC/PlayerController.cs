@@ -49,6 +49,13 @@ namespace Game.Entities
 
             base.Awake();
             
+            
+            
+            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
+        }
+
+        protected override void Start()
+        {
             var scriptableReference = ScriptableReference.Instance;
 
             if (scriptableReference)
@@ -59,11 +66,6 @@ namespace Game.Entities
                 }
             }
             
-            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
-        }
-
-        protected override void Start()
-        {
             base.Start();
             
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
@@ -75,7 +77,9 @@ namespace Game.Entities
             var saveData = SaveAndLoad.Load();
 
             if (saveData == null) return;
-            effectsID = saveData.GetActiveEffects();
+            //effectsID = saveData.GetActiveEffects();
+            effectsID.AddRange(saveData.GetActiveEffects());
+            
             Debug.Log($"SuperTest: Active effects {effects.Count}");
             if (effects == null || effects.Count == 0) return;
 

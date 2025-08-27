@@ -48,7 +48,7 @@ namespace Game.Entities.Components.MotionController
             
             if (!_isDashing && _elapsedCooldown <= 0 && context.Dash) StartDash(context);
 
-            if (_isDashing && UpdateStrategy.OnDashUpdate(context, delta))
+            if (_isDashing && UpdateStrategy.OnUpdate(context, delta))
             {
                 //_elapsedCooldown = Config.Cooldown;
                 _isDashing = false;
@@ -100,6 +100,11 @@ namespace Game.Entities.Components.MotionController
             {
                 return true;
             }
+
+            if (UpdateStrategy.OnLateUpdate(context, delta))
+            {
+                return true;
+            }
             
             if (_elapsed < Config.Duration)
             {
@@ -109,11 +114,12 @@ namespace Game.Entities.Components.MotionController
                 var point1 = center + up * _halfHeight;
                 var point2 = center - up * _halfHeight;
 
-                if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance))
+                if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance) && UpdateStrategy.OnCollision(context, hit.collider)) // Call the on collision from the strategies
                 {
                     // Stop just before hitting object
                     context.Velocity = Vector3.zero;
                     context.MovePosition(context.Position + _dashDir * (hit.distance - 0.01f));
+                    
 
                     return true;
                 }

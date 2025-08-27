@@ -25,9 +25,11 @@ namespace Game.Entities.AttackSystem.Hitscan
         public Vector3 Offset => offset;
         public bool UseSFX => useSFX;
         public string SFXName => sfxName;
+        public bool CanUseTerminals => canUseTerminals;
 
         [Header("Settings")]
         [SerializeField] private float damage = 10;
+        [SerializeField] private bool canUseTerminals = false;
         
         [Header("Spawn")]
         [SerializeField] private Vector3 offset;
