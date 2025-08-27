@@ -510,6 +510,7 @@ GameObject:
   - component: {fileID: 21862541}
   - component: {fileID: 21862543}
   - component: {fileID: 21862542}
+  - component: {fileID: 21862544}
   m_Layer: 0
   m_Name: Signpost
   m_TagString: Untagged
@@ -528,7 +529,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 49.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 719200097}
   m_Father: {fileID: 143703403}
   m_LocalEulerAnglesHint: {x: 85.4, y: 90, z: 90}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -633,6 +635,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 21862540}
   m_CullTransparentMesh: 1
+--- !u!114 &21862544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21862540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9eee494dbdcb174fa59d160986ee852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetText: {fileID: 21862542}
+  initialFullText: '[Use <b><color=#95FF33>WASD</color></b> to move] '
+  autoStartOnEnable: 1
+  charactersPerSecond: 30
+  randomDelayJitterSeconds: 0
+  useUnscaledTime: 0
+  punctuationDelayMultiplier: 3
+  whitespaceDelayMultiplier: 0.25
+  onTypingCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+  activationColliderObject: {fileID: 719200096}
+  activateOnTriggerEnter: 1
+  activateOnCollisionEnter: 0
+  requiredActivatorTag: Player
+  triggerOnlyOnce: 1
+  restartTypingIfTriggeredWhileInProgress: 0
+  isDebugLoggingEnabled: 0
 --- !u!1 &22715625
 GameObject:
   m_ObjectHideFlags: 0
@@ -11437,6 +11469,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1345303362}
   m_LocalEulerAnglesHint: {x: 0, y: -69.118, z: 0}
+--- !u!1 &719200096
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 719200097}
+  - component: {fileID: 719200098}
+  m_Layer: 0
+  m_Name: Trigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &719200097
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719200096}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.000000029802326, y: 0.009065072, z: -0.000000005587936, w: 0.99995893}
+  m_LocalPosition: {x: -0.7667339, y: -43.900017, z: -10.54546}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 21862541}
+  m_LocalEulerAnglesHint: {x: 0, y: 1.039, z: 0}
+--- !u!65 &719200098
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719200096}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 25, y: 20, z: 5}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &721088960
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23099,7 +23184,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.00918659
+      value: -0.0061627
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x
