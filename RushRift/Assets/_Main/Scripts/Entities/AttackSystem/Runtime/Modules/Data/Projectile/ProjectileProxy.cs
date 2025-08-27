@@ -1,5 +1,6 @@
 using Game.DesignPatterns.Observers;
 using Game.DesignPatterns.Pool;
+using Game.Utils;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -44,7 +45,7 @@ namespace Game.Entities.AttackSystem
         {
             var data = Data.PData;
             
-            FireForwarlly(Data.Amount, Data.ForwardOffset * data.Size, spawnPos, rotation, Data.ForwardOffset, data, thrower, _pool);
+            FireForwarlly(spawnPos, rotation, Data.Offset, Data.Amount, Data.Spacing * data.Size, Data.ForwardOffset, data, thrower, _pool);
         }
         
         private void Fire(Vector3 spawnPos, Quaternion rot, ProjectileData data, GameObject thrower)
@@ -81,7 +82,7 @@ namespace Game.Entities.AttackSystem
             }
         }
         
-        public void FireForwarlly(int amount, float spacing, Transform spawnPos, Quaternion rotation, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
+        public void FireForwarlly(Transform origin, Quaternion rotation, Vector3 offset, int amount, float spacing, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
         {
             var lessOrOne = amount <= 1;
             var totalWidth = spacing * (amount - 1);
@@ -91,11 +92,11 @@ namespace Game.Entities.AttackSystem
             {
                 // Calculate the offset along the local X-axis
                 var xOffset = startOffset + (i * spacing);
-                var offset = new Vector3(xOffset, 0, forwardOffset);
+                var bulletsOffset = new Vector3(xOffset, 0, forwardOffset);
 
                 // Transform local offset to world space
-                var worldOffset = rotation * offset;
-                var spawnPosition = spawnPos.position + worldOffset;
+                var worldOffset = rotation * bulletsOffset;
+                var spawnPosition = origin.GetOffsetPos(offset) + worldOffset;
 
                 var p = pool.Get(spawnPosition, rotation, pData);
                 p.SetThrower(thrower);
