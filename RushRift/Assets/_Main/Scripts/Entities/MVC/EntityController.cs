@@ -10,7 +10,7 @@ namespace Game.Entities
     /// <summary>
     /// The main MonoBehaviour that wires the Model and View at runtime
     /// </summary>
-    public class EntityController : MonoBehaviour, IController
+    public class EntityController : ObserverComponent, IController
     {
         public static string DESTROY = "destroy";
         /// <summary>
@@ -119,10 +119,18 @@ namespace Game.Entities
             if (_model != null) _model.OnDrawSelected(transform);
         }
 
+        public override void OnNotify(string arg)
+        {
+            if (_observersDict.TryGetValue(arg, out var observer))
+            {
+                observer.OnNotify();
+            }
+        }
+
         /// <summary>
         /// Cleans up model, view, FSM and all coroutines.
         /// </summary>
-        public virtual void Dispose()
+        public override void Dispose()
         {
             model = null;
             if (_model != null) _model.Dispose();

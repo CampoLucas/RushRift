@@ -18,6 +18,12 @@ namespace Game
         public static readonly ISubject OnEnemySpawnSubject = new Subject();
         public static readonly ISubject<int> OnEnemyGivesPoints = new Subject<int>();
 
+        public static bool CanUseTerminal
+        {
+            get => _instance && _instance._canUseTerminals;
+            set { if (_instance) _instance._canUseTerminals = value; }
+        }
+        
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private ScriptableReferenceSO scriptableReference;
@@ -37,6 +43,7 @@ namespace Game
         private bool _gameOver;
         private bool _gameOverNotified;
         private float _levelCompleteTime;
+        private bool _canUseTerminals;
 
 
         private void Awake()

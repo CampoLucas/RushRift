@@ -49,11 +49,22 @@ namespace Game.Entities
             base.Awake();
             
             
+            
             _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
         }
 
         protected override void Start()
         {
+            var scriptableReference = ScriptableReference.Instance;
+
+            if (scriptableReference)
+            {
+                for (int i = 0; i < ScriptableReference.Instance.effectsReferences.Count; i++)
+                {
+                    effects.Add(ScriptableReference.Instance.effectsReferences[i].ID, ScriptableReference.Instance.effectsReferences[i].effect);
+                }
+            }
+            
             base.Start();
             
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))

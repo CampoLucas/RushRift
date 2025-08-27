@@ -1,6 +1,7 @@
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.LevelElements.Terminal;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -10,12 +11,16 @@ namespace Game.Entities
     {
         private ActionObserver _onDieObserver;
         private ISubject _onDieSubject;
+        private NullCheck<LaserComponent> _laserComp;
 
         protected override void Awake()
         {
             base.Awake();
 
             _onDieObserver = new ActionObserver(OnDieHandler);
+
+            AddObserver(Terminal.ON_ARGUMENT, new ActionObserver(OnHandler));
+            AddObserver(Terminal.OFF_ARGUMENT, new ActionObserver(OffHandler));
         }
 
         protected override void Start()
@@ -48,6 +53,31 @@ namespace Game.Entities
         private void OnDieHandler()
         {
             Destroy(gameObject);
+        }
+
+        private void OnHandler()
+        {
+            Debug.Log("SuperTest: Laser on");
+            if (!_laserComp.TryGetValue(out var laserComp))
+            {
+                if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
+                else return;
+            }
+
+            laserComp.TurnOn();
+        }
+
+        private void OffHandler()
+        {
+            Debug.Log("SuperTest: Laser off");
+            
+            if (!_laserComp.TryGetValue(out var laserComp))
+            {
+                if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
+                else return;
+            }
+
+            laserComp.TurnOff();
         }
     }
 }
