@@ -5359,6 +5359,33 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4350029880743449005, guid: 4e193744309b91f4e9d76170650101ec, type: 3}
   m_PrefabInstance: {fileID: 669663959}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &239930814 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 204860780230294550, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+  m_PrefabInstance: {fileID: 1457798619}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &239930816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239930814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7671cce3363b994418515f5560cb488f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetAudioMixer: {fileID: 24100000, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+  exposedParameterName: MusicLowpassHz
+  pausedCutoffHz: 250
+  unpausedCutoffHz: 22000
+  captureUnpausedFromMixerOnStart: 1
+  pauseRampSeconds: 0.05
+  resumeRampSeconds: 1.25
+  useUnscaledTime: 1
+  applyOnEnableAndClearOnDisable: 0
+  isDebugLoggingEnabled: 0
 --- !u!4 &245375176 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6762648779303044217, guid: 603f45bd4b37ab1429c89d8b21a7c841, type: 3}
@@ -32597,7 +32624,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0129963355
+      value: -0.00231026
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x
@@ -32834,7 +32861,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 204860780230294550, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 239930816}
   m_SourcePrefab: {fileID: 100100000, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
 --- !u!20 &1457798620 stripped
 Camera:
@@ -50457,6 +50487,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: AudioManager
       objectReference: {fileID: 0}
+    - target: {fileID: 7170916178061385612, guid: febba4865326c954c8c08d8591e0d5c0, type: 3}
+      propertyPath: sounds.Array.data[0].clips.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7170916178061385612, guid: febba4865326c954c8c08d8591e0d5c0, type: 3}
+      propertyPath: sounds.Array.data[0].clips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: ee9c0267b4f71fd44acf9101ea46d65d, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

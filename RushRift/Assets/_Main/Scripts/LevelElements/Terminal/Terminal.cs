@@ -64,12 +64,4 @@ namespace Game.LevelElements.Terminal
             Dispose();
         }
     }
-
-    // public enum Mechanism // made into classes instead of enums (TerminalMomentary, TerminalToggle, TerminalLatch, TerminalTimed)
-    // {
-    //     Momentary, // Only active while pressed (pressure plates, etc) Push button, Tactile switch, Membrane button
-    //     Toggle, // Toggle switch (SPST/SPDT), Rocker switch, Slide switch, Rotary switch
-    //     Latch, // Push-on/push-off, Key switch, Push-pull latch
-    //     Timed // Momentary push with delay, Double-action switch, Interlock switch, Dead-man switch
-    // }
 }
