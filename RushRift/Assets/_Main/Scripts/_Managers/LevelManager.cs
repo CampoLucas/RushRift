@@ -140,11 +140,31 @@ namespace Game
             if (_instance) _instance._levelCompleteTime = time;
         }
 
-        public static bool TryGetVFX(string id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
+        public static bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
         {
-            if (_instance) return _instance.effectPool.TryGetVFX(id, vfxParams, out emitter);
-            emitter = null;
-            return false;
+            if (!_instance)
+            {
+                emitter = null;
+                return false;
+            }
+            
+            //return _instance.effectPool.TryGetVFX(id, vfxParams, out emitter);
+            if (_instance.effectPool.TryGetVFX(id, vfxParams, out emitter))
+            {
+#if UNITY_EDITOR
+                Debug.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}");
+#endif
+
+                return true;
+            }
+            else
+            {
+#if UNITY_EDITOR
+                Debug.Log("LOG: TryGetVFX: Failure");
+#endif
+                return false;
+            }
+            
         }
 
         private void OnPlayerDeath()

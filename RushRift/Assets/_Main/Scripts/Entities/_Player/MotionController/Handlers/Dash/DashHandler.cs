@@ -30,8 +30,6 @@ namespace Game.Entities.Components.MotionController
         {
             base.OnUpdate(in context, in delta);
 
-            Debug.Log($"SuperTest: Cooldown {_elapsedCooldown}");
-            
             if (!_isDashing)
             {
                 if (_elapsedCooldown > 0)

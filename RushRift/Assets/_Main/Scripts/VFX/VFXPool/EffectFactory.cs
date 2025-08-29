@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Game
 {
-    public class Effect : IFactory<EffectEmitter, VFXEmitterParams>
+    public class EffectFactory : IFactory<EffectEmitter, VFXEmitterParams>
     {
         private EffectEmitter _product;
 
-        public Effect(EffectEmitter product)
+        public EffectFactory(EffectEmitter product)
         {
             _product = product;
         }

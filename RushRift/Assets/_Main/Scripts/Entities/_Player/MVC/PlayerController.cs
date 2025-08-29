@@ -22,9 +22,6 @@ namespace Game.Entities
 
         #endregion
 
-        [Header("Start Effects")]
-        [SerializeField] private List<int> effectsID = new List<int>();
-
         private Vector3 _moveDir;
         private Transform _camera;
 
