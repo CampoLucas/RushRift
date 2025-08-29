@@ -10,7 +10,7 @@
 - [Git Conventions](#git-conventions)
    - [Branch Naming](#branch-naming)
    - [Mergue Guidelines](#mergue-guidelines)
-- [Documentation](#documentation)
+- [Documentation](./Documentation/Documentation.md)
    - [Scene Requirements for the Player to Work](#scene-requirements-for-the-player-to-work)
 
 ## Setup Instructions
