@@ -22,3 +22,5 @@ The design aims to be **controller-agnostic:** any system interacting with an en
 - Has `Observer` and `Subject` functionality.
 - Implements `IDisposable` to clean up proxies and FSM.
 
+`IController`
+
