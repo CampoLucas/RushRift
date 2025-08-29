@@ -22,7 +22,7 @@ This hybrid system:
 - **Reusable logic** - Components can be shared across different entity types without modifications.
 
 ## More Details
-- [EntityController](./Controller/EntityController.md)
-- [EntityModel](./Model/EntityModel.md)
-- [EntityView](./View/EntityView.md)
+- [EntityController](EntityController.md)
+- [EntityModel](EntityModel.md)
+- [EntityView](EntityView.md)
 - Custom Components
