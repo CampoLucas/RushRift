@@ -21,8 +21,8 @@ This hybrid system:
 - **Interface-driven design** - Other systems only depend on `IController`, reducing coupling.
 - **Reusable logic** - Components can be shared across different entity types without modifications.
 
-## Explanations
-- [[Controller]]
-- [[Model]]
-- [[View]]
+## More Details
+- [EntityController](./Controller/EntityController.md)
+- [EntityModel](./Model/EntityModel.md)
+- [EntityView](./View/EntityView.md)
 - Custom Components
