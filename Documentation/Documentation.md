@@ -3,6 +3,7 @@
 	- [Entity System](EntitySystem/Overview.md)
 	- Attack System
 	- Status Effect System
+	- Motion System
 - Observers
 - Managers
 	- Level Manager
@@ -12,6 +13,11 @@
 	- Behaviour Tree
 - Utils
 	- Logger
+- VFX
+	- EffectsPool
+	- EffectEmitter
 ### Instructions
 - How the observer system works
 - How the attack system works
+- How to make entities
+- How to use the behaviour tree
