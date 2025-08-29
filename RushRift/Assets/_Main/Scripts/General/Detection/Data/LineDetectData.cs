@@ -84,7 +84,7 @@ namespace Game.Detection
             endPos = pos + dir * laserLength;
             var overlaps = Physics.RaycastNonAlloc(pos, dir, hits, laserLength, target);
             //var overlaps = Physics.Raycast(pos, dir, out var hit, laserLength, target) ? 1 : 0;
-            Debug.Log($"Overlaps {overlaps}, lenght: {length}, blocked: {blocked}");
+            
             return overlaps;
         }
 

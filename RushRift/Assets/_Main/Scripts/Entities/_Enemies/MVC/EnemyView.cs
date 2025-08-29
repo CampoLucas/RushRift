@@ -34,15 +34,10 @@ namespace Game.Entities
                 _onDestroySubject = healthComponent.OnEmptyValue;
                 _onDestroySubject.Attach(_destroyVFXObserver);
             }
-            else
-            {
-                Debug.Log("SuperTest: didn't have health component", gameObject);
-            }
         }
         
         private void DestroyVFXHandler()
         {
-            Debug.Log("SuperTest: destroy vfx");
             var tr = transform;
             
             LevelManager.TryGetVFX(destroyVFX, new VFXEmitterParams()

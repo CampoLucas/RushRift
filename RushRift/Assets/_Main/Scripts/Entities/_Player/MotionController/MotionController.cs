@@ -123,7 +123,6 @@ namespace Game.Entities.Components.MotionController
 
         private void PauseHandler()
         {
-            Debug.Log("Pause");
             _pauseVelocity = _rb.velocity;
             _pauseConstrains = _rb.constraints;
             
