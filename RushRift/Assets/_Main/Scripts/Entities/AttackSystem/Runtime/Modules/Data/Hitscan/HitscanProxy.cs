@@ -35,7 +35,6 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         private void OnStart(ModuleParams mParams)
         {
-            Debug.Log("SuperTestModule: hitscan");
             _executed = false;
             _timer = 0;
         }
@@ -114,6 +113,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                     position = point,
                     rotation = Quaternion.identity,
                 }, out var emitter);
+
             }
             else if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
             {
@@ -127,6 +127,13 @@ namespace Game.Entities.AttackSystem.Hitscan
                 //     position = hit.point,
                 //     rotation = Quaternion.identity,
                 // }, out var emitter);
+
+                LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
+                {
+                    scale = Data.ImpactSize,
+                    position = hit.point,
+                    rotation = Quaternion.identity,
+                }, out var emitter);
             }
             else
             {

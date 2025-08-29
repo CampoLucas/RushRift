@@ -76,7 +76,6 @@ namespace Game.Entities.AttackSystem
                 _started = true;
                 _running = true;
                 
-                Debug.Log("SuperTest: Notify Module Start");
                 _onStartSubject.NotifyAll(mParams);
                 for (var i = 0; i < _children.Count; i++)
                 {

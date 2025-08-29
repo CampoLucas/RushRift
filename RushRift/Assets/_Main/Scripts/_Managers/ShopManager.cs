@@ -44,12 +44,6 @@ public class ShopManager : MonoBehaviour
             Debug.Log($"Mi tiempo de gold es: {data.LevelsMedalsTimes[1].gold.time}");
             Debug.Log($"Mi medalla de gold est� adquirida: {data.LevelsMedalsTimes[1].gold.isAcquired}");
         }
-        
-
-        if (dashDamagePerk == null)
-        {
-            Debug.Log("SuperTest: dashDamagePerk is null");
-        }
 
         DisablePurchase(dashDamagePerk, dashDamageEffect);
         DisablePurchase(increaseCurrentEnergy, increaseCurrentEnergyEffect);
@@ -89,15 +83,6 @@ public class ShopManager : MonoBehaviour
     private void DisablePurchase(Button buttonToDisable, int perk)
     {
         var data = SaveAndLoad.Load();
-
-        if (data == null)
-        {
-            Debug.Log("SuperTest: data is null");
-        }
-        else if (data.UnlockedEffects == null)
-        {
-            Debug.Log("SuperTest: data.UnlockedEffects is null");
-        }
         
         if (!data.UnlockedEffects.ContainsKey(perk)) return;
         if (data.UnlockedEffects[perk] == true) buttonToDisable.interactable = false;

@@ -2,16 +2,17 @@ using BehaviourTreeAsset.Runtime;
 using BehaviourTreeAsset.Runtime.Interfaces;
 using BehaviourTreeAsset.Runtime.Node;
 using Game.Entities;
+using Game.VFX;
 using UnityEngine;
 
 namespace Game.BehaviourTree.Nodes
 {
     public class PlayVFX : ActionData
     {
-        public string VFXId => vfxId;
+        public VFXPrefabID VFXId => vfxId;
         public float Scale => scale;
         
-        [SerializeField] private string vfxId;
+        [SerializeField] private VFXPrefabID vfxId;
         [SerializeField] private float scale = 1;
         
         protected override INode OnCreateNode()

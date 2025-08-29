@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6508846693547256169}
+  - component: {fileID: 7313794614353590299}
   m_Layer: 0
   m_Name: P_Explosion_VFXGraph
   m_TagString: Untagged
@@ -25,13 +26,27 @@ Transform:
   m_GameObject: {fileID: 2582929435120464989}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.82185984, y: 2.21, z: 30.07}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8002840411555211037}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7313794614353590299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2582929435120464989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 422091c314eb4bfd8a6af0be8540fd8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effect: {fileID: 6938204753661262277}
+  duration: 0.6
 --- !u!1 &8836572610447654765
 GameObject:
   m_ObjectHideFlags: 0
@@ -74,8 +89,8 @@ VisualEffect:
   m_GameObject: {fileID: 8836572610447654765}
   m_Enabled: 1
   m_Asset: {fileID: 8926484042661614526, guid: 3307550017fa12c42ad4670702617c46, type: 3}
-  m_InitialEventName: OnPlay
-  m_InitialEventNameOverriden: 0
+  m_InitialEventName: 
+  m_InitialEventNameOverriden: 1
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
   m_AllowInstancing: 1
@@ -88,7 +103,10 @@ VisualEffect:
     m_Vector3f:
       m_Array: []
     m_Vector4f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 40.407845, y: 1.4730794, z: 0, w: 1}
+        m_Name: SparksColor
+        m_Overridden: 0
     m_Uint:
       m_Array: []
     m_Int:

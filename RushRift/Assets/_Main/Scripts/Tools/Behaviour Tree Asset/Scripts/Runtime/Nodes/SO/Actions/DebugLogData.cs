@@ -14,12 +14,22 @@ namespace BehaviourTreeAsset.Runtime.Nodes
             
             protected override NodeState OnUpdate()
             {
-                Debug.Log(Data.message);
+                if (Data.editorOnly)
+                {
+#if UNITY_EDITOR
+                    Debug.Log(Data.message);
+#endif
+                }
+                else
+                {
+                    Debug.Log(Data.message);
+                }
                 return NodeState.Success;
             }
         }
         
         public string message;
+        public bool editorOnly = true;
 
         protected override INode OnCreateNode()
         {

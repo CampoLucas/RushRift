@@ -80,7 +80,6 @@ namespace Game.Entities
             //effectsID = saveData.GetActiveEffects();
             effectsID.AddRange(saveData.GetActiveEffects());
             
-            Debug.Log($"SuperTest: Active effects {effects.Count}");
             if (effects == null || effects.Count == 0) return;
 
             for (int i = 0; i < effectsID.Count; i++)

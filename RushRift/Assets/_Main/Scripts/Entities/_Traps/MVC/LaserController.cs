@@ -57,7 +57,6 @@ namespace Game.Entities
 
         private void OnHandler()
         {
-            Debug.Log("SuperTest: Laser on");
             if (!_laserComp.TryGetValue(out var laserComp))
             {
                 if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
@@ -69,8 +68,6 @@ namespace Game.Entities
 
         private void OffHandler()
         {
-            Debug.Log("SuperTest: Laser off");
-            
             if (!_laserComp.TryGetValue(out var laserComp))
             {
                 if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
