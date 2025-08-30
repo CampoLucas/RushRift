@@ -14,16 +14,16 @@ Key Features:
 | --------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `Init`                | Initializes the model with a reference to its controller. Override for custom logic.                             |
 | `Update`              | Notifies all attached components that implement Update logic. It also passes the delta time as a parameter.      |
-| `LateUpdate           | Notifies all attached components that implement LateUpdate logic. It also passes the delta time as a parameter.  |
+| `LateUpdate`          | Notifies all attached components that implement LateUpdate logic. It also passes the delta time as a parameter.  |
 | `FixedUpdate`         | Notifies all attached components that implement FixedUpdate logic. It also passes the delta time as a parameter. |
 | `TryGetComponent`     | Attempts to retrieve a component of type `TComponent`. Returns `true` if found.                                  |
 | `TryAddComponent`     | Adds a component if it doesn’t already exist. Attaches its observers to the appropriate subjects.                |
 | `RemoveComponent`     | Removes a component and optionally disposes it. Detaches its observers from subjects.                            |
-| `HasComponents`       | Checks if the model contains a component of type `TComponent`.                                                   |
+| `HasComponent`        | Checks if the model contains a component of type `TComponent`.                                                   |
 | `RemoveAllComponents` | Removes and disposes all components, detaching all observers.                                                    |
 | `OnDraw`              | Calls `OnDraw` for all components for editor debug rendering.                                                    |
 | `OnDrawSelected`      | Calls `OnDrawSelected` for all components when the entity is selected in the editor.                             |
 ### Notes
-- Components can implement optional update methods. The model only executes those components that have observers attached, avoiding unnecessary performance overhead.
+- Components can implement optional update methods (`Update`, `LateUpdate`, `FixedUpdate`). When a component is added, observers are attached only for the update methods it implements. This prevents redundant calls for components that don’t need certain updates, keeping runtime performance efficient.
 - The model allows entities to dynamically **change behavior at runtime** by adding or removing components without modifying the Controller or View.
 - Provides decoupling between entity data/logic and Unity’s MonoBehaviour system.
