@@ -1,5 +1,5 @@
 # IModel
-**Type:** `interface` | **Implemented in:** `Game.Entities`
+**Type:** `interface` | **Implements:** `IDisposable` | **Implemented in:** `Game.Entities`
 
 ### Description
 Interface used to interact with the model.

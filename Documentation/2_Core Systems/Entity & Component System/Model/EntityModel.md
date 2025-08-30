@@ -2,7 +2,7 @@
 **Type:** `class` | **Generic:** `<TData>` where `TData : EntityModelSO` | **Implements:** [`IModel`](IModel.md) | **Namespace:** `Game.Entities`
 
 ### Description
-Represent the runtime data and logic of an entity. Each `EntityModel` instance is created from a `ScriptableObject` ([EntityModelSO](EntityModelSO.md)) as a runtime proxy. It manages **components** and handles **update cycles**.
+Represent the runtime data and logic of an entity. Each `EntityModel` instance is created from a `ScriptableObject` ([`EntityModelSO`](EntityModelSO.md)) as a runtime proxy. It manages **components** and handles **update cycles**.
 Key Features:
 - Stores entity components in a type-indexed dictionary for quick lookups.
 - Manages `Update`, `LateUpdate` and `FixedUpdate` via `ISubject<float>` observers.
