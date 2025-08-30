@@ -17,7 +17,7 @@ namespace Game.General.Utils
         private static bool _initialized = false;
 
 #if UNITY_EDITOR
-        [MenuItem("Tools/FileLogger/Open Log Folder Location")]
+        [MenuItem("Tools/File Logger/Open Log Folder Location")]
         private static void OpenLogsFolder()
         {
             // Make sure the folder exists
