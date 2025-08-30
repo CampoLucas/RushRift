@@ -1,5 +1,5 @@
 # EntityModelSO
-**Type:** `class` | **Inherits from:** [SerializableSO](3_Tools/SerializableSO.md) | **Implemented in:** `Game.Entities`
+**Type:** `class` | **Inherits from:** [SerializableSO](/Documentation/3_Tools/SerializableSO.md) | **Implemented in:** `Game.Entities`
 ### Description
 Abstract base `ScriptableObject` class for creating runtime Model proxies.
 ### Abstract Methods
