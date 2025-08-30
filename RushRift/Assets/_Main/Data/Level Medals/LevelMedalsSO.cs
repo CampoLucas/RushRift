@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Game.Entities;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Medal", menuName = "Medals", order = 2)]
@@ -14,6 +13,7 @@ public struct medal
 {
     public bool isAcquired;
     public float time;
+    public UpgradeEnum upgrade;
 }
 
 [System.Serializable]

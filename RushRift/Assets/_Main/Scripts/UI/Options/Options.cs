@@ -36,8 +36,6 @@ namespace Game.UI
                 return;
             }
             
-            Debug.Log("Options Awake");
-            
             sensibilitySlider.OnValueChanged.AddListener(OnSensibilityChangedHandler);
             smoothnessSlider.OnValueChanged.AddListener(OnSmoothnessChangedHandler);
             

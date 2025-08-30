@@ -43,7 +43,6 @@ namespace Game.Entities
 
         public void Init(Transform newTarget)
         {
-            Debug.Log("init");
             target = newTarget;
             if (GetModel().TryGetComponent(out _enemyComp))
             {

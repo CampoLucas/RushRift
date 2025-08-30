@@ -38,7 +38,6 @@ namespace Game.Entities.Components.MotionController
                 {
                     _hovering = false;
                     context.AddForce(Vector3.down * (Config.GndGrav * delta), ForceMode.Acceleration);
-                    Debug.Log("MoveTest: apply gravity");
                 }
                 else
                 {
@@ -49,7 +48,6 @@ namespace Game.Entities.Components.MotionController
                         context.Velocity = context.Velocity.XOZ();
                     }
                     
-                    Debug.Log("MoveTest: hover");
                     Hover(context, delta);
                 }
             }

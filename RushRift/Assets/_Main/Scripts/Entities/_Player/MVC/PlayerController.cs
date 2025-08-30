@@ -22,10 +22,6 @@ namespace Game.Entities
 
         #endregion
 
-        [Header("Start Effects")]
-        [SerializeField] private List<int> effectsID = new List<int>();
-
-        private Dictionary<int, Effect> effects = new();
         private Vector3 _moveDir;
         private Transform _camera;
 
@@ -55,17 +51,7 @@ namespace Game.Entities
         }
 
         protected override void Start()
-        {
-            var scriptableReference = ScriptableReference.Instance;
-
-            if (scriptableReference)
-            {
-                for (int i = 0; i < ScriptableReference.Instance.effectsReferences.Count; i++)
-                {
-                    effects.Add(ScriptableReference.Instance.effectsReferences[i].ID, ScriptableReference.Instance.effectsReferences[i].effect);
-                }
-            }
-            
+        {        
             base.Start();
             
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
@@ -77,24 +63,31 @@ namespace Game.Entities
             var saveData = SaveAndLoad.Load();
 
             if (saveData == null) return;
-            //effectsID = saveData.GetActiveEffects();
-            effectsID.AddRange(saveData.GetActiveEffects());
-            
-            Debug.Log($"SuperTest: Active effects {effects.Count}");
-            if (effects == null || effects.Count == 0) return;
 
-            for (int i = 0; i < effectsID.Count; i++)
+            var medalEffects = saveData.LevelsMedalsTimes;
+            var currentLevel = LevelManager.GetCurrentLevel();
+            Effect currentEffect;
+
+            if (currentLevel == 0) return;
+
+            if (medalEffects[currentLevel].bronze.isAcquired)
             {
-                var currentEffect = effects[effectsID[i]];
+                currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].bronze.upgrade);
                 currentEffect.ApplyEffect(this);
             }
 
-            //for (var i = 0; i < effects.Length; i++)
-            //{
-            //    var effect = effects[i];
-            //    if (effect == null) continue;
-            //    effect.ApplyEffect(this);
-            //}
+            if (medalEffects[currentLevel].silver.isAcquired)
+            {
+                currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].silver.upgrade);
+                currentEffect.ApplyEffect(this);
+            }
+
+            if (medalEffects[currentLevel].gold.isAcquired)
+            {
+                currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].gold.upgrade);
+                currentEffect.ApplyEffect(this);
+            }
+
         }
 
         protected override void SetJoins()

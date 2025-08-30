@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Game.Entities;
+using Game;
 
 public class ShopManager : MonoBehaviour
 {
@@ -33,18 +34,7 @@ public class ShopManager : MonoBehaviour
     {
         var data = SaveAndLoad.Load();
         if (data != null) playerCurrency = data.playerCurrency;
-        scoreText.text = playerCurrency.ToString();
-
-        if (data.LevelsMedalsTimes.Count > 0)
-        {
-            Debug.Log($"Mi tiempo de bronze es: {data.LevelsMedalsTimes[1].bronze.time}");
-            Debug.Log($"Mi medalla de bronze est� adquirida: {data.LevelsMedalsTimes[1].bronze.isAcquired}");
-            Debug.Log($"Mi tiempo de silver es: {data.LevelsMedalsTimes[1].silver.time}");
-            Debug.Log($"Mi medalla de silver est� adquirida: {data.LevelsMedalsTimes[1].silver.isAcquired}");
-            Debug.Log($"Mi tiempo de gold es: {data.LevelsMedalsTimes[1].gold.time}");
-            Debug.Log($"Mi medalla de gold est� adquirida: {data.LevelsMedalsTimes[1].gold.isAcquired}");
-        }
-        
+        scoreText.text = playerCurrency.ToString();     
 
         if (dashDamagePerk == null)
         {
@@ -56,13 +46,13 @@ public class ShopManager : MonoBehaviour
 
         //if (data.LevelsMedalsTimes.Count != 0) return;  //linea para que solo cargue los tiempos una vez al arrancar el juego
 
-        foreach (var item in ScriptableReference.Instance.medalReferences)
+        var medals = LevelManager.GetMedals();
+
+        foreach (var item in medals)
         {
             if (data.LevelsMedalsTimes.ContainsKey(item.levelNumber)) continue;
             data.LevelsMedalsTimes.Add(item.levelNumber, item.levelMedalTimes);
         }
-
-
 
         SaveAndLoad.Save(data);
     }
@@ -89,15 +79,6 @@ public class ShopManager : MonoBehaviour
     private void DisablePurchase(Button buttonToDisable, int perk)
     {
         var data = SaveAndLoad.Load();
-
-        if (data == null)
-        {
-            Debug.Log("SuperTest: data is null");
-        }
-        else if (data.UnlockedEffects == null)
-        {
-            Debug.Log("SuperTest: data.UnlockedEffects is null");
-        }
         
         if (!data.UnlockedEffects.ContainsKey(perk)) return;
         if (data.UnlockedEffects[perk] == true) buttonToDisable.interactable = false;

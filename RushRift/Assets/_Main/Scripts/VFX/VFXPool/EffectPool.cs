@@ -10,14 +10,15 @@ namespace Game.VFX
     [System.Serializable]
     public class EffectPool : IDisposable
     {
-        [SerializeField] private SerializedDictionary<string, EffectEmitter> vfxPrefabs = new();
+        [SerializeField] private VFXPrefabDictionarySO prefabDictionary;
+        //[SerializeField] private SerializedDictionary<string, EffectEmitter> vfxPrefabs = new();
 
-        private Dictionary<string, IPoolObject<EffectEmitter, VFXEmitterParams>> _vfxDictionary = new();
+        private Dictionary<VFXPrefabID, IPoolObject<EffectEmitter, VFXEmitterParams>> _vfxDictionary = new();
 
-        public bool TryGetVFX(string id, VFXEmitterParams vfxEmitterParams, out EffectEmitter poolable)
+        public bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxEmitterParams, out EffectEmitter poolable)
         {
             // Check if there is a prefab with that id
-            if (!vfxPrefabs.TryGetValue(id, out var poolablePrefab))
+            if (!prefabDictionary.TryGet(id, out var poolablePrefab))
             {
                 poolable = null;
                 return false;
@@ -26,7 +27,7 @@ namespace Game.VFX
             // Check if there is a pool created with that id
             if (!_vfxDictionary.TryGetValue(id, out var pool))
             {
-                pool = new PoolObject<EffectEmitter, VFXEmitterParams>(new Effect(poolablePrefab), true);
+                pool = new PoolObject<EffectEmitter, VFXEmitterParams>(new EffectFactory(poolablePrefab), true);
                 _vfxDictionary[id] = pool;
             }
 
@@ -35,7 +36,7 @@ namespace Game.VFX
 
         public void Dispose()
         {
-            vfxPrefabs = null;
+            prefabDictionary = null;
 
             foreach (var pools in _vfxDictionary)
             {

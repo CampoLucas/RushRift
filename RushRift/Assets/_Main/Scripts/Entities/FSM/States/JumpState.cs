@@ -24,7 +24,6 @@ namespace Game.Entities
         {
             if (!_movement)
             {
-                Debug.Log("SuperTest: It doesn't have movement.");
                 if (args.Controller.GetModel().TryGetComponent<IMovement>(out var movement))
                 {
                     _movement.Set(movement);

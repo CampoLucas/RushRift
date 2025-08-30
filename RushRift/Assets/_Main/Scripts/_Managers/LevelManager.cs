@@ -1,7 +1,10 @@
 using Game.DesignPatterns.Observers;
 using Game.VFX;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using System.Collections.Generic;
+
 
 namespace Game
 {
@@ -23,6 +26,7 @@ namespace Game
         
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
+        [SerializeField] private ScriptableReferenceSO scriptableReference;
         [FormerlySerializedAs("vfxPool")] [SerializeField] private EffectPool effectPool; // Por ahora lo pongo aca para que no sea un singleton
 
         private static LevelManager _instance;
@@ -31,6 +35,8 @@ namespace Game
         private ISubject _onLevelWon = new Subject();
         private IObserver _onPlayerDeath;
         private IObserver _onEnemyDeath;
+
+        private Dictionary<UpgradeEnum, Entities.Effect> effectsReferencesDic = new();
 
         private int _allEnemies;
         private int _deadEnemies;
@@ -43,9 +49,11 @@ namespace Game
         private void Awake()
         {
             _instance = this;
-            
+
             _onPlayerDeath = new ActionObserver(OnPlayerDeath);
             _onEnemyDeath = new ActionObserver(OnEnemyDeath);
+
+            FillEffectsDic();
         }
 
         public static void GetPlayerReference(ISubject onDeath)
@@ -57,7 +65,17 @@ namespace Game
 
             onDeath.Attach(_instance._onPlayerDeath);
         }
-        
+
+        public static Entities.Effect GetEffect(UpgradeEnum upgrade)
+        {
+            return _instance.effectsReferencesDic[upgrade];
+        }
+
+        public static List<LevelMedalsSO> GetMedals()
+        {
+            return _instance.scriptableReference.medalReferences;
+        }
+
         public static void GetEnemiesReference(ISubject onDeath)
         {
             if (_instance == null)
@@ -105,6 +123,12 @@ namespace Game
             return 0;
         }
 
+        public static int GetCurrentLevel()
+        {
+            if (_instance) return SceneManager.GetActiveScene().buildIndex;
+            return 0;
+        }
+
         public static float LevelCompleteTime()
         {
             if (_instance) return _instance._levelCompleteTime;
@@ -116,11 +140,31 @@ namespace Game
             if (_instance) _instance._levelCompleteTime = time;
         }
 
-        public static bool TryGetVFX(string id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
+        public static bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
         {
-            if (_instance) return _instance.effectPool.TryGetVFX(id, vfxParams, out emitter);
-            emitter = null;
-            return false;
+            if (!_instance)
+            {
+                emitter = null;
+                return false;
+            }
+            
+            //return _instance.effectPool.TryGetVFX(id, vfxParams, out emitter);
+            if (_instance.effectPool.TryGetVFX(id, vfxParams, out emitter))
+            {
+#if UNITY_EDITOR
+                Debug.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}");
+#endif
+
+                return true;
+            }
+            else
+            {
+#if UNITY_EDITOR
+                Debug.Log("LOG: TryGetVFX: Failure");
+#endif
+                return false;
+            }
+            
         }
 
         private void OnPlayerDeath()
@@ -140,6 +184,16 @@ namespace Game
         private void OnEnemyDeath()
         {
             _deadEnemies += 1;
+        }
+
+        private void FillEffectsDic()
+        {
+            for (int i = 0; i < _instance.scriptableReference.effectsReferences.Count; i++)
+            {
+                var key = _instance.scriptableReference.effectsReferences[i].upgradeEnum;
+                var value = _instance.scriptableReference.effectsReferences[i].effect;
+                effectsReferencesDic.Add(key, value);
+            }
         }
 
         private void OnDestroy()
