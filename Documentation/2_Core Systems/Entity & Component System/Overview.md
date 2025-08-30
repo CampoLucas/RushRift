@@ -31,6 +31,4 @@ This hybrid system:
 - [EntityView](</Documentation/2_Core Systems/Entity & Component System/View/EntityView.md>)
 - Custom Components
 
-<div style="display: flex; justify-content: space-between;">
-  <a href="Controller/EntityController.md">Next Page →</a>
-</div>
+[← Front Page](../../1_Introduction/Overview.md) | [Next Page →](Controller/EntityController.md)

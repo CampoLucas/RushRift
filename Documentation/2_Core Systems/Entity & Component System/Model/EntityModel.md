@@ -28,7 +28,4 @@ Key Features:
 - The model allows entities to dynamically **change behavior at runtime** by adding or removing components without modifying the Controller or View.
 - Provides decoupling between entity data/logic and Unity’s MonoBehaviour system.
 
-<div style="display: flex; justify-content: space-between;">
-  <a href="../Controller/Example%20Usage.md">← Previous Page</a>
-  <a href="EntityModelSO.md">Next Page →</a>
-</div>
+[← Previous Page](../Controller/Example%20Usage.md) | [Next Page →](EntityModelSO.md)

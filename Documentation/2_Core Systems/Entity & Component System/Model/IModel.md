@@ -16,7 +16,5 @@ Interface used to interact with the model.
 | `HasComponent`    | Checks if the model contains a component of type `TComponent`.                                    |
 | `OnDraw`          | Calls `OnDraw` for all components for editor debug rendering.                                     |
 | `OnDrawSelected`  | Calls `OnDrawSelected` for all components when the entity is selected in the editor.              |
-<div style="display: flex; justify-content: space-between;">
-  <a href="EntityModelSO.md">← Previous Page</a>
-  <a href="Example%20Usage.md">Next Page →</a>
-</div>
+
+[← Previous Page](EntityModelSO.md) | [Next Page →](Example%20Usage.md)

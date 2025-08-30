@@ -11,7 +11,5 @@ Abstract base `ScriptableObject` class for creating runtime Model proxies.
 - It's recommended to create a class that inherits from this `ScriptableObject` and add the components in the `Init` method rather than subclassing [EntityModel](EntityModel.md) directly.
 - See the upcoming example page for creating a concreate `EnemyModelSO` to understand how to instantiate and configure components in practice.
 
-<div style="display: flex; justify-content: space-between;">
-  <a href="EntityModel.md">← Previous Page</a>
-  <a href="IModel.md">Next Page →</a>
-</div>
+[← Previous Page](EntityModel.md) | [Next Page →](IModel.md)
+
