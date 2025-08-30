@@ -1,5 +1,5 @@
 # EntityController
-**Type:** `class` | **Inherits from:** `ObserverComponent` | Implements: [IController](IController.md) | **Implemented in:** `Game.Entities`
+**Type:** `class` | **Inherits from:** `ObserverComponent` | Implements: [`IController`](IController.md) | **Implemented in:** `Game.Entities`
 
 ### Description
 Main entry point for an entity. Initializes the model, manages runtime components and forwards Unity lifecycle calls to the model.
