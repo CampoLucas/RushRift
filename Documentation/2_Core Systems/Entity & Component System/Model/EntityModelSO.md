@@ -13,5 +13,5 @@ Abstract base `ScriptableObject` class for creating runtime Model proxies.
 
 <div style="display: flex; justify-content: space-between;">
   <a href="EntityModel.md">← Previous Page</a>
-  <a href="ExampleUsage.md">Next Page →</a>
+  <a href="IModel.md">Next Page →</a>
 </div>

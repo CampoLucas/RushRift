@@ -27,3 +27,8 @@ Key Features:
 - Components can implement optional update methods (`Update`, `LateUpdate`, `FixedUpdate`). When a component is added, observers are attached only for the update methods it implements. This prevents redundant calls for components that don’t need certain updates, keeping runtime performance efficient.
 - The model allows entities to dynamically **change behavior at runtime** by adding or removing components without modifying the Controller or View.
 - Provides decoupling between entity data/logic and Unity’s MonoBehaviour system.
+
+<div style="display: flex; justify-content: space-between;">
+  <a href="../Controller/EntityController.md">← Previous Page</a>
+  <a href="EntityModelSO.md">Next Page →</a>
+</div>
