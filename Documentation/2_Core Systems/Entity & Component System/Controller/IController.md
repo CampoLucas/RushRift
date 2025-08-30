@@ -17,3 +17,7 @@ Used to abstract interactions with any type of controller, allowing systems (AI,
 | `MoveDirection`  | Movement direction based on the controller.                 |
 | `TryGetObserver` |                                                             |
 | `TryGetSubject`  |                                                             |
+<div style="display: flex; justify-content: space-between;">
+  <a href="EntityController.md">← Previous Page</a>
+  <a href="Example%20Usage.md">Next Page →</a>
+</div>

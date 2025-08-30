@@ -40,3 +40,8 @@ Main entry point for an entity. Initializes the model, manages runtime component
 - The controller acts as the main interface for other systems via the `IController` interface.
 - It ensures that the Model is decouple from Unity's MonoBehaviour system, allowing runtime proxies and component-based updates.
 - Handles forwarding of  Unity lifecycle events, but the actual logic happens in the Model proxy and it's components.
+
+<div style="display: flex; justify-content: space-between;">
+  <a href="../Overview.md">← Previous Page</a>
+  <a href="IController.md">Next Page →</a>
+</div>

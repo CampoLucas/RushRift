@@ -29,6 +29,6 @@ Key Features:
 - Provides decoupling between entity data/logic and Unity’s MonoBehaviour system.
 
 <div style="display: flex; justify-content: space-between;">
-  <a href="../Controller/EntityController.md">← Previous Page</a>
+  <a href="../Controller/Example%20Usage.md">← Previous Page</a>
   <a href="EntityModelSO.md">Next Page →</a>
 </div>
