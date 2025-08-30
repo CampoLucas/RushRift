@@ -7,13 +7,13 @@ Used to abstract interactions with any type of controller, allowing systems (AI,
 ### Properties
 | Property | Description                                                                                |
 | -------- | ------------------------------------------------------------------------------------------ |
-| Origin   | Reference to the entity's `transform`.                                                     |
-| Joints   | Collections of transforms, useful for making custom attacks that use different bone joints |
+| `Origin` | Reference to the entity's `transform`.                                                     |
+| `Joints` | Collections of transforms, useful for making custom attacks that use different bone joints |
 ### Methods
 | Method           | Description                                                 |
 | ---------------- | ----------------------------------------------------------- |
-| GetModel()       | Returns the model instance associated with this controller. |
-| GetView()        | Returns the view instance associated with this controller.  |
-| MoveDirection()  | Movement direction based on the controller.                 |
-| TryGetObserver() |                                                             |
-| TryGetSubject()  |                                                             |
+| `GetModel`       | Returns the model instance associated with this controller. |
+| `GetView`        | Returns the view instance associated with this controller.  |
+| `MoveDirection`  | Movement direction based on the controller.                 |
+| `TryGetObserver` |                                                             |
+| `TryGetSubject`  |                                                             |
