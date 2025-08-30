@@ -26,7 +26,7 @@ This hybrid system:
 - **Reusable logic** - Components are self-contained and can be shared across different entity types without modifications.
 
 ## More Details
-- [EntityController](<2_Core Systems/Entity & Component System/Controller/EntityController.md>)
-- [EntityModel](<2_Core Systems/Entity & Component System/Model/EntityModel.md>)
-- [EntityView](<2_Core Systems/Entity & Component System/View/EntityView.md>)
+- [EntityController](</Documentation/2_Core Systems/Entity & Component System/Controller/EntityController.md>)
+- [EntityModel](</Documentation/2_Core Systems/Entity & Component System/Model/EntityModel.md>)
+- [EntityView](</Documentation/2_Core Systems/Entity & Component System/View/EntityView.md>)
 - Custom Components

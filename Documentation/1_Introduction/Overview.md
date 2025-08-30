@@ -6,10 +6,10 @@ Use this page as your starting point to navigate quickly to the most important p
 
 ### Core Systems Overview
 #### 1. Entity System
-- [Overview of Entity MVC + Components](<2_Core Systems/Entity & Component System/Overview.md>)
-- [Entity Controller](<2_Core Systems/Entity & Component System/Controller/EntityController.md>)
-- [Entity Model](<2_Core Systems/Entity & Component System/Model/EntityModel.md>)
-- [Entity View](<2_Core Systems/Entity & Component System/View/EntityView.md>)
+- [Overview of Entity MVC + Components](</Documentation/2_Core Systems/Entity & Component System/Overview.md>)
+- [Entity Controller](</Documentation/2_Core Systems/Entity & Component System/Controller/EntityController.md>)
+- [Entity Model](</Documentation/2_Core Systems/Entity & Component System/Model/EntityModel.md>)
+- [Entity View](</Documentation/2_Core Systems/Entity & Component System/View/EntityView.md>)
 - Entity Components
 
 #### 2. Input System
