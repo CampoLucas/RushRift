@@ -14,3 +14,9 @@ Use this page as your starting point to navigate quickly to the most important p
 
 #### 2. Input System
 - Input Manager
+
+### Scene Requirements for the Player to Work
+- A **GameObject** with the ```InputManager``` component in the scene.
+- All **floors** must be on the ```Ground``` layer.
+- All **walls** must be on the ```Wall``` layer.
+- All **obstacles** must be on the ```Obstacle``` layer.
