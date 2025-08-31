@@ -5,6 +5,7 @@ using System.IO;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Game.General.Utils
 {
@@ -64,6 +65,7 @@ namespace Game.General.Utils
 
             // Subscribe to Unity log events
             Application.logMessageReceived += HandleLog;
+            SceneManager.sceneLoaded += HandleSceneLoaded;
             
             // Unsubscribe when the app is closing
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
@@ -71,16 +73,35 @@ namespace Game.General.Utils
         
         private static void HandleLog(string logString, string stackTrace, LogType type)
         {
-            var entry = $"[{type}] {logString}\n";
+            var time = DateTime.Now.ToString("HH:mm:ss");
+            var typeLetter = type switch
+            {
+                LogType.Log => 'L',
+                LogType.Warning => 'W',
+                LogType.Error => 'E',
+                LogType.Exception => 'X',
+                LogType.Assert => 'A',
+                _ => '?'
+            };
+            
+            var entry = $"[{time}][{typeLetter}] {logString}\n";
             if (type == LogType.Error || type == LogType.Exception)
                 entry += stackTrace + "\n";
 
             File.AppendAllText(_logFilePath, entry);
         }
         
+        private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            var time = DateTime.Now.ToString("HH:mm:ss");
+            var entry = $"[{time}] --- Scene Loaded: {scene.name} ---\n";
+            File.AppendAllText(_logFilePath, entry);
+        }
+        
         private static void OnProcessExit(object sender, EventArgs e)
         {
             Application.logMessageReceived -= HandleLog;
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
             AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
         }
     }
