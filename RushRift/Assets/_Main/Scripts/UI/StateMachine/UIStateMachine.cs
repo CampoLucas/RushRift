@@ -9,6 +9,7 @@ namespace Game.UI.Screens
     public class UIStateMachine : IDisposable
     {
         private UIState _current;
+        private UIScreen _currentScreen;
         private Dictionary<UIScreen, UIState> _states = new();
         private NullCheck<UIEffectTransition> _effectTransition; // ToDo: Any transition
 
@@ -30,10 +31,10 @@ namespace Game.UI.Screens
 
         public bool TryChangeState(UIScreen screen)
         {
-            if (!_states.TryGetValue(screen, out var state)) return false;
+            if (!_states.TryGetValue(screen, out var state) || _current == state) return false;
             
             if (_current != null) _current.Disable();
-
+            
             _current = state;
             _current.Enable();
             return true;
@@ -41,7 +42,7 @@ namespace Game.UI.Screens
 
         public bool TransitionTo(UIScreen to, float fadeOut, float fadeIn, float fadeInStartTime)
         {
-            if (!_states.TryGetValue(to, out var state)) return false;
+            if (!_states.TryGetValue(to, out var state) || _current == state) return false;
 
             _timer = 0;
             _effectTransition.Set(new UIEffectTransition(_current, state, fadeOut, 0, fadeIn, fadeInStartTime));
