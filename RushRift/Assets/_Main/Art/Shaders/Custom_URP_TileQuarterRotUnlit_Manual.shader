@@ -13,6 +13,8 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
 
         [Enum(Rot_0,0,Rot_90,1,Rot_180,2,Rot_270,3)]
         _RotationQuarterTurns ("Rotation (0/90/180/270)", Float) = 0
+
+        _TileInsetTexels ("Tile Inset (texels)", Range(0,2)) = 0.5
     }
 
     SubShader
@@ -50,7 +52,11 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
                 float  _AlphaClip;
                 float  _Cutoff;
                 float  _RotationQuarterTurns;
+                float  _TileInsetTexels;
             CBUFFER_END
+
+            // Unity auto-sets this: (1/width, 1/height, width, height)
+            float4 _BaseMap_TexelSize;
 
             struct Attributes {
                 float4 positionOS : POSITION;
@@ -69,19 +75,26 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
             float2 RotateLocalQuarter(float2 local, int q)
             {
                 q = q & 3;
-                if (q == 0) return local;                                   // 0° : (u, v)
-                if (q == 1) return float2(1.0 - local.y, local.x);          // 90°: (1-v, u)
-                if (q == 2) return 1.0 - local;                             // 180°:(1-u,1-v)
-                return float2(local.y, 1.0 - local.x);                      // 270°:(v, 1-u)
+                if (q == 0) return local;                                   // (u, v)
+                if (q == 1) return float2(1.0 - local.y, local.x);          // (1-v, u)
+                if (q == 2) return 1.0 - local;                             // (1-u, 1-v)
+                return float2(local.y, 1.0 - local.x);                      // (v, 1-u)
             }
 
-            float2 ComputeRotatedUV(float2 uv0, int q)
+            void RotateGradientsQuarter(float2 du, float2 dv, int q, out float2 duOut, out float2 dvOut)
             {
-                float2 uvTiled = uv0 * _BaseMap_ST.xy + _BaseMap_ST.zw;
-                float2 tileId  = floor(uvTiled);
-                float2 local   = frac(uvTiled);
-                float2 localRot = RotateLocalQuarter(local, q);
-                return tileId + localRot;
+                q = q & 3;
+                if (q == 0) { duOut = du;   dvOut = dv;   return; }
+                if (q == 1) { duOut = -dv;  dvOut = du;   return; }
+                if (q == 2) { duOut = -du;  dvOut = -dv;  return; }
+                /* q == 3 */ duOut = dv;   dvOut = -du;
+            }
+
+            float2 InsetLocalUV(float2 localRot, float2 insetUV)
+            {
+                float2 lo = insetUV;
+                float2 hi = 1.0 - insetUV;
+                return saturate(lo + localRot * (hi - lo));
             }
 
             Varyings vert (Attributes v)
@@ -101,15 +114,29 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
             half4 frag (Varyings i) : SV_Target
             {
                 int q = (int)round(_RotationQuarterTurns);
-                float2 uvRot = ComputeRotatedUV(i.uv, q);
 
-                float4 baseSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uvRot);
+                float2 uvTiled   = i.uv * _BaseMap_ST.xy + _BaseMap_ST.zw;
+                float2 tileId    = floor(uvTiled);
+                float2 local     = frac(uvTiled);
+                float2 localRot  = RotateLocalQuarter(local, q);
+
+                float2 insetUV   = _TileInsetTexels * _BaseMap_TexelSize.xy;
+                float2 localIn   = InsetLocalUV(localRot, insetUV);
+
+                float2 uvRot     = tileId + localIn;
+
+                float2 ddxBase   = ddx(i.uv) * _BaseMap_ST.xy;
+                float2 ddyBase   = ddy(i.uv) * _BaseMap_ST.xy;
+                float2 ddxRot, ddyRot;
+                RotateGradientsQuarter(ddxBase, ddyBase, q, ddxRot, ddyRot);
+
+                float4 baseSample = SAMPLE_TEXTURE2D_GRAD(_BaseMap, sampler_BaseMap, uvRot, ddxRot, ddyRot);
                 float3 baseColor  = baseSample.rgb * _BaseColor.rgb;
-                float  alpha      = baseSample.a * _BaseColor.a;
+                float  alpha      = baseSample.a  * _BaseColor.a;
 
                 if (_AlphaClip > 0.5 && alpha < _Cutoff) discard;
 
-                float3 emission = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, uvRot).rgb * _EmissionColor.rgb;
+                float3 emission   = SAMPLE_TEXTURE2D_GRAD(_EmissionMap, sampler_EmissionMap, uvRot, ddxRot, ddyRot).rgb * _EmissionColor.rgb;
 
                 float3 color = baseColor + emission;
                 color = MixFog(color, i.fogCoord);
@@ -148,7 +175,10 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
                 float  _AlphaClip;
                 float  _Cutoff;
                 float  _RotationQuarterTurns;
+                float  _TileInsetTexels;
             CBUFFER_END
+
+            float4 _BaseMap_TexelSize;
 
             struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
             struct Varyings   { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
@@ -162,12 +192,11 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
                 return float2(local.y, 1.0 - local.x);
             }
 
-            float2 ComputeRotatedUV(float2 uv0, int q)
+            float2 InsetLocalUV(float2 localRot, float2 insetUV)
             {
-                float2 uvTiled = uv0 * _BaseMap_ST.xy + _BaseMap_ST.zw;
-                float2 tileId  = floor(uvTiled);
-                float2 local   = frac(uvTiled);
-                return tileId + RotateLocalQuarter(local, q);
+                float2 lo = insetUV;
+                float2 hi = 1.0 - insetUV;
+                return saturate(lo + localRot * (hi - lo));
             }
 
             Varyings vert (Attributes v)
@@ -185,7 +214,14 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
                 if (_AlphaClip > 0.5)
                 {
                     int q = (int)round(_RotationQuarterTurns);
-                    float2 uvRot = ComputeRotatedUV(i.uv, q);
+                    float2 uvTiled  = i.uv * _BaseMap_ST.xy + _BaseMap_ST.zw;
+                    float2 tileId   = floor(uvTiled);
+                    float2 local    = frac(uvTiled);
+                    float2 localRot = RotateLocalQuarter(local, q);
+                    float2 insetUV  = _TileInsetTexels * _BaseMap_TexelSize.xy;
+                    float2 localIn  = InsetLocalUV(localRot, insetUV);
+                    float2 uvRot    = tileId + localIn;
+
                     float alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uvRot).a * _BaseColor.a;
                     if (alpha < _Cutoff) discard;
                 }
@@ -193,7 +229,6 @@ Shader "Custom/URP/TileQuarterRotUnlit_Manual"
             }
             ENDHLSL
         }
-
     }
 
     FallBack Off
