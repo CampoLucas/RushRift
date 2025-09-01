@@ -29,4 +29,5 @@ A class containing the configuration of a sound, including clips, volume, pitch,
 | ------------ | ---------------------------------------------------------------------- |
 | `Initialize` | Applies this sound's settings to the provided `AudioSource`.           |
 | `Play`       | Initializes and plays the sound clip using the provided `AudioSource`. |
+
 [← Previous Page](AudioManager.md) | [Next Page →](AudioSourcePool.md)
