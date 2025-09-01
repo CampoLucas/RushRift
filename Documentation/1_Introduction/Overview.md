@@ -13,7 +13,7 @@ Use this page as your starting point to navigate quickly to the most important p
 - Entity Components
 
 #### Managers
-- [Audio Manager](AudioManager.md)
+- [Audio Manager](../4_Managers/Audio%20Manager/AudioManager.md)
 - [Input Manager](../4_Managers/Input%20Manager/Overview.md)
 - [Level Manager](../4_Managers/Level%20Manager/Overview.md)
 - [UI Manager](../4_Managers/UI%20Manager/Overview.md)
