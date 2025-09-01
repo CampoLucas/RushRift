@@ -1,5 +1,5 @@
 # IController
-**Type:** `interface` | **Implements:** `IDisposable`, [`IObserver`](../../Observers/IObserver.md) | **Implemented in:** `Game.Entities`
+**Type:** `interface` | **Implements:** `IDisposable`, [`IObserver`](IObserver.md) | **Implemented in:** `Game.Entities`
 
 ### Description
 Used to abstract interactions with any type of controller, allowing systems (AI, animations, input, etc.) to work without knowing the specific controller type.
