@@ -227,6 +227,9 @@ else
 
 Since components can be added on runtime, entities could have components to change how other systems interact with them.
 
+>[!Note]
+>The `TryGetComponent<T>()` and `HasCamponent<T>()` used with the **model** aren't the same methods from Unity, they are a custom implementation.
+
 ## More Examples
 - [Model Example](../Model/Example%20Usage.md)
 - [View Example](../View/Example%20Usage.md)
