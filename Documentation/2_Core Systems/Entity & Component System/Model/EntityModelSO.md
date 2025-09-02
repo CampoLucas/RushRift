@@ -9,7 +9,7 @@ Abstract base `ScriptableObject` class for creating runtime Model proxies.
 | `Init`     | Initializes the model components.                   |
 ### Notes
 - It's recommended to create a class that inherits from this `ScriptableObject` and add the components in the `Init` method rather than subclassing [`EntityModel`](EntityModel.md) directly.
-- See the upcoming example page for creating a concreate [`BarrelModelSO`](Example%20Usage.md) to understand how to instantiate and configure components in practice.
+- See the upcoming example page for creating a concreate [`BarrelModelSO`](Documentation/2_Core%20Systems/Entity%20&%20Component%20System/Model/Example%20Usage.md) to understand how to instantiate and configure components in practice.
 
 [← Previous Page](EntityModel.md) | [Next Page →](IModel.md)
 

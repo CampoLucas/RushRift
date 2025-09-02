@@ -1,5 +1,5 @@
 # EntityController
-**Type:** `class` | **Inherits from:** [`ObserverComponent`](Documentation/5_Design%20Patterns/Observers/ObserverComponent.md) | Implements: [`IController`](IController.md) | **Implemented in:** `Game.Entities`
+**Type:** `class` | **Inherits from:** [`ObserverComponent`](Documentation/5_Design%20Patterns/Observers/ObserverComponent.md) | **Implements:** [`IController`](IController.md) | **Implemented in:** `Game.Entities`
 
 ### Description
 Main entry point for an entity. Initializes the model, manages runtime components and forwards Unity lifecycle calls to the model.
@@ -31,7 +31,7 @@ Main entry point for an entity. Initializes the model, manages runtime component
 | ---------------- | ------------------------------------------------------------------------------ |
 | `GetModel`       | Returns the runtime model instance.                                            |
 | `GetView`        | Returns the runtime view instance.                                             |
-| `MoveDirection`  | Abstract method to provide input direction; must be implemented by subclasses. |
+| `MoveDirection`  | Abstract method to provide input direction, must be implemented by subclasses. |
 | `TryGetObserver` |                                                                                |
 | `TryGetSubject`  |                                                                                |
 | `OnNotify`       |                                                                                |

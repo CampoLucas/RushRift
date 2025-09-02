@@ -18,4 +18,4 @@ Used to abstract interactions with any type of controller, allowing systems (AI,
 | `TryGetObserver` |                                                             |
 | `TryGetSubject`  |                                                             |
 
-[← Previous Page](EntityController.md) | [Next Page →](Example%20Usage.md)
+[← Previous Page](EntityController.md) | [Next Page →](Documentation/2_Core%20Systems/Entity%20&%20Component%20System/Controller/Example%20Usage.md)

@@ -17,4 +17,4 @@ Interface used to interact with the model.
 | `OnDraw`          | Calls `OnDraw` for all components for editor debug rendering.                                     |
 | `OnDrawSelected`  | Calls `OnDrawSelected` for all components when the entity is selected in the editor.              |
 
-[← Previous Page](EntityModelSO.md) | [Next Page →](Example%20Usage.md)
+[← Previous Page](EntityModelSO.md) | [Next Page →](Documentation/2_Core%20Systems/Entity%20&%20Component%20System/Model/Example%20Usage.md)
