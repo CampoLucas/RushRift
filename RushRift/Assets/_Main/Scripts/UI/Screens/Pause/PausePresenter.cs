@@ -27,6 +27,7 @@ namespace Game.UI.Screens
         public override void Begin()
         {
             base.Begin();
+            PauseEventBus.SetPaused(true);
 
             if (!pauseMusicLowPass)
                 pauseMusicLowPass = FindObjectOfType<PauseMusicLowPass>(true);
@@ -44,6 +45,7 @@ namespace Game.UI.Screens
         public override void End()
         {
             base.End();
+            PauseEventBus.SetPaused(false);
 
             if (!pauseMusicLowPass)
                 pauseMusicLowPass = FindObjectOfType<PauseMusicLowPass>(true);
