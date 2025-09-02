@@ -11,7 +11,7 @@ To use the system, you need three main classes: a `EntityController`, an `Entity
 - For the **model**, you must create a class that inherits from `EntityModelSO` to add components when the model is initialized.
 The `EntityController` should be assigned to the scene or prefab `GameObject` and must reference the corresponding `EntityModelSO`. This setup ensures the controller can initialize the runtime model proxy and manage its components.
 
-# Simple Entity
+## Simple Entity
 ### Overview
 This example shows how to set up a basic entity using the system. It highlights the minimal steps needed to have a working entity with a **model**, **controller** and **view** without delving into custom behavior or components.
 
@@ -31,7 +31,7 @@ To create a functional entity, you need:
 - Components are added dynamically to the model at runtime.
 - Observers in the model ensure that only components with `Update`, `LateUpdate` or `FixedUpdate` logic run, keeping performance efficient.
 
-# Custom Entity
+## Custom Entity
 To make a custom entity you will have to inherit the `EntityController` class. Inside the class you can make the following things:
 
 ### 1. Attaching Observers to Subjects from Components
