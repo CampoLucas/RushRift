@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6116249972748288399
+--- !u!114 &-6926953477162254981
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_LightGate
-  m_Shader: {fileID: -6465566751694194690, guid: 2f519f39a14b34c43a964bcbf14eb908, type: 3}
+  m_Name: Shader Graphs_VFX_LightBridge_Blue
+  m_Shader: {fileID: -6465566751694194690, guid: 8faba77e999749b4eaafeb4d89231f33, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -58,25 +58,25 @@ Material:
     - _Blend: 2
     - _CastShadows: 1
     - _Cull: 2
-    - _DotSize: 1.14
-    - _DotsNoiseScale: 30
     - _DstBlend: 1
-    - _HexEdge: 0.25
-    - _HexNoiseScale: 10
-    - _HexSize: 1
-    - _MaskSize: 2.5
+    - _HexEdge: 0
+    - _HexNoiseScale: 30
+    - _HexSize: 500
+    - _LineSpeed: 0.005
+    - _MaskSize: 5
     - _NoiseScale: 10
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _RadialScale: 0.75
     - _SrcBlend: 5
     - _Surface: 1
     - _ZTest: 4
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _DotColor: {r: 2, g: 0, b: 0.6186476, a: 0.2}
-    - _DotTiling: {r: 20, g: 60, b: 0, a: 0}
-    - _HexColor: {r: 0, g: 0.2379488, b: 0.5019608, a: 0}
-    - _HexTiling: {r: 20, g: 70, b: 0, a: 0}
-    - _NoiseSpeed: {r: 0.05, g: 0.05, b: 0, a: 0}
+    - _HexColor: {r: 0, g: 0.5888511, b: 2.670157, a: 0.3921569}
+    - _HexTiling: {r: 10, g: 10, b: 0, a: 0}
+    - _LineColor: {r: 0, g: 1.6870797, b: 3.5266223, a: 0.3921569}
+    - _NoiseSpeed: {r: 0, g: 0.05, b: 0, a: 0}
+    - _NoiseTiling: {r: 0.1, g: 0.1, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_FadeScreen
-  m_Shader: {fileID: -6465566751694194690, guid: d54fbd337806d314f95aae6c36a348e5, type: 3}
+  m_Name: M_CRT
+  m_Shader: {fileID: -6465566751694194690, guid: fcc215926f2c4e54895acfc3f03dac5f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -37,7 +37,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _FadeAmount: 0
-    - _FadeTime: 0
-    m_Colors: []
+    - _BlurOffset: 0.000422
+    - _ScanLinesSpeed: 0.25
+    m_Colors:
+    - _Color: {r: 8, g: 8, b: 8, a: 0}
+    - _ColorA: {r: 0.5, g: 0, b: 0, a: 0}
+    - _ColorB: {r: 0.19475614, g: 0.24954055, b: 0.45471698, a: 0}
+    - _ScanLinesThickness: {r: 0, g: 1500, b: 0, a: 0}
   m_BuildTextureStacks: []
