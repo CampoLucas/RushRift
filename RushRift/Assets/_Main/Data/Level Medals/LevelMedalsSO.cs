@@ -13,6 +13,7 @@ public struct medal
 {
     public bool isAcquired;
     public float time;
+    public string upgradeText;
     public UpgradeEnum upgrade;
 }
 
