@@ -24,19 +24,24 @@ namespace Game.UI.Screens
         [SerializeField] private TMP_Text goldText;
 
         [Header("Icons")]
-        [SerializeField] private Image bronzeAcquired;
-        [SerializeField] private Image silverAcquired;
-        [SerializeField] private Image goldAcquired;
-        [SerializeField] private Sprite acquiredIcon;
-        [SerializeField] private Sprite normalIcon;
+        [SerializeField] private Image bronzeMedal;
+        [SerializeField] private Image silverMedal;
+        [SerializeField] private Image goldMedal;
+        [SerializeField] private Image bronzeLocked;
+        [SerializeField] private Image silverLocked;
+        [SerializeField] private Image goldLocked;
+        [SerializeField] private Sprite LockedIcon;
 
         [Header("Effects")]
+        [SerializeField] private GameObject effectsContainer;
+        [SerializeField] private TMP_Text upgradeText;
         [SerializeField] private TMP_Text bronzeEffectText;
         [SerializeField] private TMP_Text silverEffectText;
         [SerializeField] private TMP_Text goldEffectText;
         [SerializeField] private GameObject bronzeEffect;
         [SerializeField] private GameObject silverEffect;
         [SerializeField] private GameObject goldEffect;
+
 
         public override void Begin()
         {
@@ -113,6 +118,7 @@ namespace Game.UI.Screens
             var data = SaveAndLoad.Load();
             var medals = data.LevelsMedalsTimes[currentLevel];
             var time = LevelManager.LevelCompleteTime();
+            int medalCount = 0;
 
 
             if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, time);
@@ -125,6 +131,7 @@ namespace Game.UI.Screens
                 medals.bronze.isAcquired = true;
                 bronzeEffectText.text = data.LevelsMedalsTimes[currentLevel].bronze.upgradeText;
                 bronzeEffect.SetActive(true);
+                medalCount++;
             }
 
             if (data.LevelsMedalsTimes[currentLevel].silver.time > time && !data.LevelsMedalsTimes[currentLevel].silver.isAcquired)
@@ -132,14 +139,16 @@ namespace Game.UI.Screens
                 medals.silver.isAcquired = true;
                 silverEffectText.text = data.LevelsMedalsTimes[currentLevel].silver.upgradeText;
                 silverEffect.SetActive(true);
-            } 
+                medalCount++;
+            }
 
             if (data.LevelsMedalsTimes[currentLevel].gold.time > time && !data.LevelsMedalsTimes[currentLevel].gold.isAcquired)
             {
                 medals.gold.isAcquired = true;
                 goldEffectText.text = data.LevelsMedalsTimes[currentLevel].gold.upgradeText;
                 goldEffect.SetActive(true);
-            } 
+                medalCount++;
+            }
 
             data.LevelsMedalsTimes[currentLevel] = medals;
 
@@ -156,15 +165,27 @@ namespace Game.UI.Screens
             _newTimer = TimerFormatter.GetNewTimer(data.LevelsMedalsTimes[currentLevel].gold.time);
             TimerFormatter.FormatTimer(goldText, _newTimer[0], _newTimer[1], _newTimer[2]);
 
-            if (medals.bronze.isAcquired) bronzeAcquired.sprite = acquiredIcon;
-            else bronzeAcquired.enabled = false;
+            if (medals.bronze.isAcquired)
+            {
+                bronzeLocked.enabled = false;
+                bronzeMedal.color = Color.white;
+            } 
 
-            if (medals.silver.isAcquired) silverAcquired.sprite = acquiredIcon;
-            else silverAcquired.enabled = false;
+            if (medals.silver.isAcquired)
+            {
+                silverLocked.enabled = false;
+                silverMedal.color = Color.white;
+            } 
+ 
+            if (medals.gold.isAcquired)
+            {
+                goldLocked.enabled = false;
+                goldMedal.color = Color.white;
+            } 
+ 
 
-            if (medals.gold.isAcquired) goldAcquired.sprite = acquiredIcon;
-            else goldAcquired.enabled = false;
-
+            if (medalCount > 0) effectsContainer.SetActive(true);
+            if (medalCount > 1) upgradeText.text = "New Upgrades Unlocked";
 
             SaveAndLoad.Save(data);
         }
