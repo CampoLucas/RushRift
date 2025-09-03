@@ -4960,6 +4960,7 @@ GameObject:
   - component: {fileID: 3340213487068505621}
   - component: {fileID: 2469540225326613934}
   - component: {fileID: 1234932817616347247}
+  - component: {fileID: 968427913173877159}
   m_Layer: 0
   m_Name: P_EnergyOrb
   m_TagString: Untagged
@@ -5045,6 +5046,37 @@ MonoBehaviour:
   orbLight: {fileID: 8218786994038880325}
   fadeTime: 1.25
   respawnTime: 2.5
+--- !u!114 &968427913173877159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2771917072184114708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce910c2a6d56852418aebc0e9e13a232, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverAmplitudeMeters: 0.25
+  hoverSpeedCyclesPerSecond: 0.5
+  useUnscaledTime: 0
+  useLocalSpace: 0
+  randomizeStartPhase: 1
+  startingPhaseDegrees: 0
+  startHoveringOnEnable: 1
+  resetToBaseOnDisable: 1
+  carryPlayerStandingOnTop: 0
+  requiredPlayerTag: Player
+  playerTopCheckLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  useAttachedColliderForTopCheck: 1
+  topCheckHeightMeters: 0.2
+  topCheckInsetXZ: {x: 0.05, y: 0.05}
+  preferCharacterControllerMove: 1
+  isDebugLoggingEnabled: 0
+  drawGizmos: 1
 --- !u!1 &5120818698406840515
 GameObject:
   m_ObjectHideFlags: 0

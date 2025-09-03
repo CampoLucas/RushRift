@@ -9,7 +9,7 @@ namespace Game.UI.Screens
     public class PausePresenter : UIPresenter<PauseModel, PauseView>
     {
         public bool OnOptions { get; private set; }
-        
+
         [Header("Buttons")]
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button restartButton;
@@ -20,23 +20,38 @@ namespace Game.UI.Screens
         [Header("Screens")]
         [SerializeField] private Canvas main;
         [SerializeField] private Canvas options;
-        
+
+        [Header("Audio")]
+        [SerializeField] private PauseMusicLowPass pauseMusicLowPass;
+
         public override void Begin()
         {
             base.Begin();
-            
+            PauseEventBus.SetPaused(true);
+
+            if (!pauseMusicLowPass)
+                pauseMusicLowPass = FindObjectOfType<PauseMusicLowPass>(true);
+
+            pauseMusicLowPass?.SetPaused(true);
+
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
-            
+
             EventSystem.current.SetSelectedGameObject(null);
-            
+
             OnOptionsBackHandler();
         }
 
         public override void End()
         {
             base.End();
-            
+            PauseEventBus.SetPaused(false);
+
+            if (!pauseMusicLowPass)
+                pauseMusicLowPass = FindObjectOfType<PauseMusicLowPass>(true);
+
+            pauseMusicLowPass?.SetPaused(false);
+
             EventSystem.current.SetSelectedGameObject(null);
         }
 

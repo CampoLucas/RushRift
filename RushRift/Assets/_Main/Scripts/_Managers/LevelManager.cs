@@ -43,7 +43,7 @@ namespace Game
         private bool _gameOver;
         private bool _gameOverNotified;
         private float _levelCompleteTime;
-        private bool _canUseTerminals;
+        [SerializeField] private bool _canUseTerminals = true;
 
 
         private void Awake()
