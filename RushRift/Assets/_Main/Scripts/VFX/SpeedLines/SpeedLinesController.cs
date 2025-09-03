@@ -2,6 +2,7 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.Entities.Components.MotionController;
 using Game.UI;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -16,12 +17,17 @@ namespace Game.VFX
         
         [Header("Settings")]
         [SerializeField] private SpeedLinesData data;
+
+        [SerializeField] private Gradient normalGradient;
+        [SerializeField] private Gradient dashDamageGradient;
+        
         
         private Func<float> _moveAmount;
         private bool _started;
         private IObserver _onPaused;
         private IObserver _onUnpause;
         private Rigidbody _rigidbody;
+        private bool _dashing;
 
         private void Awake()
         {
@@ -39,6 +45,8 @@ namespace Game.VFX
             {
                 _rigidbody = rb;
             }
+            
+            effect.SetGradient("ColorRadiant", normalGradient);
         }
         
         private void OnEnable()
@@ -86,6 +94,25 @@ namespace Game.VFX
             //if (effect.pause || _moveAmount == null) return;
             if (effect.pause || !_rigidbody) return;
             var on = data.SetEffect(_rigidbody.velocity.magnitude, effect) > 0;
+
+            var hasDashDamage = LevelManager.HasDashDamage;
+            
+            if (hasDashDamage && 
+                targetEntity.GetModel().TryGetComponent<MotionController>(out var controller) &&
+                controller.TryGetHandler<DashHandler>(out var handler))
+            {
+                if (!_dashing && handler.IsDashing)
+                {
+                    _dashing = true;
+                    effect.SetGradient("ColorRadiant", dashDamageGradient);
+                }
+
+                if (_dashing && !handler.IsDashing)
+                {
+                    _dashing = false;
+                    effect.SetGradient("ColorRadiant", normalGradient);
+                }
+            }
             
             if (on && !_started)
             {

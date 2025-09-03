@@ -5,6 +5,7 @@ namespace Game.Entities.Components.MotionController
 {
     public class DashHandler : MotionHandler<DashConfig>
     {
+        public bool IsDashing => _isDashing;
         public DashDirStrategyComposite DirStrategy { get; private set; }
         public DashUpdateStrategyComposite UpdateStrategy { get; private set; }
         public CompositeDashEndStrategy EndStrategy { get; private set; }
@@ -164,7 +165,6 @@ namespace Game.Entities.Components.MotionController
         }
 
         public float GetCost() => Config.Cost;
-        public bool IsDashing() => _isDashing;
         public bool CanDash(IController controller)
         {
             if (_isDashing || _elapsedCooldown > 0)
