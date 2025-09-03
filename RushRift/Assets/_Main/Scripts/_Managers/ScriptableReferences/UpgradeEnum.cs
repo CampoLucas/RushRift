@@ -3,5 +3,5 @@ public enum UpgradeEnum
 {
     DashAttack,
     GainEnergyOnKill,
-    Lightning,
+    PowerSurge,
 }
