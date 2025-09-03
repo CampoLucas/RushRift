@@ -18,12 +18,16 @@ namespace Game.Entities.Dash
         {
             dash.DirStrategy.Add(DashDirEnum.Target, new DashTargetStrategy(targetConfig));
             dash.UpdateStrategy.Add(DashUpdateEnum.Damage, new DashDamageStrategy(dashDamageConfig));
+
+            LevelManager.HasDashDamage = true;
         }
 
         protected override void OnStopEffect(DashHandler dash)
         {
             dash.DirStrategy.Remove(DashDirEnum.Target);
             dash.UpdateStrategy.Remove(DashUpdateEnum.Damage);
+            
+            LevelManager.HasDashDamage = false;
         }
 
         public override string Description()
