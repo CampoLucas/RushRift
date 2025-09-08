@@ -23,6 +23,15 @@ namespace Game
             get => _instance && _instance._canUseTerminals;
             set { if (_instance) _instance._canUseTerminals = value; }
         }
+
+        public static bool HasDashDamage
+        {
+            get => _instance && _instance._hasDashDamage;
+            set
+            {
+                if (_instance) _instance._hasDashDamage = value;
+            }
+        }
         
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
@@ -43,7 +52,8 @@ namespace Game
         private bool _gameOver;
         private bool _gameOverNotified;
         private float _levelCompleteTime;
-        private bool _canUseTerminals;
+        private bool _canUseTerminals; // ToDo: Find a better way
+        private bool _hasDashDamage; // ToDo: Find a better way
 
 
         private void Awake()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -36,6 +37,12 @@ namespace Game.Entities.Components
         [Header("FOV")]
         [SerializeField] private float minFOV;
         [SerializeField] private float maxFOV;
+
+        [Space(10)] [Header("Distortion")]
+        [SerializeField] private float distortionScale = 32f;
+        [SerializeField] private float distortionPower = .8f;
+        [SerializeField] private float distortionMultiplier = .05f;
+        [SerializeField] private Gradient _gradient;
 
         public float SetEffect(float currentVelocity, VisualEffect effect)
         {

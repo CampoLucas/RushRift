@@ -15,7 +15,7 @@ namespace _Main.Scripts.Environment
         private bool canBeUsed = true;
 
         [Header("Launch")]
-        [SerializeField, Tooltip("Launch speed along the chosen direction (m/s).")]
+        [SerializeField, Tooltip("Target exit speed along the launch direction (m/s).")]
         private float launchSpeed = 12f;
 
         [Header("Direction")]
@@ -29,8 +29,14 @@ namespace _Main.Scripts.Environment
         private Transform directionTransform;
 
         [Header("Velocity Handling")]
-        [SerializeField, Tooltip("If true, zeroes sideways velocity relative to the launch direction.")]
-        private bool resetTangentialVelocity = false;
+        [SerializeField, Tooltip("If true, removes all sideways velocity relative to the launch direction.")]
+        private bool resetTangentialVelocity = true;
+
+        [SerializeField, Range(0f, 1f), Tooltip("Sideways velocity retention if not fully reset. 0 = none, 1 = keep all.")]
+        private float tangentialRetention01;
+
+        [SerializeField, Tooltip("If true, the final velocity magnitude will be exactly Launch Speed, regardless of entry angle.")]
+        private bool clampExitSpeedToLaunch = true;
 
         [Header("Triggering")]
         [SerializeField, Tooltip("If true, launch once on entry. If false, launch continuously while inside the trigger.")]
@@ -40,7 +46,7 @@ namespace _Main.Scripts.Environment
         [SerializeField, Tooltip("If enabled, prints detailed debug logs for this JumpPad.")]
         private bool debugLogs;
 
-        private static readonly Collider[] _overlapBuffer = new Collider[32];
+        private static readonly Collider[] OverlapBuffer = new Collider[32];
         private readonly HashSet<Collider> _occupants = new();
         private Collider _collider;
 
@@ -51,9 +57,8 @@ namespace _Main.Scripts.Environment
 
         private void Reset()
         {
-            Collider jumpPadCollider = GetComponent<Collider>();
-            if (jumpPadCollider) jumpPadCollider.isTrigger = true;
-            
+            var c = GetComponent<Collider>();
+            if (c) c.isTrigger = true;
             Log("Reset: set collider to trigger");
         }
 
@@ -64,15 +69,14 @@ namespace _Main.Scripts.Environment
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other == null) return;
+            if (!other) return;
             _occupants.Add(other);
-            
             if (triggerOnlyOnEnter) TryLaunch(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (other == null) return;
+            if (!other) return;
             _occupants.Remove(other);
         }
 
@@ -89,15 +93,14 @@ namespace _Main.Scripts.Environment
                 return;
             }
 
-            Rigidbody targetRigidbody = other.attachedRigidbody ? other.attachedRigidbody : other.GetComponentInParent<Rigidbody>();
-            
-            if (!targetRigidbody)
+            var rb = other.attachedRigidbody ? other.attachedRigidbody : other.GetComponentInParent<Rigidbody>();
+            if (!rb)
             {
                 Log($"Ignored: no Rigidbody on {other.name}");
                 return;
             }
 
-            GameObject go = targetRigidbody.gameObject;
+            var go = rb.gameObject;
             if (!go.CompareTag("Player"))
             {
                 Log($"Ignored: {go.name} does not have Player tag (tag={go.tag})");
@@ -105,46 +108,58 @@ namespace _Main.Scripts.Environment
             }
 
             Vector3 dir = GetDirection();
-            Vector3 velocity = targetRigidbody.velocity;
+            Vector3 v = rb.velocity;
 
-            float along = Vector3.Dot(velocity, dir);
-            Vector3 tangential = velocity - dir * along;
+            float along = Vector3.Dot(v, dir);
+            Vector3 tangential = v - dir * along;
+
             if (resetTangentialVelocity) tangential = Vector3.zero;
+            else tangential *= Mathf.Clamp01(tangentialRetention01);
 
-            Vector3 newVelocity = tangential + dir * Mathf.Max(launchSpeed, 0f);
-            Log($"Launching {go.name}: dir={dir}, speed={launchSpeed:0.##}, oldVel={velocity}, newVel={newVelocity}");
-            targetRigidbody.velocity = newVelocity;
+            Vector3 newVelocity;
+
+            if (clampExitSpeedToLaunch)
+            {
+                newVelocity = dir * Mathf.Max(0f, launchSpeed);
+            }
+            else
+            {
+                newVelocity = tangential + dir * Mathf.Max(0f, launchSpeed);
+            }
+
+            Log($"Launch {go.name} | entrySpeed={v.magnitude:0.###} | tangentialKept={tangential.magnitude:0.###} | exitSpeed={newVelocity.magnitude:0.###} | dir={dir}");
+            rb.velocity = newVelocity;
         }
 
         private Vector3 GetDirection()
         {
             Vector3 direction = directionSource switch
             {
-                DirectionSource.WorldUp => Vector3.up,
-                DirectionSource.PadUp => transform.up,
-                DirectionSource.CustomVector => customDirection,
-                DirectionSource.TransformForward => directionTransform ? directionTransform.forward : Vector3.forward,
+                DirectionSource.WorldUp         => Vector3.up,
+                DirectionSource.PadUp           => transform.up,
+                DirectionSource.CustomVector    => customDirection,
+                DirectionSource.TransformForward=> directionTransform ? directionTransform.forward : Vector3.forward,
                 _ => transform.up
             };
-
             if (direction.sqrMagnitude < 1e-6f) direction = Vector3.up;
             return direction.normalized;
         }
 
         public override void OnNotify(string arg)
         {
-            if (arg == Terminal.ON_ARGUMENT)
+            if (string.IsNullOrEmpty(arg)) return;
+
+            string a = arg.Trim().ToLowerInvariant();
+            if (a == Terminal.ON_ARGUMENT)
             {
                 canBeUsed = true;
-                Log("OnNotify: ON -> checking occupants");
+                Log("OnNotify: ON -> rechecking occupants");
                 RecheckAndLaunchOccupants();
             }
-            
-            else if (arg == Terminal.OFF_ARGUMENT)
+            else if (a == Terminal.OFF_ARGUMENT)
             {
                 canBeUsed = false;
                 Log("OnNotify: OFF");
-                
             }
             else
             {
@@ -155,25 +170,22 @@ namespace _Main.Scripts.Environment
         private void RecheckAndLaunchOccupants()
         {
             int launched = 0;
-            
+
             if (_occupants.Count > 0)
             {
-                foreach (Collider col in _occupants)
+                foreach (var col in _occupants)
                 {
                     if (!col) continue;
                     TryLaunch(col);
                     launched++;
                 }
             }
-            
             else
             {
-                int count = OverlapSelfNonAlloc(_overlapBuffer);
-                
+                int count = OverlapSelfNonAlloc(OverlapBuffer);
                 for (int i = 0; i < count; i++)
                 {
-                    Collider col = _overlapBuffer[i];
-                    
+                    var col = OverlapBuffer[i];
                     if (!col || col == _collider) continue;
                     TryLaunch(col);
                     launched++;
@@ -186,45 +198,42 @@ namespace _Main.Scripts.Environment
         private int OverlapSelfNonAlloc(Collider[] buffer)
         {
             if (!_collider) return 0;
-            
+
             if (_collider is BoxCollider box)
             {
                 Vector3 center = box.transform.TransformPoint(box.center);
                 Vector3 half = Vector3.Scale(box.size * 0.5f, box.transform.lossyScale);
                 return Physics.OverlapBoxNonAlloc(center, half, buffer, box.transform.rotation, ~0, QueryTriggerInteraction.Collide);
             }
-            
+
             if (_collider is SphereCollider sphere)
             {
                 Vector3 center = sphere.transform.TransformPoint(sphere.center);
                 float radius = sphere.radius * MaxAbsComponent(sphere.transform.lossyScale);
                 return Physics.OverlapSphereNonAlloc(center, radius, buffer, ~0, QueryTriggerInteraction.Collide);
             }
-            
+
             if (_collider is CapsuleCollider capsule)
             {
                 GetCapsuleWorld(capsule, out Vector3 p0, out Vector3 p1, out float r);
                 return Physics.OverlapCapsuleNonAlloc(p0, p1, r, buffer, ~0, QueryTriggerInteraction.Collide);
             }
-            
-            Bounds colliderBounds = _collider.bounds;
-            return Physics.OverlapBoxNonAlloc(colliderBounds.center, colliderBounds.extents, buffer, _collider.transform.rotation, ~0, QueryTriggerInteraction.Collide);
+
+            Bounds b = _collider.bounds;
+            return Physics.OverlapBoxNonAlloc(b.center, b.extents, buffer, _collider.transform.rotation, ~0, QueryTriggerInteraction.Collide);
         }
 
-        private static void GetCapsuleWorld(CapsuleCollider capsuleCollider, out Vector3 p0, out Vector3 p1, out float radius)
+        private static void GetCapsuleWorld(CapsuleCollider c, out Vector3 p0, out Vector3 p1, out float radius)
         {
-            Transform colliderTransform = capsuleCollider.transform;
-            Vector3 lossy = colliderTransform.lossyScale;
-            
-            float axisScale = capsuleCollider.direction == 0 ? Mathf.Abs(lossy.x) : capsuleCollider.direction == 1 ? Mathf.Abs(lossy.y) : Mathf.Abs(lossy.z);
-            radius = capsuleCollider.radius * MaxAbsComponent(lossy);
-            float halfCyl = Mathf.Max(0f, (capsuleCollider.height * 0.5f - capsuleCollider.radius)) * axisScale;
+            Transform t = c.transform;
+            Vector3 s = t.lossyScale;
 
-            Vector3 center = colliderTransform.TransformPoint(capsuleCollider.center);
-            Vector3 axis =
-                capsuleCollider.direction == 0 ? colliderTransform.right :
-                capsuleCollider.direction == 1 ? colliderTransform.up :
-                colliderTransform.forward;
+            float axisScale = c.direction == 0 ? Mathf.Abs(s.x) : c.direction == 1 ? Mathf.Abs(s.y) : Mathf.Abs(s.z);
+            radius = c.radius * MaxAbsComponent(s);
+            float halfCyl = Mathf.Max(0f, (c.height * 0.5f - c.radius)) * axisScale;
+
+            Vector3 center = t.TransformPoint(c.center);
+            Vector3 axis = c.direction == 0 ? t.right : c.direction == 1 ? t.up : t.forward;
 
             p0 = center + axis * halfCyl;
             p1 = center - axis * halfCyl;
@@ -235,7 +244,6 @@ namespace _Main.Scripts.Environment
         private void OnDrawGizmosSelected()
         {
             Vector3 dir = GetDirection();
-            
             Gizmos.color = canBeUsed ? Color.cyan : new Color(0.5f, 0.5f, 0.5f);
             Gizmos.DrawRay(transform.position, dir * Mathf.Max(launchSpeed * 0.25f, 0.25f));
         }

@@ -6,22 +6,33 @@ using Game.DesignPatterns.Observers;
 using Game.UI;
 using UnityEngine;
 using UnityEngine.Audio;
+
 namespace Game
 {
-    /// <summary>
-    /// Manages the playback of audio in the game using pooled AudioSources.
-    /// </summary>
+    [DisallowMultipleComponent]
     public class AudioManager : MonoBehaviour
     {
-        /// <summary>
-        /// List of available sounds configured in the inspector.
-        /// </summary>
-        [SerializeField] private Sound[] sounds;
+        [Header("Sounds")]
+        [SerializeField, Tooltip("All sounds available to play, including music.")]
+        private Sound[] sounds;
 
         [Header("Audio Mixer")]
-        [SerializeField] private AudioMixer mixer;
+        [SerializeField, Tooltip("Global audio mixer used for volume control.")]
+        private AudioMixer mixer;
+
+        [Header("Persistence")]
+        [SerializeField, Tooltip("If enabled, this AudioManager persists across scene loads.")]
+        private bool keepAcrossScenes = true;
+
+        [SerializeField, Tooltip("If true, the manager will automatically persist if any Sound is tagged as Music.")]
+        private bool persistWhenMusicTaggedPresent = true;
+
+        [Header("Debug")]
+        [SerializeField, Tooltip("If enabled, prints logs about lifecycle and duplicates.")]
+        private bool isDebugLoggingEnabled = false;
 
         private static AudioManager _instance;
+
         private Dictionary<string, Sound> _soundMap;
         private AudioSourcePool _pool;
 
@@ -29,28 +40,37 @@ namespace Game
         private ActionObserver<float> _onMusicVolumeChanged;
         private ActionObserver<float> _onSFXVolumeChanged;
 
+        // === Persistent music channel (never recycled, never destroyed) ===
+        private static GameObject s_musicGO;
+        private static AudioSource s_musicSource;
+        private static string s_currentMusicName;
+
         private void Awake()
         {
+            bool anyMusicTagged = sounds != null && sounds.Any(s => s != null && s.IsMusic);
+            bool shouldPersist = keepAcrossScenes || (persistWhenMusicTaggedPresent && anyMusicTagged);
+
             if (_instance == null)
             {
                 _instance = this;
+                if (shouldPersist) DontDestroyOnLoad(gameObject);
+                EnsureMusicChannel();
             }
             else
             {
-                Destroy(this);
+                if (isDebugLoggingEnabled) Debug.Log("[AudioManager] Duplicate found; destroying new instance.", this);
+                Destroy(gameObject);
                 return;
             }
-            
-            //DontDestroyOnLoad(gameObject);
 
             _soundMap = sounds.ToDictionary(s => s.Name, s => s);
             _pool = new AudioSourcePool(gameObject, GetComponents<AudioSource>());
 
-            for (var i = 0; i < sounds.Length; i++)
+            // PlayOnAwake only once (first, persistent instance). Duplicates are killed before they can fire.
+            for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];
                 if (sound == null || !sound.PlayOnAwake) continue;
-                
                 PlaySound(sound);
             }
         }
@@ -59,29 +79,27 @@ namespace Game
         {
             var saveData = SaveAndLoad.Load();
             var sound = saveData.Sound;
-            
+
             SetMasterVolume(sound.masterVolume);
             SetMusicVolume(sound.musicVolume);
             SetSFXVolume(sound.sfxVolume);
-            
+
             _onMasterVolumeChanged = new ActionObserver<float>(OnMasterVolumeChanged);
-            _onMusicVolumeChanged = new ActionObserver<float>(OnMusicVolumeChanged);
-            _onSFXVolumeChanged = new ActionObserver<float>(OnSFXVolumeChanged);
+            _onMusicVolumeChanged  = new ActionObserver<float>(OnMusicVolumeChanged);
+            _onSFXVolumeChanged    = new ActionObserver<float>(OnSFXVolumeChanged);
 
             Options.OnMasterVolumeChanged.Attach(_onMasterVolumeChanged);
             Options.OnMusicVolumeChanged.Attach(_onMusicVolumeChanged);
             Options.OnSFXVolumeChanged.Attach(_onSFXVolumeChanged);
         }
 
-        /// <summary>
-        /// Plays a sound by name if it exists in the audio manager.
-        /// </summary>
-        /// <param name="name">The name of the sound to play.</param>
+        // -------------------- Public API --------------------
+
         public static void Play(string name)
         {
             if (!_instance)
             {
-                Debug.LogWarning($"WARNING: Instance is null.");
+                Debug.LogWarning("WARNING: AudioManager instance is null.");
                 return;
             }
 
@@ -93,7 +111,7 @@ namespace Game
 
             if (!sound.CanPlay())
             {
-                Debug.Log($"Sound '{name}' skipped due to TimeBetweenPlays restriction.");
+                if (_instance.isDebugLoggingEnabled) Debug.Log($"[AudioManager] '{name}' skipped: timeBetweenPlays.");
                 return;
             }
 
@@ -101,115 +119,124 @@ namespace Game
             sound.RegisterPlayTime();
         }
 
+        // -------------------- Internals --------------------
 
-        /// <summary>
-        /// Plays the given sound using a pooled audio source.
-        /// </summary>
-        /// <param name="sound">The sound data to play.</param>
         private void PlaySound(Sound sound)
         {
+            if (sound.IsMusic)
+            {
+                PlayMusic(sound);
+                return;
+            }
+
             var source = _pool.Get();
-            Play(source, sound);
-        }
-
-        /// <summary>
-        /// Initializes and plays the sound, then starts a coroutine to return the audio source to the pool.
-        /// </summary>
-        /// <param name="source">AudioSource to use for playback.</param>
-        /// <param name="sound">Sound data to apply and play.</param>
-        private void Play(AudioSource source, Sound sound)
-        {
             sound.Play(source);
-            StartCoroutine(WaitForEnd(source));
+            StartCoroutine(WaitForEnd(source, recycle: true));
         }
 
-        /// <summary>
-        /// Coroutine that waits for the sound to finish playing before recycling the audio source.
-        /// </summary>
-        /// <param name="source">The audio source to monitor and recycle.</param>
-        private IEnumerator WaitForEnd(AudioSource source)
+        private void PlayMusic(Sound sound)
         {
-            yield return new WaitUntil(() => !source.isPlaying);
-            _pool.Recycle(source);
+            EnsureMusicChannel();
+
+            // If the same music is already assigned, keep it going; do NOT restart time.
+            if (s_musicSource && string.Equals(s_currentMusicName, sound.Name, StringComparison.Ordinal))
+            {
+                if (!s_musicSource.isPlaying)
+                    s_musicSource.UnPause(); // in case it was paused by a pause system
+                if (isDebugLoggingEnabled) Debug.Log($"[AudioManager] Music '{sound.Name}' already active; no restart.", this);
+                return;
+            }
+
+            // Different track (or first time): configure and play on the dedicated channel.
+            sound.Initialize(s_musicSource);
+            var clipsField = typeof(Sound).GetField("clips", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var clips = (AudioClip[])clipsField.GetValue(sound);
+            if (clips == null || clips.Length == 0)
+            {
+                Debug.LogWarning($"WARNING: Music sound '{sound.Name}' has no clips.");
+                return;
+            }
+            var idx = clips.Length > 1 ? UnityEngine.Random.Range(0, clips.Length) : 0;
+            s_musicSource.clip = clips[idx];
+            s_musicSource.time = Mathf.Clamp(s_musicSource.time, 0f, s_musicSource.clip.length - 0.001f); // keep current time if same clip; otherwise it’s 0
+            s_currentMusicName = sound.Name;
+
+            if (!s_musicSource.isPlaying)
+                s_musicSource.Play(); // start or continue from set time
         }
-        
-        /// <summary>
-        /// Cleans up resources when the AudioManager is destroyed.
-        /// </summary>
+
+        private static void EnsureMusicChannel()
+        {
+            if (s_musicGO && s_musicSource) return;
+
+            s_musicGO = GameObject.Find("_MusicChannel");
+            if (!s_musicGO)
+            {
+                s_musicGO = new GameObject("_MusicChannel");
+                GameObject.DontDestroyOnLoad(s_musicGO);
+            }
+
+            s_musicSource = s_musicGO.GetComponent<AudioSource>();
+            if (!s_musicSource)
+                s_musicSource = s_musicGO.AddComponent<AudioSource>();
+
+            // Reasonable defaults; per-track mixer/group/loop/vol will be set by Sound.Initialize
+            s_musicSource.playOnAwake = false;
+            s_musicSource.loop = true;
+        }
+
+        private IEnumerator WaitForEnd(AudioSource source, bool recycle)
+        {
+            yield return new WaitUntil(() => !source || !source.isPlaying);
+            if (recycle && source) _pool.Recycle(source);
+        }
+
         private void OnDestroy()
         {
             if (_instance == this)
-            {
                 _instance = null;
-            }
-            
+
             StopAllCoroutines();
 
-            for (var i = 0; i < sounds.Length; i++)
+            if (sounds != null)
             {
-                var sound = sounds[i];
-                if (sound == null) continue;
-                
-                sound.Dispose();
+                for (int i = 0; i < sounds.Length; i++)
+                    sounds[i]?.Dispose();
+                sounds = null;
             }
 
-            sounds = null;
-            
             _pool?.Dispose();
             _pool = null;
 
-
             var masterSubject = Options.OnMasterVolumeChanged;
-            var musicSubject = Options.OnMusicVolumeChanged;
-            var sfxSubject = Options.OnSFXVolumeChanged;
+            var musicSubject  = Options.OnMusicVolumeChanged;
+            var sfxSubject    = Options.OnSFXVolumeChanged;
 
             if (_onMasterVolumeChanged != null)
             {
                 if (masterSubject != null) masterSubject.Detach(_onMasterVolumeChanged);
                 _onMasterVolumeChanged.Dispose();
             }
-            
+
             if (_onMusicVolumeChanged != null)
             {
                 if (musicSubject != null) musicSubject.Detach(_onMusicVolumeChanged);
                 _onMusicVolumeChanged.Dispose();
             }
-            
+
             if (_onSFXVolumeChanged != null)
             {
-                if (sfxSubject != null) sfxSubject.Detach(_onMusicVolumeChanged);
+                if (sfxSubject != null) sfxSubject.Detach(_onSFXVolumeChanged);
                 _onSFXVolumeChanged.Dispose();
             }
         }
 
-        private void SetMasterVolume(float value)
-        {
-            mixer.SetFloat("MasterVolume", Mathf.Log10(value) * 20);
-        }
-        
-        private void SetMusicVolume(float value)
-        {
-            mixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
-        }
-        
-        private void SetSFXVolume(float value)
-        {
-            mixer.SetFloat("GameplayVolume", Mathf.Log10(value) * 20);
-        }
-        
-        private void OnSFXVolumeChanged(float obj)
-        {
-            SetSFXVolume(obj);
-        }
+        private void SetMasterVolume(float value) => mixer.SetFloat("MasterVolume",  Mathf.Log10(Mathf.Max(0.0001f, value)) * 20f);
+        private void SetMusicVolume(float value)  => mixer.SetFloat("MusicVolume",   Mathf.Log10(Mathf.Max(0.0001f, value)) * 20f);
+        private void SetSFXVolume(float value)    => mixer.SetFloat("GameplayVolume",Mathf.Log10(Mathf.Max(0.0001f, value)) * 20f);
 
-        private void OnMusicVolumeChanged(float obj)
-        {
-            SetMusicVolume(obj);
-        }
-
-        private void OnMasterVolumeChanged(float obj)
-        {
-            SetMasterVolume(obj);
-        }
+        private void OnSFXVolumeChanged(float v)   => SetSFXVolume(v);
+        private void OnMusicVolumeChanged(float v) => SetMusicVolume(v);
+        private void OnMasterVolumeChanged(float v)=> SetMasterVolume(v);
     }
 }

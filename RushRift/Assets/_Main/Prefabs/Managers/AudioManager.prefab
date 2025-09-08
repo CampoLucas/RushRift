@@ -66,15 +66,17 @@ MonoBehaviour:
     playOnAwake: 1
     delaySeconds: 0
     clips:
-    - {fileID: 8300000, guid: 9192c6a01ae7ece4ebd394418961cfeb, type: 3}
+    - {fileID: 8300000, guid: ee9c0267b4f71fd44acf9101ea46d65d, type: 3}
+    - {fileID: 8300000, guid: 55532e317d438af43b8660b6d44353b8, type: 3}
     mixer: {fileID: -8715910472845688073, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
     randomVolume: 0
     volume: 1
-    volumeRange: {x: 0.8, y: 1}
+    volumeRange: {x: 1, y: 1}
     pitch: 1
     randomPitch: 0
-    pitchRange: {x: 0.95, y: 1.05}
+    pitchRange: {x: 1, y: 1}
     timeBetweenPlays: 0
+    isMusic: 1
   - name: SparksAttack
     loop: 0
     playOnAwake: 0
@@ -92,6 +94,7 @@ MonoBehaviour:
     randomPitch: 1
     pitchRange: {x: 0.95, y: 1.05}
     timeBetweenPlays: 0
+    isMusic: 0
   - name: LaserAttack
     loop: 0
     playOnAwake: 0
@@ -115,6 +118,7 @@ MonoBehaviour:
     randomPitch: 1
     pitchRange: {x: 0.95, y: 1.05}
     timeBetweenPlays: 0
+    isMusic: 0
   - name: OrbPickUp
     loop: 0
     playOnAwake: 0
@@ -133,6 +137,7 @@ MonoBehaviour:
     randomPitch: 1
     pitchRange: {x: 0.95, y: 1.05}
     timeBetweenPlays: 0
+    isMusic: 0
   - name: Grunt
     loop: 0
     playOnAwake: 0
@@ -156,6 +161,7 @@ MonoBehaviour:
     randomPitch: 1
     pitchRange: {x: 0.9, y: 1}
     timeBetweenPlays: 1
+    isMusic: 0
   - name: TurretDamage
     loop: 0
     playOnAwake: 0
@@ -181,6 +187,7 @@ MonoBehaviour:
     randomPitch: 1
     pitchRange: {x: 0.8, y: 1.1}
     timeBetweenPlays: 1
+    isMusic: 0
   - name: TurretDestruction
     loop: 0
     playOnAwake: 0
@@ -207,7 +214,11 @@ MonoBehaviour:
     randomPitch: 1
     pitchRange: {x: 0.8, y: 1.1}
     timeBetweenPlays: 1
+    isMusic: 0
   mixer: {fileID: 24100000, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+  keepAcrossScenes: 1
+  persistWhenMusicTaggedPresent: 1
+  isDebugLoggingEnabled: 0
 --- !u!82 &11858957848135684
 AudioSource:
   m_ObjectHideFlags: 0
