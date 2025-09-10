@@ -19,9 +19,12 @@ public class ShopManager : MonoBehaviour
     private string level3Text = "Old 2";
 
     [Header("Medal Adquired")]
-    [SerializeField] private Image[] level1Adquired; 
-    [SerializeField] private Image[] level2Adquired; 
+    [SerializeField] private Image[] level1Adquired;
+    [SerializeField] private Image[] level2Adquired;
     [SerializeField] private Image[] level3Adquired;
+    [SerializeField] private Image[] level1Locked;
+    [SerializeField] private Image[] level2Locked;
+    [SerializeField] private Image[] level3Locked;
 
     [Header("Level Best Time")]
     [SerializeField] private TMP_Text level1BestTime;
@@ -60,7 +63,7 @@ public class ShopManager : MonoBehaviour
     {
         var data = SaveAndLoad.Load();
 
-        if(data.BestTimes.Count != 0)
+        if (data.BestTimes.Count != 0)
         {
             int[] _newTimer;
             if (data.BestTimes.ContainsKey(_level1))
@@ -80,24 +83,61 @@ public class ShopManager : MonoBehaviour
                 _newTimer = TimerFormatter.GetNewTimer(data.BestTimes[_level3]);
                 TimerFormatter.FormatTimer(level3BestTime, _newTimer[0], _newTimer[1], _newTimer[2]);
             }
-            
+
         }
 
         if (data.LevelsMedalsTimes.Count != 0)
         {
             var medalTimes = data.LevelsMedalsTimes;
 
-            if (medalTimes[_level1].bronze.isAcquired) level1Adquired[0].enabled = true;
-            if (medalTimes[_level1].silver.isAcquired) level1Adquired[1].enabled = true;
-            if (medalTimes[_level1].gold.isAcquired) level1Adquired[2].enabled = true;
+            if (medalTimes[_level1].bronze.isAcquired)
+            {
+                level1Adquired[0].color = Color.white;
+                level1Locked[0].enabled = false;
+            }
+            if (medalTimes[_level1].silver.isAcquired)
+            {
+                level1Adquired[1].color = Color.white;
+                level1Locked[1].enabled = false;
+            }
+            if (medalTimes[_level1].gold.isAcquired)
+            {
+                level1Adquired[2].color = Color.white;
+                level1Locked[2].enabled = false;
+            }
 
-            if (medalTimes[_level2].bronze.isAcquired) level2Adquired[0].enabled = true;
-            if (medalTimes[_level2].silver.isAcquired) level2Adquired[1].enabled = true;
-            if (medalTimes[_level2].gold.isAcquired) level2Adquired[2].enabled = true;
+            if (medalTimes[_level2].bronze.isAcquired)
+            {
+                level2Adquired[0].color = Color.white;
+                level2Locked[0].enabled = false;
 
-            if (medalTimes[_level3].bronze.isAcquired) level3Adquired[0].enabled = true;
-            if (medalTimes[_level3].silver.isAcquired) level3Adquired[1].enabled = true;
-            if (medalTimes[_level3].gold.isAcquired) level3Adquired[2].enabled = true;
+            }
+            if (medalTimes[_level2].silver.isAcquired)
+            {
+                level2Adquired[1].color = Color.white;
+                level2Locked[1].enabled = false;
+            }
+            if (medalTimes[_level2].gold.isAcquired)
+            {
+                level2Adquired[2].color = Color.white;
+                level2Locked[2].enabled = false;
+            }
+
+            if (medalTimes[_level3].bronze.isAcquired)
+            {
+                level3Adquired[0].color = Color.white;
+                level3Locked[0].enabled = false;
+            }
+            if (medalTimes[_level3].silver.isAcquired)
+            {
+                level3Adquired[1].color = Color.white;
+                level3Locked[1].enabled = false;
+            }
+            if (medalTimes[_level3].gold.isAcquired)
+            {
+                level3Adquired[2].color = Color.white;
+                level3Locked[2].enabled = false;
+            }
         }
 
 
