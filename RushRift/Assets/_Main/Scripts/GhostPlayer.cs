@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class GhostPlayer : MonoBehaviour
 {
     public enum RotationMode { UseRecordedRotation, FaceVelocity, IgnoreRotation }
+    public enum PositionInterpolationMode { Linear, CatmullRom }
 
     [Header("Ghost Source")]
     [SerializeField, Tooltip("Auto-load the best ghost for the active level on enable.")]
@@ -28,10 +29,22 @@ public class GhostPlayer : MonoBehaviour
     private bool loopPlayback = false;
     [SerializeField, Tooltip("Use unscaled time for playback.")]
     private bool useUnscaledTime = false;
+
+    [Header("Interpolation")]
+    [SerializeField, Tooltip("How positions are interpolated between recorded frames.")]
+    private PositionInterpolationMode positionInterpolation = PositionInterpolationMode.CatmullRom;
     [SerializeField, Tooltip("How the ghost's rotation is handled.")]
     private RotationMode rotationMode = RotationMode.UseRecordedRotation;
     [SerializeField, Tooltip("Minimum distance per second required to face velocity in FaceVelocity mode.")]
     private float faceVelocityMinSpeed = 0.05f;
+
+    [Header("Output Smoothing")]
+    [SerializeField, Tooltip("Apply extra smoothing to the final output pose.")]
+    private bool applyOutputSmoothing = true;
+    [SerializeField, Tooltip("Seconds to smooth positions to reduce jitter.")]
+    private float positionSmoothTimeSeconds = 0.06f;
+    [SerializeField, Tooltip("Seconds to smooth rotations to reduce jitter.")]
+    private float rotationSmoothTimeSeconds = 0.06f;
 
     [Header("Visibility")]
     [SerializeField, Tooltip("Initial visibility of the ghost visual.")]
@@ -69,6 +82,10 @@ public class GhostPlayer : MonoBehaviour
     private readonly List<Renderer> cachedRenderers = new();
     private readonly List<ParticleSystem> cachedParticles = new();
     private bool wasPlayingBeforePause;
+
+    private Vector3 smoothedPos;
+    private Vector3 smoothedPosVel;
+    private Quaternion smoothedRot = Quaternion.identity;
 
     private void OnEnable()
     {
@@ -108,48 +125,49 @@ public class GhostPlayer : MonoBehaviour
         if (playbackTime >= dur)
         {
             if (loopPlayback) { playbackTime %= dur; nextFrameIndex = 1; }
-            else { playbackTime = dur; ApplyPoseAtTime(dur); Pause(); return; }
+            else { playbackTime = dur; ApplyPoseAtTime(dur, dt); Pause(); return; }
         }
 
-        ApplyPoseAtTime(playbackTime);
+        ApplyPoseAtTime(playbackTime, dt);
     }
 
     private void OnPauseChanged(bool paused)
     {
         if (!obeyPauseEvents) return;
-        if (paused) { wasPlayingBeforePause = isPlaying; if (isPlaying) Pause(); }
-        else { if (wasPlayingBeforePause && HasValidRun()) Play(); }
+        if (paused)
+        {
+            wasPlayingBeforePause = isPlaying;
+            if (isPlaying) Pause();
+        }
+        else
+        {
+            if (wasPlayingBeforePause && HasValidRun()) Play();
+        }
     }
 
     public void LoadBestGhost()
     {
         GhostRecorder.GhostRunData data;
         string path;
-        
         if (GhostRecorder.TryLoadBestGhostForCurrentLevel(out data, out path))
         {
-            if (data.durationSeconds <= 0.25f || data.frames == null || data.frames.Count < 2)
-            {
-                loadedRun = null;
-                cachedPositions.Clear();
-                debugLoadedGhostPath = "";
-                Log($"Found ghost at {path} but it was invalid; ignoring.");
-            }
-            else
-            {
-                loadedRun = data;
-                debugLoadedGhostPath = path;
-                CachePositions();
-                TrySpawnGhostVisualIfNeeded();
-                Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) from: {debugLoadedGhostPath}");
-            }
+            loadedRun = data;
+            debugLoadedGhostPath = path;
+            CachePositions();
+            TrySpawnGhostVisualIfNeeded();
+
+            var f0 = loadedRun.frames[0];
+            smoothedPos = f0.position + worldPositionOffset;
+            smoothedRot = f0.rotation;
+
+            Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) from: {debugLoadedGhostPath}");
         }
         else
         {
             loadedRun = null;
             cachedPositions.Clear();
             debugLoadedGhostPath = "";
-            Log($"No BEST ghost found for level {UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex}");
+            Log($"No BEST ghost found for level {SceneManager.GetActiveScene().buildIndex}");
         }
 
         nextFrameIndex = 1;
@@ -175,7 +193,7 @@ public class GhostPlayer : MonoBehaviour
         isPlaying = false;
         playbackTime = 0f;
         nextFrameIndex = 1;
-        if (HasValidRun()) ApplyPoseAtTime(0f);
+        if (HasValidRun()) ApplyPoseAtTime(0f, 0f);
         Log("Stop");
     }
 
@@ -225,7 +243,7 @@ public class GhostPlayer : MonoBehaviour
         }
 
         CacheVisualComponents();
-        if (HasValidRun()) ApplyPoseAtTime(0f);
+        if (HasValidRun()) ApplyPoseAtTime(0f, 0f);
     }
 
     private void TrySpawnGhostVisualIfNeeded()
@@ -238,7 +256,7 @@ public class GhostPlayer : MonoBehaviour
                              parentGhostUnderThis ? transform : null);
         ghostTransform = go.transform;
         CacheVisualComponents();
-        if (HasValidRun()) ApplyPoseAtTime(0f);
+        if (HasValidRun()) ApplyPoseAtTime(0f, 0f);
         Log("Spawned ghost visual prefab (run available)");
     }
 
@@ -270,33 +288,100 @@ public class GhostPlayer : MonoBehaviour
         return loadedRun != null ? Mathf.Max(loadedRun.durationSeconds, loadedRun.frames[loadedRun.frames.Count - 1].time) : 0f;
     }
 
-    private void ApplyPoseAtTime(float t)
+    private void ApplyPoseAtTime(float t, float dt)
     {
         var frames = loadedRun.frames;
         int count = frames.Count;
 
-        while (nextFrameIndex < count && frames[nextFrameIndex].time < t) nextFrameIndex++;
+        while (nextFrameIndex < count && frames[nextFrameIndex].time < t)
+            nextFrameIndex++;
 
         int i1 = Mathf.Clamp(nextFrameIndex, 1, count - 1);
         int i0 = i1 - 1;
 
-        var f0 = frames[i0]; var f1 = frames[i1];
+        var f0 = frames[i0];
+        var f1 = frames[i1];
+
         float span = Mathf.Max(1e-5f, f1.time - f0.time);
         float u = Mathf.Clamp01((t - f0.time) / span);
 
-        Vector3 pos = Vector3.Lerp(f0.position, f1.position, u) + worldPositionOffset;
+        Vector3 rawPos;
+        if (positionInterpolation == PositionInterpolationMode.CatmullRom && count >= 4)
+        {
+            int im1 = Mathf.Max(0, i0 - 1);
+            int i2  = Mathf.Min(count - 1, i1 + 1);
 
-        Quaternion rot;
-        if (rotationMode == RotationMode.UseRecordedRotation) rot = Quaternion.Slerp(f0.rotation, f1.rotation, u);
+            var fm1 = frames[im1];
+            var f2  = frames[i2];
+
+            float t_1 = fm1.time;
+            float t0  = f0.time;
+            float t1  = f1.time;
+            float t2  = f2.time;
+
+            Vector3 p_1 = fm1.position;
+            Vector3 p0  = f0.position;
+            Vector3 p1  = f1.position;
+            Vector3 p2  = f2.position;
+
+            float m0Scale = (t1 - t_1) > 1e-5f ? 1f / (t1 - t_1) : 0f;
+            float m1Scale = (t2 - t0)  > 1e-5f ? 1f / (t2 - t0)  : 0f;
+
+            Vector3 m0 = (p1 - p_1) * m0Scale;
+            Vector3 m1 = (p2 - p0)  * m1Scale;
+
+            float u2 = u * u;
+            float u3 = u2 * u;
+
+            float h00 =  2f*u3 - 3f*u2 + 1f;
+            float h10 =      u3 - 2f*u2 + u;
+            float h01 = -2f*u3 + 3f*u2;
+            float h11 =      u3 -     u2;
+
+            rawPos = h00 * p0 + h10 * (span * m0) + h01 * p1 + h11 * (span * m1);
+        }
+        else
+        {
+            rawPos = Vector3.Lerp(f0.position, f1.position, u);
+        }
+
+        rawPos += worldPositionOffset;
+
+        Quaternion rawRot;
+        if (rotationMode == RotationMode.UseRecordedRotation)
+        {
+            rawRot = Quaternion.Slerp(f0.rotation, f1.rotation, u);
+        }
         else if (rotationMode == RotationMode.FaceVelocity)
         {
             Vector3 v = (f1.position - f0.position) / span;
-            rot = (v.sqrMagnitude > faceVelocityMinSpeed * faceVelocityMinSpeed) ? Quaternion.LookRotation(v.normalized, Vector3.up)
-                                                                                : Quaternion.Slerp(f0.rotation, f1.rotation, u);
-        }
-        else rot = ghostTransform.rotation;
+            if (applyOutputSmoothing && positionSmoothTimeSeconds > 0f && dt > 0f)
+                v = (rawPos - smoothedPos) / Mathf.Max(1e-5f, dt);
 
-        ghostTransform.SetPositionAndRotation(pos, rot);
+            rawRot = v.sqrMagnitude > faceVelocityMinSpeed * faceVelocityMinSpeed
+                ? Quaternion.LookRotation(v.normalized, Vector3.up)
+                : Quaternion.Slerp(f0.rotation, f1.rotation, u);
+        }
+        else
+        {
+            rawRot = ghostTransform.rotation;
+        }
+
+        Vector3 finalPos = rawPos;
+        Quaternion finalRot = rawRot;
+
+        if (applyOutputSmoothing)
+        {
+            if (positionSmoothTimeSeconds > 0f)
+                finalPos = Vector3.SmoothDamp(smoothedPos, rawPos, ref smoothedPosVel, positionSmoothTimeSeconds, Mathf.Infinity, Mathf.Max(0f, dt));
+            float rotLerp = rotationSmoothTimeSeconds > 0f ? (1f - Mathf.Exp(-Mathf.Max(0f, dt) / rotationSmoothTimeSeconds)) : 1f;
+            finalRot = Quaternion.Slerp(smoothedRot, rawRot, Mathf.Clamp01(rotLerp));
+        }
+
+        smoothedPos = finalPos;
+        smoothedRot = finalRot;
+
+        ghostTransform.SetPositionAndRotation(finalPos, finalRot);
     }
 
     private void Log(string msg)
