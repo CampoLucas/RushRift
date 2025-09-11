@@ -23743,9 +23743,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85f2de236f4c3c64988a703e871672d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  requireBronzeToSpawn: 1
-  bronzeThresholdSeconds: 80
-  ghostSourcePreference: 1
   autoLoadOnEnable: 1
   ghostVisualPrefab: {fileID: 6749424264282746718, guid: 93bda730e915353409f6b642d50abb99, type: 3}
   parentGhostUnderThis: 1
@@ -23760,10 +23757,11 @@ MonoBehaviour:
   toggleVisibilityKey: 103
   obeyPauseEvents: 1
   togglePlayKey: 0
-  isDebugLoggingEnabled: 0
+  isDebugLoggingEnabled: 1
   drawGizmos: 1
   gizmoMaxSegments: 256
   gizmoPathColor: {r: 0, g: 1, b: 0.6, a: 0.85}
+  debugLoadedGhostPath: 
 --- !u!114 &269036750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23783,13 +23781,9 @@ MonoBehaviour:
   minPositionDeltaMeters: 0.005
   minRotationDeltaDegrees: 0.5
   maxRecordedFrames: 0
-  requireNewRecordToSave: 1
-  requireBronzeToSave: 1
   ghostsFolderName: ghosts
-  bestFileNamePattern: level_{LEVEL}.ghost.json
-  lastFileNamePattern: last_level_{LEVEL}.ghost.json
-  alsoSaveLastRun: 1
-  isDebugLoggingEnabled: 0
+  fileNamePattern: level_{LEVEL}.ghost.json
+  isDebugLoggingEnabled: 1
   drawGizmos: 1
   gizmoSegments: 64
   gizmoColor: {r: 0, g: 1, b: 0.6, a: 0.9}
@@ -69250,7 +69244,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.013097485
+      value: -0.008990936
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x

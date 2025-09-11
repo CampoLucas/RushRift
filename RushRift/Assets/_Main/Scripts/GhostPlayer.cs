@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,51 +6,58 @@ using UnityEngine.SceneManagement;
 public class GhostPlayer : MonoBehaviour
 {
     public enum RotationMode { UseRecordedRotation, FaceVelocity, IgnoreRotation }
-    public enum SourcePreference { BestOnly, BestThenLast, LastOnly }
-
-    [Header("Bronze Requirement")]
-    [SerializeField, Tooltip("If enabled, the visual ghost prefab will only be spawned if Bronze has been acquired for this level (from LevelMedalsSO) or a BEST ghost file exists.")]
-    private bool requireBronzeToSpawn = true;
-
-    [SerializeField, Tooltip("Bronze threshold in seconds (fallback if medals are missing).")]
-    private float bronzeThresholdSeconds = 60f;
 
     [Header("Ghost Source")]
-    [SerializeField, Tooltip("Which ghost file to load by default.")]
-    private SourcePreference ghostSourcePreference = SourcePreference.BestOnly;
-
-    [SerializeField, Tooltip("Auto-load the ghost on enable.")]
+    [SerializeField, Tooltip("Auto-load the best ghost for the active level on enable.")]
     private bool autoLoadOnEnable = true;
 
     [Header("Ghost Visual")]
-    [SerializeField, Tooltip("Prefab used as the ghost placeholder.")]
+    [SerializeField, Tooltip("Prefab used as the ghost placeholder (e.g., a Particle System or mesh). If null, this GameObject will be moved.")]
     private GameObject ghostVisualPrefab;
-    [SerializeField] private bool parentGhostUnderThis = true;
-    [SerializeField] private Vector3 worldPositionOffset = Vector3.zero;
+    [SerializeField, Tooltip("Parent the spawned ghost under this object.")]
+    private bool parentGhostUnderThis = true;
+    [SerializeField, Tooltip("Offset applied to the recorded positions.")]
+    private Vector3 worldPositionOffset = Vector3.zero;
 
     [Header("Playback")]
-    [SerializeField] private bool beginPlaybackOnEnable = true;
-    [SerializeField] private float playbackSpeed = 1f;
-    [SerializeField] private bool loopPlayback = false;
-    [SerializeField] private bool useUnscaledTime = false;
-    [SerializeField] private RotationMode rotationMode = RotationMode.UseRecordedRotation;
-    [SerializeField] private float faceVelocityMinSpeed = 0.05f;
+    [SerializeField, Tooltip("Start playback automatically on enable if a ghost is available.")]
+    private bool beginPlaybackOnEnable = true;
+    [SerializeField, Tooltip("Playback speed multiplier.")]
+    private float playbackSpeed = 1f;
+    [SerializeField, Tooltip("Loop playback when the end is reached.")]
+    private bool loopPlayback = false;
+    [SerializeField, Tooltip("Use unscaled time for playback.")]
+    private bool useUnscaledTime = false;
+    [SerializeField, Tooltip("How the ghost's rotation is handled.")]
+    private RotationMode rotationMode = RotationMode.UseRecordedRotation;
+    [SerializeField, Tooltip("Minimum distance per second required to face velocity in FaceVelocity mode.")]
+    private float faceVelocityMinSpeed = 0.05f;
 
     [Header("Visibility")]
-    [SerializeField] private bool initialGhostVisible = true;
-    [SerializeField] private KeyCode toggleVisibilityKey = KeyCode.G;
+    [SerializeField, Tooltip("Initial visibility of the ghost visual.")]
+    private bool initialGhostVisible = true;
+    [SerializeField, Tooltip("Key to toggle the ghost visibility during play.")]
+    private KeyCode toggleVisibilityKey = KeyCode.G;
 
     [Header("Pause Integration")]
-    [SerializeField] private bool obeyPauseEvents = true;
+    [SerializeField, Tooltip("If enabled, the ghost pauses/resumes with the game via PauseEventBus.")]
+    private bool obeyPauseEvents = true;
 
     [Header("Controls")]
-    [SerializeField] private KeyCode togglePlayKey = KeyCode.None;
+    [SerializeField, Tooltip("Hotkey to toggle play/pause (optional).")]
+    private KeyCode togglePlayKey = KeyCode.None;
 
     [Header("Debug")]
-    [SerializeField] private bool isDebugLoggingEnabled = false;
-    [SerializeField] private bool drawGizmos = true;
-    [SerializeField] private int gizmoMaxSegments = 256;
-    [SerializeField] private Color gizmoPathColor = new Color(0f, 1f, 0.6f, 0.85f);
+    [SerializeField, Tooltip("If enabled, prints detailed logs.")]
+    private bool isDebugLoggingEnabled = false;
+    [SerializeField, Tooltip("Draw gizmos for the path.")]
+    private bool drawGizmos = true;
+    [SerializeField, Tooltip("Max segments to draw.")]
+    private int gizmoMaxSegments = 256;
+    [SerializeField, Tooltip("Gizmo color for the path.")]
+    private Color gizmoPathColor = new Color(0f, 1f, 0.6f, 0.85f);
+    [SerializeField, Tooltip("Path of the ghost file that was loaded (debug/info).")]
+    private string debugLoadedGhostPath = "";
 
     private GhostRecorder.GhostRunData loadedRun;
     private Transform ghostTransform;
@@ -63,15 +69,12 @@ public class GhostPlayer : MonoBehaviour
     private readonly List<Renderer> cachedRenderers = new();
     private readonly List<ParticleSystem> cachedParticles = new();
     private bool wasPlayingBeforePause;
-    private bool bronzeAchieved;
 
     private void OnEnable()
     {
         if (obeyPauseEvents) PauseEventBus.PauseChanged += OnPauseChanged;
 
-        bronzeAchieved = !requireBronzeToSpawn || HasAchievedBronzeOrSavedBest();
-
-        if (autoLoadOnEnable) LoadGhost();
+        if (autoLoadOnEnable) LoadBestGhost();
         EnsureGhostVisual();
         SetGhostVisible(initialGhostVisible);
 
@@ -118,50 +121,39 @@ public class GhostPlayer : MonoBehaviour
         else { if (wasPlayingBeforePause && HasValidRun()) Play(); }
     }
 
-    public void LoadGhost()
+    public void LoadBestGhost()
     {
-        GhostRecorder.GhostRunData data = null;
-        bool loaded = false;
-
-        switch (ghostSourcePreference)
+        GhostRecorder.GhostRunData data;
+        string path;
+        
+        if (GhostRecorder.TryLoadBestGhostForCurrentLevel(out data, out path))
         {
-            case SourcePreference.BestOnly:
-                loaded = GhostRecorder.TryLoadBestGhostForCurrentLevel(out data);
-                break;
-            case SourcePreference.BestThenLast:
-                loaded = GhostRecorder.TryLoadBestGhostForCurrentLevel(out data)
-                      || GhostRecorder.TryLoadLastGhostForCurrentLevel(out data);
-                break;
-            case SourcePreference.LastOnly:
-                loaded = GhostRecorder.TryLoadLastGhostForCurrentLevel(out data);
-                break;
-        }
-
-        if (loaded)
-        {
-            loadedRun = data;
-            CachePositions();
-            Log($"Loaded {ghostSourcePreference} ghost with {loadedRun.frames.Count} frames, duration {loadedRun.durationSeconds:0.###}s");
+            if (data.durationSeconds <= 0.25f || data.frames == null || data.frames.Count < 2)
+            {
+                loadedRun = null;
+                cachedPositions.Clear();
+                debugLoadedGhostPath = "";
+                Log($"Found ghost at {path} but it was invalid; ignoring.");
+            }
+            else
+            {
+                loadedRun = data;
+                debugLoadedGhostPath = path;
+                CachePositions();
+                TrySpawnGhostVisualIfNeeded();
+                Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) from: {debugLoadedGhostPath}");
+            }
         }
         else
         {
             loadedRun = null;
             cachedPositions.Clear();
-            Log($"No {ghostSourcePreference} ghost found for current level");
+            debugLoadedGhostPath = "";
+            Log($"No BEST ghost found for level {UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex}");
         }
 
         nextFrameIndex = 1;
         playbackTime = 0f;
-        TrySpawnGhostVisualIfNeeded();
-    }
-
-    public void SetGhost(GhostRecorder.GhostRunData run)
-    {
-        loadedRun = run;
-        CachePositions();
-        nextFrameIndex = 1;
-        playbackTime = 0f;
-        TrySpawnGhostVisualIfNeeded();
     }
 
     public void Play()
@@ -172,7 +164,11 @@ public class GhostPlayer : MonoBehaviour
         Log("Play");
     }
 
-    public void Pause() { isPlaying = false; Log("Pause"); }
+    public void Pause()
+    {
+        isPlaying = false;
+        Log("Pause");
+    }
 
     public void Stop()
     {
@@ -215,19 +211,17 @@ public class GhostPlayer : MonoBehaviour
     {
         if (ghostTransform != null) return;
 
-        if (ghostVisualPrefab && bronzeAchieved && HasValidRun())
+        if (ghostVisualPrefab && HasValidRun())
         {
             var go = Instantiate(ghostVisualPrefab, Vector3.zero, Quaternion.identity,
-                parentGhostUnderThis ? transform : null);
+                                 parentGhostUnderThis ? transform : null);
             ghostTransform = go.transform;
             Log("Spawned ghost visual prefab");
         }
         else
         {
             ghostTransform = transform;
-            Log(bronzeAchieved
-                ? "No valid run available, NOT spawning prefab (using self transform)"
-                : "Bronze not achieved and no BEST file, NOT spawning prefab (using self transform)");
+            Log("No valid run available, NOT spawning prefab (using self transform)");
         }
 
         CacheVisualComponents();
@@ -236,11 +230,12 @@ public class GhostPlayer : MonoBehaviour
 
     private void TrySpawnGhostVisualIfNeeded()
     {
-        bool canSpawnPrefab = ghostVisualPrefab && bronzeAchieved && HasValidRun();
+        bool canSpawnPrefab = ghostVisualPrefab && HasValidRun();
         if (!canSpawnPrefab) return;
         if (ghostTransform != null && ghostTransform != transform) return;
+
         var go = Instantiate(ghostVisualPrefab, Vector3.zero, Quaternion.identity,
-            parentGhostUnderThis ? transform : null);
+                             parentGhostUnderThis ? transform : null);
         ghostTransform = go.transform;
         CacheVisualComponents();
         if (HasValidRun()) ApplyPoseAtTime(0f);
@@ -304,44 +299,6 @@ public class GhostPlayer : MonoBehaviour
         ghostTransform.SetPositionAndRotation(pos, rot);
     }
 
-    private bool HasAchievedBronzeOrSavedBest()
-    {
-        int levelIdx = SceneManager.GetActiveScene().buildIndex;
-
-        var list = Game.LevelManager.GetMedals();
-        if (list != null)
-        {
-            for (int i = 0; i < list.Count; i++)
-            {
-                var m = list[i];
-                if (m && m.levelNumber == levelIdx)
-                {
-                    var t = m.levelMedalTimes;
-                    if (t.bronze.isAcquired || t.silver.isAcquired || t.gold.isAcquired) return true;
-                    // Fallback: best time from save within bronze threshold from SO
-                    float thr = t.bronze.time > 0f ? t.bronze.time : bronzeThresholdSeconds;
-                    var data = SaveAndLoad.Load();
-                    if (data != null && data.BestTimes != null && data.BestTimes.TryGetValue(levelIdx, out var best) && best > 0f && best <= thr)
-                        return true;
-                    break;
-                }
-            }
-        }
-
-        // Final fallback: if a BEST ghost file exists, allow spawning
-        string bestPath = Path.Combine(Application.persistentDataPath, "ghosts", $"level_{levelIdx}.ghost.json");
-        return File.Exists(bestPath);
-    }
-
-    private void CachePositions()
-    {
-        cachedPositions.Clear();
-        if (!HasValidRun()) return;
-        var frames = loadedRun.frames;
-        for (int i = 0; i < frames.Count; i++)
-            cachedPositions.Add(frames[i].position + worldPositionOffset);
-    }
-
     private void Log(string msg)
     {
         if (!isDebugLoggingEnabled) return;
@@ -363,6 +320,15 @@ public class GhostPlayer : MonoBehaviour
         int start = Mathf.Max(0, count - Mathf.Max(2, gizmoMaxSegments));
         for (int i = start + 1; i < count; i++)
             Gizmos.DrawLine(cachedPositions[i - 1], cachedPositions[i]);
+    }
+
+    private void CachePositions()
+    {
+        cachedPositions.Clear();
+        if (!HasValidRun()) return;
+        var frames = loadedRun.frames;
+        for (int i = 0; i < frames.Count; i++)
+            cachedPositions.Add(frames[i].position + worldPositionOffset);
     }
 #endif
 }

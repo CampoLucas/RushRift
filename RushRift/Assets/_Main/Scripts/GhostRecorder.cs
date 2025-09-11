@@ -26,21 +26,11 @@ public class GhostRecorder : MonoBehaviour
     [SerializeField, Tooltip("Maximum number of frames to keep (0 = unlimited).")]
     private int maxRecordedFrames = 0;
 
-    [Header("Save Policy")]
-    [SerializeField, Tooltip("Save the BEST ghost only when a new personal best is set. LAST is always updated.")]
-    private bool requireNewRecordToSave = true;
-    [SerializeField, Tooltip("Require that the run meets the Bronze threshold (from LevelMedalsSO) to save BEST.")]
-    private bool requireBronzeToSave = true;
-
     [Header("Storage")]
     [SerializeField, Tooltip("Directory under persistentDataPath where ghosts are saved.")]
     private string ghostsFolderName = "ghosts";
-    [SerializeField, Tooltip("BEST file pattern per level. {LEVEL} is replaced by the buildIndex.")]
-    private string bestFileNamePattern = "level_{LEVEL}.ghost.json";
-    [SerializeField, Tooltip("LAST file pattern per level. {LEVEL} is replaced by the buildIndex.")]
-    private string lastFileNamePattern = "last_level_{LEVEL}.ghost.json";
-    [SerializeField, Tooltip("Also save the LAST run file every time you finish.")]
-    private bool alsoSaveLastRun = true;
+    [SerializeField, Tooltip("File pattern per level. {LEVEL} is replaced by the buildIndex.")]
+    private string fileNamePattern = "level_{LEVEL}.ghost.json";
 
     [Header("Debug")]
     [SerializeField, Tooltip("If enabled, prints detailed logs.")]
@@ -65,17 +55,16 @@ public class GhostRecorder : MonoBehaviour
         public string appVersion;
     }
 
+    private const float MinValidDurationSeconds = 0.25f;
+    private const float Epsilon = 0.0005f;
+
     private GhostRunData currentRun;
     private bool isRecording;
     private float lastFrameTime;
     private Vector3 lastPos;
     private Quaternion lastRot;
     private IObserver winObserver;
-
     private int levelIndex;
-    private float bestTimeAtLevelStart;
-    private bool bronzeAlreadyAcquired;
-    private float bronzeThresholdSecondsFromSO;
 
     private void Awake()
     {
@@ -87,13 +76,11 @@ public class GhostRecorder : MonoBehaviour
             if (tagged) targetToRecord = tagged.transform;
         }
 
-        ReadMedals(out bestTimeAtLevelStart, out bronzeAlreadyAcquired, out bronzeThresholdSecondsFromSO);
-
         winObserver = new ActionObserver(OnLevelWon);
         WinTrigger.OnWinSaveTimes.Attach(winObserver);
 
         if (startRecordingOnEnable) StartRecording();
-        Log($"Awake | best@start={bestTimeAtLevelStart:0.###} bronzeAcq={bronzeAlreadyAcquired} bronzeThr={bronzeThresholdSecondsFromSO:0.###}");
+        Log("Recorder Awake");
     }
 
     private void OnEnable()
@@ -101,7 +88,10 @@ public class GhostRecorder : MonoBehaviour
         if (startRecordingOnEnable && !isRecording) StartRecording();
     }
 
-    private void OnDisable() { StopRecording(); }
+    private void OnDisable()
+    {
+        StopRecording();
+    }
 
     private void OnDestroy()
     {
@@ -114,8 +104,15 @@ public class GhostRecorder : MonoBehaviour
         }
     }
 
-    private void Update() { if (!recordAtFixedUpdate) TickRecord(Time.deltaTime); }
-    private void FixedUpdate() { if (recordAtFixedUpdate) TickRecord(Time.fixedDeltaTime); }
+    private void Update()
+    {
+        if (!recordAtFixedUpdate) TickRecord(Time.deltaTime);
+    }
+
+    private void FixedUpdate()
+    {
+        if (recordAtFixedUpdate) TickRecord(Time.fixedDeltaTime);
+    }
 
     public void StartRecording()
     {
@@ -173,68 +170,49 @@ public class GhostRecorder : MonoBehaviour
 
     private void OnLevelWon()
     {
-        float finalTime = Game.LevelManager.LevelCompleteTime();
-
-        bool isPB = IsNewRecord(finalTime, bestTimeAtLevelStart);
-        bool bronzeByThreshold = bronzeThresholdSecondsFromSO > 0f && finalTime <= bronzeThresholdSecondsFromSO;
-        bool bronzeGate = !requireBronzeToSave || bronzeAlreadyAcquired || bronzeByThreshold;
-
-        Log($"Win t={finalTime:0.###} | PB={isPB} | bronzeGate={bronzeGate} (thr={bronzeThresholdSecondsFromSO:0.###})");
-
-        EnsureFolderExists();
-
-        if (alsoSaveLastRun)
+        // Use the recorder’s measured duration; fall back to LevelManager only if needed
+        float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
+        if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
         {
-            SaveRunToPath(currentRun, GetLastFilePathForLevel(levelIndex));
-            Log("Saved LAST");
+            Log($"Skip save: invalid run (t={measuredDuration:0.###}s, frames={currentRun?.frames?.Count ?? 0})");
+            StopRecording();
+            return;
         }
 
-        if (bronzeGate && (isPB || !requireNewRecordToSave))
+        EnsureFolderExists();
+        string path = GetFilePathForLevel(levelIndex);
+
+        if (TryLoadBestGhostForLevel(levelIndex, out var existing, out _))
         {
-            SaveRunToPath(currentRun, GetBestFilePathForLevel(levelIndex));
-            Log("Saved BEST");
+            if (existing != null && existing.durationSeconds > MinValidDurationSeconds)
+            {
+                if (measuredDuration + Epsilon < existing.durationSeconds)
+                {
+                    AtomicSave(currentRun, path);
+                    Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev {existing.durationSeconds:0.###}s)");
+                }
+                else
+                {
+                    Log($"Kept previous BEST ({existing.durationSeconds:0.###}s) → {path}");
+                }
+            }
+            else
+            {
+                AtomicSave(currentRun, path);
+                Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev invalid)");
+            }
+        }
+        else
+        {
+            AtomicSave(currentRun, path);
+            Log($"Saved FIRST BEST ({measuredDuration:0.###}s) → {path}");
         }
 
         StopRecording();
     }
 
-    private static bool IsNewRecord(float candidate, float bestAtStart)
-    {
-        if (bestAtStart <= 0f) return true;
-        return candidate < bestAtStart - 0.0005f;
-    }
-
-    private void ReadMedals(out float bestTime, out bool bronzeAcquired, out float bronzeThreshold)
-    {
-        bestTime = 0f; bronzeAcquired = false; bronzeThreshold = 0f;
-
-        var list = Game.LevelManager.GetMedals();
-        if (list == null) return;
-
-        LevelMedalsSO entry = null;
-        for (int i = 0; i < list.Count; i++)
-        {
-            var m = list[i];
-            if (m && m.levelNumber == levelIndex) { entry = m; break; }
-        }
-        if (!entry) return;
-
-        var times = entry.levelMedalTimes;
-
-        float best = float.MaxValue; bool found = false;
-
-        if (times.bronze.isAcquired) { best = Mathf.Min(best, times.bronze.time); found = true; bronzeAcquired = true; }
-        if (times.silver.isAcquired) { best = Mathf.Min(best, times.silver.time); found = true; }
-        if (times.gold.isAcquired)   { best = Mathf.Min(best, times.gold.time);   found = true; }
-
-        bestTime = found ? best : 0f;
-
-        bronzeThreshold = times.bronze.time; // threshold to earn bronze
-    }
-
     private string GetFolderPath() => Path.Combine(Application.persistentDataPath, ghostsFolderName);
-    private string GetBestFilePathForLevel(int idx) => Path.Combine(GetFolderPath(), bestFileNamePattern.Replace("{LEVEL}", idx.ToString()));
-    private string GetLastFilePathForLevel(int idx) => Path.Combine(GetFolderPath(), lastFileNamePattern.Replace("{LEVEL}", idx.ToString()));
+    private string GetFilePathForLevel(int idx) => Path.Combine(GetFolderPath(), fileNamePattern.Replace("{LEVEL}", idx.ToString()));
 
     private void EnsureFolderExists()
     {
@@ -242,43 +220,55 @@ public class GhostRecorder : MonoBehaviour
         if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
     }
 
-    private void SaveRunToPath(GhostRunData run, string path)
+    private static bool TryReadJson(string path, out GhostRunData data)
     {
-        if (run == null || run.frames == null || run.frames.Count < 2) return;
-        File.WriteAllText(path, JsonUtility.ToJson(run));
+        try
+        {
+            data = JsonUtility.FromJson<GhostRunData>(File.ReadAllText(path));
+            return data != null;
+        }
+        catch
+        {
+            data = null;
+            return false;
+        }
+    }
+
+    private void AtomicSave(GhostRunData run, string path)
+    {
+        if (run == null || run.frames == null || run.frames.Count < 2 || run.durationSeconds <= MinValidDurationSeconds) return;
+
+        string tmp = path + ".tmp";
+        File.WriteAllText(tmp, JsonUtility.ToJson(run));
+        // Replace existing safely
+        try
+        {
+            if (File.Exists(path)) File.Delete(path);
+        }
+        catch { /* ignore */ }
+        File.Move(tmp, path);
+    }
+
+    public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data, out string path)
+    {
+        int level = SceneManager.GetActiveScene().buildIndex;
+        return TryLoadBestGhostForLevel(level, out data, out path);
     }
 
     public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data)
     {
-        int level = SceneManager.GetActiveScene().buildIndex;
-        string path = Path.Combine(Application.persistentDataPath, "ghosts", $"level_{level}.ghost.json");
-        if (File.Exists(path))
-        {
-            data = JsonUtility.FromJson<GhostRunData>(File.ReadAllText(path));
-            return data != null && data.levelIndex == level;
-        }
-        data = null;
-        return false;
+        string _;
+        return TryLoadBestGhostForCurrentLevel(out data, out _);
     }
 
-    public static bool TryLoadLastGhostForCurrentLevel(out GhostRunData data)
+    public static bool TryLoadBestGhostForLevel(int levelIndex, out GhostRunData data, out string path)
     {
-        int level = SceneManager.GetActiveScene().buildIndex;
-        string path = Path.Combine(Application.persistentDataPath, "ghosts", $"last_level_{level}.ghost.json");
-        if (File.Exists(path))
-        {
-            data = JsonUtility.FromJson<GhostRunData>(File.ReadAllText(path));
-            return data != null && data.levelIndex == level;
-        }
+        path = Path.Combine(Application.persistentDataPath, "ghosts", $"level_{levelIndex}.ghost.json");
+        if (File.Exists(path) && TryReadJson(path, out data))
+            return data.levelIndex == levelIndex && data.frames != null && data.frames.Count >= 2 && data.durationSeconds > MinValidDurationSeconds;
+
         data = null;
         return false;
-    }
-
-    [Obsolete("Use TryLoadBestGhostForCurrentLevel instead.")]
-    public static bool TryLoadGhostForCurrentLevel(out GhostRunData data)
-    {
-        if (TryLoadBestGhostForCurrentLevel(out data)) return true;
-        return TryLoadLastGhostForCurrentLevel(out data);
     }
 
     private void Log(string msg)
