@@ -26,6 +26,10 @@ public class GhostRecorder : MonoBehaviour
     [SerializeField, Tooltip("Maximum number of frames to keep (0 = unlimited).")]
     private int maxRecordedFrames = 0;
 
+    [Header("Pause Integration")]
+    [SerializeField, Tooltip("If enabled, recording halts while PauseEventBus reports paused.")]
+    private bool obeyPauseEvents = true;
+
     [Header("Storage")]
     [SerializeField, Tooltip("Directory under persistentDataPath where ghosts are saved.")]
     private string ghostsFolderName = "ghosts";
@@ -60,6 +64,7 @@ public class GhostRecorder : MonoBehaviour
 
     private GhostRunData currentRun;
     private bool isRecording;
+    private bool pauseGate;
     private float lastFrameTime;
     private Vector3 lastPos;
     private Quaternion lastRot;
@@ -85,11 +90,13 @@ public class GhostRecorder : MonoBehaviour
 
     private void OnEnable()
     {
+        if (obeyPauseEvents) PauseEventBus.PauseChanged += OnPauseChanged;
         if (startRecordingOnEnable && !isRecording) StartRecording();
     }
 
     private void OnDisable()
     {
+        if (obeyPauseEvents) PauseEventBus.PauseChanged -= OnPauseChanged;
         StopRecording();
     }
 
@@ -112,6 +119,13 @@ public class GhostRecorder : MonoBehaviour
     private void FixedUpdate()
     {
         if (recordAtFixedUpdate) TickRecord(Time.fixedDeltaTime);
+    }
+
+    private void OnPauseChanged(bool paused)
+    {
+        if (!obeyPauseEvents) return;
+        pauseGate = paused;
+        Log(paused ? "Recording paused" : "Recording resumed");
     }
 
     public void StartRecording()
@@ -142,6 +156,7 @@ public class GhostRecorder : MonoBehaviour
     private void TickRecord(float dt)
     {
         if (!isRecording || !targetToRecord) return;
+        if (obeyPauseEvents && (pauseGate || PauseEventBus.IsPaused)) return;
 
         currentRun.durationSeconds += dt;
         float t = currentRun.durationSeconds;
@@ -170,7 +185,6 @@ public class GhostRecorder : MonoBehaviour
 
     private void OnLevelWon()
     {
-        // Use the recorder’s measured duration; fall back to LevelManager only if needed
         float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
         if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
         {
@@ -240,12 +254,7 @@ public class GhostRecorder : MonoBehaviour
 
         string tmp = path + ".tmp";
         File.WriteAllText(tmp, JsonUtility.ToJson(run));
-        // Replace existing safely
-        try
-        {
-            if (File.Exists(path)) File.Delete(path);
-        }
-        catch { /* ignore */ }
+        try { if (File.Exists(path)) File.Delete(path); } catch { }
         File.Move(tmp, path);
     }
 
