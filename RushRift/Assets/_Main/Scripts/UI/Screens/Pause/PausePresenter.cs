@@ -83,11 +83,14 @@ namespace Game.UI.Screens
             main.enabled = true;
             options.enabled = false;
         }
-
+        
         private void OnRestartHandler()
         {
+            PauseEventBus.SetPaused(false);
+            Time.timeScale = 1f;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
+
 
         private void OnQuitHandler()
         {

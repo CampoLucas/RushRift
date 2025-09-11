@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [DefaultExecutionOrder(-10000)]
 public sealed class PauseEventBus : MonoBehaviour
@@ -17,6 +18,12 @@ public sealed class PauseEventBus : MonoBehaviour
         if (IsPaused == paused) return;
         IsPaused = paused;
         PauseChanged?.Invoke(paused);
+    }
+    
+    private static void HandleSceneLoaded(Scene s, LoadSceneMode m)
+    {
+        // Always enter new scenes unpaused
+        SetPaused(false);
     }
 
 #if UNITY_EDITOR
