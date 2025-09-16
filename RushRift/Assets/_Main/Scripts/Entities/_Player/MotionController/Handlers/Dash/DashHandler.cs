@@ -77,6 +77,10 @@ namespace Game.Entities.Components.MotionController
         private void StartDash(in MotionContext context)
         {
             _isDashing = true;
+            AudioManager.Play("Dash");
+            ChromaticAberrationPlayer.PlayGlobal();
+            LensDistortionPlayer.PlayGlobal();
+            FreezeFrame.TriggerDefault();
 #if false
             _dashDir = context.Look.forward;
 #else
