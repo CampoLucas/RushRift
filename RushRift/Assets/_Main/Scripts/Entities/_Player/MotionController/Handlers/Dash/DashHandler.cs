@@ -91,6 +91,9 @@ namespace Game.Entities.Components.MotionController
             _halfHeight = (_height / 2f) - _radius;
             
             UpdateStrategy.OnReset();
+            
+            // ToDo: MotionView -> DashView
+            EffectManager.CameraShake(Config.ShakeDur, Config.ShakeMag);
         }
 
         private bool PerformDash(in MotionContext context, in float delta)
