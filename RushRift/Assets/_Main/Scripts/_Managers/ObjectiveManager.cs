@@ -22,6 +22,22 @@ public class ObjectiveManager : MonoBehaviour
     [SerializeField] private TMP_Text[] finalTimerTexts;
     [SerializeField] private TMP_Text[] bestTimerTexts;
 
+    [Header("Medal Icon")]
+    [SerializeField, Tooltip("Primary Image to display the current medal icon.")]
+    private Image medalImage;
+    [SerializeField, Tooltip("Optional additional medal images to keep in sync.")]
+    private Image[] medalImages;
+    [SerializeField, Tooltip("Sprite shown while within the Gold threshold.")]
+    private Sprite goldSprite;
+    [SerializeField, Tooltip("Sprite shown after exceeding Gold but within the Silver threshold.")]
+    private Sprite silverSprite;
+    [SerializeField, Tooltip("Sprite shown after exceeding Silver but within the Bronze threshold.")]
+    private Sprite bronzeSprite;
+    [SerializeField, Tooltip("Sprite shown after exceeding the Bronze threshold.")]
+    private Sprite failSprite;
+    [SerializeField, Tooltip("If true and medal data for this level is missing, hide the medal images.")]
+    private bool hideIconIfNoMedalData = true;
+
     private float _timer;
     private bool _triggered;
     private bool stopTimer;
@@ -31,6 +47,13 @@ public class ObjectiveManager : MonoBehaviour
     private IObserver _decreaseObserver;
     private IObserver _increaseObserver;
     private IObserver _onWinLevelObserver;
+
+    private enum MedalState { Gold, Silver, Bronze, Fail, None }
+    private MedalState _currentMedalState = MedalState.None;
+    private bool _hasThresholds;
+    private float _goldThreshold;
+    private float _silverThreshold;
+    private float _bronzeThreshold;
 
     private void Awake()
     {
@@ -44,6 +67,9 @@ public class ObjectiveManager : MonoBehaviour
 
         stopTimer = false;
         var data = SaveAndLoad.Load();
+
+        ResolveMedalThresholds();
+        InitializeMedalIconOnStart();
     }
 
     private void Update()
@@ -70,6 +96,8 @@ public class ObjectiveManager : MonoBehaviour
         _timer += Time.deltaTime;
         _newTimer = TimerFormatter.GetNewTimer(_timer);
         FormatAll(timerText, timerTexts, _newTimer[0], _newTimer[1], _newTimer[2]);
+
+        UpdateMedalIconForTime(_timer);
     }
 
     private void OnWinLevel()
@@ -114,6 +142,92 @@ public class ObjectiveManager : MonoBehaviour
         {
             var t = many[i];
             if (t) TimerFormatter.FormatTimer(t, minutes, seconds, milliseconds);
+        }
+    }
+
+    private void ResolveMedalThresholds()
+    {
+        _hasThresholds = false;
+        _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
+
+        var list = LevelManager.GetMedals();
+        if (list == null || list.Count == 0) { ApplyMedalVisibility(false); return; }
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            var m = list[i];
+            if (m != null && m.levelNumber == currentLevel)
+            {
+                _goldThreshold = Mathf.Max(0f, m.levelMedalTimes.gold.time);
+                _silverThreshold = Mathf.Max(0f, m.levelMedalTimes.silver.time);
+                _bronzeThreshold = Mathf.Max(0f, m.levelMedalTimes.bronze.time);
+                _hasThresholds = true;
+                break;
+            }
+        }
+
+        ApplyMedalVisibility(_hasThresholds || !hideIconIfNoMedalData);
+    }
+
+    private void InitializeMedalIconOnStart()
+    {
+        if (!_hasThresholds)
+        {
+            if (hideIconIfNoMedalData) ApplyMedalVisibility(false);
+            else ApplyMedalState(MedalState.Fail);
+            return;
+        }
+
+        // Start run at Gold, then degrade as time exceeds thresholds
+        ApplyMedalState(MedalState.Gold);
+    }
+
+    private void UpdateMedalIconForTime(float time)
+    {
+        if (!_hasThresholds) return;
+
+        MedalState next;
+        if (time <= _goldThreshold) next = MedalState.Gold;
+        else if (time <= _silverThreshold) next = MedalState.Silver;
+        else if (time <= _bronzeThreshold) next = MedalState.Bronze;
+        else next = MedalState.Fail;
+
+        if (next != _currentMedalState) ApplyMedalState(next);
+    }
+
+    private void ApplyMedalState(MedalState state)
+    {
+        _currentMedalState = state;
+
+        Sprite s =
+            state == MedalState.Gold ? goldSprite :
+            state == MedalState.Silver ? silverSprite :
+            state == MedalState.Bronze ? bronzeSprite :
+            failSprite;
+
+        if (medalImage) medalImage.sprite = s;
+        if (medalImages != null)
+        {
+            for (int i = 0; i < medalImages.Length; i++)
+            {
+                var img = medalImages[i];
+                if (img) img.sprite = s;
+            }
+        }
+
+        ApplyMedalVisibility(true);
+    }
+
+    private void ApplyMedalVisibility(bool visible)
+    {
+        if (medalImage) medalImage.enabled = visible;
+        if (medalImages != null)
+        {
+            for (int i = 0; i < medalImages.Length; i++)
+            {
+                var img = medalImages[i];
+                if (img) img.enabled = visible;
+            }
         }
     }
 }
