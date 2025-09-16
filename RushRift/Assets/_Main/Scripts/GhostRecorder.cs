@@ -71,8 +71,13 @@ public class GhostRecorder : MonoBehaviour
     private IObserver winObserver;
     private int levelIndex;
 
+    // Read gizmo fields once so they count as "used" in builds
+    private bool _suppressBuildWarnings;
+
     private void Awake()
     {
+        _suppressBuildWarnings |= drawGizmos && gizmoSegments >= 0;
+
         levelIndex = SceneManager.GetActiveScene().buildIndex;
 
         if (!targetToRecord)
