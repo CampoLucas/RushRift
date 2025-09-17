@@ -35,17 +35,15 @@ public class ShopManager : MonoBehaviour
 
     [Header("Gate Text")]
     [SerializeField] private TMP_Text gate;
-
-
-
+    
     private void Awake()
     {
         level1Button.onClick.AddListener(() => OnSelectLevel(_level1, level1Text));
-        level2Button.onClick.AddListener(() => OnSelectLevel(_level2, level2Text));
-        level3Button.onClick.AddListener(() => OnSelectLevel(_level3, level3Text));
+        /*level2Button.onClick.AddListener(() => OnSelectLevel(_level2, level2Text));
+        level3Button.onClick.AddListener(() => OnSelectLevel(_level3, level3Text));*/
         _level1 = SceneManager.GetActiveScene().buildIndex + 1;
-        _level2 = SceneManager.GetActiveScene().buildIndex + 2;
-        _level3 = SceneManager.GetActiveScene().buildIndex + 3;
+        /*_level2 = SceneManager.GetActiveScene().buildIndex + 2;
+        _level3 = SceneManager.GetActiveScene().buildIndex + 3;*/
         currentSelectedLevel = _level1;
 
     }
@@ -91,13 +89,13 @@ public class ShopManager : MonoBehaviour
             if (medalTimes[_level1].silver.isAcquired) level1Adquired[1].enabled = true;
             if (medalTimes[_level1].gold.isAcquired) level1Adquired[2].enabled = true;
 
-            if (medalTimes[_level2].bronze.isAcquired) level2Adquired[0].enabled = true;
+            /*if (medalTimes[_level2].bronze.isAcquired) level2Adquired[0].enabled = true;
             if (medalTimes[_level2].silver.isAcquired) level2Adquired[1].enabled = true;
             if (medalTimes[_level2].gold.isAcquired) level2Adquired[2].enabled = true;
 
             if (medalTimes[_level3].bronze.isAcquired) level3Adquired[0].enabled = true;
             if (medalTimes[_level3].silver.isAcquired) level3Adquired[1].enabled = true;
-            if (medalTimes[_level3].gold.isAcquired) level3Adquired[2].enabled = true;
+            if (medalTimes[_level3].gold.isAcquired) level3Adquired[2].enabled = true;*/
         }
 
 
@@ -111,8 +109,7 @@ public class ShopManager : MonoBehaviour
 
         SaveAndLoad.Save(data);
     }
-
-
+    
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
