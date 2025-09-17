@@ -893,7 +893,6 @@ GameObject:
   - component: {fileID: 4036694657418605575}
   - component: {fileID: 4025288467119005644}
   - component: {fileID: 3486766384206959456}
-  - component: {fileID: 4725324717667111731}
   m_Layer: 9
   m_Name: P_Turret_Projectile
   m_TagString: Untagged
@@ -911,7 +910,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2959854152601411938}
@@ -964,7 +963,6 @@ MonoBehaviour:
   damageIndex: 1
   deathIndex: 2
   points: 50
-  floatingTextFeedback: {fileID: 4725324717667111731}
 --- !u!114 &1460731891277681104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1039,71 +1037,6 @@ MonoBehaviour:
   - {fileID: 3947552943855110621}
   - {fileID: 1460731891277681104}
   - {fileID: 4036694657418605575}
---- !u!114 &4725324717667111731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6713962002373540701}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4776f1ae695b8f4994433564beddd5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetSpawner: {fileID: 0}
-  useGlobalSpawnerIfNull: 1
-  defaultText: 1
-  usePlusSignForPositive: 1
-  numberFormat: 0
-  prefix: 
-  suffix: 
-  uppercase: 0
-  overrideFontSize: 0
-  fontSizeMultiplier: 1
-  worldOffset: {x: 0, y: 3, z: 0}
-  useTopOfBounds: 0
-  followThisObject: 0
-  customAttachment: {fileID: 0}
-  baseDirection: {x: 0, y: 1, z: 0}
-  randomizeDirection: 0
-  randomConeAngleDegrees: 15
-  lifetimeSeconds: 1.2
-  useUnscaledTime: 1
-  colorGradient:
-    serializedVersion: 2
-    key0: {r: 1, g: 0, b: 0, a: 1}
-    key1: {r: 1, g: 1, b: 1, a: 0}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 38781
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
-  intensity: 1
-  isDebugLoggingEnabled: 0
-  drawGizmos: 1
-  gizmoColor: {r: 0.2, g: 0.9, b: 1, a: 0.9}
 --- !u!1 &6774804265165595017
 GameObject:
   m_ObjectHideFlags: 0
