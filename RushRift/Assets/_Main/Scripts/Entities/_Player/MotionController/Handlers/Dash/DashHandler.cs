@@ -98,6 +98,7 @@ namespace Game.Entities.Components.MotionController
             
             // ToDo: MotionView -> DashView
             EffectManager.CameraShake(Config.ShakeDur, Config.ShakeMag);
+            EffectManager.ScreenBlur(0, Config.ShakeMag);
         }
 
         private bool PerformDash(in MotionContext context, in float delta)

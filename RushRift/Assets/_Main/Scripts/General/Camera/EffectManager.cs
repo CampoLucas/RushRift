@@ -6,10 +6,10 @@ namespace Game
 {
     public class EffectManager : MonoBehaviour
     {
-        
         private static EffectManager _instance;
         private static bool _disposed;
         private ISubject<float, float> _shakeSubject;
+        private ISubject<float, float> _screenBlurSubject;
         
         private void Awake()
         {
@@ -23,6 +23,7 @@ namespace Game
             _instance = this;
 
             _shakeSubject = new Subject<float, float>(false, true);
+            _screenBlurSubject = new Subject<float, float>(false, true);
         }
 
         /// <summary>
@@ -46,11 +47,40 @@ namespace Game
             _instance._shakeSubject.Detach(observer);
         }
         
+        /// <summary>
+        /// Attaches an observer to the event when the screen should blur.
+        /// All observers that are attached, will be disposed when the Manager is destroyed.
+        /// </summary>
+        /// <param name="observer"></param>
+        public static void AttachBlur(DesignPatterns.Observers.IObserver<float, float> observer)
+        {
+            if (!_instance || _disposed) return;
+            _instance._screenBlurSubject.Attach(observer);
+        }
+        
+        /// <summary>
+        /// Detaches an observer from the screen blur event.
+        /// </summary>
+        /// <param name="observer"></param>
+        public static void DetachBlur(DesignPatterns.Observers.IObserver<float, float> observer)
+        {
+            if (!_instance || _disposed) return;
+            _instance._screenBlurSubject.Detach(observer);
+        }
+        
         public static void CameraShake(float duration, float magnitude)
         {
             if (!_instance || _disposed) return;
             _instance._shakeSubject.NotifyAll(duration, magnitude);
         }
+
+        public static void ScreenBlur(float duration, float magnitude)
+        {
+            if (!_instance || _disposed) return;
+            _instance._screenBlurSubject.NotifyAll(duration, magnitude);
+        }
+
+        
 
         private void OnDestroy()
         {
@@ -61,6 +91,9 @@ namespace Game
             }
             _shakeSubject.DetachAll();
             _shakeSubject = null;
+            
+            _screenBlurSubject.DetachAll();
+            _screenBlurSubject = null;
         }
     }
 }

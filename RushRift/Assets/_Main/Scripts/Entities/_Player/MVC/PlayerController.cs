@@ -29,20 +29,6 @@ namespace Game.Entities
         
         protected override void Awake()
         {
-            // _camera = Camera.main.transform;
-            //
-            // if (_camera)
-            // {
-            //     if (_camera.gameObject.TryGetComponent<JointsContainer>(out var cameraJoints))
-            //     {
-            //         Debug.Log("SuperTest: Add camera joins");
-            //         joints.AddJoint(cameraJoints.Joints);
-            //     }
-            //     
-            //     
-            //     //joints.SetJoint(EntityJoint.Eyes, _camera);
-            // }
-
             base.Awake();
             
             
