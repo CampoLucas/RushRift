@@ -87,6 +87,13 @@ public class GhostPlayer : MonoBehaviour
     private Vector3 smoothedPosVel;
     private Quaternion smoothedRot = Quaternion.identity;
 
+    // Read gizmo fields once so they count as "used" in builds
+    private bool _suppressBuildWarnings;
+    private void Awake()
+    {
+        _suppressBuildWarnings |= drawGizmos && gizmoMaxSegments >= 0;
+    }
+
     private void OnEnable()
     {
         if (obeyPauseEvents) PauseEventBus.PauseChanged += OnPauseChanged;
@@ -390,6 +397,16 @@ public class GhostPlayer : MonoBehaviour
         Debug.Log($"[GhostPlayer] {name}: {msg}", this);
     }
 
+    // Always-compiled cache helper (fixes build error)
+    private void CachePositions()
+    {
+        cachedPositions.Clear();
+        if (!HasValidRun()) return;
+        var frames = loadedRun.frames;
+        for (int i = 0; i < frames.Count; i++)
+            cachedPositions.Add(frames[i].position + worldPositionOffset);
+    }
+
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
@@ -405,15 +422,6 @@ public class GhostPlayer : MonoBehaviour
         int start = Mathf.Max(0, count - Mathf.Max(2, gizmoMaxSegments));
         for (int i = start + 1; i < count; i++)
             Gizmos.DrawLine(cachedPositions[i - 1], cachedPositions[i]);
-    }
-
-    private void CachePositions()
-    {
-        cachedPositions.Clear();
-        if (!HasValidRun()) return;
-        var frames = loadedRun.frames;
-        for (int i = 0; i < frames.Count; i++)
-            cachedPositions.Add(frames[i].position + worldPositionOffset);
     }
 #endif
 }
