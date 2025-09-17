@@ -20,6 +20,8 @@ namespace Game.Entities
         [Header("Points")]
         [SerializeField] private int points;
 
+        [SerializeField] private FloatingTextFeedback floatingTextFeedback;
+        
         private IObserver<float, float, float> _onDamageObserver;
         private IObserver _onDeathObserver;
         private EnemyComponent _enemyComp;
@@ -30,8 +32,6 @@ namespace Game.Entities
 
             _onDamageObserver = new ActionObserver<float, float, float>(OnDamage);
             _onDeathObserver = new ActionObserver(OnDeath);
-            
-
         }
 
         protected override void Start()
@@ -84,6 +84,7 @@ namespace Game.Entities
             if (currentHealth >= previousHealth) return;
             
             AudioManager.Play("TurretDamage");
+            floatingTextFeedback.Play();
             runner.DisableAllRunners();
             runner.SetRunnerActive(damageIndex);
            
