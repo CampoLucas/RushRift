@@ -5,7 +5,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class FlickerPlayer : MonoBehaviour
 {
-    public enum TargetMode { AutoDetect, ColorProperty, NamedProperty }
+    public enum BlendMode { LerpToFlicker, AddToInitial }
+    public enum TargetSet { Auto, BaseOnly, EmissionOnly, Both }
 
     [Header("Targets")]
     [SerializeField, Tooltip("Renderers to flicker. If empty and Auto Bind is enabled, renderers are fetched from this GameObject and its children.")]
@@ -15,24 +16,38 @@ public class FlickerPlayer : MonoBehaviour
     [SerializeField, Tooltip("Material indexes to affect on each Renderer. If empty, index 0 is used.")]
     private int[] materialIndexes = new[] { 0 };
 
-    [Header("Material Access")]
-    [SerializeField, Tooltip("AutoDetect = try common color properties (_BaseColor, _Color, _Tint, _TintColor). ColorProperty = prefer _Color then _BaseColor. NamedProperty = use the custom property below.")]
-    private TargetMode targetMode = TargetMode.AutoDetect;
-    [SerializeField, Tooltip("Shader property to set when mode is NamedProperty.")]
-    private string colorPropertyName = "_BaseColor";
-    [SerializeField, Tooltip("If true, falls back to autodetect list when the chosen property isn't found on a material.")]
-    private bool fallbackToAutoDetectIfMissing = true;
-    [SerializeField, Tooltip("If true, uses MaterialPropertyBlocks instead of modifying material instances.")]
+    [Header("Explicit Materials")]
+    [SerializeField, Tooltip("Optional explicit material list to drive directly. Drag the material from the object's Renderer slot here.")]
+    private Material[] explicitTargetMaterials;
+    [SerializeField, Tooltip("When using Explicit Materials, which channels to affect.")]
+    private TargetSet explicitMaterialsTargetSet = TargetSet.Both;
+    [SerializeField, Tooltip("If true, edits the shared Material assets. If false, nothing is auto-assigned; only enable this if you understand the implications.")]
+    private bool editSharedMaterialAssets = true;
+
+    [Header("URP / Shader Properties")]
+    [SerializeField, Tooltip("Which properties to affect for Renderer targets. Auto = Emission if present else Base. Both = Base and Emission together.")]
+    private TargetSet targetSet = TargetSet.Auto;
+    [SerializeField, Tooltip("Base color property (URP Lit: _BaseColor; legacy: _Color).")]
+    private string baseColorProperty = "_BaseColor";
+    [SerializeField, Tooltip("Legacy base color fallback (usually _Color).")]
+    private string baseColorFallbackProperty = "_Color";
+    [SerializeField, Tooltip("Emission color property (URP Lit: _EmissionColor).")]
+    private string emissionColorProperty = "_EmissionColor";
+    [SerializeField, Tooltip("Use MaterialPropertyBlocks to avoid instantiating materials for Renderer targets.")]
     private bool useMaterialPropertyBlocks = true;
+    [SerializeField, Tooltip("When editing materials directly (not MPB) and affecting emission, enable the _EMISSION keyword automatically.")]
+    private bool enableEmissionKeywordWhenEditingMaterials = true;
     [SerializeField, Tooltip("If using PropertyBlocks on SpriteRenderers, set the sprite texture property name here to preserve sprites.")]
     private string spriteTexturePropertyName = "_MainTex";
 
     [Header("Playback Defaults")]
-    [SerializeField, Tooltip("Default flicker color.")]
-    private Color defaultFlickerColor = new Color32(255, 40, 40, 255);
+    [SerializeField, ColorUsage(true, true), Tooltip("Default flicker color (HDR enabled).")]
+    private Color defaultFlickerColor = new Color(1f, 0.15f, 0.15f, 1f);
+    [SerializeField, Tooltip("Extra HDR intensity multiplier applied to the flicker color.")]
+    private float flickerHdrIntensity = 1f;
     [SerializeField, Tooltip("Total flicker duration in seconds.")]
     private float defaultDurationSeconds = 0.08f;
-    [SerializeField, Tooltip("Period between toggles or the length of one curve cycle in seconds.")]
+    [SerializeField, Tooltip("Period between toggles or one curve cycle in seconds.")]
     private float defaultPeriodSeconds = 0.02f;
     [SerializeField, Tooltip("Use unscaled time for the flicker.")]
     private bool useUnscaledTime = false;
@@ -41,10 +56,12 @@ public class FlickerPlayer : MonoBehaviour
     [SerializeField, Tooltip("Restore initial colors when stopping or finishing.")]
     private bool resetToInitialOnStop = true;
 
-    [Header("Smoothing")]
+    [Header("Smoothing & Blending")]
+    [SerializeField, Tooltip("How to combine the flicker with the initial color. Lerp blends between initial and flicker; Add adds on top for bright HDR pops.")]
+    private BlendMode blendMode = BlendMode.LerpToFlicker;
     [SerializeField, Tooltip("If enabled, blends between initial and flicker colors using the curve below, instead of hard toggles.")]
     private bool useInterpolationCurve = true;
-    [SerializeField, Tooltip("Blend curve evaluated over each period. 0 = initial color, 1 = flicker color.")]
+    [SerializeField, Tooltip("Blend curve evaluated over each period. 0 = initial color, 1 = flicker color/intensity.")]
     private AnimationCurve interpolationCurve = new AnimationCurve(
         new Keyframe(0f, 0f, 0f, 4f),
         new Keyframe(0.25f, 1f),
@@ -54,7 +71,7 @@ public class FlickerPlayer : MonoBehaviour
     );
 
     [Header("Global Access")]
-    [SerializeField, Tooltip("If true, registers this component as a global instance to call via FlickerPlayer.PlayGlobal(...).")]
+    [SerializeField, Tooltip("If true, registers this as a global instance to call via FlickerPlayer.PlayGlobal(...).")]
     private bool registerAsGlobalInstance = true;
 
     [Header("Debug Controls")]
@@ -75,33 +92,52 @@ public class FlickerPlayer : MonoBehaviour
 
     private static FlickerPlayer s_global;
 
-    private struct TargetSlot
+    private struct RendererSlot
     {
         public Renderer renderer;
         public int matIndex;
-        public bool propertyFound;
-        public int propertyId;
-        public string propertyName;
-        public Color initialColor;
+
+        public bool baseFound;
+        public int basePid;
+        public string baseName;
+        public Color baseInitial;
+
+        public bool emissFound;
+        public int emissPid;
+        public string emissName;
+        public Color emissInitial;
+
         public SpriteRenderer spriteRenderer;
         public Texture spriteTexture;
         public MaterialPropertyBlock block;
     }
 
-    private readonly List<TargetSlot> _targets = new List<TargetSlot>(32);
+    private struct MaterialSlot
+    {
+        public Material mat;
+        public bool baseFound;
+        public int basePid;
+        public Color baseInitial;
+        public bool emissFound;
+        public int emissPid;
+        public Color emissInitial;
+    }
+
+    private readonly List<RendererSlot> _rendererTargets = new List<RendererSlot>(32);
+    private readonly List<MaterialSlot> _materialTargets = new List<MaterialSlot>(8);
+
     private Coroutine _playRoutine;
     private bool _isPlaying;
     private float _lastEvaluated;
-    private Color _activeFlickerColor;
-
-    private static readonly string[] AutoDetectNames = { "_BaseColor", "_Color", "_Tint", "_TintColor" };
+    private Color _activeFlickerColorHDR;
 
     private void Awake()
     {
         if ((targetRenderers == null || targetRenderers.Length == 0) && autoBindRenderersIfEmpty)
             targetRenderers = GetComponentsInChildren<Renderer>(true);
 
-        BuildTargetList();
+        BuildRendererTargets();
+        BuildMaterialTargets();
         if (registerAsGlobalInstance) s_global = this;
         Log("Awake");
     }
@@ -121,7 +157,7 @@ public class FlickerPlayer : MonoBehaviour
         }
 
         if (_isPlaying && resetToInitialOnStop)
-            RestoreInitialColors();
+            RestoreToInitial();
 
         _isPlaying = false;
     }
@@ -129,7 +165,7 @@ public class FlickerPlayer : MonoBehaviour
     [ContextMenu("Flicker/Play Default Settings")]
     public void PlayDefaultSettings()
     {
-        FlickerPlay(defaultFlickerColor, defaultDurationSeconds, defaultPeriodSeconds);
+        FlickerPlay(defaultFlickerColor, defaultDurationSeconds, defaultPeriodSeconds, flickerHdrIntensity);
     }
 
     [ContextMenu("Flicker/Stop And Reset")]
@@ -142,32 +178,30 @@ public class FlickerPlayer : MonoBehaviour
         }
 
         if (resetToInitialOnStop)
-            RestoreInitialColors();
+            RestoreToInitial();
 
         _isPlaying = false;
         Log("Stopped");
     }
 
-    public void FlickerPlay() => FlickerPlay(defaultFlickerColor, defaultDurationSeconds, defaultPeriodSeconds);
-    public void FlickerPlay(Color color) => FlickerPlay(color, defaultDurationSeconds, defaultPeriodSeconds);
-
-    public void FlickerPlay(Color color, float durationSeconds, float periodSeconds)
+    public void FlickerPlay() => FlickerPlay(defaultFlickerColor, defaultDurationSeconds, defaultPeriodSeconds, flickerHdrIntensity);
+    public void FlickerPlay(Color color) => FlickerPlay(color, defaultDurationSeconds, defaultPeriodSeconds, flickerHdrIntensity);
+    public void FlickerPlay(Color color, float durationSeconds, float periodSeconds, float hdrIntensity = 1f)
     {
-        if (_targets.Count == 0) { Log("No targets"); return; }
+        if (_rendererTargets.Count == 0 && _materialTargets.Count == 0) { Log("No targets"); return; }
         if (_isPlaying && !restartIfAlreadyPlaying) { Log("Already playing"); return; }
 
         if (_playRoutine != null) StopCoroutine(_playRoutine);
-        _playRoutine = StartCoroutine(FlickerRoutine(color, Mathf.Max(0f, durationSeconds), Mathf.Max(0.0001f, periodSeconds)));
+        _playRoutine = StartCoroutine(FlickerRoutine(color, Mathf.Max(0f, durationSeconds), Mathf.Max(0.0001f, periodSeconds), Mathf.Max(0f, hdrIntensity)));
     }
 
     public static void PlayGlobal() { if (s_global) s_global.FlickerPlay(); }
-    public static void PlayGlobal(Color color, float durationSeconds = 0.1f, float periodSeconds = 0.03f)
-    { if (s_global) s_global.FlickerPlay(color, durationSeconds, periodSeconds); }
+    public static void PlayGlobal(Color color, float durationSeconds = 0.1f, float periodSeconds = 0.03f, float hdrIntensity = 1f)
+    { if (s_global) s_global.FlickerPlay(color, durationSeconds, periodSeconds, hdrIntensity); }
 
-    private void BuildTargetList()
+    private void BuildRendererTargets()
     {
-        _targets.Clear();
-
+        _rendererTargets.Clear();
         if (targetRenderers == null) return;
         if (materialIndexes == null || materialIndexes.Length == 0) materialIndexes = new[] { 0 };
 
@@ -175,19 +209,23 @@ public class FlickerPlayer : MonoBehaviour
         {
             var rend = targetRenderers[r];
             if (!rend) continue;
-
             var sharedMats = rend.sharedMaterials;
+
             for (int mi = 0; mi < materialIndexes.Length; mi++)
             {
                 int idx = Mathf.Clamp(materialIndexes[mi], 0, Mathf.Max(0, sharedMats.Length - 1));
-                var slot = new TargetSlot
+                var slot = new RendererSlot
                 {
                     renderer = rend,
                     matIndex = idx,
-                    propertyFound = false,
-                    propertyId = 0,
-                    propertyName = "",
-                    initialColor = Color.white,
+                    baseFound = false,
+                    emissFound = false,
+                    basePid = 0,
+                    emissPid = 0,
+                    baseName = "",
+                    emissName = "",
+                    baseInitial = Color.white,
+                    emissInitial = Color.black,
                     spriteRenderer = rend.GetComponent<SpriteRenderer>(),
                     spriteTexture = null,
                     block = useMaterialPropertyBlocks ? new MaterialPropertyBlock() : null
@@ -199,56 +237,66 @@ public class FlickerPlayer : MonoBehaviour
                 var sm = sharedMats.Length > idx ? sharedMats[idx] : null;
                 if (sm)
                 {
-                    var namesToTry = new List<string>(4);
-                    if (targetMode == TargetMode.NamedProperty && !string.IsNullOrEmpty(colorPropertyName))
-                        namesToTry.Add(colorPropertyName);
+                    if (sm.HasProperty(baseColorProperty)) { slot.basePid = Shader.PropertyToID(baseColorProperty); slot.baseName = baseColorProperty; slot.baseFound = true; slot.baseInitial = sm.GetColor(slot.basePid); }
+                    else if (!string.IsNullOrEmpty(baseColorFallbackProperty) && sm.HasProperty(baseColorFallbackProperty)) { slot.basePid = Shader.PropertyToID(baseColorFallbackProperty); slot.baseName = baseColorFallbackProperty; slot.baseFound = true; slot.baseInitial = sm.GetColor(slot.basePid); }
 
-                    if (targetMode == TargetMode.ColorProperty)
-                    {
-                        namesToTry.Add("_Color");
-                        if (fallbackToAutoDetectIfMissing) namesToTry.Add("_BaseColor");
-                    }
-                    else if (targetMode == TargetMode.AutoDetect || (fallbackToAutoDetectIfMissing && namesToTry.Count == 1))
-                    {
-                        for (int n = 0; n < AutoDetectNames.Length; n++)
-                            if (!namesToTry.Contains(AutoDetectNames[n]))
-                                namesToTry.Add(AutoDetectNames[n]);
-                    }
-
-                    for (int n = 0; n < namesToTry.Count; n++)
-                    {
-                        int pid = Shader.PropertyToID(namesToTry[n]);
-                        if (sm.HasProperty(pid))
-                        {
-                            slot.propertyFound = true;
-                            slot.propertyId = pid;
-                            slot.propertyName = namesToTry[n];
-                            slot.initialColor = sm.GetColor(pid);
-                            break;
-                        }
-                    }
+                    if (!string.IsNullOrEmpty(emissionColorProperty) && sm.HasProperty(emissionColorProperty))
+                    { slot.emissPid = Shader.PropertyToID(emissionColorProperty); slot.emissName = emissionColorProperty; slot.emissFound = true; slot.emissInitial = sm.GetColor(slot.emissPid); }
                 }
 
-                _targets.Add(slot);
+                _rendererTargets.Add(slot);
             }
         }
 
-        int found = 0;
-        for (int i = 0; i < _targets.Count; i++) if (_targets[i].propertyFound) found++;
-        Log($"Bound targets: {_targets.Count} slots, {found} with color property");
+        int fb = 0, fe = 0; for (int i = 0; i < _rendererTargets.Count; i++) { if (_rendererTargets[i].baseFound) fb++; if (_rendererTargets[i].emissFound) fe++; }
+        Log($"Renderer targets: {_rendererTargets.Count} slots, base:{fb} emission:{fe}");
     }
 
-    private IEnumerator FlickerRoutine(Color flickerColor, float duration, float period)
+    private void BuildMaterialTargets()
+    {
+        _materialTargets.Clear();
+        if (explicitTargetMaterials == null || explicitTargetMaterials.Length == 0) return;
+
+        for (int i = 0; i < explicitTargetMaterials.Length; i++)
+        {
+            var m = explicitTargetMaterials[i];
+            if (!m) continue;
+
+            var slot = new MaterialSlot
+            {
+                mat = m,
+                baseFound = false,
+                emissFound = false,
+                basePid = 0,
+                emissPid = 0,
+                baseInitial = Color.white,
+                emissInitial = Color.black
+            };
+
+            if (m.HasProperty(baseColorProperty)) { slot.basePid = Shader.PropertyToID(baseColorProperty); slot.baseFound = true; slot.baseInitial = m.GetColor(slot.basePid); }
+            else if (!string.IsNullOrEmpty(baseColorFallbackProperty) && m.HasProperty(baseColorFallbackProperty)) { slot.basePid = Shader.PropertyToID(baseColorFallbackProperty); slot.baseFound = true; slot.baseInitial = m.GetColor(slot.basePid); }
+
+            if (!string.IsNullOrEmpty(emissionColorProperty) && m.HasProperty(emissionColorProperty)) { slot.emissPid = Shader.PropertyToID(emissionColorProperty); slot.emissFound = true; slot.emissInitial = m.GetColor(slot.emissPid); }
+
+            _materialTargets.Add(slot);
+        }
+
+        int fb = 0, fe = 0; for (int i = 0; i < _materialTargets.Count; i++) { if (_materialTargets[i].baseFound) fb++; if (_materialTargets[i].emissFound) fe++; }
+        Log($"Explicit materials: {_materialTargets.Count}, base:{fb} emission:{fe}");
+    }
+
+    private IEnumerator FlickerRoutine(Color flickerColor, float duration, float period, float hdrIntensity)
     {
         _isPlaying = true;
-        _activeFlickerColor = flickerColor;
+        _activeFlickerColorHDR = MultiplyHdr(flickerColor, hdrIntensity);
         _lastEvaluated = 0f;
-        Log($"Play color={flickerColor} duration={duration:0.###} period={period:0.###} mode={(useInterpolationCurve ? "Curve" : "Toggle")}");
+        Log($"Play color={flickerColor} x{hdrIntensity:0.###} duration={duration:0.###} period={period:0.###}");
+
+        CacheInitialsForRendererTargets();
+        CacheInitialsForMaterialTargets();
 
         float t0 = useUnscaledTime ? Time.unscaledTime : Time.time;
         float tEnd = t0 + duration;
-
-        CacheInitialColors();
 
         if (useInterpolationCurve)
         {
@@ -258,7 +306,8 @@ public class FlickerPlayer : MonoBehaviour
                 float cycle = Mathf.Repeat(now - t0, period) / Mathf.Max(1e-5f, period);
                 float k = Mathf.Clamp01(interpolationCurve.Evaluate(cycle));
                 _lastEvaluated = k;
-                SetAllColorsBlended(_activeFlickerColor, k);
+                ApplyToRendererTargetsBlended(_activeFlickerColorHDR, k);
+                ApplyToMaterialTargetsBlended(_activeFlickerColorHDR, k);
                 yield return null;
             }
         }
@@ -266,17 +315,23 @@ public class FlickerPlayer : MonoBehaviour
         {
             while ((useUnscaledTime ? Time.unscaledTime : Time.time) < tEnd)
             {
-                SetAllColors(flickerColor);
+                ApplyToRendererTargets(_activeFlickerColorHDR);
+                ApplyToMaterialTargets(_activeFlickerColorHDR);
                 _lastEvaluated = 1f;
                 yield return Wait(period);
 
-                RestoreToInitialOnlyOnFound();
+                RestoreRendererTargets();
+                RestoreMaterialTargets();
                 _lastEvaluated = 0f;
                 yield return Wait(period);
             }
         }
 
-        if (resetToInitialOnStop) RestoreInitialColors();
+        if (resetToInitialOnStop)
+        {
+            RestoreRendererTargets();
+            RestoreMaterialTargets();
+        }
 
         _isPlaying = false;
         _playRoutine = null;
@@ -289,34 +344,63 @@ public class FlickerPlayer : MonoBehaviour
         return useUnscaledTime ? (object)new WaitForSecondsRealtime(seconds) : new WaitForSeconds(seconds);
     }
 
-    private void CacheInitialColors()
+    private void CacheInitialsForRendererTargets()
     {
         if (useMaterialPropertyBlocks) return;
-
-        for (int i = 0; i < _targets.Count; i++)
+        for (int i = 0; i < _rendererTargets.Count; i++)
         {
-            var s = _targets[i];
-            if (!s.renderer || !s.propertyFound) continue;
-
+            var s = _rendererTargets[i];
+            if (!s.renderer) continue;
             var mats = s.renderer.materials;
             var m = (mats.Length > s.matIndex) ? mats[s.matIndex] : null;
             if (!m) continue;
-            s.initialColor = m.GetColor(s.propertyId);
-            _targets[i] = s;
+            if (s.baseFound) s.baseInitial = m.GetColor(s.basePid);
+            if (s.emissFound) s.emissInitial = m.GetColor(s.emissPid);
+            _rendererTargets[i] = s;
         }
     }
 
-    private void SetAllColors(Color c)
+    private void CacheInitialsForMaterialTargets()
     {
-        for (int i = 0; i < _targets.Count; i++)
+        for (int i = 0; i < _materialTargets.Count; i++)
         {
-            var s = _targets[i];
-            if (!s.renderer || !s.propertyFound) continue;
+            var s = _materialTargets[i];
+            var m = s.mat;
+            if (!m) continue;
+            if (s.baseFound) s.baseInitial = m.GetColor(s.basePid);
+            if (s.emissFound) s.emissInitial = m.GetColor(s.emissPid);
+            _materialTargets[i] = s;
+        }
+    }
+
+    private bool AffectBase(bool baseFound, bool emissFound, TargetSet set)
+    {
+        return (set == TargetSet.Both) || (set == TargetSet.BaseOnly) ||
+               (set == TargetSet.Auto && (!emissFound || !baseFound ? baseFound : false));
+    }
+
+    private bool AffectEmiss(bool baseFound, bool emissFound, TargetSet set)
+    {
+        return (set == TargetSet.Both) || (set == TargetSet.EmissionOnly) ||
+               (set == TargetSet.Auto && (emissFound && (baseFound || !baseFound)));
+    }
+
+    private void ApplyToRendererTargets(Color flicker)
+    {
+        for (int i = 0; i < _rendererTargets.Count; i++)
+        {
+            var s = _rendererTargets[i];
+            if (!s.renderer) continue;
+
+            bool affB = s.baseFound && AffectBase(s.baseFound, s.emissFound, targetSet);
+            bool affE = s.emissFound && AffectEmiss(s.baseFound, s.emissFound, targetSet);
+            if (!affB && !affE) continue;
 
             if (useMaterialPropertyBlocks)
             {
                 s.renderer.GetPropertyBlock(s.block, s.matIndex);
-                s.block.SetColor(s.propertyId, c);
+                if (affB) s.block.SetColor(s.basePid, flicker);
+                if (affE) s.block.SetColor(s.emissPid, flicker);
                 if (s.spriteRenderer && s.spriteTexture && !string.IsNullOrEmpty(spriteTexturePropertyName))
                     s.block.SetTexture(spriteTexturePropertyName, s.spriteTexture);
                 s.renderer.SetPropertyBlock(s.block, s.matIndex);
@@ -325,24 +409,39 @@ public class FlickerPlayer : MonoBehaviour
             {
                 var mats = s.renderer.materials;
                 if (mats.Length <= s.matIndex || mats[s.matIndex] == null) continue;
-                mats[s.matIndex].SetColor(s.propertyId, c);
+                if (affB) mats[s.matIndex].SetColor(s.basePid, flicker);
+                if (affE)
+                {
+                    if (enableEmissionKeywordWhenEditingMaterials)
+                        mats[s.matIndex].EnableKeyword("_EMISSION");
+                    mats[s.matIndex].SetColor(s.emissPid, flicker);
+                }
             }
         }
     }
 
-    private void SetAllColorsBlended(Color flicker, float blend01)
+    private void ApplyToRendererTargetsBlended(Color flicker, float k)
     {
-        for (int i = 0; i < _targets.Count; i++)
+        for (int i = 0; i < _rendererTargets.Count; i++)
         {
-            var s = _targets[i];
-            if (!s.renderer || !s.propertyFound) continue;
+            var s = _rendererTargets[i];
+            if (!s.renderer) continue;
 
-            Color c = Color.Lerp(s.initialColor, flicker, blend01);
+            bool affB = s.baseFound && AffectBase(s.baseFound, s.emissFound, targetSet);
+            bool affE = s.emissFound && AffectEmiss(s.baseFound, s.emissFound, targetSet);
+            if (!affB && !affE) continue;
+
+            Color baseOut = s.baseInitial;
+            Color emisOut = s.emissInitial;
+
+            if (affB) baseOut = (blendMode == BlendMode.AddToInitial) ? s.baseInitial + flicker * k : Color.LerpUnclamped(s.baseInitial, flicker, k);
+            if (affE) emisOut = (blendMode == BlendMode.AddToInitial) ? s.emissInitial + flicker * k : Color.LerpUnclamped(s.emissInitial, flicker, k);
 
             if (useMaterialPropertyBlocks)
             {
                 s.renderer.GetPropertyBlock(s.block, s.matIndex);
-                s.block.SetColor(s.propertyId, c);
+                if (affB) s.block.SetColor(s.basePid, baseOut);
+                if (affE) s.block.SetColor(s.emissPid, emisOut);
                 if (s.spriteRenderer && s.spriteTexture && !string.IsNullOrEmpty(spriteTexturePropertyName))
                     s.block.SetTexture(spriteTexturePropertyName, s.spriteTexture);
                 s.renderer.SetPropertyBlock(s.block, s.matIndex);
@@ -351,22 +450,32 @@ public class FlickerPlayer : MonoBehaviour
             {
                 var mats = s.renderer.materials;
                 if (mats.Length <= s.matIndex || mats[s.matIndex] == null) continue;
-                mats[s.matIndex].SetColor(s.propertyId, c);
+                if (affB) mats[s.matIndex].SetColor(s.basePid, baseOut);
+                if (affE)
+                {
+                    if (enableEmissionKeywordWhenEditingMaterials)
+                        mats[s.matIndex].EnableKeyword("_EMISSION");
+                    mats[s.matIndex].SetColor(s.emissPid, emisOut);
+                }
             }
         }
     }
 
-    private void RestoreToInitialOnlyOnFound()
+    private void RestoreRendererTargets()
     {
-        for (int i = 0; i < _targets.Count; i++)
+        for (int i = 0; i < _rendererTargets.Count; i++)
         {
-            var s = _targets[i];
-            if (!s.renderer || !s.propertyFound) continue;
+            var s = _rendererTargets[i];
+            if (!s.renderer) continue;
+
+            bool affB = s.baseFound && AffectBase(s.baseFound, s.emissFound, targetSet);
+            bool affE = s.emissFound && AffectEmiss(s.baseFound, s.emissFound, targetSet);
 
             if (useMaterialPropertyBlocks)
             {
                 s.renderer.GetPropertyBlock(s.block, s.matIndex);
-                s.block.SetColor(s.propertyId, s.initialColor);
+                if (affB) s.block.SetColor(s.basePid, s.baseInitial);
+                if (affE) s.block.SetColor(s.emissPid, s.emissInitial);
                 if (s.spriteRenderer && s.spriteTexture && !string.IsNullOrEmpty(spriteTexturePropertyName))
                     s.block.SetTexture(spriteTexturePropertyName, s.spriteTexture);
                 s.renderer.SetPropertyBlock(s.block, s.matIndex);
@@ -375,12 +484,90 @@ public class FlickerPlayer : MonoBehaviour
             {
                 var mats = s.renderer.materials;
                 if (mats.Length <= s.matIndex || mats[s.matIndex] == null) continue;
-                mats[s.matIndex].SetColor(s.propertyId, s.initialColor);
+                if (affB) mats[s.matIndex].SetColor(s.basePid, s.baseInitial);
+                if (affE) mats[s.matIndex].SetColor(s.emissPid, s.emissInitial);
             }
         }
     }
 
-    private void RestoreInitialColors() => RestoreToInitialOnlyOnFound();
+    private void ApplyToMaterialTargets(Color flicker)
+    {
+        if (!editSharedMaterialAssets) return;
+
+        for (int i = 0; i < _materialTargets.Count; i++)
+        {
+            var s = _materialTargets[i];
+            if (!s.mat) continue;
+
+            bool affB = s.baseFound && AffectBase(s.baseFound, s.emissFound, explicitMaterialsTargetSet);
+            bool affE = s.emissFound && AffectEmiss(s.baseFound, s.emissFound, explicitMaterialsTargetSet);
+            if (!affB && !affE) continue;
+
+            if (affB) s.mat.SetColor(s.basePid, flicker);
+            if (affE)
+            {
+                if (enableEmissionKeywordWhenEditingMaterials)
+                    s.mat.EnableKeyword("_EMISSION");
+                s.mat.SetColor(s.emissPid, flicker);
+            }
+        }
+    }
+
+    private void ApplyToMaterialTargetsBlended(Color flicker, float k)
+    {
+        if (!editSharedMaterialAssets) return;
+
+        for (int i = 0; i < _materialTargets.Count; i++)
+        {
+            var s = _materialTargets[i];
+            if (!s.mat) continue;
+
+            bool affB = s.baseFound && AffectBase(s.baseFound, s.emissFound, explicitMaterialsTargetSet);
+            bool affE = s.emissFound && AffectEmiss(s.baseFound, s.emissFound, explicitMaterialsTargetSet);
+            if (!affB && !affE) continue;
+
+            if (affB)
+            {
+                var c = (blendMode == BlendMode.AddToInitial) ? s.baseInitial + flicker * k : Color.LerpUnclamped(s.baseInitial, flicker, k);
+                s.mat.SetColor(s.basePid, c);
+            }
+            if (affE)
+            {
+                var c = (blendMode == BlendMode.AddToInitial) ? s.emissInitial + flicker * k : Color.LerpUnclamped(s.emissInitial, flicker, k);
+                s.mat.EnableKeyword("_EMISSION");
+                s.mat.SetColor(s.emissPid, c);
+            }
+        }
+    }
+
+    private void RestoreMaterialTargets()
+    {
+        if (!editSharedMaterialAssets) return;
+
+        for (int i = 0; i < _materialTargets.Count; i++)
+        {
+            var s = _materialTargets[i];
+            if (!s.mat) continue;
+
+            bool affB = s.baseFound && AffectBase(s.baseFound, s.emissFound, explicitMaterialsTargetSet);
+            bool affE = s.emissFound && AffectEmiss(s.baseFound, s.emissFound, explicitMaterialsTargetSet);
+
+            if (affB) s.mat.SetColor(s.basePid, s.baseInitial);
+            if (affE) s.mat.SetColor(s.emissPid, s.emissInitial);
+        }
+    }
+
+    private static Color MultiplyHdr(Color c, float intensity)
+    {
+        float k = Mathf.Max(0f, intensity);
+        return new Color(c.r * k, c.g * k, c.b * k, c.a);
+    }
+
+    private void RestoreToInitial()
+    {
+        RestoreRendererTargets();
+        RestoreMaterialTargets();
+    }
 
     private void Log(string msg)
     {
@@ -390,15 +577,22 @@ public class FlickerPlayer : MonoBehaviour
 
 #if UNITY_EDITOR
     [ContextMenu("Flicker/Rebuild Targets Now")]
-    private void RebuildTargetsNow() => BuildTargetList();
+    private void RebuildTargetsNow()
+    {
+        BuildRendererTargets();
+        BuildMaterialTargets();
+    }
 
     private void OnValidate()
     {
         if (interpolationCurve == null || interpolationCurve.length == 0)
             interpolationCurve = AnimationCurve.EaseInOut(0, 0, 1, 0);
 
+        flickerHdrIntensity = Mathf.Max(0f, flickerHdrIntensity);
+
         if (materialIndexes == null || materialIndexes.Length == 0) materialIndexes = new[] { 0 };
-        if (targetRenderers != null && targetRenderers.Length > 0) BuildTargetList();
+        if (targetRenderers != null && targetRenderers.Length > 0) BuildRendererTargets();
+        if (explicitTargetMaterials != null && explicitTargetMaterials.Length > 0) BuildMaterialTargets();
     }
 
     private void OnDrawGizmos()
@@ -413,17 +607,6 @@ public class FlickerPlayer : MonoBehaviour
         Gizmos.DrawLine(a, b);
         Vector3 f = Vector3.Lerp(a, b, Mathf.Clamp01(_lastEvaluated));
         Gizmos.DrawLine(a, f);
-
-        if (targetRenderers != null)
-        {
-            Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.8f);
-            foreach (var r in targetRenderers)
-            {
-                if (!r) continue;
-                var bb = r.bounds;
-                Gizmos.DrawWireCube(bb.center, bb.size);
-            }
-        }
     }
 #endif
 }

@@ -25,6 +25,10 @@ namespace Game.LevelElements.Terminal
         [SerializeField, Tooltip("Targets that receive ON/OFF notifications.")]
         private ObserverComponent[] observers;
 
+        [Header("Feedbacks")] 
+        [SerializeField] private FloatingTextFeedback floatingTextFeedback;
+        [SerializeField] private FlickerPlayer flickerPlayer;
+        
         [Header("Debug")]
         [SerializeField, Tooltip("If enabled, prints detailed logs.")]
         private bool isDebugLoggingEnabled = false;
@@ -88,7 +92,10 @@ namespace Game.LevelElements.Terminal
                     arg = _state ? ON_ARGUMENT : OFF_ARGUMENT;
                     break;
             }
-
+            
+            flickerPlayer.FlickerPlay();
+            floatingTextFeedback.Play();
+            
             Log($"Notify {arg.ToUpper()}");
             NotifyAll(arg);
 

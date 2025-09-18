@@ -243,8 +243,7 @@ MonoBehaviour:
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
-  m_Cameras:
-  - {fileID: 0}
+  m_Cameras: []
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
@@ -337,6 +336,7 @@ GameObject:
   - component: {fileID: 3774079342737243947}
   - component: {fileID: 3466159495220975656}
   - component: {fileID: 6362299411040702279}
+  - component: {fileID: 4696194288907274739}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -416,6 +416,19 @@ MonoBehaviour:
   invertVertical: 0
   sensibility: 0.3
   smoothing: 10
+--- !u!114 &4696194288907274739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5651442536809730049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9467b78b847405785d9008054954030, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  magnitudeScale: {x: 1, y: 1, z: 0}
 --- !u!1 &6245434462715429995
 GameObject:
   m_ObjectHideFlags: 0
