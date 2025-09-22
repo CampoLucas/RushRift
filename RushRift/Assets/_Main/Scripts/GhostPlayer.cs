@@ -20,15 +20,23 @@ public class GhostPlayer : MonoBehaviour
     [SerializeField, Tooltip("Offset applied to the recorded positions.")]
     private Vector3 worldPositionOffset = Vector3.zero;
 
+    [Header("Start Alignment")]
+    [SerializeField, Tooltip("If enabled, the ghost’s first frame will be aligned to the Player’s current position on load.")]
+    private bool alignGhostStartToPlayer = true;
+    [SerializeField, Tooltip("Tag to find the Player for start alignment.")]
+    private string playerTagForAlignment = "Player";
+    [SerializeField, Tooltip("Max distance allowed to auto-align. Prevents weird teleports if spawn points differ a lot.")]
+    private float maxStartAlignDistance = 0.5f;
+    
     [Header("Playback")]
     [SerializeField, Tooltip("Start playback automatically on enable if a ghost is available.")]
     private bool beginPlaybackOnEnable = true;
     [SerializeField, Tooltip("Playback speed multiplier.")]
     private float playbackSpeed = 1f;
     [SerializeField, Tooltip("Loop playback when the end is reached.")]
-    private bool loopPlayback = false;
+    private bool loopPlayback;
     [SerializeField, Tooltip("Use unscaled time for playback.")]
-    private bool useUnscaledTime = false;
+    private bool useUnscaledTime;
 
     [Header("Interpolation")]
     [SerializeField, Tooltip("How positions are interpolated between recorded frames.")]
@@ -62,7 +70,7 @@ public class GhostPlayer : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField, Tooltip("If enabled, prints detailed logs.")]
-    private bool isDebugLoggingEnabled = false;
+    private bool isDebugLoggingEnabled;
     [SerializeField, Tooltip("Draw gizmos for the path.")]
     private bool drawGizmos = true;
     [SerializeField, Tooltip("Max segments to draw.")]
@@ -86,9 +94,8 @@ public class GhostPlayer : MonoBehaviour
     private Vector3 smoothedPos;
     private Vector3 smoothedPosVel;
     private Quaternion smoothedRot = Quaternion.identity;
-
-    // Read gizmo fields once so they count as "used" in builds
     private bool _suppressBuildWarnings;
+    
     private void Awake()
     {
         _suppressBuildWarnings |= drawGizmos && gizmoMaxSegments >= 0;
@@ -137,15 +144,37 @@ public class GhostPlayer : MonoBehaviour
 
         ApplyPoseAtTime(playbackTime, dt);
     }
+    
+    private void AutoAlignToPlayerStartIfNeeded()
+    {
+        if (!alignGhostStartToPlayer || !HasValidRun()) return;
+
+        var player = GameObject.FindGameObjectWithTag(playerTagForAlignment);
+        if (!player) return;
+
+        var first = loadedRun.frames[0].position;
+        var desired = player.transform.position;
+        Vector3 delta = desired - (first + worldPositionOffset);
+
+        if (delta.sqrMagnitude <= maxStartAlignDistance * maxStartAlignDistance)
+        {
+            worldPositionOffset += delta;
+            smoothedPos = first + worldPositionOffset;
+            if (ghostTransform) ghostTransform.position = smoothedPos;
+            Log($"Auto-aligned ghost start by {delta.magnitude:0.###}m");
+        }
+    }
 
     private void OnPauseChanged(bool paused)
     {
         if (!obeyPauseEvents) return;
+        
         if (paused)
         {
             wasPlayingBeforePause = isPlaying;
             if (isPlaying) Pause();
         }
+        
         else
         {
             if (wasPlayingBeforePause && HasValidRun()) Play();
@@ -156,6 +185,7 @@ public class GhostPlayer : MonoBehaviour
     {
         GhostRecorder.GhostRunData data;
         string path;
+        
         if (GhostRecorder.TryLoadBestGhostForCurrentLevel(out data, out path))
         {
             loadedRun = data;
@@ -163,18 +193,21 @@ public class GhostPlayer : MonoBehaviour
             CachePositions();
             TrySpawnGhostVisualIfNeeded();
 
+            AutoAlignToPlayerStartIfNeeded();
+
             var f0 = loadedRun.frames[0];
             smoothedPos = f0.position + worldPositionOffset;
             smoothedRot = f0.rotation;
 
             Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) from: {debugLoadedGhostPath}");
         }
+        
         else
         {
             loadedRun = null;
             cachedPositions.Clear();
             debugLoadedGhostPath = "";
-            Log($"No BEST ghost found for level {SceneManager.GetActiveScene().buildIndex}");
+            Log($"No BEST ghost found for level {UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex}");
         }
 
         nextFrameIndex = 1;
@@ -243,6 +276,7 @@ public class GhostPlayer : MonoBehaviour
             ghostTransform = go.transform;
             Log("Spawned ghost visual prefab");
         }
+        
         else
         {
             ghostTransform = transform;
@@ -278,6 +312,7 @@ public class GhostPlayer : MonoBehaviour
             cachedRenderers.AddRange(GetComponentsInChildren<Renderer>(true));
             cachedParticles.AddRange(GetComponentsInChildren<ParticleSystem>(true));
         }
+        
         else
         {
             cachedRenderers.AddRange(ghostTransform.GetComponentsInChildren<Renderer>(true));
@@ -313,6 +348,7 @@ public class GhostPlayer : MonoBehaviour
         float u = Mathf.Clamp01((t - f0.time) / span);
 
         Vector3 rawPos;
+        
         if (positionInterpolation == PositionInterpolationMode.CatmullRom && count >= 4)
         {
             int im1 = Mathf.Max(0, i0 - 1);
@@ -345,8 +381,9 @@ public class GhostPlayer : MonoBehaviour
             float h01 = -2f*u3 + 3f*u2;
             float h11 =      u3 -     u2;
 
-            rawPos = h00 * p0 + h10 * (span * m0) + h01 * p1 + h11 * (span * m1);
+            rawPos = h00 * p0 + m0 * (h10 * span) + h01 * p1 + m1 * (h11 * span);
         }
+        
         else
         {
             rawPos = Vector3.Lerp(f0.position, f1.position, u);
@@ -369,6 +406,7 @@ public class GhostPlayer : MonoBehaviour
                 ? Quaternion.LookRotation(v.normalized, Vector3.up)
                 : Quaternion.Slerp(f0.rotation, f1.rotation, u);
         }
+        
         else
         {
             rawRot = ghostTransform.rotation;
@@ -396,8 +434,7 @@ public class GhostPlayer : MonoBehaviour
         if (!isDebugLoggingEnabled) return;
         Debug.Log($"[GhostPlayer] {name}: {msg}", this);
     }
-
-    // Always-compiled cache helper (fixes build error)
+    
     private void CachePositions()
     {
         cachedPositions.Clear();
