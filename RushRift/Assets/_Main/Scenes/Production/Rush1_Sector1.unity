@@ -23799,7 +23799,17 @@ MonoBehaviour:
   autoLoadOnEnable: 1
   ghostVisualPrefab: {fileID: 6749424264282746718, guid: 93bda730e915353409f6b642d50abb99, type: 3}
   parentGhostUnderThis: 1
-  worldPositionOffset: {x: 0, y: 0.5, z: 0}
+  worldPositionOffset: {x: 0, y: 0.8, z: 0}
+  enableProximityFade: 1
+  proximityFadeMaterial: {fileID: 2100000, guid: 61da4802d228d944d9f3166e649494a9, type: 2}
+  alphaWhenClose: 0.01
+  alphaWhenFar: 0.2
+  fadeMinDistance: 20
+  fadeMaxDistance: 40
+  playerTagForFade: Player
+  alignGhostStartToPlayer: 1
+  playerTagForAlignment: Player
+  maxStartAlignDistance: 0.5
   beginPlaybackOnEnable: 1
   playbackSpeed: 1
   loopPlayback: 0
@@ -23808,8 +23818,8 @@ MonoBehaviour:
   rotationMode: 0
   faceVelocityMinSpeed: 0.05
   applyOutputSmoothing: 1
-  positionSmoothTimeSeconds: 0.01
-  rotationSmoothTimeSeconds: 0.01
+  positionSmoothTimeSeconds: 0.04
+  rotationSmoothTimeSeconds: 0.06
   initialGhostVisible: 1
   toggleVisibilityKey: 103
   obeyPauseEvents: 1
@@ -23835,7 +23845,7 @@ MonoBehaviour:
   startRecordingOnEnable: 1
   recordAtFixedUpdate: 1
   minFrameIntervalSeconds: 0.02
-  minPositionDeltaMeters: 0.005
+  minPositionDeltaMeters: 0.002
   minRotationDeltaDegrees: 0.5
   maxRecordedFrames: 0
   obeyPauseEvents: 1
@@ -66962,27 +66972,6 @@ MonoBehaviour:
   drawGizmos: 1
   gizmoPlayingColor: {r: 0.2, g: 0.9, b: 1, a: 0.9}
   gizmoIdleColor: {r: 0.2, g: 1, b: 0.6, a: 0.9}
---- !u!114 &1433812808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1433812803}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47880d78b39518545b5a5eb276d603a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  persistAcrossScenes: 1
-  respectGlobalPause: 1
-  defaultFreezeDurationSeconds: 0.02
-  frozenTimeScale: 0
-  minimumTimescaleThreshold: 0.1
-  restoreRampSeconds: 0.08
-  testKey: 0
-  isDebugLoggingEnabled: 0
-  drawGizmos: 1
 --- !u!1001 &1437275324
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68695,7 +68684,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.027700463
+      value: 0.019780364
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x
@@ -88825,6 +88814,59 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2237167428214565825, guid: 48abd2a89235ced4086d858f2a60d0ec, type: 3}
+--- !u!1 &2071835254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2071835256}
+  - component: {fileID: 2071835255}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2071835255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2071835254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47880d78b39518545b5a5eb276d603a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  persistAcrossScenes: 1
+  respectGlobalPause: 1
+  defaultFreezeDurationSeconds: 0.02
+  frozenTimeScale: 0
+  minimumTimescaleThreshold: 0.1
+  restoreRampSeconds: 0.08
+  testKey: 0
+  isDebugLoggingEnabled: 0
+  drawGizmos: 1
+--- !u!4 &2071835256
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2071835254}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2085870043
 GameObject:
   m_ObjectHideFlags: 0
@@ -93070,9 +93112,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8910460703973626280, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1433812806}
-    - targetCorrespondingSourceObject: {fileID: 8910460703973626280, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1433812808}
   m_SourcePrefab: {fileID: 100100000, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
 --- !u!4 &1381847364611171130 stripped
 Transform:
@@ -95155,3 +95194,4 @@ SceneRoots:
   - {fileID: 82579192}
   - {fileID: 261522233}
   - {fileID: 1339435570}
+  - {fileID: 2071835256}
