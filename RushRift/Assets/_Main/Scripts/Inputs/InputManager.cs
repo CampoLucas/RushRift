@@ -61,13 +61,6 @@ namespace Game.Inputs
             }
         }
 
-        private void OnEnable()
-        {
-            if (_playerControls == null) _playerControls = new();
-            _playerControls.Enable();
-            ApplyCursorState();
-        }
-
         private void OnDisable()
         {
             if (_playerControls == null) return;
@@ -76,13 +69,66 @@ namespace Game.Inputs
             Cursor.visible = true;
         }
 
-        private void OnApplicationFocus(bool hasFocus)
+        private void OnEnable()
         {
-            if (hasFocus) ApplyCursorState();
-            else
+            if (_playerControls == null) _playerControls = new();
+            _playerControls.Enable();
+
+            if (!Application.isFocused)
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                return;
+            }
+
+            if (PauseEventBus.IsPaused)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
+            else
+            {
+                ApplyCursorState();
+            }
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                return;
+            }
+
+            if (PauseEventBus.IsPaused)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
+            else
+            {
+                ApplyCursorState();
+            }
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                return;
+            }
+
+            if (PauseEventBus.IsPaused)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
+            else
+            {
+                ApplyCursorState();
             }
         }
 
