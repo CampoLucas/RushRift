@@ -19,6 +19,22 @@ public class GhostPlayer : MonoBehaviour
     private bool parentGhostUnderThis = true;
     [SerializeField, Tooltip("Offset applied to the recorded positions.")]
     private Vector3 worldPositionOffset = Vector3.zero;
+    
+    [Header("Proximity Fade")]
+    [SerializeField, Tooltip("Enable fading the ghost based on distance to the Player.")]
+    private bool enableProximityFade = true;
+    [SerializeField, Tooltip("Material to fade (URP Lit set to Transparent).")]
+    private Material proximityFadeMaterial;
+    [SerializeField, Tooltip("Base color alpha at min distance (closest). 0 = fully transparent, 1 = fully opaque.")]
+    [Range(0f, 1f)] private float alphaWhenClose = 0.15f;
+    [SerializeField, Tooltip("Base color alpha at max distance (farthest). 0 = fully transparent, 1 = fully opaque.")]
+    [Range(0f, 1f)] private float alphaWhenFar = 0.85f;
+    [SerializeField, Tooltip("Distance at which the ghost is considered close.")]
+    private float fadeMinDistance = 0.5f;
+    [SerializeField, Tooltip("Distance at which the ghost is considered far.")]
+    private float fadeMaxDistance = 12f;
+    [SerializeField, Tooltip("Player tag used to measure proximity.")]
+    private string playerTagForFade = "Player";
 
     [Header("Start Alignment")]
     [SerializeField, Tooltip("If enabled, the ghost’s first frame will be aligned to the Player’s current position on load.")]
@@ -91,6 +107,11 @@ public class GhostPlayer : MonoBehaviour
     private readonly List<ParticleSystem> cachedParticles = new();
     private bool wasPlayingBeforePause;
 
+    private Transform _playerForFade;
+    private int _baseColorId = 0;
+    private int _colorId = 0;
+    private bool _fadeIdsReady;
+    
     private Vector3 smoothedPos;
     private Vector3 smoothedPosVel;
     private Quaternion smoothedRot = Quaternion.identity;
@@ -142,6 +163,7 @@ public class GhostPlayer : MonoBehaviour
             else { playbackTime = dur; ApplyPoseAtTime(dur, dt); Pause(); return; }
         }
 
+        UpdateProximityFade();
         ApplyPoseAtTime(playbackTime, dt);
     }
     
@@ -320,6 +342,44 @@ public class GhostPlayer : MonoBehaviour
         }
     }
 
+    private void UpdateProximityFade()
+    {
+        if (!enableProximityFade || proximityFadeMaterial == null) return;
+
+        if (!_fadeIdsReady)
+        {
+            _baseColorId = Shader.PropertyToID("_BaseColor");
+            _colorId     = Shader.PropertyToID("_Color");
+            _fadeIdsReady = true;
+        }
+
+        if (_playerForFade == null)
+        {
+            var go = GameObject.FindGameObjectWithTag(string.IsNullOrEmpty(playerTagForFade) ? "Player" : playerTagForFade);
+            if (go) _playerForFade = go.transform;
+            if (_playerForFade == null) return;
+        }
+
+        var ghostPos = (ghostTransform ? ghostTransform.position : transform.position);
+        float dist = Vector3.Distance(ghostPos, _playerForFade.position);
+        float t = Mathf.InverseLerp(fadeMinDistance, fadeMaxDistance, dist);
+        float alpha = Mathf.Lerp(alphaWhenClose, alphaWhenFar, t);
+
+        // Try URP Lit first (_BaseColor), then legacy (_Color)
+        if (proximityFadeMaterial.HasProperty(_baseColorId))
+        {
+            var c = proximityFadeMaterial.GetColor(_baseColorId);
+            c.a = alpha;
+            proximityFadeMaterial.SetColor(_baseColorId, c);
+        }
+        else if (proximityFadeMaterial.HasProperty(_colorId))
+        {
+            var c = proximityFadeMaterial.GetColor(_colorId);
+            c.a = alpha;
+            proximityFadeMaterial.SetColor(_colorId, c);
+        }
+    }
+    
     private bool HasValidRun()
     {
         return loadedRun != null && loadedRun.frames != null && loadedRun.frames.Count >= 2 && loadedRun.durationSeconds > 0f;
