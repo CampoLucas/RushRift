@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,20 +9,30 @@ public class LockOnBlink : MonoBehaviour
     public enum LockStartMode { Automatic, OnKeyHold, OnKeyPress }
 
     [Header("Lock Start Mode")]
-    [SerializeField, Tooltip("Automatic: lock charges when a target is in sight. OnKeyHold: charge while holding Lock Key. OnKeyPress: toggle charge on key press.")]
-    private LockStartMode lockStartMode = LockStartMode.Automatic;
+    [SerializeField, Tooltip("Automatic: lock charges when a target is in sight. OnKeyHold: hold Lock Key to charge; release to blink. OnKeyPress: toggle charge on key press.")]
+    private LockStartMode lockStartMode = LockStartMode.OnKeyHold;
 
     [Header("Keys")]
-    [SerializeField, Tooltip("Key used to start/stop charging in manual modes (OnKeyHold / OnKeyPress).")]
-    private KeyCode lockKey = KeyCode.Mouse1;
-    [SerializeField, Tooltip("Key used to teleport once lock is ready.")]
+    [SerializeField, Tooltip("Lock key. In OnKeyHold, holding this charges and releasing it attempts the blink (single key flow).")]
+    private KeyCode lockKey = KeyCode.F;
+    [SerializeField, Tooltip("Blink key used in Automatic / OnKeyPress modes. Ignored in OnKeyHold.")]
     private KeyCode blinkKey = KeyCode.F;
 
     [Header("Cooldown & Time")]
     [SerializeField, Tooltip("Cooldown between blinks in seconds.")]
     private float cooldownSeconds = 1f;
-    [SerializeField, Tooltip("Time system used for lock, UI, and cooldown.")]
+    [SerializeField, Tooltip("Time system for general timing (except optional unscaled during slow-mo lock below).")]
     private TimeMode timeMode = TimeMode.Scaled;
+
+    [Header("Slow Motion While Locking")]
+    [SerializeField, Tooltip("If enabled, time slows while the lock is charging.")]
+    private bool slowTimeWhileCharging = true;
+    [SerializeField, Tooltip("Time.timeScale while charging (e.g. 0.15–0.3).")]
+    private float slowTimeScale = 0.2f;
+    [SerializeField, Tooltip("Also scale FixedDeltaTime while slowed to keep physics stable.")]
+    private bool adjustFixedDeltaWhileSlowed = true;
+    [SerializeField, Tooltip("Use Unscaled time for the lock timer while slowed so the progress bar fills consistently.")]
+    private bool useUnscaledForLockTimerWhenSlowed = true;
 
     [Header("Targeting")]
     [SerializeField, Tooltip("Camera used to aim the lock. If empty, main camera is used.")]
@@ -82,8 +91,24 @@ public class LockOnBlink : MonoBehaviour
     private RaycastHit[] _hitsBuffer;
     private Camera _aimCam;
 
+    private bool _slowMoActive;
+
+    private static int s_slowMoOwners;
+    private static float s_originalTimeScale = 1f;
+    private static float s_originalFixedDelta = 0.02f;
+    private static bool s_originalCaptured;
+
     private float Now => timeMode == TimeMode.Unscaled ? Time.unscaledTime : Time.time;
-    private float Dt  => timeMode == TimeMode.Unscaled ? Time.unscaledDeltaTime : Time.deltaTime;
+
+    private float Dt
+    {
+        get
+        {
+            if (slowTimeWhileCharging && _slowMoActive && useUnscaledForLockTimerWhenSlowed)
+                return Time.unscaledDeltaTime;
+            return timeMode == TimeMode.Unscaled ? Time.unscaledDeltaTime : Time.deltaTime;
+        }
+    }
 
     private void Awake()
     {
@@ -111,6 +136,7 @@ public class LockOnBlink : MonoBehaviour
     private void OnDisable()
     {
         ResetLockState(true);
+        ReleaseSlowMoIfOwned();
     }
 
     private void Update()
@@ -118,8 +144,19 @@ public class LockOnBlink : MonoBehaviour
         HandleChargingInput();
         TickLocking();
 
-        if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey))
-            TryPerformBlink();
+        if (lockStartMode == LockStartMode.OnKeyHold)
+        {
+            if (lockKey != KeyCode.None && Input.GetKeyUp(lockKey))
+            {
+                if (_readyToBlink) { TryPerformBlink(); }
+                else { ResetLockState(true); ReleaseSlowMoIfOwned(); }
+            }
+        }
+        else
+        {
+            if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey))
+                TryPerformBlink();
+        }
     }
 
     private void HandleChargingInput()
@@ -131,22 +168,40 @@ public class LockOnBlink : MonoBehaviour
                 break;
 
             case LockStartMode.OnKeyHold:
-                _chargingActive = (lockKey == KeyCode.None) ? false : Input.GetKey(lockKey);
-                if (!_chargingActive) ResetLockState();
+            {
+                if (lockKey == KeyCode.None) { _chargingActive = false; return; }
+                bool isDown = Input.GetKey(lockKey);
+                bool isUpThisFrame = Input.GetKeyUp(lockKey);
+                _chargingActive = isDown || isUpThisFrame; // keep active on release frame so blink can trigger
                 break;
+            }
 
             case LockStartMode.OnKeyPress:
                 if (lockKey != KeyCode.None && Input.GetKeyDown(lockKey))
                     _chargingActive = !_chargingActive;
-                if (!_chargingActive) ResetLockState();
+                if (!_chargingActive) { ResetLockState(); ReleaseSlowMoIfOwned(); }
                 break;
         }
     }
 
     private void TickLocking()
     {
-        if (Now < _cooldownUntil) { ResetLockState(); return; }
-        if (!_chargingActive) return;
+        if (Now < _cooldownUntil)
+        {
+            ResetLockState();
+            ReleaseSlowMoIfOwned();
+            return;
+        }
+
+        if (!_chargingActive)
+        {
+            if (lockStartMode != LockStartMode.OnKeyHold)
+            {
+                ResetLockState();
+                ReleaseSlowMoIfOwned();
+            }
+            return;
+        }
 
         var target = AcquireTarget();
         _currentTarget = target;
@@ -154,8 +209,11 @@ public class LockOnBlink : MonoBehaviour
         if (!target)
         {
             ResetLockState();
+            ReleaseSlowMoIfOwned();
             return;
         }
+
+        if (slowTimeWhileCharging && !_slowMoActive) AcquireSlowMo();
 
         if (_chargingTarget != target)
         {
@@ -188,7 +246,7 @@ public class LockOnBlink : MonoBehaviour
     private void TryPerformBlink()
     {
         if (!_readyToBlink) { Log("Blink ignored: lock not ready"); return; }
-        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(); return; }
+        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(true); ReleaseSlowMoIfOwned(); return; }
         if (Now < _cooldownUntil) { Log("Blink ignored: on cooldown"); return; }
 
         PerformBlink(_currentTarget);
@@ -197,7 +255,8 @@ public class LockOnBlink : MonoBehaviour
         if (lockStartMode != LockStartMode.Automatic)
             _chargingActive = false;
 
-        ResetLockState();
+        ResetLockState(true);
+        ReleaseSlowMoIfOwned();
     }
 
     private void PerformBlink(Transform target)
@@ -271,14 +330,49 @@ public class LockOnBlink : MonoBehaviour
                 }
             }
 
-            if (h.distance < bestDist)
-            {
-                bestDist = h.distance;
-                best = tr;
-            }
+            if (h.distance < bestDist) { bestDist = h.distance; best = tr; }
         }
 
         return best;
+    }
+
+    private void AcquireSlowMo()
+    {
+        if (_slowMoActive) return;
+        if (!s_originalCaptured)
+        {
+            s_originalCaptured = true;
+            s_originalTimeScale = Time.timeScale;
+            s_originalFixedDelta = Time.fixedDeltaTime;
+        }
+
+        s_slowMoOwners++;
+        _slowMoActive = true;
+
+        Time.timeScale = Mathf.Clamp(slowTimeScale, 0.01f, 1f);
+        if (adjustFixedDeltaWhileSlowed)
+            Time.fixedDeltaTime = s_originalFixedDelta * Time.timeScale;
+
+        Log($"SlowMo ON (owners={s_slowMoOwners}, scale={Time.timeScale:0.###})");
+    }
+
+    private void ReleaseSlowMoIfOwned()
+    {
+        if (!_slowMoActive) return;
+        _slowMoActive = false;
+        s_slowMoOwners = Mathf.Max(0, s_slowMoOwners - 1);
+
+        if (s_slowMoOwners == 0)
+        {
+            Time.timeScale = s_originalTimeScale;
+            if (adjustFixedDeltaWhileSlowed)
+                Time.fixedDeltaTime = s_originalFixedDelta;
+            Log("SlowMo OFF (restored original scales)");
+        }
+        else
+        {
+            Log($"SlowMo owner released (owners remaining={s_slowMoOwners})");
+        }
     }
 
     private static bool IsChildOf(Transform child, Transform potentialParent)
@@ -321,9 +415,7 @@ public class LockOnBlink : MonoBehaviour
         }
 
         if (_lastBlinkDestination != default)
-        {
             Gizmos.DrawWireCube(_lastBlinkDestination, Vector3.one * 0.2f);
-        }
     }
 #endif
 }

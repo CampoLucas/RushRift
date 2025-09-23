@@ -69045,7 +69045,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.005108794
+      value: -0.009834541
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x
@@ -95613,11 +95613,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 608f0d7885deb1f4f9701f34f2e11adb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationKey: 102
+  lockStartMode: 1
+  lockKey: 102
+  blinkKey: 102
   cooldownSeconds: 1
   timeMode: 0
+  slowTimeWhileCharging: 1
+  slowTimeScale: 0.2
+  adjustFixedDeltaWhileSlowed: 1
+  useUnscaledForLockTimerWhenSlowed: 1
   aimCameraTransform: {fileID: 1381847364611171131}
-  maxLockDistance: 5000
+  maxLockDistance: 10000
   lockSphereRadius: 4
   targetLayers:
     serializedVersion: 2
