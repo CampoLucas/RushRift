@@ -69045,7 +69045,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.009834541
+      value: -0.029131891
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x
@@ -95624,14 +95624,39 @@ MonoBehaviour:
   useUnscaledForLockTimerWhenSlowed: 1
   aimCameraTransform: {fileID: 1381847364611171131}
   maxLockDistance: 10000
-  lockSphereRadius: 4
+  lockSphereRadius: 8
+  lockSphereRadiusWhileCharging: 15
+  lockRadiusRamp:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   targetLayers:
     serializedVersion: 2
     m_Bits: 512
   requiredTargetTag: Enemy
   requireLineOfSight: 1
   spherecastMaxHits: 64
-  lockOnTimeSeconds: 0.3
+  lockOnTimeSeconds: 0.8
   destinationOffset: {x: 0, y: 0, z: -1.25}
   destinationOffsetSpace: 1
   snapRotationToTarget: 1

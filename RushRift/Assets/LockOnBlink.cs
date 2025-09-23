@@ -39,8 +39,14 @@ public class LockOnBlink : MonoBehaviour
     private Transform aimCameraTransform;
     [SerializeField, Tooltip("Maximum distance to acquire a target.")]
     private float maxLockDistance = 60f;
-    [SerializeField, Tooltip("Radius of the spherecast used to acquire a target from the center of the screen.")]
+
+    [SerializeField, Tooltip("Base radius of the spherecast used to acquire a target from the center of the screen.")]
     private float lockSphereRadius = 0.35f;
+    [SerializeField, Tooltip("Radius to reach while charging the lock (ramped from base to this value).")]
+    private float lockSphereRadiusWhileCharging = 0.6f;
+    [SerializeField, Tooltip("How the lock sphere radius ramps from base to the charging value over the lock time.")]
+    private AnimationCurve lockRadiusRamp = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     [SerializeField, Tooltip("Targets must be on these layers.")]
     private LayerMask targetLayers = ~0;
     [SerializeField, Tooltip("Optional tag filter. Leave empty to ignore tags.")]
@@ -65,8 +71,10 @@ public class LockOnBlink : MonoBehaviour
     [Header("UI")]
     [SerializeField, Tooltip("Optional UI slider to visualize lock progress (0..1).")]
     private Slider lockOnProgressSlider;
-    [SerializeField, Tooltip("If true, automatically show the slider during lock and hide it otherwise.")]
+    [SerializeField, Tooltip("If true, show the slider during lock and hide it otherwise.")]
     private bool autoShowHideSlider = true;
+    [SerializeField, Tooltip("Keep the slider visible for a short grace after losing target/charging to prevent flicker.")]
+    private float uiVisibilityGraceSeconds = 0.15f;
 
     [Header("State & References")]
     [SerializeField, Tooltip("Optional explicit reference to a Rigidbody on the player.")]
@@ -98,6 +106,9 @@ public class LockOnBlink : MonoBehaviour
     private static float s_originalFixedDelta = 0.02f;
     private static bool s_originalCaptured;
 
+    private bool _sliderVisible;
+    private float _uiHideAtTime;
+
     private float Now => timeMode == TimeMode.Unscaled ? Time.unscaledTime : Time.time;
 
     private float Dt
@@ -112,11 +123,7 @@ public class LockOnBlink : MonoBehaviour
 
     private void Awake()
     {
-        if (!aimCameraTransform)
-        {
-            var cam = Camera.main;
-            if (cam) aimCameraTransform = cam.transform;
-        }
+        if (!aimCameraTransform) { var cam = Camera.main; if (cam) aimCameraTransform = cam.transform; }
         _aimCam = aimCameraTransform ? aimCameraTransform.GetComponent<Camera>() : null;
 
         if (!playerRigidbody) playerRigidbody = GetComponent<Rigidbody>();
@@ -129,7 +136,7 @@ public class LockOnBlink : MonoBehaviour
             lockOnProgressSlider.minValue = 0f;
             lockOnProgressSlider.maxValue = 1f;
             lockOnProgressSlider.value = 0f;
-            if (autoShowHideSlider) lockOnProgressSlider.gameObject.SetActive(false);
+            if (autoShowHideSlider) SetSliderVisible(false);
         }
     }
 
@@ -137,6 +144,7 @@ public class LockOnBlink : MonoBehaviour
     {
         ResetLockState(true);
         ReleaseSlowMoIfOwned();
+        SetSliderVisible(false);
     }
 
     private void Update()
@@ -144,6 +152,7 @@ public class LockOnBlink : MonoBehaviour
         HandleChargingInput();
         TickLocking();
 
+        // OnKeyHold: release → blink
         if (lockStartMode == LockStartMode.OnKeyHold)
         {
             if (lockKey != KeyCode.None && Input.GetKeyUp(lockKey))
@@ -157,6 +166,10 @@ public class LockOnBlink : MonoBehaviour
             if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey))
                 TryPerformBlink();
         }
+
+        // Handle delayed hide to avoid flicker
+        if (_sliderVisible && autoShowHideSlider && _uiHideAtTime > 0f && Now >= _uiHideAtTime)
+            SetSliderVisible(false);
     }
 
     private void HandleChargingInput()
@@ -179,7 +192,7 @@ public class LockOnBlink : MonoBehaviour
             case LockStartMode.OnKeyPress:
                 if (lockKey != KeyCode.None && Input.GetKeyDown(lockKey))
                     _chargingActive = !_chargingActive;
-                if (!_chargingActive) { ResetLockState(); ReleaseSlowMoIfOwned(); }
+                if (!_chargingActive) { ResetLockState(); ReleaseSlowMoIfOwned(); BeginSliderGraceHide(); }
                 break;
         }
     }
@@ -190,6 +203,7 @@ public class LockOnBlink : MonoBehaviour
         {
             ResetLockState();
             ReleaseSlowMoIfOwned();
+            BeginSliderGraceHide();
             return;
         }
 
@@ -199,6 +213,7 @@ public class LockOnBlink : MonoBehaviour
             {
                 ResetLockState();
                 ReleaseSlowMoIfOwned();
+                BeginSliderGraceHide();
             }
             return;
         }
@@ -210,6 +225,7 @@ public class LockOnBlink : MonoBehaviour
         {
             ResetLockState();
             ReleaseSlowMoIfOwned();
+            BeginSliderGraceHide();
             return;
         }
 
@@ -223,7 +239,7 @@ public class LockOnBlink : MonoBehaviour
             if (lockOnProgressSlider)
             {
                 lockOnProgressSlider.value = 0f;
-                if (autoShowHideSlider) lockOnProgressSlider.gameObject.SetActive(true);
+                if (autoShowHideSlider) { _uiHideAtTime = 0f; SetSliderVisible(true); }
             }
             Log($"Lock started → {_chargingTarget.name}");
         }
@@ -233,6 +249,8 @@ public class LockOnBlink : MonoBehaviour
             _lockTimer += Dt;
             float t = Mathf.Clamp01(_lockTimer / Mathf.Max(0.0001f, lockOnTimeSeconds));
             if (lockOnProgressSlider) lockOnProgressSlider.value = t;
+
+            if (autoShowHideSlider && !_sliderVisible) { _uiHideAtTime = 0f; SetSliderVisible(true); }
 
             if (_lockTimer >= lockOnTimeSeconds)
             {
@@ -246,7 +264,7 @@ public class LockOnBlink : MonoBehaviour
     private void TryPerformBlink()
     {
         if (!_readyToBlink) { Log("Blink ignored: lock not ready"); return; }
-        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(true); ReleaseSlowMoIfOwned(); return; }
+        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(true); ReleaseSlowMoIfOwned(); BeginSliderGraceHide(); return; }
         if (Now < _cooldownUntil) { Log("Blink ignored: on cooldown"); return; }
 
         PerformBlink(_currentTarget);
@@ -257,16 +275,16 @@ public class LockOnBlink : MonoBehaviour
 
         ResetLockState(true);
         ReleaseSlowMoIfOwned();
+        BeginSliderGraceHide();
     }
 
     private void PerformBlink(Transform target)
     {
-        Vector3 targetPos = target.position;
         Vector3 offset = destinationOffsetSpace == OffsetSpace.TargetLocal
             ? target.TransformVector(destinationOffset)
             : destinationOffset;
 
-        Vector3 destination = targetPos + offset;
+        Vector3 destination = target.position + offset;
         _lastBlinkDestination = destination;
 
         transform.position = destination;
@@ -294,11 +312,12 @@ public class LockOnBlink : MonoBehaviour
         _lockTimer = 0f;
         _readyToBlink = false;
 
-        if (lockOnProgressSlider)
+        if (lockOnProgressSlider) lockOnProgressSlider.value = 0f;
+
+        if (autoShowHideSlider)
         {
-            lockOnProgressSlider.value = 0f;
-            if (autoShowHideSlider && (forceHide || _currentTarget == null || !_chargingActive))
-                lockOnProgressSlider.gameObject.SetActive(false);
+            if (forceHide) { _uiHideAtTime = 0f; SetSliderVisible(false); }
+            // else: grace-hide is handled by BeginSliderGraceHide()
         }
     }
 
@@ -307,7 +326,11 @@ public class LockOnBlink : MonoBehaviour
         if (!_aimCam) return null;
 
         var ray = _aimCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        int hitCount = Physics.SphereCastNonAlloc(ray, lockSphereRadius, _hitsBuffer, maxLockDistance, targetLayers, QueryTriggerInteraction.Ignore);
+        float radius = GetDynamicLockRadius();
+
+        int hitCount = Physics.SphereCastNonAlloc(
+            ray, radius, _hitsBuffer, maxLockDistance, targetLayers, QueryTriggerInteraction.Ignore
+        );
 
         Transform best = null;
         float bestDist = float.MaxValue;
@@ -334,6 +357,16 @@ public class LockOnBlink : MonoBehaviour
         }
 
         return best;
+    }
+
+    private float GetDynamicLockRadius()
+    {
+        if (!_chargingActive) return Mathf.Max(0f, lockSphereRadius);
+        float progress = Mathf.Clamp01(lockOnTimeSeconds > 0f ? _lockTimer / lockOnTimeSeconds : 1f);
+        float k = Mathf.Clamp01(lockRadiusRamp != null ? lockRadiusRamp.Evaluate(progress) : progress);
+        float baseR = Mathf.Max(0f, lockSphereRadius);
+        float maxR  = Mathf.Max(baseR, lockSphereRadiusWhileCharging);
+        return Mathf.Lerp(baseR, maxR, k);
     }
 
     private void AcquireSlowMo()
@@ -372,6 +405,31 @@ public class LockOnBlink : MonoBehaviour
         else
         {
             Log($"SlowMo owner released (owners remaining={s_slowMoOwners})");
+        }
+    }
+
+    private void BeginSliderGraceHide()
+    {
+        if (!autoShowHideSlider) return;
+        if (!lockOnProgressSlider) return;
+        if (!_sliderVisible) return;
+        _uiHideAtTime = Now + Mathf.Max(0f, uiVisibilityGraceSeconds);
+    }
+
+    private void SetSliderVisible(bool visible)
+    {
+        if (!lockOnProgressSlider) return;
+        if (!_sliderVisible && visible)
+        {
+            lockOnProgressSlider.gameObject.SetActive(true);
+            _sliderVisible = true;
+            return;
+        }
+        if (_sliderVisible && !visible)
+        {
+            lockOnProgressSlider.gameObject.SetActive(false);
+            _sliderVisible = false;
+            return;
         }
     }
 
