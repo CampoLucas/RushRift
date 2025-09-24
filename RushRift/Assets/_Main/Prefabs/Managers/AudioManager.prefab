@@ -67,6 +67,7 @@ MonoBehaviour:
     delaySeconds: 0
     clips:
     - {fileID: 8300000, guid: ee9c0267b4f71fd44acf9101ea46d65d, type: 3}
+    - {fileID: 8300000, guid: ee9c0267b4f71fd44acf9101ea46d65d, type: 3}
     - {fileID: 8300000, guid: 55532e317d438af43b8660b6d44353b8, type: 3}
     mixer: {fileID: -8715910472845688073, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
     randomVolume: 0
@@ -82,17 +83,16 @@ MonoBehaviour:
     playOnAwake: 0
     delaySeconds: 0
     clips:
-    - {fileID: 8300000, guid: 9f21389d53f58d54caf989fc01fa10f3, type: 3}
-    - {fileID: 8300000, guid: d7f0cad51b894504e92e5dbecd6af348, type: 3}
-    - {fileID: 8300000, guid: e87767d9fcb8da647a3fc625a3264144, type: 3}
-    - {fileID: 8300000, guid: 1cdf863f8011c78468eef34b2177c0d6, type: 3}
+    - {fileID: 8300000, guid: 2fadb05c29a556e4da9fd6cecfbfcc8f, type: 3}
+    - {fileID: 8300000, guid: d3d7d39170985e544a8f41190bb74bd6, type: 3}
+    - {fileID: 8300000, guid: 95b9b36675a8fcc42a5a3047af45a385, type: 3}
     mixer: {fileID: 7930112030254647855, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
     randomVolume: 1
     volume: 1
     volumeRange: {x: 0.8, y: 1}
     pitch: 1
     randomPitch: 1
-    pitchRange: {x: 0.95, y: 1.05}
+    pitchRange: {x: 0.75, y: 1.1}
     timeBetweenPlays: 0
     isMusic: 0
   - name: LaserAttack
@@ -214,6 +214,74 @@ MonoBehaviour:
     randomPitch: 1
     pitchRange: {x: 0.8, y: 1.1}
     timeBetweenPlays: 1
+    isMusic: 0
+  - name: Dash
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: e8fcdb8e6ee82d94c988e9bb04730fc9, type: 3}
+    - {fileID: 8300000, guid: 1933d7b31c89cf44395782d0b1f2e1a1, type: 3}
+    - {fileID: 8300000, guid: 322af329f6e6e9a498530b9f3fe06008, type: 3}
+    - {fileID: 8300000, guid: 4896ef4740979654cbba7fe6aadf4a5f, type: 3}
+    - {fileID: 8300000, guid: 6ee77ec568fe9a3418b8b2b60c09ea00, type: 3}
+    mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 1
+    volume: 1
+    volumeRange: {x: 0.8, y: 1}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.8, y: 1.2}
+    timeBetweenPlays: 0.5
+    isMusic: 0
+  - name: Footstep
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 036e7ce445999ac4ca1353bb09e189ba, type: 3}
+    - {fileID: 8300000, guid: b7f38270ca4d2814b9045f314a394275, type: 3}
+    - {fileID: 8300000, guid: 032a9b0aa526bfe4c9054da6df410f29, type: 3}
+    - {fileID: 8300000, guid: 802259736e1e58c4fa7140172fcd90af, type: 3}
+    - {fileID: 8300000, guid: 46612a2c7a035234b9d042dfd72674c1, type: 3}
+    - {fileID: 8300000, guid: 3b3f463c8aae0024f9e6a82f7423a625, type: 3}
+    - {fileID: 8300000, guid: 47b21f867604eaf489a6fa9e56284a27, type: 3}
+    - {fileID: 8300000, guid: 09d5b5a732875be4eabf8b1de3cabb8f, type: 3}
+    - {fileID: 8300000, guid: 84bc65c8bdc43294e91a754dded3cd36, type: 3}
+    - {fileID: 8300000, guid: 86ede682a5682e04aa6af07cc2f2f2df, type: 3}
+    - {fileID: 8300000, guid: 34a07113f1525a04b9df59843be846ee, type: 3}
+    - {fileID: 8300000, guid: 75637bb5eaa9e3c4ea52c92288a81a52, type: 3}
+    - {fileID: 8300000, guid: 981174511cf04af4ca8cc181e3ecec4f, type: 3}
+    - {fileID: 8300000, guid: 1dc4dcd7516df654aa10b64e41496a7e, type: 3}
+    - {fileID: 8300000, guid: 1a643f13c1aaed94ca09365dc76f488a, type: 3}
+    - {fileID: 8300000, guid: 96b1219b2664edb4eb2804ad1d00b35b, type: 3}
+    - {fileID: 8300000, guid: a86d6bd138db60445a43854f11e5f4ca, type: 3}
+    - {fileID: 8300000, guid: 054b3c852db09634d9a7dc3f84fd297e, type: 3}
+    - {fileID: 8300000, guid: 795dabe3ba9e666458b26353d28bfba2, type: 3}
+    - {fileID: 8300000, guid: d15c81497fcaf9b4fba365e39d711e01, type: 3}
+    mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 1
+    volume: 1
+    volumeRange: {x: 0.8, y: 1}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.8, y: 1.2}
+    timeBetweenPlays: 0.5
+    isMusic: 0
+  - name: JumpPad
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 56bce5423a011e94290eb3a1cabc4be3, type: 3}
+    mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 1
+    volume: 1
+    volumeRange: {x: 0.8, y: 1}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.8, y: 1.2}
+    timeBetweenPlays: 0.5
     isMusic: 0
   mixer: {fileID: 24100000, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
   keepAcrossScenes: 1
