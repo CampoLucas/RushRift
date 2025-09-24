@@ -1,6 +1,7 @@
 using Game.LevelElements.Terminal;
 using UnityEngine;
 using System.Collections.Generic;
+using Game;
 
 namespace _Main.Scripts.Environment
 {
@@ -106,7 +107,9 @@ namespace _Main.Scripts.Environment
                 Log($"Ignored: {go.name} does not have Player tag (tag={go.tag})");
                 return;
             }
-
+            
+            AudioManager.Play("JumpPad");
+            
             Vector3 dir = GetDirection();
             Vector3 v = rb.velocity;
 
