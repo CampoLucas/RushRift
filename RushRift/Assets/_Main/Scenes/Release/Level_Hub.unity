@@ -4023,7 +4023,6 @@ Transform:
   m_Children:
   - {fileID: 725761919}
   - {fileID: 296967104}
-  - {fileID: 1695819102}
   - {fileID: 1365567834}
   - {fileID: 1643661168}
   m_Father: {fileID: 0}
@@ -5982,7 +5981,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.027323792
+      value: -0.027165892
       objectReference: {fileID: 0}
     - target: {fileID: 5764261535797379415, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -7940,50 +7939,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.723446, y: 10.859292, z: 2.7071342}
   m_Center: {x: 0.47676373, y: 4.929646, z: 43.607643}
---- !u!1 &1695819101
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1695819102}
-  - component: {fileID: 1695819103}
-  m_Layer: 0
-  m_Name: ScreenManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1695819102
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1695819101}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 973342162}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1695819103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1695819101}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 094bc0d63e16bea4b8b4bb687843478c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1705763216 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9f4578ec6a396e44a90e1b3d822b4e07, type: 3}
@@ -9862,7 +9817,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4229631012703874126, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
       propertyPath: field of view
-      value: 70
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 6873740543595733783, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
       propertyPath: m_Cameras.Array.size
@@ -9936,16 +9891,6 @@ Transform:
 --- !u!4 &1381847364611171131 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3155120551333692738, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
-  m_PrefabInstance: {fileID: 1381847364611171129}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &1381847364611171133 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 2566603677424257256, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
-  m_PrefabInstance: {fileID: 1381847364611171129}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &1381847364611171134 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 8249983170060861690, guid: 1237a7a61fe22cf4abd12da72a5dca1b, type: 3}
   m_PrefabInstance: {fileID: 1381847364611171129}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3178839623049692252
@@ -10197,11 +10142,11 @@ PrefabInstance:
     - target: {fileID: 5050218275519897064, guid: 50c0be4072f72d04b862cba7d3ec4697, type: 3}
       propertyPath: animator.Array.data[0]
       value: 
-      objectReference: {fileID: 1381847364611171134}
+      objectReference: {fileID: 0}
     - target: {fileID: 5050218275519897064, guid: 50c0be4072f72d04b862cba7d3ec4697, type: 3}
       propertyPath: animator.Array.data[1]
       value: 
-      objectReference: {fileID: 1381847364611171133}
+      objectReference: {fileID: 0}
     - target: {fileID: 5623607920778510774, guid: 50c0be4072f72d04b862cba7d3ec4697, type: 3}
       propertyPath: m_Name
       value: Player
