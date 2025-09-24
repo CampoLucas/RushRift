@@ -81,9 +81,11 @@ namespace Game.Entities
             _camera = Camera.main.transform;
 
             if (!_camera) return;
-            if (_camera.gameObject.TryGetComponent<JointsContainer>(out var cameraJoints))
+            if (_camera.gameObject.TryGetComponent<CameraData>(out var camData))
             {
-                joints.AddJoint(cameraJoints.Joints);
+                joints.AddJoint(camData.JointsContainer.Joints);
+
+                animator = new[] { camData.ArmsAnimator };
             }
                 
                 

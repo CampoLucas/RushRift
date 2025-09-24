@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0360fcbc3a594b58b0b50a558446b5de, type: 3}
   m_Name: PlayAnimation
   m_EditorClassIdentifier: 
-  duration: 0.833
+  duration: 0.75
   children:
     collection: []
   animation: Attack Release
   useNormalizedTime: 1
-  layer: 1
-  startFrame: 6
-  framesPerSecond: 30
-  animationDuration: 0.833
+  layer: 2
+  startFrame: 3
+  framesPerSecond: 24
+  animationDuration: 0.75
   delay: 0
 --- !u!114 &-47452404125950400
 MonoBehaviour:
@@ -34,13 +34,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa4042d2554d4448b86e906ff9cd15b1, type: 3}
   m_Name: HitscanModule
   m_EditorClassIdentifier: 
-  duration: 0.833
+  duration: 0.75
   children:
     collection: []
   damage: 10
   canUseTerminals: 0
   offset: {x: 0, y: 0, z: 0}
-  delay: 0.06666667
+  delay: 0.0833333
   range: 500
   spawnJoint: 9
   originJoint: 16
@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0360fcbc3a594b58b0b50a558446b5de, type: 3}
   m_Name: PlayAnimation
   m_EditorClassIdentifier: 
-  duration: 0.833
+  duration: 0.75
   children:
     collection: []
   animation: Empty

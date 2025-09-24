@@ -1,4 +1,5 @@
 using System;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 
 namespace Game.Entities.Components.MotionController
@@ -13,6 +14,8 @@ namespace Game.Entities.Components.MotionController
 
         public Vector3 Velocity { get => _rb.velocity; set => _rb.velocity = value; }
         public Vector3 Position { get => _rb.position; set => _rb.position = value; }
+        public Subject<bool> OnGroundedChanged => _onGroundedChanged;
+        
 
         #endregion
         
@@ -21,7 +24,20 @@ namespace Game.Entities.Components.MotionController
         public Vector3 MoveDirection;
 
         // Grounded
-        public bool Grounded;
+        public bool Grounded
+        {
+            get => _grounded;
+            set
+            {
+                if (value != _grounded)
+                {
+                    _onGroundedChanged.NotifyAll(value);
+                }
+
+                _grounded = value;
+            }
+        }
+        
         public bool PrevGrounded;
         public Vector3 Normal;
         public Vector3 GroundPos;
@@ -43,6 +59,8 @@ namespace Game.Entities.Components.MotionController
         #region Private Variables
 
         private Rigidbody _rb;
+        private bool _grounded;
+        private Subject<bool> _onGroundedChanged;
 
         #endregion
 
@@ -53,6 +71,7 @@ namespace Game.Entities.Components.MotionController
             Orientation = orientation;
             Origin = origin;
             Collider = collider;
+            _onGroundedChanged = new Subject<bool>();
         }
 
         public void AddForce(Vector3 force, ForceMode forceMode = ForceMode.Force) => _rb.AddForce(force, forceMode);
@@ -64,6 +83,7 @@ namespace Game.Entities.Components.MotionController
             Look = null;
             Orientation = null;
             Collider = null;
+            OnGroundedChanged.DetachAll();
         }
     }
 }
