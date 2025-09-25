@@ -10,8 +10,7 @@
 - [Git Conventions](#git-conventions)
    - [Branch Naming](#branch-naming)
    - [Mergue Guidelines](#mergue-guidelines)
-- [Documentation](#documentation)
-   - [Scene Requirements for the Player to Work](#scene-requirements-for-the-player-to-work)
+- [Documentation](./Documentation/1_Introduction/Overview.md)
 
 ## Setup Instructions
 ### Requirements
@@ -100,12 +99,5 @@ To keep the workflow clean and easy to collaborate, we follow a structurated bra
 * Merge directly into ```develop``` without testing
 * Leave conflicts unresolved
 * Push untested or broken changes just to “get it in”
-
-## Documentation
-### Scene Requirements for the Player to Work
-* A **GameObject** with the ```InputManager``` component in the scene.
-* All **floors** must be on the ```Ground``` layer.
-* All **walls** must be on the ```Wall``` layer.
-* All **obstacles** must be on the ```Obstacle``` layer.
 
 
