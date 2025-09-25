@@ -54,6 +54,9 @@ namespace _Main.Scripts.Environment
         private static readonly Collider[] OverlapBuffer = new Collider[32];
         private readonly HashSet<Collider> _occupants = new();
         private readonly Dictionary<Collider, float> _lastLaunchTime = new();
+        
+        private readonly Dictionary<Collider, bool> _launchedThisPresence = new();
+
         private Collider _collider;
 
         private void Awake()
@@ -72,19 +75,25 @@ namespace _Main.Scripts.Environment
         {
             _occupants.Clear();
             _lastLaunchTime.Clear();
+            _launchedThisPresence.Clear();
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (!other) return;
             _occupants.Add(other);
-            if (triggerOnlyOnEnter) TryLaunch(other);
+            _launchedThisPresence[other] = false;
+
+            if (triggerOnlyOnEnter)
+                TryLaunch(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (!other) return;
             _occupants.Remove(other);
+            _lastLaunchTime.Remove(other);
+            _launchedThisPresence.Remove(other);
         }
 
         private void OnTriggerStay(Collider other)
@@ -98,7 +107,6 @@ namespace _Main.Scripts.Environment
             }
 
             if (!allowReLaunchWhileInside) return;
-
             if (!canBeUsed) return;
 
             var rb = other.attachedRigidbody ? other.attachedRigidbody : other.GetComponentInParent<Rigidbody>();
@@ -109,17 +117,41 @@ namespace _Main.Scripts.Environment
 
             Vector3 dir = GetDirection();
             float along = Vector3.Dot(rb.velocity, dir);
+            
+            bool launched = false;
+            _launchedThisPresence.TryGetValue(other, out launched);
 
-            if (along <= reLaunchDotThreshold) // moving into the pad, i.e., "landing"
+            bool firstLaunchWhileInside = !launched;
+            bool downwardApproach = along <= reLaunchDotThreshold;
+            bool nearlyStationary = rb.velocity.sqrMagnitude <= 0.01f;
+
+            if (firstLaunchWhileInside && (downwardApproach || nearlyStationary))
             {
-                float last = 0f;
-                _lastLaunchTime.TryGetValue(other, out last);
-                if (Time.time - last >= reLaunchCooldownSeconds)
+                if (Time.time - GetLastLaunchTime(other) >= reLaunchCooldownSeconds)
+                {
+                    Log($"Inside-trigger first launch (dot={along:0.###}, v²={rb.velocity.sqrMagnitude:0.###})");
+                    TryLaunch(other);
+                    _launchedThisPresence[other] = true;
+                }
+                return;
+            }
+            
+            if (downwardApproach)
+            {
+                if (Time.time - GetLastLaunchTime(other) >= reLaunchCooldownSeconds)
                 {
                     Log($"Re-launch condition met inside trigger (dot={along:0.###})");
                     TryLaunch(other);
+                    _launchedThisPresence[other] = true;
                 }
             }
+        }
+
+        private float GetLastLaunchTime(Collider other)
+        {
+            float last = 0f;
+            _lastLaunchTime.TryGetValue(other, out last);
+            return last;
         }
 
         private void TryLaunch(Collider other)
@@ -161,6 +193,7 @@ namespace _Main.Scripts.Environment
             rb.velocity = newVelocity;
 
             _lastLaunchTime[other] = Time.time;
+            _launchedThisPresence[other] = true;
         }
 
         private Vector3 GetDirection()
