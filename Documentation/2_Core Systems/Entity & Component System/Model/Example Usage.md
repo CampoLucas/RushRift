@@ -36,7 +36,6 @@ public class ExampleModelSO : EntityModelSO
 - Serialized fields (`HealthComponentData`, `EnergyComponentData`, etc.) act as **blueprints** and have methods to create the real components.
 - More complex models (like `PlayerModelSO`) can also build controllers (e.g., `MotionController`) or handlers (e.g., `ComboHandler`) before attaching them to the model.
 
----
 # Controller and Model in the Inspector
 The controller takes the reference of the `ModelSO` and when the game starts, creates and initializes the proxy for that entity.
 Through a **custom property drawer**, the controller displays the model's parameters directly in the model with a dropdown. This means that you don't need to open the scriptable object each time you want to change a value.
