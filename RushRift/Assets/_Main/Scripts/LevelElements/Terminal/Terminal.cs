@@ -1,42 +1,106 @@
+using _Main.Scripts.Feedbacks;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
 
 namespace Game.LevelElements.Terminal
 {
+    [DisallowMultipleComponent]
     public class Terminal : MonoBehaviour, ISubject<string>
     {
+        public enum SendBehavior { Toggle, AlwaysSendOn, AlwaysSendOff }
+
         public static readonly string ON_ARGUMENT = "on";
         public static readonly string OFF_ARGUMENT = "off";
-        
+
         [Header("Settings")]
-        [SerializeField] private bool startsOn;
-        
+        [SerializeField, Tooltip("Initial state when the scene starts.")]
+        private bool startsOn = false;
+
+        [SerializeField, Tooltip("If enabled, this terminal can be used only once.")]
+        private bool onlyUseOnce = false;
+
+        [SerializeField, Tooltip("What this terminal sends when used.")]
+        private SendBehavior sendBehavior = SendBehavior.Toggle;
+
         [Header("Observers")]
-        [SerializeField] private ObserverComponent[] observers;
+        [SerializeField, Tooltip("Targets that receive ON/OFF notifications.")]
+        private ObserverComponent[] observers;
+
+        [Header("Feedbacks")] 
+        [SerializeField] private FloatingTextFeedback floatingTextFeedback;
+        [SerializeField] private FlickerPlayer flickerPlayer;
+        
+        [Header("Debug")]
+        [SerializeField, Tooltip("If enabled, prints detailed logs.")]
+        private bool isDebugLoggingEnabled = false;
+
+        [SerializeField, Tooltip("Draw gizmos for the terminal state.")]
+        private bool drawGizmos = true;
+
+        [SerializeField, Tooltip("Gizmo color when OFF.")]
+        private Color gizmoColorOff = new Color(1f, 0.6f, 0.2f, 0.9f);
+
+        [SerializeField, Tooltip("Gizmo color when ON.")]
+        private Color gizmoColorOn = new Color(0.2f, 1f, 0.6f, 0.9f);
 
         private ISubject<string> _subject = new Subject<string>();
         private bool _state;
-        //private bool _prevState;
+        private bool _usedOnce;
 
         private void Awake()
         {
-            for (var i = 0; i < observers.Length; i++)
+            if (observers != null)
             {
-                var o = observers[i];
-                if (!o) continue;
-
-                _subject.Attach(o);
+                for (int i = 0; i < observers.Length; i++)
+                {
+                    var o = observers[i];
+                    if (o) _subject.Attach(o);
+                }
             }
 
             _state = startsOn;
-            //_prevState = !_state;
+            _usedOnce = false;
+            Log($"Awake state={_state}");
         }
 
         public void Do()
         {
-            if (_state) NotifyAll(ON_ARGUMENT);
-            else NotifyAll(OFF_ARGUMENT);
-            _state = !_state;
+            if (!LevelManager.CanUseTerminal)
+            {
+                Log("Use ignored: terminals are disabled");
+                return;
+            }
+
+            if (onlyUseOnce && _usedOnce)
+            {
+                Log("Use ignored: OnlyUseOnce");
+                return;
+            }
+
+            string arg;
+            switch (sendBehavior)
+            {
+                case SendBehavior.AlwaysSendOn:
+                    _state = true;
+                    arg = ON_ARGUMENT;
+                    break;
+                case SendBehavior.AlwaysSendOff:
+                    _state = false;
+                    arg = OFF_ARGUMENT;
+                    break;
+                default:
+                    _state = !_state;
+                    arg = _state ? ON_ARGUMENT : OFF_ARGUMENT;
+                    break;
+            }
+            
+            flickerPlayer.FlickerPlay();
+            floatingTextFeedback.Play();
+            
+            Log($"Notify {arg.ToUpper()}");
+            NotifyAll(arg);
+
+            if (onlyUseOnce) _usedOnce = true;
         }
 
         public bool Attach(IObserver<string> observer) => _subject.Attach(observer);
@@ -46,16 +110,14 @@ namespace Game.LevelElements.Terminal
         public void NotifyAll(string arg)
         {
             if (!LevelManager.CanUseTerminal) return;
-            
             _subject.NotifyAll(arg);
         }
-        
+
         public void Dispose()
         {
             observers = null;
             _subject.DetachAll();
             _subject.Dispose();
-
             _subject = null;
         }
 
@@ -63,13 +125,30 @@ namespace Game.LevelElements.Terminal
         {
             Dispose();
         }
-    }
 
-    // public enum Mechanism // made into classes instead of enums (TerminalMomentary, TerminalToggle, TerminalLatch, TerminalTimed)
-    // {
-    //     Momentary, // Only active while pressed (pressure plates, etc) Push button, Tactile switch, Membrane button
-    //     Toggle, // Toggle switch (SPST/SPDT), Rocker switch, Slide switch, Rotary switch
-    //     Latch, // Push-on/push-off, Key switch, Push-pull latch
-    //     Timed // Momentary push with delay, Double-action switch, Interlock switch, Dead-man switch
-    // }
+        private void Log(string msg)
+        {
+            if (!isDebugLoggingEnabled) return;
+            Debug.Log($"[Terminal] {name}: {msg}", this);
+        }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            if (!drawGizmos) return;
+
+            bool stateVisual = Application.isPlaying ? _state : startsOn;
+            Gizmos.color = stateVisual ? gizmoColorOn : gizmoColorOff;
+
+            var p = transform.position;
+            float r = 0.25f;
+
+            Gizmos.DrawSphere(p, r * 0.5f);
+            Gizmos.DrawWireSphere(p, r);
+
+            var up = Vector3.up * 0.5f;
+            Gizmos.DrawLine(p, p + (stateVisual ? up : -up));
+        }
+#endif
+    }
 }

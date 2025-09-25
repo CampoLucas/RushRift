@@ -12,6 +12,10 @@ namespace Game.Entities.Components.MotionController
         public float MomentumMult => momentumMultiplier;
         public float Cooldown => cooldown;
         public float Cost => cost;
+        public float ShakeDur => shakeDuration;
+        public float Blur => shakeDuration;
+        public float ShakeMag => shakeMagnitude;
+        public float BlurMag => blurMagnitude;
         
         [Header("General")]
         [SerializeField] private float force = 120f;
@@ -27,6 +31,11 @@ namespace Game.Entities.Components.MotionController
         [Header("Strategies")]
         [SerializeField] private DashDirConfigComposite dirStrategy;
         [SerializeField] private DashUpdateConfigComposite updateStrategy;
+
+        [Header("Effects")]
+        [SerializeField] private float shakeDuration;
+        [SerializeField] private float shakeMagnitude;
+        [SerializeField] private float blurMagnitude;
 
         
         

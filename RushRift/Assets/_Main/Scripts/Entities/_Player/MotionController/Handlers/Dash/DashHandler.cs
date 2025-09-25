@@ -1,3 +1,4 @@
+using _Main.Scripts.Feedbacks;
 using Game.Entities.Components.MotionController.Strategies;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ namespace Game.Entities.Components.MotionController
 {
     public class DashHandler : MotionHandler<DashConfig>
     {
+        public bool IsDashing => _isDashing;
         public DashDirStrategyComposite DirStrategy { get; private set; }
         public DashUpdateStrategyComposite UpdateStrategy { get; private set; }
         public CompositeDashEndStrategy EndStrategy { get; private set; }
@@ -76,6 +78,10 @@ namespace Game.Entities.Components.MotionController
         private void StartDash(in MotionContext context)
         {
             _isDashing = true;
+            AudioManager.Play("Dash");
+            ChromaticAberrationPlayer.PlayGlobal();
+            LensDistortionPlayer.PlayGlobal();
+            FreezeFrame.TriggerDefault();
 #if false
             _dashDir = context.Look.forward;
 #else
@@ -90,6 +96,10 @@ namespace Game.Entities.Components.MotionController
             _halfHeight = (_height / 2f) - _radius;
             
             UpdateStrategy.OnReset();
+            
+            // ToDo: MotionView -> DashView
+            EffectManager.CameraShake(Config.ShakeDur, Config.ShakeMag);
+            EffectManager.ScreenBlur(0, Config.ShakeMag);
         }
 
         private bool PerformDash(in MotionContext context, in float delta)
@@ -164,7 +174,6 @@ namespace Game.Entities.Components.MotionController
         }
 
         public float GetCost() => Config.Cost;
-        public bool IsDashing() => _isDashing;
         public bool CanDash(IController controller)
         {
             if (_isDashing || _elapsedCooldown > 0)

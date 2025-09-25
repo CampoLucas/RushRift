@@ -106,7 +106,7 @@ MonoBehaviour:
   dash:
     enabled: 1
     order: 99
-    force: 150
+    force: 180
     duration: 0.1
     cooldown: 0.1
     momentumMultiplier: 0.2
@@ -142,6 +142,9 @@ MonoBehaviour:
         damage: 100
         stopOnDamage: 1
         stopOnDestroy: 0
+    shakeDuration: 0.2
+    shakeMagnitude: 0.5
+    blurMagnitude: 0.5
   gravity:
     enabled: 1
     order: 1
