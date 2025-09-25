@@ -1,6 +1,7 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game.Entities;
+using Game.Entities.Components;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -24,6 +25,13 @@ public class ExplosiveBarrel : MonoBehaviour
         DestroyGameObject
     }
 
+    [Header("Health Integration")]
+    [SerializeField, Tooltip("Health data used to construct and register the HealthComponent on the Entity Model.")]
+    private HealthComponentData healthComponentData;
+
+    [SerializeField, Tooltip("If enabled, maps HealthComponentData.OnZeroHealth to the post explosion action.")]
+    private bool useDieBehaviourForPostAction = true;
+
     [Header("Explosion Settings")]
     [SerializeField, Tooltip("If enabled, the barrel triggers its explosion when this GameObject is destroyed at runtime.")]
     private bool shouldExplodeOnDestroy = true;
@@ -31,21 +39,21 @@ public class ExplosiveBarrel : MonoBehaviour
     [SerializeField, Tooltip("Explosion origin offset in local space (added to this Transform.position).")]
     private Vector3 explosionOriginLocalOffset = Vector3.zero;
 
-    [SerializeField, Tooltip("Explosion radius in meters for detecting the player (and optional rigidbodies).")]
+    [SerializeField, Tooltip("Explosion radius in meters for detecting targets.")]
     private float explosionRadiusMeters = 6f;
 
-    [SerializeField, Tooltip("Optional delay in seconds before executing the explosion logic once triggered. Ignored when exploding from OnDestroy (object is already being destroyed).")]
+    [SerializeField, Tooltip("Optional delay in seconds before executing the explosion logic once triggered.")]
     private float explosionDelaySeconds = 0f;
 
-    [Header("After Explosion Action")]
-    [SerializeField, Tooltip("What to do with this barrel after the explosion finishes (when triggered via TriggerExplosion/ExecuteExplosionNow). On OnDestroy-driven explosions, the object is already being destroyed.")]
+    [Header("Post Explosion Action")]
+    [SerializeField, Tooltip("What to do with this barrel after the explosion finishes.")]
     private PostExplosionAction postExplosionAction = PostExplosionAction.DestroyGameObject;
 
-    [SerializeField, Tooltip("Optional extra delay in seconds before performing the post-explosion action (Deactivate/Destroy).")]
+    [SerializeField, Tooltip("Optional extra delay in seconds before performing the post-explosion action.")]
     private float postExplosionActionDelaySeconds = 0f;
 
-    [Header("Player Launch")]
-    [SerializeField, Tooltip("Tag that the launched object must have. Leave as 'Player' for the main character.")]
+    [Header("Player Target")]
+    [SerializeField, Tooltip("Tag used to identify the Player object.")]
     private string requiredPlayerTag = "Player";
 
     [SerializeField, Tooltip("How fast the player will be launched along the computed direction (m/s).")]
@@ -63,6 +71,14 @@ public class ExplosiveBarrel : MonoBehaviour
     [SerializeField, Tooltip("If true, zeroes sideways velocity relative to the launch direction; otherwise preserves it.")]
     private bool shouldResetTangentialVelocity = false;
 
+    [Header("Enemy Targeting")]
+    [SerializeField, Tooltip("Tag used to identify Enemy objects. Leave empty to affect any EntityController that is not the player.")]
+    private string enemyTag = "Enemy";
+
+    [Header("Medal Condition")]
+    [SerializeField, Tooltip("If true, the barrel only damages enemies and launches the player strictly upward.")]
+    private bool isMedalConditionAchieved = false;
+
     [Header("Optional Physics For Others")]
     [SerializeField, Tooltip("If > 0, applies Unity's AddExplosionForce to any non-player rigidbodies within radius.")]
     private float otherRigidbodiesExplosionImpulse = 0f;
@@ -77,53 +93,73 @@ public class ExplosiveBarrel : MonoBehaviour
     [SerializeField, Tooltip("If enabled, draws gizmos for the explosion radius and example launch direction.")]
     private bool drawGizmos = true;
 
-    private static readonly Collider[] OverlapBuffer = new Collider[64];
+    private static readonly Collider[] OverlapBuffer = new Collider[96];
     private bool hasExplosionAlreadyTriggered;
     private bool applicationIsQuitting;
-    private bool explosionInitiatedByOnDestroy; // tracks whether explosion started from OnDestroy (object is already being destroyed)
+    private bool explosionInitiatedByOnDestroy;
+
+    private EntityController cachedEntityController;
+    private IModel cachedModel;
+    private HealthComponent runtimeHealthComponent;
+    private Coroutine ensureRoutine;
+
+    private void Awake()
+    {
+        ResolveControllerAndModel();
+        EnsureHealthRegisteredImmediateOrDeferred();
+        SyncPostActionFromDieBehaviour();
+    }
+
+    private void OnEnable()
+    {
+        ResolveControllerAndModel();
+        EnsureHealthRegisteredImmediateOrDeferred();
+    }
+
+    private void OnTransformParentChanged()
+    {
+        ResolveControllerAndModel();
+        EnsureHealthRegisteredImmediateOrDeferred();
+    }
+
+    private void OnDisable()
+    {
+        if (ensureRoutine != null)
+        {
+            StopCoroutine(ensureRoutine);
+            ensureRoutine = null;
+        }
+    }
 
     private void OnApplicationQuit() => applicationIsQuitting = true;
 
-    // (Debug hotkey was in your file; keep or remove as you wish)
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
+        if (!hasExplosionAlreadyTriggered && runtimeHealthComponent != null)
         {
-            TriggerExplosion();
+            if (!runtimeHealthComponent.IsAlive() || runtimeHealthComponent.Value <= 0f)
+            {
+                hasExplosionAlreadyTriggered = true;
+                ExecuteExplosionNow();
+            }
         }
     }
 
     private void OnDestroy()
     {
         if (!Application.isPlaying) return;
-
         if (shouldExplodeOnDestroy && !hasExplosionAlreadyTriggered && !applicationIsQuitting)
         {
-            // Since we are already being destroyed, run the explosion immediately (ignore explosionDelaySeconds)
             explosionInitiatedByOnDestroy = true;
             hasExplosionAlreadyTriggered = true;
             ExecuteExplosionNow();
         }
     }
 
-    /// <summary>Call this to make the barrel explode now (respects explosionDelaySeconds).</summary>
-    public void TriggerExplosion()
-    {
-        if (hasExplosionAlreadyTriggered) return;
-        hasExplosionAlreadyTriggered = true;
-
-        if (explosionDelaySeconds > 0f)
-            Invoke(nameof(ExecuteExplosionNow), explosionDelaySeconds);
-        else
-            ExecuteExplosionNow();
-    }
-
     private void ExecuteExplosionNow()
     {
         Vector3 explosionOriginWorld = transform.TransformPoint(explosionOriginLocalOffset);
-
-        // 1) Overlap scan
-        int count = Physics.OverlapSphereNonAlloc(
+        int overlappedCount = Physics.OverlapSphereNonAlloc(
             explosionOriginWorld,
             Mathf.Max(0f, explosionRadiusMeters),
             OverlapBuffer,
@@ -131,45 +167,56 @@ public class ExplosiveBarrel : MonoBehaviour
             QueryTriggerInteraction.Collide
         );
 
-        // Track which rigidbodies we already handled (a single object may have multiple colliders)
-        var processedRigidbodies = new HashSet<Rigidbody>();
+        var processedControllers = new HashSet<EntityController>();
+        var processedRoots = new HashSet<Transform>();
 
-        // 2) Affect nearby things
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < overlappedCount; i++)
         {
             var col = OverlapBuffer[i];
             if (!col) continue;
 
-            var rb = col.attachedRigidbody ? col.attachedRigidbody : col.GetComponentInParent<Rigidbody>();
-            if (!rb) continue;
-            if (processedRigidbodies.Contains(rb)) continue;
-            processedRigidbodies.Add(rb);
+            var controller = col.GetComponentInParent<EntityController>();
+            if (controller && processedControllers.Contains(controller)) continue;
 
-            GameObject rootObject = rb.gameObject;
+            var root = col.transform.root;
+            if (processedRoots.Contains(root)) continue;
 
-            // 2a) Launch the player with JumpPad-style velocity set
-            if (string.IsNullOrEmpty(requiredPlayerTag) || rootObject.CompareTag(requiredPlayerTag))
+            GameObject targetObject = controller ? controller.Origin.gameObject : root.gameObject;
+            bool isPlayer = !string.IsNullOrEmpty(requiredPlayerTag) && targetObject.CompareTag(requiredPlayerTag);
+            bool isEnemyByTag = !string.IsNullOrEmpty(enemyTag) && targetObject.CompareTag(enemyTag);
+            bool isEnemyByType = controller is EnemyController;
+            bool isEnemy = isEnemyByTag || isEnemyByType;
+
+            if (controller) processedControllers.Add(controller); else processedRoots.Add(root);
+
+            if (isPlayer)
             {
-                ApplyJumpPadStyleLaunch(rb, explosionOriginWorld);
-                continue;
+                if (targetObject.TryGetComponent<Rigidbody>(out var rb))
+                {
+                    ApplyJumpPadStyleLaunch(rb, explosionOriginWorld, true);
+                }
+                if (!isMedalConditionAchieved)
+                {
+                    TryKillViaHealthOrNotify(targetObject, "Player", explosionOriginWorld);
+                }
             }
-
-            // 2b) Optionally push other rigidbodies using explosion force
-            if (otherRigidbodiesExplosionImpulse > 0f)
+            else
             {
-                rb.AddExplosionForce(
-                    otherRigidbodiesExplosionImpulse,
-                    explosionOriginWorld,
-                    explosionRadiusMeters,
-                    otherRigidbodiesUpwardsModifier,
-                    ForceMode.Impulse
-                );
+                TryKillViaHealthOrNotify(targetObject, isEnemy ? "Enemy" : "Entity", explosionOriginWorld);
+
+                if (otherRigidbodiesExplosionImpulse > 0f && targetObject.TryGetComponent<Rigidbody>(out var otherRb))
+                {
+                    otherRb.AddExplosionForce(
+                        otherRigidbodiesExplosionImpulse,
+                        explosionOriginWorld,
+                        explosionRadiusMeters,
+                        otherRigidbodiesUpwardsModifier,
+                        ForceMode.Impulse
+                    );
+                }
             }
         }
 
-        LogDebug($"Explosion at {explosionOriginWorld} | radius={explosionRadiusMeters}");
-
-        // 3) Perform post-explosion action if we were NOT triggered by OnDestroy
         if (!explosionInitiatedByOnDestroy)
         {
             if (postExplosionActionDelaySeconds > 0f)
@@ -178,7 +225,7 @@ public class ExplosiveBarrel : MonoBehaviour
                 DoPostExplosionAction();
         }
 
-        // Optional: play VFX/SFX here (ParticleSystem, AudioSource, etc.)
+        LogDebug($"Explosion executed | origin={explosionOriginWorld} radius={explosionRadiusMeters} medal={isMedalConditionAchieved}");
     }
 
     private IEnumerator DelayedPostExplosionAction(float delaySeconds)
@@ -192,76 +239,124 @@ public class ExplosiveBarrel : MonoBehaviour
         switch (postExplosionAction)
         {
             case PostExplosionAction.None:
-                // do nothing
                 break;
-
             case PostExplosionAction.DeactivateGameObject:
                 gameObject.SetActive(false);
                 break;
-
             case PostExplosionAction.DestroyGameObject:
                 Destroy(gameObject);
                 break;
         }
     }
 
-    private void ApplyJumpPadStyleLaunch(Rigidbody targetRigidbody, Vector3 explosionOriginWorld)
+    private void ApplyJumpPadStyleLaunch(Rigidbody targetRigidbody, Vector3 explosionOriginWorld, bool isPlayer)
     {
-        Vector3 launchDirectionWorld = ComputeLaunchDirection(targetRigidbody, explosionOriginWorld);
-
-        Vector3 currentVelocity = targetRigidbody.velocity;
-        float currentAlong = Vector3.Dot(currentVelocity, launchDirectionWorld);
-        Vector3 tangentialComponent = currentVelocity - launchDirectionWorld * currentAlong;
-
-        if (shouldResetTangentialVelocity)
-            tangentialComponent = Vector3.zero;
-
-        Vector3 newVelocity =
-            tangentialComponent +
-            launchDirectionWorld * Mathf.Max(0f, playerLaunchSpeedMetersPerSecond);
-
-        targetRigidbody.velocity = newVelocity;
-
-        LogDebug($"Launched {targetRigidbody.name} dir={launchDirectionWorld} speed={playerLaunchSpeedMetersPerSecond:0.##} oldVel={currentVelocity} newVel={newVelocity}");
+        Vector3 launchDirectionWorld = ComputeLaunchDirection(targetRigidbody, explosionOriginWorld, isPlayer);
+        Vector3 v = targetRigidbody.velocity;
+        float along = Vector3.Dot(v, launchDirectionWorld);
+        Vector3 tangential = v - launchDirectionWorld * along;
+        if (shouldResetTangentialVelocity) tangential = Vector3.zero;
+        targetRigidbody.velocity = tangential + launchDirectionWorld * Mathf.Max(0f, playerLaunchSpeedMetersPerSecond);
+        LogDebug($"Launch applied | target={targetRigidbody.name} dir={launchDirectionWorld} speed={playerLaunchSpeedMetersPerSecond:0.##}");
     }
 
-    private Vector3 ComputeLaunchDirection(Rigidbody targetRigidbody, Vector3 explosionOriginWorld)
+    private Vector3 ComputeLaunchDirection(Rigidbody targetRigidbody, Vector3 explosionOriginWorld, bool isPlayer)
     {
-        Vector3 direction;
+        if (isPlayer && isMedalConditionAchieved) return Vector3.up;
 
+        Vector3 dir;
         switch (launchDirectionSource)
         {
-            case LaunchDirectionSource.BarrelUp:
-                direction = transform.up;
-                break;
-
-            case LaunchDirectionSource.BarrelForward:
-                direction = transform.forward;
-                break;
-
-            case LaunchDirectionSource.RadialFromBarrelCenter:
-                direction = (targetRigidbody.worldCenterOfMass - explosionOriginWorld);
-                break;
-
-            case LaunchDirectionSource.CustomVector:
-                direction = customLaunchDirection;
-                break;
-
-            case LaunchDirectionSource.ReferenceTransformForward:
-                direction = directionReferenceTransform ? directionReferenceTransform.forward : transform.forward;
-                break;
-
-            case LaunchDirectionSource.ReferenceTransformUp:
-                direction = directionReferenceTransform ? directionReferenceTransform.up : transform.up;
-                break;
-
-            default:
-                direction = Vector3.up;
-                break;
+            case LaunchDirectionSource.BarrelUp: dir = transform.up; break;
+            case LaunchDirectionSource.BarrelForward: dir = transform.forward; break;
+            case LaunchDirectionSource.RadialFromBarrelCenter: dir = targetRigidbody.worldCenterOfMass - explosionOriginWorld; break;
+            case LaunchDirectionSource.CustomVector: dir = customLaunchDirection; break;
+            case LaunchDirectionSource.ReferenceTransformForward: dir = directionReferenceTransform ? directionReferenceTransform.forward : transform.forward; break;
+            case LaunchDirectionSource.ReferenceTransformUp: dir = directionReferenceTransform ? directionReferenceTransform.up : transform.up; break;
+            default: dir = Vector3.up; break;
         }
 
-        if (direction.sqrMagnitude < 1e-6f) direction = Vector3.up;
-        return direction.normalized;
+        if (dir.sqrMagnitude < 1e-6f) dir = Vector3.up;
+        return dir.normalized;
+    }
+
+    private void TryKillViaHealthOrNotify(GameObject targetObject, string label, Vector3 hitPosition)
+    {
+        if (!targetObject) return;
+
+        if (targetObject.TryGetComponent<EntityController>(out var controller))
+        {
+            var model = controller.GetModel();
+            if (model != null && model.TryGetComponent<HealthComponent>(out var health))
+            {
+                health.Intakill(hitPosition);
+                LogDebug($"{label} killed via HealthComponent.Intakill | name={targetObject.name}");
+                return;
+            }
+
+            controller.OnNotify(EntityController.DESTROY);
+            LogDebug($"{label} destroyed via EntityController observer | name={targetObject.name}");
+            return;
+        }
+
+        LogDebug($"{label} has no EntityController | name={targetObject.name}");
+    }
+
+    private void ResolveControllerAndModel()
+    {
+        cachedEntityController = GetComponentInParent<EntityController>();
+        if (!cachedEntityController) cachedEntityController = GetComponent<EntityController>();
+        cachedModel = cachedEntityController != null ? cachedEntityController.GetModel() : null;
+    }
+
+    private void EnsureHealthRegisteredImmediateOrDeferred()
+    {
+        if (runtimeHealthComponent != null) return;
+
+        if (cachedModel != null)
+        {
+            if (!cachedModel.TryGetComponent(out runtimeHealthComponent))
+            {
+                if (healthComponentData != null)
+                {
+                    runtimeHealthComponent = new HealthComponent(healthComponentData);
+                    cachedModel.TryAddComponent(runtimeHealthComponent);
+                }
+            }
+            SyncPostActionFromDieBehaviour();
+            if (runtimeHealthComponent != null) LogDebug($"Health ready | value={runtimeHealthComponent.Value:0.##}");
+        }
+        else
+        {
+            if (ensureRoutine == null) ensureRoutine = StartCoroutine(EnsureHealthRegisteredDeferred());
+        }
+    }
+
+    private IEnumerator EnsureHealthRegisteredDeferred()
+    {
+        int safetyFrames = 16;
+        while (safetyFrames-- > 0 && runtimeHealthComponent == null)
+        {
+            ResolveControllerAndModel();
+            if (cachedModel != null)
+            {
+                EnsureHealthRegisteredImmediateOrDeferred();
+                if (runtimeHealthComponent != null) break;
+            }
+            yield return null;
+        }
+        ensureRoutine = null;
+    }
+
+    private void SyncPostActionFromDieBehaviour()
+    {
+        if (!useDieBehaviourForPostAction || healthComponentData == null) return;
+        switch (healthComponentData.OnZeroHealth)
+        {
+            case DieBehaviour.Nothing: postExplosionAction = PostExplosionAction.None; break;
+            case DieBehaviour.Destroy: postExplosionAction = PostExplosionAction.DestroyGameObject; break;
+            case DieBehaviour.Disable: postExplosionAction = PostExplosionAction.DeactivateGameObject; break;
+        }
     }
 
     private void LogDebug(string message)
@@ -275,23 +370,21 @@ public class ExplosiveBarrel : MonoBehaviour
         if (!drawGizmos) return;
 
         Vector3 origin = transform.TransformPoint(explosionOriginLocalOffset);
-
         Gizmos.color = new Color(1f, 0.4f, 0.1f, 0.85f);
         Gizmos.DrawWireSphere(origin, Mathf.Max(0f, explosionRadiusMeters));
 
-        // Representative direction arrow
         Vector3 exampleDirection = Vector3.up;
         switch (launchDirectionSource)
         {
             case LaunchDirectionSource.BarrelUp: exampleDirection = transform.up; break;
             case LaunchDirectionSource.BarrelForward: exampleDirection = transform.forward; break;
-            case LaunchDirectionSource.RadialFromBarrelCenter: exampleDirection = Vector3.up; break; // depends on target
+            case LaunchDirectionSource.RadialFromBarrelCenter: exampleDirection = Vector3.up; break;
             case LaunchDirectionSource.CustomVector: exampleDirection = (customLaunchDirection.sqrMagnitude < 1e-6f) ? Vector3.up : customLaunchDirection.normalized; break;
             case LaunchDirectionSource.ReferenceTransformForward: exampleDirection = directionReferenceTransform ? directionReferenceTransform.forward : transform.forward; break;
             case LaunchDirectionSource.ReferenceTransformUp: exampleDirection = directionReferenceTransform ? directionReferenceTransform.up : transform.up; break;
         }
 
-        Gizmos.color = Color.yellow;
+        Gizmos.color = isMedalConditionAchieved ? Color.cyan : Color.yellow;
         Gizmos.DrawRay(origin, exampleDirection.normalized * Mathf.Min(1.0f, explosionRadiusMeters * 0.5f));
     }
 }
