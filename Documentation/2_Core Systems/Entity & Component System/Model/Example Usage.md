@@ -55,4 +55,9 @@ You can use any **ModelSO** with any **Controller**, it shows the variables like
 > [!WARNING] 
 > Since it is a `ScriptableObject` any changes to it in **editor or runtime** will be changed in the **ModelSO**.
 
+## More Examples
+- [Controller Example](../Controller/Example%20Usage.md)
+- [View Example](../View/Example%20Usage.md)
+- Component Example
+
 [← Previous Page](IModel.md) | [Next Page →](../View/EntityView.md)

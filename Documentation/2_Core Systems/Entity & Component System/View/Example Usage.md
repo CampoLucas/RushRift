@@ -69,4 +69,9 @@ if (controller.GetView() is LaserView laserView)
 > - It **couples logic to a specific view implementation** (breaking the “views are optional” principle).
 > - It makes systems depend on visuals, which should never happen in a clean separation of responsibilities.
 
+## More Examples
+- [Controller Example](../Controller/Example%20Usage.md)
+- [Model Example](../Model/Example%20Usage.md)
+- Component Example
+- 
 [← Previous Page](IView.md)
