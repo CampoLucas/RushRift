@@ -27,7 +27,7 @@ namespace Game.Entities
 
         [Header("References")]
         [SerializeField] protected Joints<EntityJoint> joints;
-        [SerializeField] private Animator[] animator;
+        [SerializeField] protected Animator[] animator;
 
         protected EntityStateMachine _fsm; // Optional state machine for entity behavior
         

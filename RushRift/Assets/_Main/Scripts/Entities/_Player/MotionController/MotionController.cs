@@ -94,6 +94,11 @@ namespace Game.Entities.Components.MotionController
             return true;
         }
 
+        public void AttachOnGrounded(DesignPatterns.Observers.IObserver<bool> onGrounded)
+        {
+            _context?.OnGroundedChanged.Attach(onGrounded);
+        }
+
         private void Update(float delta)
         {
             foreach (var t in _handlers)
