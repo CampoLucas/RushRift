@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game;
 using Game.Entities;
 using Game.Entities.Components;
 using UnityEngine;
@@ -43,14 +44,14 @@ public class ExplosiveBarrel : MonoBehaviour
     private float explosionRadiusMeters = 6f;
 
     [SerializeField, Tooltip("Optional delay in seconds before executing the explosion logic once triggered.")]
-    private float explosionDelaySeconds = 0f;
+    private float explosionDelaySeconds;
 
     [Header("Post Explosion Action")]
     [SerializeField, Tooltip("What to do with this barrel after the explosion finishes.")]
     private PostExplosionAction postExplosionAction = PostExplosionAction.DestroyGameObject;
 
     [SerializeField, Tooltip("Optional extra delay in seconds before performing the post-explosion action.")]
-    private float postExplosionActionDelaySeconds = 0f;
+    private float postExplosionActionDelaySeconds;
 
     [Header("Player Target")]
     [SerializeField, Tooltip("Tag used to identify the Player object.")]
@@ -69,26 +70,29 @@ public class ExplosiveBarrel : MonoBehaviour
     private Transform directionReferenceTransform;
 
     [SerializeField, Tooltip("If true, zeroes sideways velocity relative to the launch direction; otherwise preserves it.")]
-    private bool shouldResetTangentialVelocity = false;
+    private bool shouldResetTangentialVelocity;
 
     [Header("Enemy Targeting")]
     [SerializeField, Tooltip("Tag used to identify Enemy objects. Leave empty to affect any EntityController that is not the player.")]
     private string enemyTag = "Enemy";
 
     [Header("Medal Condition")]
-    [SerializeField, Tooltip("If true, the barrel only damages enemies and launches the player strictly upward.")]
-    private bool isMedalConditionAchieved = false;
+    [SerializeField, Tooltip("If true, overrides the global upgrade gate, otherwise the barrel reads LevelManager.BarrelInvulnerabilityEnabled.")]
+    private bool overrideMedalConditionLocally;
+
+    [SerializeField, Tooltip("Local medal condition used only when Override is enabled.")]
+    private bool localMedalConditionAchieved;
 
     [Header("Optional Physics For Others")]
     [SerializeField, Tooltip("If > 0, applies Unity's AddExplosionForce to any non-player rigidbodies within radius.")]
-    private float otherRigidbodiesExplosionImpulse = 0f;
+    private float otherRigidbodiesExplosionImpulse;
 
     [SerializeField, Tooltip("Upwards modifier used by AddExplosionForce for non-player rigidbodies.")]
     private float otherRigidbodiesUpwardsModifier = 0.5f;
 
     [Header("Debug")]
     [SerializeField, Tooltip("If enabled, prints detailed debug logs.")]
-    private bool isDebugLoggingEnabled = false;
+    private bool isDebugLoggingEnabled;
 
     [SerializeField, Tooltip("If enabled, draws gizmos for the explosion radius and example launch direction.")]
     private bool drawGizmos = true;
@@ -108,6 +112,9 @@ public class ExplosiveBarrel : MonoBehaviour
         ResolveControllerAndModel();
         EnsureHealthRegisteredImmediateOrDeferred();
         SyncPostActionFromDieBehaviour();
+
+        if (explosionDelaySeconds > 0f && hasExplosionAlreadyTriggered)
+            Invoke(nameof(ExecuteExplosionNow), explosionDelaySeconds);
     }
 
     private void OnEnable()
@@ -195,7 +202,7 @@ public class ExplosiveBarrel : MonoBehaviour
                 {
                     ApplyJumpPadStyleLaunch(rb, explosionOriginWorld, true);
                 }
-                if (!isMedalConditionAchieved)
+                if (!IsMedalConditionActive())
                 {
                     TryKillViaHealthOrNotify(targetObject, "Player", explosionOriginWorld);
                 }
@@ -225,7 +232,7 @@ public class ExplosiveBarrel : MonoBehaviour
                 DoPostExplosionAction();
         }
 
-        LogDebug($"Explosion executed | origin={explosionOriginWorld} radius={explosionRadiusMeters} medal={isMedalConditionAchieved}");
+        LogDebug($"Explosion executed | origin={explosionOriginWorld} radius={explosionRadiusMeters} medalActive={IsMedalConditionActive()}");
     }
 
     private IEnumerator DelayedPostExplosionAction(float delaySeconds)
@@ -262,7 +269,7 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private Vector3 ComputeLaunchDirection(Rigidbody targetRigidbody, Vector3 explosionOriginWorld, bool isPlayer)
     {
-        if (isPlayer && isMedalConditionAchieved) return Vector3.up;
+        if (isPlayer && IsMedalConditionActive()) return Vector3.up;
 
         Vector3 dir;
         switch (launchDirectionSource)
@@ -359,6 +366,11 @@ public class ExplosiveBarrel : MonoBehaviour
         }
     }
 
+    private bool IsMedalConditionActive()
+    {
+        return overrideMedalConditionLocally ? localMedalConditionAchieved : LevelManager.BarrelInvulnerabilityEnabled;
+    }
+
     private void LogDebug(string message)
     {
         if (!isDebugLoggingEnabled) return;
@@ -384,7 +396,7 @@ public class ExplosiveBarrel : MonoBehaviour
             case LaunchDirectionSource.ReferenceTransformUp: exampleDirection = directionReferenceTransform ? directionReferenceTransform.up : transform.up; break;
         }
 
-        Gizmos.color = isMedalConditionAchieved ? Color.cyan : Color.yellow;
+        Gizmos.color = IsMedalConditionActive() ? Color.cyan : Color.yellow;
         Gizmos.DrawRay(origin, exampleDirection.normalized * Mathf.Min(1.0f, explosionRadiusMeters * 0.5f));
     }
 }

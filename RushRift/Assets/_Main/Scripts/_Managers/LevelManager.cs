@@ -36,6 +36,7 @@ namespace Game
         //[SerializeField] private ScreenManager screenManager;
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private ScriptableReferenceSO scriptableReference;
+        private bool _barrelInvulnerabilityEnabled;
         [FormerlySerializedAs("vfxPool")] [SerializeField] private EffectPool effectPool; // Por ahora lo pongo aca para que no sea un singleton
 
         private static LevelManager _instance;
@@ -86,6 +87,12 @@ namespace Game
             return _instance.scriptableReference.medalReferences;
         }
 
+        public static bool BarrelInvulnerabilityEnabled
+        {
+            get => _instance && _instance._barrelInvulnerabilityEnabled;
+            set { if (_instance) _instance._barrelInvulnerabilityEnabled = value; }
+        }
+        
         public static void GetEnemiesReference(ISubject onDeath)
         {
             if (_instance == null)
