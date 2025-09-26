@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6712415146032809637}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: DirectionReference
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 1080274269195157677}
   - component: {fileID: 2080837362097179657}
   - component: {fileID: 4217666108112723246}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -302,7 +302,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2285
+  m_VersionIndex: 2300
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -396,7 +396,8 @@ GameObject:
   - component: {fileID: 5219070037133625162}
   - component: {fileID: 3530123441050916925}
   - component: {fileID: 6030798936842893509}
-  m_Layer: 0
+  - component: {fileID: 3859250893487381447}
+  m_Layer: 9
   m_Name: P_ExplosiveBarrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -453,19 +454,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b99bcb9206dbc44597b8b6b403a81b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  healthComponentData:
+    startValue: 1
+    max: 1
+    regenDelay: 0
+    regenRate: 0
+    onZeroHealth: 1
+  useDieBehaviourForPostAction: 1
   shouldExplodeOnDestroy: 1
   explosionOriginLocalOffset: {x: 0, y: 0, z: 0}
-  explosionRadiusMeters: 8
+  explosionRadiusMeters: 10
   explosionDelaySeconds: 0
+  explosionDamageMax: 100
+  explosionDamageMin: 10
+  playerLaunchSpeedMaxMetersPerSecond: 18
+  playerLaunchSpeedMinMetersPerSecond: 6
+  otherRigidbodiesExplosionImpulseMax: 20
+  otherRigidbodiesExplosionImpulseMin: 4
+  otherRigidbodiesUpwardsModifier: 25
   postExplosionAction: 2
   postExplosionActionDelaySeconds: 0
   requiredPlayerTag: Player
-  playerLaunchSpeedMetersPerSecond: 100
   launchDirectionSource: 2
   customLaunchDirection: {x: 0, y: 50, z: 0}
-  directionReferenceTransform: {fileID: 0}
+  directionReferenceTransform: {fileID: 5219070037133625162}
   shouldResetTangentialVelocity: 0
-  otherRigidbodiesExplosionImpulse: 50
-  otherRigidbodiesUpwardsModifier: 25
+  enemyTag: Enemy
+  overrideMedalConditionLocally: 0
+  localMedalConditionAchieved: 0
+  shouldPlayExplosionAudio: 1
+  explosionAudioEventName: BarrelExplosion
+  explosionVfxAsset: {fileID: 8926484042661614526, guid: 3307550017fa12c42ad4670702617c46, type: 3}
+  explosionVfxLocalOffset: {x: 0, y: 0, z: 0}
+  explosionVfxAutoDestroySeconds: 3
   isDebugLoggingEnabled: 1
   drawGizmos: 1
+--- !u!114 &3859250893487381447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8090900943719521310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a44bddc3df6438941b6599a16c64ca49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  model: {fileID: 11400000, guid: e1e1ea2eb515cc34d9b70d11584dd4e4, type: 2}
+  joints:
+    defaultJoint: {fileID: 0}
+    jointMap:
+      content: []
+      enumType: 0
+  animator: []
