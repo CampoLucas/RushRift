@@ -4,6 +4,7 @@ using Game;
 using Game.Entities;
 using Game.Entities.Components;
 using UnityEngine;
+using UnityEngine.VFX;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
@@ -44,7 +45,7 @@ public class ExplosiveBarrel : MonoBehaviour
     private float explosionRadiusMeters = 6f;
 
     [SerializeField, Tooltip("Optional delay in seconds before executing the explosion logic once triggered.")]
-    private float explosionDelaySeconds;
+    private float explosionDelaySeconds = 0f;
 
     [Header("Distance-Based Damage")]
     [SerializeField, Tooltip("Maximum damage dealt at zero distance.")]
@@ -74,7 +75,7 @@ public class ExplosiveBarrel : MonoBehaviour
     private PostExplosionAction postExplosionAction = PostExplosionAction.DestroyGameObject;
 
     [SerializeField, Tooltip("Optional extra delay in seconds before performing the post-explosion action.")]
-    private float postExplosionActionDelaySeconds;
+    private float postExplosionActionDelaySeconds = 0f;
 
     [Header("Player Target")]
     [SerializeField, Tooltip("Tag used to identify the Player object.")]
@@ -90,7 +91,7 @@ public class ExplosiveBarrel : MonoBehaviour
     private Transform directionReferenceTransform;
 
     [SerializeField, Tooltip("If true, zeroes sideways velocity relative to the launch direction; otherwise preserves it.")]
-    private bool shouldResetTangentialVelocity;
+    private bool shouldResetTangentialVelocity = false;
 
     [Header("Enemy Targeting")]
     [SerializeField, Tooltip("Tag used to identify Enemy objects. Leave empty to affect any EntityController that is not the player.")]
@@ -98,14 +99,31 @@ public class ExplosiveBarrel : MonoBehaviour
 
     [Header("Medal Condition")]
     [SerializeField, Tooltip("If true, overrides the global upgrade gate, otherwise the barrel reads LevelManager.BarrelInvulnerabilityEnabled.")]
-    private bool overrideMedalConditionLocally;
+    private bool overrideMedalConditionLocally = false;
 
     [SerializeField, Tooltip("Local medal condition used only when Override is enabled.")]
-    private bool localMedalConditionAchieved;
+    private bool localMedalConditionAchieved = false;
+
+    [Header("Audio")]
+    [SerializeField, Tooltip("If enabled, plays an audio event when the barrel explodes.")]
+    private bool shouldPlayExplosionAudio = true;
+
+    [SerializeField, Tooltip("Audio event name passed to AudioManager.Play on explosion.")]
+    private string explosionAudioEventName = "BarrelExplosion";
+
+    [Header("Visual Effects")]
+    [SerializeField, Tooltip("Visual Effect Graph asset spawned at the explosion point.")]
+    private VisualEffectAsset explosionVfxAsset;
+
+    [SerializeField, Tooltip("Local offset from the explosion origin where the VFX will be placed.")]
+    private Vector3 explosionVfxLocalOffset = Vector3.zero;
+
+    [SerializeField, Tooltip("Seconds before the spawned VFX GameObject is destroyed.")]
+    private float explosionVfxAutoDestroySeconds = 3f;
 
     [Header("Debug")]
     [SerializeField, Tooltip("If enabled, prints detailed debug logs.")]
-    private bool isDebugLoggingEnabled;
+    private bool isDebugLoggingEnabled = false;
 
     [SerializeField, Tooltip("If enabled, draws gizmos for the explosion radius and example launch direction.")]
     private bool drawGizmos = true;
@@ -177,6 +195,8 @@ public class ExplosiveBarrel : MonoBehaviour
     private void ExecuteExplosionNow()
     {
         Vector3 explosionOriginWorld = transform.TransformPoint(explosionOriginLocalOffset);
+        TriggerExplosionAudioAndVfx(explosionOriginWorld);
+
         int overlappedCount = Physics.OverlapSphereNonAlloc(explosionOriginWorld, Mathf.Max(0f, explosionRadiusMeters), OverlapBuffer, ~0, QueryTriggerInteraction.Collide);
 
         var processedControllers = new HashSet<EntityController>();
@@ -240,6 +260,26 @@ public class ExplosiveBarrel : MonoBehaviour
         }
 
         LogDebug($"Explosion executed | origin={explosionOriginWorld} radius={explosionRadiusMeters} medalActive={IsMedalConditionActive()}");
+    }
+
+    private void TriggerExplosionAudioAndVfx(Vector3 originWorld)
+    {
+        if (shouldPlayExplosionAudio && !string.IsNullOrEmpty(explosionAudioEventName))
+        {
+            AudioManager.Play(explosionAudioEventName);
+            LogDebug($"Audio played | event={explosionAudioEventName}");
+        }
+
+        if (explosionVfxAsset)
+        {
+            var go = new GameObject("VFX_Explosion");
+            go.transform.position = originWorld + transform.TransformVector(explosionVfxLocalOffset);
+            var vfx = go.AddComponent<VisualEffect>();
+            vfx.visualEffectAsset = explosionVfxAsset;
+            vfx.Play();
+            if (explosionVfxAutoDestroySeconds > 0f) Destroy(go, explosionVfxAutoDestroySeconds);
+            LogDebug("VFX spawned");
+        }
     }
 
     private IEnumerator DelayedPostExplosionAction(float delaySeconds)
