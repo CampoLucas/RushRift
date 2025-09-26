@@ -1,3 +1,4 @@
+using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 
 namespace Game.Entities
@@ -34,6 +35,27 @@ namespace Game.Entities
                 anim.Play(name);
             }
         }
+
+        public void Play(int id)
+        {
+            if (Animators.Length <= 0) return;
+
+            if (Animators.Length == 1)
+            {
+                var anim = Animators[0];
+                if (anim == null) return;
+                anim.Play(id);
+            }
+            else
+            {
+                for (var i = 0; i < Animators.Length; i++)
+                {
+                    var anim = Animators[i];
+                    if (anim == null) continue;
+                    anim.Play(id);
+                }
+            }
+        }
         
         /// <summary>
         /// Plays the specified animation on all animators on a given layer and normalized time
@@ -50,6 +72,48 @@ namespace Game.Entities
                 var anim = Animators[i];
                 if (anim == null) continue;
                 anim.Play(name, layer, normalizedTime);
+            }
+        }
+
+        public void SetFloat(int id, float value)
+        {
+            if (Animators.Length <= 0) return;
+
+            if (Animators.Length == 1)
+            {
+                var anim = Animators[0];
+                if (anim == null) return;
+                anim.SetFloat(id, value);
+            }
+            else
+            {
+                for (var i = 0; i < Animators.Length; i++)
+                {
+                    var anim = Animators[i];
+                    if (anim == null) continue;
+                    anim.SetFloat(id, value);
+                }
+            }
+        }
+
+        public void SetBool(int id, bool value)
+        {
+            if (Animators.Length <= 0) return;
+
+            if (Animators.Length == 1)
+            {
+                var anim = Animators[0];
+                if (anim == null) return;
+                anim.SetBool(id, value);
+            }
+            else
+            {
+                for (var i = 0; i < Animators.Length; i++)
+                {
+                    var anim = Animators[i];
+                    if (anim == null) continue;
+                    anim.SetBool(id, value);
+                }
             }
         }
         

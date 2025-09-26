@@ -21,20 +21,16 @@ namespace _Main.Scripts.Environment
         [Header("Direction")]
         [SerializeField, Tooltip("Where the launch direction comes from.")]
         private DirectionSource directionSource = DirectionSource.PadUp;
-
         [SerializeField, Tooltip("Used when Direction Source is CustomVector. Will be normalized.")]
         private Vector3 customDirection = Vector3.up;
-
         [SerializeField, Tooltip("Used when Direction Source is TransformForward. If null, world forward is used.")]
         private Transform directionTransform;
 
         [Header("Velocity Handling")]
         [SerializeField, Tooltip("If true, removes all sideways velocity relative to the launch direction.")]
         private bool resetTangentialVelocity = true;
-
         [SerializeField, Range(0f, 1f), Tooltip("Sideways velocity retention if not fully reset. 0 = none, 1 = keep all.")]
         private float tangentialRetention01;
-
         [SerializeField, Tooltip("If true, the final velocity magnitude will be exactly Launch Speed, regardless of entry angle.")]
         private bool clampExitSpeedToLaunch = true;
 
@@ -42,12 +38,25 @@ namespace _Main.Scripts.Environment
         [SerializeField, Tooltip("If true, launch once on entry. If false, launch continuously while inside the trigger.")]
         private bool triggerOnlyOnEnter = true;
 
+        [SerializeField, Tooltip("If true and OnlyOnEnter is enabled, allow a re-launch while still inside when the player falls back onto the pad.")]
+        private bool allowReLaunchWhileInside = true;
+
+        [SerializeField, Tooltip("Dot threshold against launch direction to consider 'falling onto pad'. More negative = stricter. (-0.05 to -0.3 is good)")]
+        private float reLaunchDotThreshold = -0.08f;
+
+        [SerializeField, Tooltip("Minimum seconds between launches for the same collider to avoid spamming.")]
+        private float reLaunchCooldownSeconds = 0.2f;
+
         [Header("Debug")]
         [SerializeField, Tooltip("If enabled, prints detailed debug logs for this JumpPad.")]
         private bool debugLogs;
 
         private static readonly Collider[] OverlapBuffer = new Collider[32];
         private readonly HashSet<Collider> _occupants = new();
+        private readonly Dictionary<Collider, float> _lastLaunchTime = new();
+        
+        private readonly Dictionary<Collider, bool> _launchedThisPresence = new();
+
         private Collider _collider;
 
         private void Awake()
@@ -65,24 +74,84 @@ namespace _Main.Scripts.Environment
         private void OnDisable()
         {
             _occupants.Clear();
+            _lastLaunchTime.Clear();
+            _launchedThisPresence.Clear();
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (!other) return;
             _occupants.Add(other);
-            if (triggerOnlyOnEnter) TryLaunch(other);
+            _launchedThisPresence[other] = false;
+
+            if (triggerOnlyOnEnter)
+                TryLaunch(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (!other) return;
             _occupants.Remove(other);
+            _lastLaunchTime.Remove(other);
+            _launchedThisPresence.Remove(other);
         }
 
         private void OnTriggerStay(Collider other)
         {
-            if (!triggerOnlyOnEnter) TryLaunch(other);
+            if (!other) return;
+
+            if (!triggerOnlyOnEnter)
+            {
+                TryLaunch(other);
+                return;
+            }
+
+            if (!allowReLaunchWhileInside) return;
+            if (!canBeUsed) return;
+
+            var rb = other.attachedRigidbody ? other.attachedRigidbody : other.GetComponentInParent<Rigidbody>();
+            if (!rb) return;
+
+            var go = rb.gameObject;
+            if (!go.CompareTag("Player")) return;
+
+            Vector3 dir = GetDirection();
+            float along = Vector3.Dot(rb.velocity, dir);
+            
+            bool launched = false;
+            _launchedThisPresence.TryGetValue(other, out launched);
+
+            bool firstLaunchWhileInside = !launched;
+            bool downwardApproach = along <= reLaunchDotThreshold;
+            bool nearlyStationary = rb.velocity.sqrMagnitude <= 0.01f;
+
+            if (firstLaunchWhileInside && (downwardApproach || nearlyStationary))
+            {
+                if (Time.time - GetLastLaunchTime(other) >= reLaunchCooldownSeconds)
+                {
+                    Log($"Inside-trigger first launch (dot={along:0.###}, v²={rb.velocity.sqrMagnitude:0.###})");
+                    TryLaunch(other);
+                    _launchedThisPresence[other] = true;
+                }
+                return;
+            }
+            
+            if (downwardApproach)
+            {
+                if (Time.time - GetLastLaunchTime(other) >= reLaunchCooldownSeconds)
+                {
+                    Log($"Re-launch condition met inside trigger (dot={along:0.###})");
+                    TryLaunch(other);
+                    _launchedThisPresence[other] = true;
+                }
+            }
+        }
+
+        private float GetLastLaunchTime(Collider other)
+        {
+            float last = 0f;
+            _lastLaunchTime.TryGetValue(other, out last);
+            return last;
         }
 
         private void TryLaunch(Collider other)
@@ -116,29 +185,25 @@ namespace _Main.Scripts.Environment
             if (resetTangentialVelocity) tangential = Vector3.zero;
             else tangential *= Mathf.Clamp01(tangentialRetention01);
 
-            Vector3 newVelocity;
-
-            if (clampExitSpeedToLaunch)
-            {
-                newVelocity = dir * Mathf.Max(0f, launchSpeed);
-            }
-            else
-            {
-                newVelocity = tangential + dir * Mathf.Max(0f, launchSpeed);
-            }
+            Vector3 newVelocity = clampExitSpeedToLaunch
+                ? dir * Mathf.Max(0f, launchSpeed)
+                : tangential + dir * Mathf.Max(0f, launchSpeed);
 
             Log($"Launch {go.name} | entrySpeed={v.magnitude:0.###} | tangentialKept={tangential.magnitude:0.###} | exitSpeed={newVelocity.magnitude:0.###} | dir={dir}");
             rb.velocity = newVelocity;
+
+            _lastLaunchTime[other] = Time.time;
+            _launchedThisPresence[other] = true;
         }
 
         private Vector3 GetDirection()
         {
             Vector3 direction = directionSource switch
             {
-                DirectionSource.WorldUp         => Vector3.up,
-                DirectionSource.PadUp           => transform.up,
-                DirectionSource.CustomVector    => customDirection,
-                DirectionSource.TransformForward=> directionTransform ? directionTransform.forward : Vector3.forward,
+                DirectionSource.WorldUp          => Vector3.up,
+                DirectionSource.PadUp            => transform.up,
+                DirectionSource.CustomVector     => customDirection,
+                DirectionSource.TransformForward => directionTransform ? directionTransform.forward : Vector3.forward,
                 _ => transform.up
             };
             if (direction.sqrMagnitude < 1e-6f) direction = Vector3.up;
