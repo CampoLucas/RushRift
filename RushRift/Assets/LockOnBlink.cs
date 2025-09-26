@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Game.Entities;
+using Game.Entities.Components;
 
 [DisallowMultipleComponent]
 public class LockOnBlink : MonoBehaviour
@@ -67,6 +69,12 @@ public class LockOnBlink : MonoBehaviour
     private bool snapRotationToTarget = true;
     [SerializeField, Tooltip("If enabled, resets velocity of a Rigidbody (if present) after teleport.")]
     private bool zeroOutRigidbodyVelocity = true;
+
+    [Header("On-Blink Kill")]
+    [SerializeField, Tooltip("If enabled, the target you blink to will be destroyed.")]
+    private bool shouldKillTargetOnBlink = true;
+    [SerializeField, Tooltip("If true, tries to kill via HealthComponent.Intakill; otherwise falls back to EntityController.DESTROY.")]
+    private bool preferHealthComponentKill = true;
 
     [Header("UI")]
     [SerializeField, Tooltip("Optional UI slider to visualize lock progress (0..1).")]
@@ -152,7 +160,6 @@ public class LockOnBlink : MonoBehaviour
         HandleChargingInput();
         TickLocking();
 
-        // OnKeyHold: release → blink
         if (lockStartMode == LockStartMode.OnKeyHold)
         {
             if (lockKey != KeyCode.None && Input.GetKeyUp(lockKey))
@@ -167,7 +174,6 @@ public class LockOnBlink : MonoBehaviour
                 TryPerformBlink();
         }
 
-        // Handle delayed hide to avoid flicker
         if (_sliderVisible && autoShowHideSlider && _uiHideAtTime > 0f && Now >= _uiHideAtTime)
             SetSliderVisible(false);
     }
@@ -185,7 +191,7 @@ public class LockOnBlink : MonoBehaviour
                 if (lockKey == KeyCode.None) { _chargingActive = false; return; }
                 bool isDown = Input.GetKey(lockKey);
                 bool isUpThisFrame = Input.GetKeyUp(lockKey);
-                _chargingActive = isDown || isUpThisFrame; // keep active on release frame so blink can trigger
+                _chargingActive = isDown || isUpThisFrame;
                 break;
             }
 
@@ -268,6 +274,8 @@ public class LockOnBlink : MonoBehaviour
         if (Now < _cooldownUntil) { Log("Blink ignored: on cooldown"); return; }
 
         PerformBlink(_currentTarget);
+        if (shouldKillTargetOnBlink) TryKillTarget(_currentTarget);
+
         _cooldownUntil = Now + Mathf.Max(0f, cooldownSeconds);
 
         if (lockStartMode != LockStartMode.Automatic)
@@ -306,19 +314,27 @@ public class LockOnBlink : MonoBehaviour
         Log($"Blink → {destination}");
     }
 
-    private void ResetLockState(bool forceHide = false)
+    private void TryKillTarget(Transform target)
     {
-        _chargingTarget = null;
-        _lockTimer = 0f;
-        _readyToBlink = false;
+        if (!target) return;
 
-        if (lockOnProgressSlider) lockOnProgressSlider.value = 0f;
-
-        if (autoShowHideSlider)
+        var controller = target.GetComponentInParent<EntityController>();
+        if (controller != null)
         {
-            if (forceHide) { _uiHideAtTime = 0f; SetSliderVisible(false); }
-            // else: grace-hide is handled by BeginSliderGraceHide()
+            var model = controller.GetModel();
+            if (preferHealthComponentKill && model != null && model.TryGetComponent<HealthComponent>(out var health))
+            {
+                health.Intakill(target.position);
+                Log($"Killed via HealthComponent.Intakill | target={controller.Origin.name}");
+                return;
+            }
+
+            controller.OnNotify(EntityController.DESTROY);
+            Log($"Destroyed via EntityController observer | target={controller.Origin.name}");
+            return;
         }
+
+        Log("No EntityController found on target");
     }
 
     private Transform AcquireTarget()
@@ -405,6 +421,27 @@ public class LockOnBlink : MonoBehaviour
         else
         {
             Log($"SlowMo owner released (owners remaining={s_slowMoOwners})");
+        }
+    }
+
+    private void ResetLockState(bool hardReset = false)
+    {
+        _lockTimer = 0f;
+        _readyToBlink = false;
+
+        if (hardReset)
+        {
+            _chargingTarget = null;
+            _currentTarget = null;
+        }
+
+        if (lockOnProgressSlider)
+        {
+            lockOnProgressSlider.value = 0f;
+            if (autoShowHideSlider)
+            {
+                _uiHideAtTime = 0f;
+            }
         }
     }
 
