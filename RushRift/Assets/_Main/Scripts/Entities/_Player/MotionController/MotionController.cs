@@ -39,7 +39,7 @@ namespace Game.Entities.Components.MotionController
             _onUnPaused = new ActionObserver(UnPauseHandler);
             
             UIManager.OnPaused.Attach(_onPaused);
-            UIManager.OnUnPaused.Attach(_onUnPaused);
+            UIManager.OnUnpaused.Attach(_onUnPaused);
         }
 
         public bool TryAddHandler<THandler>(THandler newHandler, bool rebuildHandlers = true) where THandler : BaseMotionHandler
@@ -207,7 +207,7 @@ namespace Game.Entities.Components.MotionController
         public void Dispose()
         {
             UIManager.OnPaused.Detach(_onPaused);
-            UIManager.OnUnPaused.Detach(_onUnPaused);
+            UIManager.OnUnpaused.Detach(_onUnPaused);
             
             _onPaused?.Dispose();
             _onUnPaused?.Dispose();

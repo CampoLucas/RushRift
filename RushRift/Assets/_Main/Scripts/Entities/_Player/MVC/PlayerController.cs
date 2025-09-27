@@ -22,6 +22,8 @@ namespace Game.Entities
 
         #endregion
 
+        [SerializeField] private Effect[] startEffects;
+
         private Vector3 _moveDir;
         private Transform _camera;
 
@@ -53,27 +55,38 @@ namespace Game.Entities
             var medalEffects = saveData.LevelsMedalsTimes;
             var currentLevel = LevelManager.GetCurrentLevel();
             Effect currentEffect;
-
+            
+            for (var i = 0; i < startEffects.Length; i++)
+            {
+                var effect = startEffects[i];
+                if (effect.IsNullOrMissingReference()) continue;
+                
+                effect.ApplyEffect(this);
+            }
+            
             if (currentLevel == 0) return;
 
-            if (medalEffects[currentLevel].bronze.isAcquired)
+            if (medalEffects.TryGetValue(currentLevel, out var medalTimes))
             {
-                currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].bronze.upgrade);
-                currentEffect.ApplyEffect(this);
-            }
+                if (medalTimes.bronze.isAcquired)
+                {
+                    currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].bronze.upgrade);
+                    currentEffect.ApplyEffect(this);
+                }
 
-            if (medalEffects[currentLevel].silver.isAcquired)
-            {
-                currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].silver.upgrade);
-                currentEffect.ApplyEffect(this);
-            }
+                if (medalTimes.silver.isAcquired)
+                {
+                    currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].silver.upgrade);
+                    currentEffect.ApplyEffect(this);
+                }
 
-            if (medalEffects[currentLevel].gold.isAcquired)
-            {
-                currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].gold.upgrade);
-                currentEffect.ApplyEffect(this);
+                if (medalTimes.gold.isAcquired)
+                {
+                    currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].gold.upgrade);
+                    currentEffect.ApplyEffect(this);
+                }
             }
-
+            
         }
 
         protected override void SetJoins()

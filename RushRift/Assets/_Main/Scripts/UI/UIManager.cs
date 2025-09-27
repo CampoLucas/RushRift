@@ -14,7 +14,7 @@ namespace Game.UI
     public class UIManager : MonoBehaviour
     {
         public static readonly ISubject OnPaused = new Subject();
-        public static readonly ISubject OnUnPaused = new Subject();
+        public static readonly ISubject OnUnpaused = new Subject();
         
         [SerializeField] private PlayerController player;
         
@@ -175,7 +175,7 @@ namespace Game.UI
             
             
             OnPaused.DetachAll();
-            OnUnPaused.DetachAll();
+            OnUnpaused.DetachAll();
         }
     }
 }
