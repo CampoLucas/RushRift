@@ -15,7 +15,7 @@ namespace Game.UI.Screens
         {
             base.Begin();
             // Un Pause the game
-            UIManager.OnUnPaused.NotifyAll();
+            UIManager.OnUnpaused.NotifyAll();
             
             // Set cursor
             Cursor.lockState = CursorLockMode.Locked;

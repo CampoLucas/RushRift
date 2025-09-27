@@ -41,7 +41,7 @@ MonoBehaviour:
     - checkAngle: 0
       angle: 0
       checkRange: 1
-      range: 45
+      range: 75
       checkView: 1
       mask:
         serializedVersion: 2
@@ -124,27 +124,6 @@ MonoBehaviour:
   behaviourData: {fileID: 11400000}
   behaviour: {fileID: 11400000, guid: 3ee3437eb7112f84a963e79fad623712, type: 2}
   waitUntilFinished: 1
---- !u!114 &-3349230201451974667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3adaabc0a42f4d1083f0288efae8aeb1, type: 3}
-  m_Name: RepeatForTime
-  m_EditorClassIdentifier: 
-  guid: 06238efe6f65ed1478eb90d443e157ed
-  children: []
-  position: {x: 46.053284, y: 641}
-  previousPosition: {x: 43.119934, y: 641}
-  behaviourData: {fileID: 11400000}
-  duration: 2
-  randomDuration: 0
-  randomTime: {x: 0, y: 0}
-  stopOnFailure: 1
 --- !u!114 &-1763924997084066979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,60 +164,16 @@ MonoBehaviour:
   - {fileID: 3300301289691992510}
   - {fileID: -6742053613094033581}
   - {fileID: 2527731681476120399}
-  - {fileID: 326541266069533516}
   - {fileID: -6931800837735344402}
-  - {fileID: 5780005251015518886}
   - {fileID: -6814332282639265595}
   - {fileID: -1763924997084066979}
   - {fileID: -4562655285050628618}
-  - {fileID: 166955038570871335}
-  - {fileID: -3349230201451974667}
   - {fileID: -5687904714133394737}
   - {fileID: 7870774838628615780}
   - {fileID: 7075909005984343782}
   - {fileID: 5824425285034466280}
   - {fileID: 6422692701173399565}
   - {fileID: 5918855332674748784}
---- !u!114 &166955038570871335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 551884d144a14c98af7c5505cff38500, type: 3}
-  m_Name: PlayAnimationData
-  m_EditorClassIdentifier: 
-  guid: f46c5a937921f2247b573609428ea930
-  children: []
-  position: {x: 273.65448, y: 608.6666}
-  previousPosition: {x: 273.65448, y: 606.8933}
-  behaviourData: {fileID: 11400000}
-  target: {fileID: 0}
-  searchInChildren: 1
-  animation: Idle
-  layer: -1
---- !u!114 &326541266069533516
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f1eaefeeef145298f060deabbc5702a, type: 3}
-  m_Name: SelectorData
-  m_EditorClassIdentifier: 
-  guid: 92335435cf9413346b8b296c60a340c5
-  children:
-  - {fileID: -6931800837735344402}
-  - {fileID: 5780005251015518886}
-  position: {x: 58.44005, y: 372.89328}
-  previousPosition: {x: 60.213425, y: 372.89328}
-  behaviourData: {fileID: 11400000}
 --- !u!114 &2527731681476120399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,7 +188,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 3fdbf30eac6129140ae111f7dcce7da4
   children:
-  - {fileID: 326541266069533516}
+  - {fileID: -6931800837735344402}
   position: {x: 60.666626, y: 241.99998}
   previousPosition: {x: 60.666626, y: 241.99998}
   behaviourData: {fileID: 11400000}
@@ -277,24 +212,6 @@ MonoBehaviour:
   - {fileID: -6742053613094033581}
   position: {x: 0, y: 0}
   previousPosition: {x: 0, y: 0}
-  behaviourData: {fileID: 11400000}
---- !u!114 &5780005251015518886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
-  m_Name: SequencerData
-  m_EditorClassIdentifier: 
-  guid: 8edfdae6391bb6a45861e10373db3c5e
-  children:
-  - {fileID: 166955038570871335}
-  position: {x: 278.98767, y: 492.6667}
-  previousPosition: {x: 278.98767, y: 490.89337}
   behaviourData: {fileID: 11400000}
 --- !u!114 &5824425285034466280
 MonoBehaviour:

@@ -18,7 +18,7 @@ public class DisableBehaviour : MonoBehaviour
         _onEnableCall = new ActionObserver(OnEnableHandler);
 
         UIManager.OnPaused.Attach(_onDisableCall);
-        UIManager.OnUnPaused.Attach(_onEnableCall);
+        UIManager.OnUnpaused.Attach(_onEnableCall);
     }
 
     public bool TrySetBehaviour(Behaviour[] behaviours)

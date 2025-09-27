@@ -97,7 +97,12 @@ namespace Game.Entities.AttackSystem.Hitscan
                 _detected = true;
                 trail.SetPosition(spawn, point, Data.LineDuration, Data.Offset);
                 var other = collider.gameObject;
-                if (other.TryGetComponent<IController>(out var controller) &&
+                
+                if (other.TryGetComponent<Projectile>(out var projectile))
+                {
+                    projectile.DestroyProjectile();
+                }
+                else if (other.TryGetComponent<IController>(out var controller) &&
                     controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
                 {
                     healthComponent.Damage(Data.Damage, spawnPos);
@@ -106,6 +111,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                 {
                     terminal.Do();
                 }
+                
 
                 LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
                 {
