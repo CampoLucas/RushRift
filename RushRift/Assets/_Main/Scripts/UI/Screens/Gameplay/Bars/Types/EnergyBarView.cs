@@ -26,10 +26,10 @@ namespace Game.UI.Screens
                 Charging(false);
             }
 
-            // if (current > previous)
-            // {
-            //     _popCoroutine = StartCoroutine(FillPopEffect());
-            // }
+            if (current > 0 && current > previous)
+            {
+                _popCoroutine = StartCoroutine(FillPopEffect((int)current - 1));
+            }
         }
 
         private void Charging(bool value)
@@ -60,7 +60,7 @@ namespace Game.UI.Screens
                 text.color = filledColor;
                 icon.color = filledColor;
 
-                _popCoroutine = StartCoroutine(FillPopEffect());
+                //_popCoroutine = StartCoroutine(FillPopEffect());
             }
         }
         
@@ -85,9 +85,9 @@ namespace Game.UI.Screens
             
         }
         
-        private IEnumerator FillPopEffect()
+        private IEnumerator FillPopEffect(int index)
         {
-            var segment = Segments[0].transform;
+            var segment = Segments[index].transform;
             var textTransform = text.transform;
             var iconTransform = icon.transform;
 
