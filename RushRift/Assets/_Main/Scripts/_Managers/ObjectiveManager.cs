@@ -12,17 +12,16 @@ public class ObjectiveManager : MonoBehaviour
     public int currentLevel => SceneManager.GetActiveScene().buildIndex;
 
     [Header("Single UI Targets (optional, kept for backward-compat)")]
-    [SerializeField] private TMP_Text timerText;
-    [SerializeField] private TMP_Text finalTimerText;
-    [SerializeField] private TMP_Text bestTimerText;
-    [SerializeField] private TMP_Text currentEnemiesText;
+    [SerializeField] private TMP_Text timerText; // Gameplay
+    [SerializeField] private TMP_Text finalTimerText; // Level Won
+    [SerializeField] private TMP_Text bestTimerText; // Level Won
 
-    [Header("Multiple UI Targets")]
+    [Header("Multiple UI Targets")] // Should be their own stand alone class
     [SerializeField] private TMP_Text[] timerTexts;
     [SerializeField] private TMP_Text[] finalTimerTexts;
     [SerializeField] private TMP_Text[] bestTimerTexts;
 
-    [Header("Medal Icon")]
+    [Header("Medal Icon")] // should be on the gameplay ui
     [SerializeField, Tooltip("Primary Image to display the current medal icon.")]
     private Image medalImage;
     [SerializeField, Tooltip("Optional additional medal images to keep in sync.")]
@@ -80,13 +79,11 @@ public class ObjectiveManager : MonoBehaviour
     private void EnemyQuantity()
     {
         _currentEnemies++;
-        if (currentEnemiesText) currentEnemiesText.text = _currentEnemies.ToString();
     }
 
     private void DecreseEnemyQuantity()
     {
         _currentEnemies--;
-        if (currentEnemiesText) currentEnemiesText.text = _currentEnemies.ToString();
     }
 
     private void LevelTimer()
