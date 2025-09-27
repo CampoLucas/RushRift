@@ -170,8 +170,10 @@ namespace Game.UI.Screens
 
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
+            if (_secondaryCoroutine != null) StopCoroutine(_secondaryCoroutine);
+            
             Segments.Clear();
             Segments = null;
         }

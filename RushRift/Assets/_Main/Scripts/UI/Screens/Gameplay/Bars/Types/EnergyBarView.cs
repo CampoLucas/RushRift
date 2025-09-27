@@ -25,6 +25,11 @@ namespace Game.UI.Screens
             {
                 Charging(false);
             }
+
+            // if (current > previous)
+            // {
+            //     _popCoroutine = StartCoroutine(FillPopEffect());
+            // }
         }
 
         private void Charging(bool value)
@@ -125,6 +130,14 @@ namespace Game.UI.Screens
             segment.localScale = startScale;
             textTransform.localScale = startScale;
             iconTransform.localScale = startScale;
+        }
+
+        protected override void OnDestroy()
+        {
+            if (_chargingCoroutine != null) StopCoroutine(_chargingCoroutine);
+            if (_popCoroutine != null) StopCoroutine(_popCoroutine);
+            
+            base.OnDestroy();
         }
     }
 }
