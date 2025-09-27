@@ -55,6 +55,7 @@ namespace Game
         private float _levelCompleteTime;
         private bool _canUseTerminals; // ToDo: Find a better way
         private bool _hasDashDamage; // ToDo: Find a better way
+        private bool _canUseLockOnBlink;
 
 
         private void Awake()
@@ -91,6 +92,12 @@ namespace Game
         {
             get => _instance && _instance._barrelInvulnerabilityEnabled;
             set { if (_instance) _instance._barrelInvulnerabilityEnabled = value; }
+        }
+        
+        public static bool CanUseLockOnBlink
+        {
+            get => _instance && _instance._canUseLockOnBlink;
+            set { if (_instance) _instance._canUseLockOnBlink = value; }
         }
         
         public static void GetEnemiesReference(ISubject onDeath)
