@@ -21,11 +21,15 @@ public class LockOnBlinkView : MonoBehaviour
     [SerializeField, Tooltip("Display behavior for the slider.")]
     private DisplayMode sliderDisplayMode = DisplayMode.AutoShowHide;
 
-    [SerializeField, Tooltip("Keep the slider visible briefly after cancel/complete to prevent flicker (AutoShowHide mode).")]
+    [SerializeField, Tooltip("Keep the slider visible briefly after release/cancel to prevent flicker (AutoShowHide mode).")]
     private float uiVisibilityGraceSeconds = 0.15f;
 
     [SerializeField, Tooltip("If true, uses unscaled time for UI timing.")]
     private bool useUnscaledTimeForUi = true;
+
+    [Header("Auto Setup")]
+    [SerializeField, Tooltip("If true and no slider is assigned, fetches the first Slider in children (inactive included).")]
+    private bool autoFindChildSliderIfMissing = true;
 
     [Header("Debug")]
     [SerializeField, Tooltip("Enable debug logs for the view.")]
@@ -35,6 +39,22 @@ public class LockOnBlinkView : MonoBehaviour
     private float hideAtAbsoluteTime;
 
     private float Now => useUnscaledTimeForUi ? Time.unscaledTime : Time.time;
+
+    private void Awake()
+    {
+        if (!lockProgressSlider && autoFindChildSliderIfMissing)
+            lockProgressSlider = GetComponentInChildren<Slider>(true);
+
+        if (lockProgressSlider)
+        {
+            lockProgressSlider.minValue = 0f;
+            lockProgressSlider.maxValue = 1f;
+            lockProgressSlider.value = 0f;
+        }
+
+        ApplyInitialVisibility();
+        hideAtAbsoluteTime = 0f;
+    }
 
     private void OnEnable()
     {
@@ -47,23 +67,13 @@ public class LockOnBlinkView : MonoBehaviour
             lockOnBlinkAbility.OnBlinkExecuted += HandleBlinkExecuted;
         }
 
-        if (lockProgressSlider)
-        {
-            lockProgressSlider.minValue = 0f;
-            lockProgressSlider.maxValue = 1f;
-            lockProgressSlider.value = 0f;
-
-            if (sliderDisplayMode == DisplayMode.AlwaysVisible)
-            {
-                SetSliderVisible(true);
-            }
-            else
-            {
-                SetSliderVisible(false);
-            }
-        }
-
+        ApplyInitialVisibility();
         hideAtAbsoluteTime = 0f;
+    }
+
+    private void Start()
+    {
+        ApplyInitialVisibility();
     }
 
     private void OnDisable()
@@ -90,6 +100,19 @@ public class LockOnBlinkView : MonoBehaviour
         if (Now >= hideAtAbsoluteTime) SetSliderVisible(false);
     }
 
+    private void ApplyInitialVisibility()
+    {
+        if (!lockProgressSlider) return;
+
+        if (sliderDisplayMode == DisplayMode.AlwaysVisible)
+        {
+            SetSliderVisible(true);
+            return;
+        }
+
+        SetSliderVisible(false);
+    }
+
     private void HandleLockStarted(Transform target)
     {
         if (!lockProgressSlider) return;
@@ -111,8 +134,7 @@ public class LockOnBlinkView : MonoBehaviour
     {
         if (!lockProgressSlider) return;
         lockProgressSlider.value = 1f;
-        if (sliderDisplayMode == DisplayMode.AutoShowHide)
-            hideAtAbsoluteTime = Now + Mathf.Max(0f, uiVisibilityGraceSeconds);
+        hideAtAbsoluteTime = 0f;
         Log("Lock ready");
     }
 
@@ -128,29 +150,15 @@ public class LockOnBlinkView : MonoBehaviour
     private void HandleBlinkExecuted(Vector3 destination)
     {
         if (!lockProgressSlider) return;
-        lockProgressSlider.value = 0f;
-        if (sliderDisplayMode == DisplayMode.AutoShowHide)
-            hideAtAbsoluteTime = Now + Mathf.Max(0f, uiVisibilityGraceSeconds);
+        hideAtAbsoluteTime = 0f;
         Log($"Blink executed to {destination}");
     }
 
     private void SetSliderVisible(bool visible)
     {
         if (!lockProgressSlider) return;
-
-        if (!isSliderCurrentlyVisible && visible)
-        {
-            lockProgressSlider.gameObject.SetActive(true);
-            isSliderCurrentlyVisible = true;
-            return;
-        }
-
-        if (isSliderCurrentlyVisible && !visible)
-        {
-            lockProgressSlider.gameObject.SetActive(false);
-            isSliderCurrentlyVisible = false;
-            return;
-        }
+        lockProgressSlider.gameObject.SetActive(visible);
+        isSliderCurrentlyVisible = visible;
     }
 
     private void Log(string msg)
