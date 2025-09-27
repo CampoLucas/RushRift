@@ -5,6 +5,7 @@ using Game.Entities;
 using Game.Entities.Components;
 using UnityEngine;
 using UnityEngine.VFX;
+using _Main.Scripts.Feedbacks;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
@@ -138,6 +139,15 @@ public class ExplosiveBarrel : MonoBehaviour
     private HealthComponent runtimeHealthComponent;
     private Coroutine ensureRoutine;
 
+    private class AggregatedHit
+    {
+        public Transform Group;
+        public EntityController Controller;
+        public Rigidbody Rigidbody;
+        public float MinDistance;
+        public bool HasDistance;
+    }
+
     private void Awake()
     {
         ResolveControllerAndModel();
@@ -194,63 +204,79 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private void ExecuteExplosionNow()
     {
-        Vector3 explosionOriginWorld = transform.TransformPoint(explosionOriginLocalOffset);
-        TriggerExplosionAudioAndVfx(explosionOriginWorld);
+        Vector3 origin = transform.TransformPoint(explosionOriginLocalOffset);
+        TriggerExplosionAudioVfxAndFreeze(origin);
 
-        int overlappedCount = Physics.OverlapSphereNonAlloc(explosionOriginWorld, Mathf.Max(0f, explosionRadiusMeters), OverlapBuffer, ~0, QueryTriggerInteraction.Collide);
+        int count = Physics.OverlapSphereNonAlloc(origin, Mathf.Max(0f, explosionRadiusMeters), OverlapBuffer, ~0, QueryTriggerInteraction.Collide);
 
-        var processedControllers = new HashSet<EntityController>();
-        var processedRoots = new HashSet<Transform>();
+        var byGroup = new Dictionary<Transform, AggregatedHit>(count);
 
-        for (int i = 0; i < overlappedCount; i++)
+        for (int i = 0; i < count; i++)
         {
             var col = OverlapBuffer[i];
             if (!col) continue;
 
             var controller = col.GetComponentInParent<EntityController>();
-            if (controller && processedControllers.Contains(controller)) continue;
+            Transform group = controller
+                ? controller.Origin.transform
+                : (col.attachedRigidbody ? col.attachedRigidbody.transform : col.transform);
 
-            var root = col.transform.root;
-            if (processedRoots.Contains(root)) continue;
+            if (!byGroup.TryGetValue(group, out var agg))
+            {
+                agg = new AggregatedHit { Group = group, MinDistance = float.PositiveInfinity };
+                byGroup.Add(group, agg);
+            }
 
-            Vector3 closest = col.ClosestPoint(explosionOriginWorld);
-            float distance = Vector3.Distance(explosionOriginWorld, closest);
+            if (agg.Controller == null && controller) agg.Controller = controller;
+
+            if (!agg.Rigidbody)
+            {
+                var rb = col.attachedRigidbody ? col.attachedRigidbody : group.GetComponent<Rigidbody>();
+                if (rb) agg.Rigidbody = rb;
+            }
+
+            Vector3 closest = col.ClosestPoint(origin);
+            float d = Vector3.Distance(origin, closest);
+            if (d < agg.MinDistance)
+            {
+                agg.MinDistance = d;
+                agg.HasDistance = true;
+            }
+        }
+
+        foreach (var kv in byGroup)
+        {
+            var agg = kv.Value;
+            float distance = agg.HasDistance ? agg.MinDistance : Vector3.Distance(origin, agg.Group.position);
             float closeness = Mathf.Clamp01(1f - Mathf.InverseLerp(0f, Mathf.Max(0.0001f, explosionRadiusMeters), distance));
 
             float scaledDamage = Mathf.Lerp(explosionDamageMin, explosionDamageMax, closeness);
             float scaledPlayerSpeed = Mathf.Lerp(playerLaunchSpeedMinMetersPerSecond, playerLaunchSpeedMaxMetersPerSecond, closeness);
             float scaledOtherImpulse = Mathf.Lerp(otherRigidbodiesExplosionImpulseMin, otherRigidbodiesExplosionImpulseMax, closeness);
 
-            GameObject targetObject = controller ? controller.Origin.gameObject : root.gameObject;
+            GameObject targetObject = agg.Controller ? agg.Controller.Origin.gameObject : agg.Group.gameObject;
             bool isPlayer = !string.IsNullOrEmpty(requiredPlayerTag) && targetObject.CompareTag(requiredPlayerTag);
             bool isEnemyByTag = !string.IsNullOrEmpty(enemyTag) && targetObject.CompareTag(enemyTag);
-            bool isEnemyByType = controller is EnemyController;
+            bool isEnemyByType = agg.Controller is EnemyController;
             bool isEnemy = isEnemyByTag || isEnemyByType;
-
-            if (controller) processedControllers.Add(controller); else processedRoots.Add(root);
 
             if (isPlayer)
             {
-                if (targetObject.TryGetComponent<Rigidbody>(out var rb))
-                {
-                    ApplyJumpPadStyleLaunch(rb, explosionOriginWorld, true, Mathf.Max(0f, scaledPlayerSpeed));
-                }
+                if (agg.Rigidbody)
+                    ApplyJumpPadStyleLaunch(agg.Rigidbody, origin, true, Mathf.Max(0f, scaledPlayerSpeed));
+
                 if (!IsMedalConditionActive())
-                {
-                    TryDealScaledDamageOrNotify(targetObject, "Player", explosionOriginWorld, Mathf.Max(0f, scaledDamage));
-                }
-                LogDebug($"Player hit | dist={distance:0.##} closeness={closeness:0.##} dmg={scaledDamage:0.##} speed={scaledPlayerSpeed:0.##}");
+                    TryDealScaledDamageOrNotify(targetObject, "Player", origin, Mathf.Max(0f, scaledDamage));
             }
             else
             {
-                TryDealScaledDamageOrNotify(targetObject, isEnemy ? "Enemy" : "Entity", explosionOriginWorld, Mathf.Max(0f, scaledDamage));
+                TryDealScaledDamageOrNotify(targetObject, isEnemy ? "Enemy" : "Entity", origin, Mathf.Max(0f, scaledDamage));
 
-                if (targetObject.TryGetComponent<Rigidbody>(out var otherRb) && scaledOtherImpulse > 0f)
-                {
-                    otherRb.AddExplosionForce(scaledOtherImpulse, explosionOriginWorld, explosionRadiusMeters, otherRigidbodiesUpwardsModifier, ForceMode.Impulse);
-                }
-                LogDebug($"Target hit | name={targetObject.name} dist={distance:0.##} closeness={closeness:0.##} dmg={scaledDamage:0.##} impulse={scaledOtherImpulse:0.##}");
+                if (agg.Rigidbody && scaledOtherImpulse > 0f)
+                    agg.Rigidbody.AddExplosionForce(scaledOtherImpulse, origin, explosionRadiusMeters, otherRigidbodiesUpwardsModifier, ForceMode.Impulse);
             }
+
+            LogDebug($"Applied | name={targetObject.name} dist={distance:0.##} close={closeness:0.##} dmg={scaledDamage:0.##} impulse={scaledOtherImpulse:0.##}");
         }
 
         if (!explosionInitiatedByOnDestroy)
@@ -259,16 +285,13 @@ public class ExplosiveBarrel : MonoBehaviour
             else DoPostExplosionAction();
         }
 
-        LogDebug($"Explosion executed | origin={explosionOriginWorld} radius={explosionRadiusMeters} medalActive={IsMedalConditionActive()}");
+        LogDebug($"Explosion done | origin={origin} radius={explosionRadiusMeters} medalActive={IsMedalConditionActive()}");
     }
 
-    private void TriggerExplosionAudioAndVfx(Vector3 originWorld)
+    private void TriggerExplosionAudioVfxAndFreeze(Vector3 originWorld)
     {
         if (shouldPlayExplosionAudio && !string.IsNullOrEmpty(explosionAudioEventName))
-        {
             AudioManager.Play(explosionAudioEventName);
-            LogDebug($"Audio played | event={explosionAudioEventName}");
-        }
 
         if (explosionVfxAsset)
         {
@@ -278,7 +301,6 @@ public class ExplosiveBarrel : MonoBehaviour
             vfx.visualEffectAsset = explosionVfxAsset;
             vfx.Play();
             if (explosionVfxAutoDestroySeconds > 0f) Destroy(go, explosionVfxAutoDestroySeconds);
-            LogDebug("VFX spawned");
         }
     }
 
@@ -311,7 +333,6 @@ public class ExplosiveBarrel : MonoBehaviour
         Vector3 tangential = v - launchDirectionWorld * along;
         if (shouldResetTangentialVelocity) tangential = Vector3.zero;
         targetRigidbody.velocity = tangential + launchDirectionWorld * Mathf.Max(0f, targetSpeed);
-        LogDebug($"Launch applied | target={targetRigidbody.name} dir={launchDirectionWorld} speed={targetSpeed:0.##}");
     }
 
     private Vector3 ComputeLaunchDirection(Rigidbody targetRigidbody, Vector3 explosionOriginWorld, bool isPlayer)
@@ -344,16 +365,12 @@ public class ExplosiveBarrel : MonoBehaviour
             if (model != null && model.TryGetComponent<HealthComponent>(out var health))
             {
                 health.Damage(scaledDamage, hitPosition);
-                LogDebug($"{label} damaged via HealthComponent.Damage | name={targetObject.name} amount={scaledDamage:0.##}");
                 return;
             }
 
             controller.OnNotify(EntityController.DESTROY);
-            LogDebug($"{label} destroyed via EntityController observer | name={targetObject.name}");
             return;
         }
-
-        LogDebug($"{label} has no EntityController | name={targetObject.name}");
     }
 
     private void ResolveControllerAndModel()
@@ -378,7 +395,6 @@ public class ExplosiveBarrel : MonoBehaviour
                 }
             }
             SyncPostActionFromDieBehaviour();
-            if (runtimeHealthComponent != null) LogDebug($"Health ready | value={runtimeHealthComponent.Value:0.##}");
         }
         else
         {
