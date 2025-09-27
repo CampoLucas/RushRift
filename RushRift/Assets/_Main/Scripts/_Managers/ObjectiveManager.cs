@@ -40,7 +40,6 @@ public class ObjectiveManager : MonoBehaviour
     private float _timer;
     private bool _triggered;
     private bool stopTimer;
-    private int _currentEnemies = 0;
     private int[] _newTimer = new int[3];
 
     private IObserver _decreaseObserver;
@@ -56,13 +55,9 @@ public class ObjectiveManager : MonoBehaviour
 
     private void Awake()
     {
-        _decreaseObserver = new ActionObserver(DecreseEnemyQuantity);
-        _increaseObserver = new ActionObserver(EnemyQuantity);
         _onWinLevelObserver = new ActionObserver(OnWinLevel);
 
         WinTrigger.OnWinSaveTimes.Attach(_onWinLevelObserver);
-        LevelManager.OnEnemyDeathSubject.Attach(_decreaseObserver);
-        LevelManager.OnEnemySpawnSubject.Attach(_increaseObserver);
 
         stopTimer = false;
         var data = SaveAndLoad.Load();
@@ -74,16 +69,6 @@ public class ObjectiveManager : MonoBehaviour
     private void Update()
     {
         LevelTimer();
-    }
-
-    private void EnemyQuantity()
-    {
-        _currentEnemies++;
-    }
-
-    private void DecreseEnemyQuantity()
-    {
-        _currentEnemies--;
     }
 
     private void LevelTimer()

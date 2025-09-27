@@ -62,7 +62,7 @@ namespace Game.VFX
             }
 
             var onPaused = UIManager.OnPaused;
-            var onUnpause = UIManager.OnUnPaused;
+            var onUnpause = UIManager.OnUnpaused;
             if (onPaused != null)
             {
                 onPaused.Attach(_onPaused);
@@ -77,7 +77,7 @@ namespace Game.VFX
         private void OnDisable()
         {
             var onPaused = UIManager.OnPaused;
-            var onUnpause = UIManager.OnUnPaused;
+            var onUnpause = UIManager.OnUnpaused;
             if (onPaused != null)
             {
                 onPaused.Detach(_onPaused);

@@ -21,6 +21,10 @@ namespace Game.Entities
 
         public void ApplyEffect(IController controller)
         {
+#if UNITY_EDITOR
+            Debug.Log($"SuperTest: Applied effect {name}");
+#endif
+            
             ApplyEffect(controller, duration);
         }
         
