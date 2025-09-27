@@ -16,7 +16,6 @@ namespace Game
     {
         public static readonly ISubject OnEnemyDeathSubject = new Subject(); // ToDo: Move it to the a EnemyManager and dispose of all references
         public static readonly ISubject OnEnemySpawnSubject = new Subject();
-        public static readonly ISubject<int> OnEnemyGivesPoints = new Subject<int>();
 
         public static bool CanUseTerminal
         {
@@ -34,7 +33,6 @@ namespace Game
         }
         
         //[SerializeField] private ScreenManager screenManager;
-        [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private ScriptableReferenceSO scriptableReference;
         private bool _barrelInvulnerabilityEnabled;
         [FormerlySerializedAs("vfxPool")] [SerializeField] private EffectPool effectPool; // Por ahora lo pongo aca para que no sea un singleton
@@ -141,12 +139,6 @@ namespace Game
             return _instance._gameOver;
         }
 
-        public static int CurrentPoints()
-        {
-            if (_instance) return _instance.scoreManager.CurrentPoints;
-            return 0;
-        }
-
         public static int GetCurrentLevel()
         {
             if (_instance) return SceneManager.GetActiveScene().buildIndex;
@@ -230,7 +222,6 @@ namespace Game
             
             OnEnemyDeathSubject.DetachAll();
             OnEnemySpawnSubject.DetachAll();
-            OnEnemyGivesPoints.DetachAll();
         }
     }
 }

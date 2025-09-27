@@ -15,7 +15,6 @@ using UnityEditor.SceneManagement;
 [RequireComponent(typeof(Collider))]
 public class WinTrigger : MonoBehaviour
 {
-    public static readonly ISubject<int> OnWinGivePoints = new Subject<int>();
     public static readonly ISubject OnWinSaveTimes = new Subject();
     
     [Header("Points")]
@@ -34,7 +33,6 @@ public class WinTrigger : MonoBehaviour
     {
         if (!other.CompareTag(triggerTag)) return;
         OnWinSaveTimes.NotifyAll();
-        OnWinGivePoints.NotifyAll(points);
 
         if (LevelManager.TryGetLevelWon(out var levelWonSubject))
         {
@@ -44,7 +42,6 @@ public class WinTrigger : MonoBehaviour
 
     private void OnDestroy()
     {
-        OnWinGivePoints.DetachAll();
         OnWinSaveTimes.DetachAll();
     }
 }

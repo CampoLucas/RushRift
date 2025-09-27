@@ -16,9 +16,6 @@ namespace Game.Entities
         [SerializeField] private BehaviourTreeRunner runner;
         [SerializeField] private int damageIndex;
         [SerializeField] private int deathIndex;
-
-        [Header("Points")]
-        [SerializeField] private int points;
         
         private IObserver<float, float, float> _onDamageObserver;
         private IObserver _onDeathObserver;
@@ -72,7 +69,6 @@ namespace Game.Entities
             AudioManager.Play("TurretDestruction");
             
             LevelManager.OnEnemyDeathSubject.NotifyAll();
-            LevelManager.OnEnemyGivesPoints.NotifyAll(points);
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
         }
