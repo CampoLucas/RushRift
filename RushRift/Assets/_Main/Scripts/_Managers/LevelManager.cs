@@ -16,7 +16,8 @@ namespace Game
     {
         public static readonly ISubject OnEnemyDeathSubject = new Subject(); // ToDo: Move it to the a EnemyManager and dispose of all references
         public static readonly ISubject OnEnemySpawnSubject = new Subject();
-
+        public static readonly ISubject OnProjectileDestroyed = new Subject();
+        
         public static bool CanUseTerminal
         {
             get => _instance && _instance._canUseTerminals;
@@ -222,6 +223,7 @@ namespace Game
             
             OnEnemyDeathSubject.DetachAll();
             OnEnemySpawnSubject.DetachAll();
+            OnProjectileDestroyed.DetachAll();
         }
     }
 }

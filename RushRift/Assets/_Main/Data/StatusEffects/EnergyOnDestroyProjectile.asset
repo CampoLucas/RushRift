@@ -10,34 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8c6f6fd0a67401b875e86fed2d0bca3, type: 3}
-  m_Name: Test_IncreaseCurrEnergy
+  m_Name: EnergyOnDestroyProjectile
   m_EditorClassIdentifier: 
   duration: 0
   removeWhenApplied: 0
   detachWhenApplied: 0
   strategy:
     collection:
-    - {fileID: 4123400516364584236}
+    - {fileID: 542558660281405906}
   startTriggers:
     collection:
-    - {fileID: 2008519372579592489}
+    - {fileID: 5191716417799472545}
   stopTriggers:
     collection: []
   removeTriggers:
     collection: []
---- !u!114 &2008519372579592489
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb9c16b77793585419e8ebac593bc0a5, type: 3}
-  m_Name: OnEnemyKilled
-  m_EditorClassIdentifier: 
---- !u!114 &4123400516364584236
+--- !u!114 &542558660281405906
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -52,3 +40,15 @@ MonoBehaviour:
   attribute: 1
   percentage: 0
   amount: 1
+--- !u!114 &5191716417799472545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d46385b80014cc7af292d7aa70a1d9b, type: 3}
+  m_Name: OnProjectileDestroyed
+  m_EditorClassIdentifier: 
