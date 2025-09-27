@@ -300,16 +300,21 @@ public class LockOnBlink : MonoBehaviour
     private void TryKillTarget(Transform target)
     {
         if (!target) return;
+
         var controller = target.GetComponentInParent<EntityController>();
+        var barrel = target.GetComponentInParent<ExplosiveBarrel>();
+        if (barrel) barrel.TriggerExplosionExternal(null, true, playerRigidbody);
+
         if (controller != null)
         {
             var model = controller.GetModel();
             if (preferHealthComponentKill && model != null && model.TryGetComponent<HealthComponent>(out var health))
             {
                 health.Intakill(target.position);
-                Log($"Killed via HealthComponent.Intakill | target={controller.Origin.name}");
+                Log($"Killed via HealthComponent.Instakill | target={controller.Origin.name}");
                 return;
             }
+
             controller.OnNotify(EntityController.DESTROY);
             Log($"Destroyed via EntityController observer | target={controller.Origin.name}");
         }

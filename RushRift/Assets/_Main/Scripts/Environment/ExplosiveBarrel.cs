@@ -104,6 +104,10 @@ public class ExplosiveBarrel : MonoBehaviour
 
     [SerializeField, Tooltip("Local medal condition used only when Override is enabled.")]
     private bool localMedalConditionAchieved = false;
+    
+    [Header("External Triggering")]
+    [SerializeField, Tooltip("If enabled, external scripts can trigger the explosion explicitly.")]
+    private bool allowExternalExplosionTrigger = true;
 
     [Header("Audio")]
     [SerializeField, Tooltip("If enabled, plays an audio event when the barrel explodes.")]
@@ -205,10 +209,14 @@ public class ExplosiveBarrel : MonoBehaviour
     private void ExecuteExplosionNow()
     {
         Vector3 origin = transform.TransformPoint(explosionOriginLocalOffset);
+        ExecuteExplosionAtOrigin(origin, false, null);
+    }
+
+    private void ExecuteExplosionAtOrigin(Vector3 origin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget)
+    {
         TriggerExplosionAudioVfxAndFreeze(origin);
 
         int count = Physics.OverlapSphereNonAlloc(origin, Mathf.Max(0f, explosionRadiusMeters), OverlapBuffer, ~0, QueryTriggerInteraction.Collide);
-
         var byGroup = new Dictionary<Transform, AggregatedHit>(count);
 
         for (int i = 0; i < count; i++)
@@ -217,9 +225,7 @@ public class ExplosiveBarrel : MonoBehaviour
             if (!col) continue;
 
             var controller = col.GetComponentInParent<EntityController>();
-            Transform group = controller
-                ? controller.Origin.transform
-                : (col.attachedRigidbody ? col.attachedRigidbody.transform : col.transform);
+            Transform group = controller ? controller.Origin.transform : (col.attachedRigidbody ? col.attachedRigidbody.transform : col.transform);
 
             if (!byGroup.TryGetValue(group, out var agg))
             {
@@ -244,6 +250,22 @@ public class ExplosiveBarrel : MonoBehaviour
             }
         }
 
+        if (guaranteedImpulseTarget)
+        {
+            Transform group = guaranteedImpulseTarget.transform;
+            if (!byGroup.TryGetValue(group, out var agg))
+            {
+                agg = new AggregatedHit { Group = group, MinDistance = 0f, HasDistance = true, Rigidbody = guaranteedImpulseTarget };
+                byGroup.Add(group, agg);
+            }
+            else
+            {
+                agg.Rigidbody = guaranteedImpulseTarget;
+                agg.MinDistance = 0f;
+                agg.HasDistance = true;
+            }
+        }
+
         foreach (var kv in byGroup)
         {
             var agg = kv.Value;
@@ -251,8 +273,10 @@ public class ExplosiveBarrel : MonoBehaviour
             float closeness = Mathf.Clamp01(1f - Mathf.InverseLerp(0f, Mathf.Max(0.0001f, explosionRadiusMeters), distance));
 
             float scaledDamage = Mathf.Lerp(explosionDamageMin, explosionDamageMax, closeness);
-            float scaledPlayerSpeed = Mathf.Lerp(playerLaunchSpeedMinMetersPerSecond, playerLaunchSpeedMaxMetersPerSecond, closeness);
-            float scaledOtherImpulse = Mathf.Lerp(otherRigidbodiesExplosionImpulseMin, otherRigidbodiesExplosionImpulseMax, closeness);
+
+            float impulseT = forceMaxImpulseForPlayerAndRigidbodies ? 1f : closeness;
+            float scaledPlayerSpeed = Mathf.Lerp(playerLaunchSpeedMinMetersPerSecond, playerLaunchSpeedMaxMetersPerSecond, impulseT);
+            float scaledOtherImpulse = Mathf.Lerp(otherRigidbodiesExplosionImpulseMin, otherRigidbodiesExplosionImpulseMax, impulseT);
 
             GameObject targetObject = agg.Controller ? agg.Controller.Origin.gameObject : agg.Group.gameObject;
             bool isPlayer = !string.IsNullOrEmpty(requiredPlayerTag) && targetObject.CompareTag(requiredPlayerTag);
@@ -288,6 +312,16 @@ public class ExplosiveBarrel : MonoBehaviour
         LogDebug($"Explosion done | origin={origin} radius={explosionRadiusMeters} medalActive={IsMedalConditionActive()}");
     }
 
+    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool forceMaxImpulseForPlayerAndRigidbodies = false, Rigidbody guaranteedImpulseTarget = null)
+    {
+        if (!allowExternalExplosionTrigger) return;
+        if (hasExplosionAlreadyTriggered) return;
+        hasExplosionAlreadyTriggered = true;
+        explosionInitiatedByOnDestroy = false;
+        Vector3 origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOriginLocalOffset);
+        ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
+    }
+    
     private void TriggerExplosionAudioVfxAndFreeze(Vector3 originWorld)
     {
         if (shouldPlayExplosionAudio && !string.IsNullOrEmpty(explosionAudioEventName))
