@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using Game.Entities;
 using Game.Entities.Components;
 
@@ -10,12 +9,19 @@ public class LockOnBlink : MonoBehaviour
     public enum TimeMode { Scaled, Unscaled }
     public enum LockStartMode { Automatic, OnKeyHold, OnKeyPress }
 
+    [Header("Upgrade Gate")]
+    [SerializeField, Tooltip("If true, uses Local Enabled instead of LevelManager.CanUseLockOnBlink.")]
+    private bool overrideUpgradeGate = false;
+
+    [SerializeField, Tooltip("Local enable used only when Override Gate is true.")]
+    private bool localUpgradeEnabled = false;
+
     [Header("Lock Start Mode")]
     [SerializeField, Tooltip("Automatic: lock charges when a target is in sight. OnKeyHold: hold Lock Key to charge; release to blink. OnKeyPress: toggle charge on key press.")]
     private LockStartMode lockStartMode = LockStartMode.OnKeyHold;
 
     [Header("Keys")]
-    [SerializeField, Tooltip("Lock key. In OnKeyHold, holding this charges and releasing it attempts the blink (single key flow).")]
+    [SerializeField, Tooltip("Lock key. In OnKeyHold, holding this charges and releasing it attempts the blink.")]
     private KeyCode lockKey = KeyCode.F;
     [SerializeField, Tooltip("Blink key used in Automatic / OnKeyPress modes. Ignored in OnKeyHold.")]
     private KeyCode blinkKey = KeyCode.F;
@@ -23,17 +29,17 @@ public class LockOnBlink : MonoBehaviour
     [Header("Cooldown & Time")]
     [SerializeField, Tooltip("Cooldown between blinks in seconds.")]
     private float cooldownSeconds = 1f;
-    [SerializeField, Tooltip("Time system for general timing (except optional unscaled during slow-mo lock below).")]
+    [SerializeField, Tooltip("Time system for general timing.")]
     private TimeMode timeMode = TimeMode.Scaled;
 
     [Header("Slow Motion While Locking")]
     [SerializeField, Tooltip("If enabled, time slows while the lock is charging.")]
     private bool slowTimeWhileCharging = true;
-    [SerializeField, Tooltip("Time.timeScale while charging (e.g. 0.15–0.3).")]
+    [SerializeField, Tooltip("Time.timeScale while charging.")]
     private float slowTimeScale = 0.2f;
-    [SerializeField, Tooltip("Also scale FixedDeltaTime while slowed to keep physics stable.")]
+    [SerializeField, Tooltip("Also scale FixedDeltaTime while slowed.")]
     private bool adjustFixedDeltaWhileSlowed = true;
-    [SerializeField, Tooltip("Use Unscaled time for the lock timer while slowed so the progress bar fills consistently.")]
+    [SerializeField, Tooltip("Use Unscaled delta time for the lock timer while slowed.")]
     private bool useUnscaledForLockTimerWhenSlowed = true;
 
     [Header("Targeting")]
@@ -41,14 +47,12 @@ public class LockOnBlink : MonoBehaviour
     private Transform aimCameraTransform;
     [SerializeField, Tooltip("Maximum distance to acquire a target.")]
     private float maxLockDistance = 60f;
-
     [SerializeField, Tooltip("Base radius of the spherecast used to acquire a target from the center of the screen.")]
     private float lockSphereRadius = 0.35f;
     [SerializeField, Tooltip("Radius to reach while charging the lock (ramped from base to this value).")]
     private float lockSphereRadiusWhileCharging = 0.6f;
     [SerializeField, Tooltip("How the lock sphere radius ramps from base to the charging value over the lock time.")]
     private AnimationCurve lockRadiusRamp = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
     [SerializeField, Tooltip("Targets must be on these layers.")]
     private LayerMask targetLayers = ~0;
     [SerializeField, Tooltip("Optional tag filter. Leave empty to ignore tags.")]
@@ -76,25 +80,23 @@ public class LockOnBlink : MonoBehaviour
     [SerializeField, Tooltip("If true, tries to kill via HealthComponent.Intakill; otherwise falls back to EntityController.DESTROY.")]
     private bool preferHealthComponentKill = true;
 
-    [Header("UI")]
-    [SerializeField, Tooltip("Optional UI slider to visualize lock progress (0..1).")]
-    private Slider lockOnProgressSlider;
-    [SerializeField, Tooltip("If true, show the slider during lock and hide it otherwise.")]
-    private bool autoShowHideSlider = true;
-    [SerializeField, Tooltip("Keep the slider visible for a short grace after losing target/charging to prevent flicker.")]
-    private float uiVisibilityGraceSeconds = 0.15f;
-
     [Header("State & References")]
     [SerializeField, Tooltip("Optional explicit reference to a Rigidbody on the player.")]
     private Rigidbody playerRigidbody;
 
-    [Header("Debug")]
+    [Header("Debug & Gizmos")]
     [SerializeField, Tooltip("Enable debug logging.")]
     private bool isDebugLoggingEnabled;
     [SerializeField, Tooltip("Draw gizmos for targeting and last blink destination.")]
     private bool drawGizmos = true;
     [SerializeField, Tooltip("Color used to draw gizmos.")]
     private Color gizmoColor = new Color(0.2f, 0.9f, 1f, 0.9f);
+
+    public System.Action<Transform> OnLockStarted;
+    public System.Action<float> OnLockProgressChanged;
+    public System.Action OnLockReady;
+    public System.Action OnLockCanceled;
+    public System.Action<Vector3> OnBlinkExecuted;
 
     private Transform _currentTarget;
     private Transform _chargingTarget;
@@ -106,7 +108,6 @@ public class LockOnBlink : MonoBehaviour
 
     private RaycastHit[] _hitsBuffer;
     private Camera _aimCam;
-
     private bool _slowMoActive;
 
     private static int s_slowMoOwners;
@@ -114,49 +115,50 @@ public class LockOnBlink : MonoBehaviour
     private static float s_originalFixedDelta = 0.02f;
     private static bool s_originalCaptured;
 
-    private bool _sliderVisible;
-    private float _uiHideAtTime;
-
     private float Now => timeMode == TimeMode.Unscaled ? Time.unscaledTime : Time.time;
 
     private float Dt
     {
         get
         {
-            if (slowTimeWhileCharging && _slowMoActive && useUnscaledForLockTimerWhenSlowed)
-                return Time.unscaledDeltaTime;
+            if (slowTimeWhileCharging && _slowMoActive && useUnscaledForLockTimerWhenSlowed) return Time.unscaledDeltaTime;
             return timeMode == TimeMode.Unscaled ? Time.unscaledDeltaTime : Time.deltaTime;
         }
     }
+
+    private bool IsAbilityEnabled()
+    {
+        return overrideUpgradeGate ? localUpgradeEnabled : Game.LevelManager.CanUseLockOnBlink;
+    }
+
+    public Transform GetCurrentTarget() => _currentTarget;
+    public float GetCooldownRemaining() => Mathf.Max(0f, _cooldownUntil - Now);
+    public bool IsReadyToBlink() => _readyToBlink;
 
     private void Awake()
     {
         if (!aimCameraTransform) { var cam = Camera.main; if (cam) aimCameraTransform = cam.transform; }
         _aimCam = aimCameraTransform ? aimCameraTransform.GetComponent<Camera>() : null;
-
         if (!playerRigidbody) playerRigidbody = GetComponent<Rigidbody>();
-
         spherecastMaxHits = Mathf.Max(8, spherecastMaxHits);
         _hitsBuffer = new RaycastHit[spherecastMaxHits];
-
-        if (lockOnProgressSlider)
-        {
-            lockOnProgressSlider.minValue = 0f;
-            lockOnProgressSlider.maxValue = 1f;
-            lockOnProgressSlider.value = 0f;
-            if (autoShowHideSlider) SetSliderVisible(false);
-        }
     }
 
     private void OnDisable()
     {
         ResetLockState(true);
         ReleaseSlowMoIfOwned();
-        SetSliderVisible(false);
     }
 
     private void Update()
     {
+        if (!IsAbilityEnabled())
+        {
+            ResetLockState(true);
+            ReleaseSlowMoIfOwned();
+            return;
+        }
+
         HandleChargingInput();
         TickLocking();
 
@@ -170,12 +172,8 @@ public class LockOnBlink : MonoBehaviour
         }
         else
         {
-            if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey))
-                TryPerformBlink();
+            if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey)) TryPerformBlink();
         }
-
-        if (_sliderVisible && autoShowHideSlider && _uiHideAtTime > 0f && Now >= _uiHideAtTime)
-            SetSliderVisible(false);
     }
 
     private void HandleChargingInput()
@@ -185,7 +183,6 @@ public class LockOnBlink : MonoBehaviour
             case LockStartMode.Automatic:
                 _chargingActive = true;
                 break;
-
             case LockStartMode.OnKeyHold:
             {
                 if (lockKey == KeyCode.None) { _chargingActive = false; return; }
@@ -194,11 +191,9 @@ public class LockOnBlink : MonoBehaviour
                 _chargingActive = isDown || isUpThisFrame;
                 break;
             }
-
             case LockStartMode.OnKeyPress:
-                if (lockKey != KeyCode.None && Input.GetKeyDown(lockKey))
-                    _chargingActive = !_chargingActive;
-                if (!_chargingActive) { ResetLockState(); ReleaseSlowMoIfOwned(); BeginSliderGraceHide(); }
+                if (lockKey != KeyCode.None && Input.GetKeyDown(lockKey)) _chargingActive = !_chargingActive;
+                if (!_chargingActive) { ResetLockState(); ReleaseSlowMoIfOwned(); }
                 break;
         }
     }
@@ -209,7 +204,6 @@ public class LockOnBlink : MonoBehaviour
         {
             ResetLockState();
             ReleaseSlowMoIfOwned();
-            BeginSliderGraceHide();
             return;
         }
 
@@ -219,7 +213,6 @@ public class LockOnBlink : MonoBehaviour
             {
                 ResetLockState();
                 ReleaseSlowMoIfOwned();
-                BeginSliderGraceHide();
             }
             return;
         }
@@ -231,7 +224,6 @@ public class LockOnBlink : MonoBehaviour
         {
             ResetLockState();
             ReleaseSlowMoIfOwned();
-            BeginSliderGraceHide();
             return;
         }
 
@@ -242,11 +234,8 @@ public class LockOnBlink : MonoBehaviour
             _chargingTarget = target;
             _lockTimer = 0f;
             _readyToBlink = false;
-            if (lockOnProgressSlider)
-            {
-                lockOnProgressSlider.value = 0f;
-                if (autoShowHideSlider) { _uiHideAtTime = 0f; SetSliderVisible(true); }
-            }
+            OnLockStarted?.Invoke(_chargingTarget);
+            OnLockProgressChanged?.Invoke(0f);
             Log($"Lock started → {_chargingTarget.name}");
         }
 
@@ -254,14 +243,13 @@ public class LockOnBlink : MonoBehaviour
         {
             _lockTimer += Dt;
             float t = Mathf.Clamp01(_lockTimer / Mathf.Max(0.0001f, lockOnTimeSeconds));
-            if (lockOnProgressSlider) lockOnProgressSlider.value = t;
-
-            if (autoShowHideSlider && !_sliderVisible) { _uiHideAtTime = 0f; SetSliderVisible(true); }
+            OnLockProgressChanged?.Invoke(t);
 
             if (_lockTimer >= lockOnTimeSeconds)
             {
                 _readyToBlink = true;
-                if (lockOnProgressSlider) lockOnProgressSlider.value = 1f;
+                OnLockProgressChanged?.Invoke(1f);
+                OnLockReady?.Invoke();
                 Log("Lock ready");
             }
         }
@@ -270,7 +258,7 @@ public class LockOnBlink : MonoBehaviour
     private void TryPerformBlink()
     {
         if (!_readyToBlink) { Log("Blink ignored: lock not ready"); return; }
-        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(true); ReleaseSlowMoIfOwned(); BeginSliderGraceHide(); return; }
+        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(true); ReleaseSlowMoIfOwned(); return; }
         if (Now < _cooldownUntil) { Log("Blink ignored: on cooldown"); return; }
 
         PerformBlink(_currentTarget);
@@ -278,20 +266,15 @@ public class LockOnBlink : MonoBehaviour
 
         _cooldownUntil = Now + Mathf.Max(0f, cooldownSeconds);
 
-        if (lockStartMode != LockStartMode.Automatic)
-            _chargingActive = false;
+        if (lockStartMode != LockStartMode.Automatic) _chargingActive = false;
 
         ResetLockState(true);
         ReleaseSlowMoIfOwned();
-        BeginSliderGraceHide();
     }
 
     private void PerformBlink(Transform target)
     {
-        Vector3 offset = destinationOffsetSpace == OffsetSpace.TargetLocal
-            ? target.TransformVector(destinationOffset)
-            : destinationOffset;
-
+        Vector3 offset = destinationOffsetSpace == OffsetSpace.TargetLocal ? target.TransformVector(destinationOffset) : destinationOffset;
         Vector3 destination = target.position + offset;
         _lastBlinkDestination = destination;
 
@@ -308,16 +291,15 @@ public class LockOnBlink : MonoBehaviour
             }
         }
 
-        if (playerRigidbody && zeroOutRigidbodyVelocity)
-            playerRigidbody.velocity = Vector3.zero;
+        if (playerRigidbody && zeroOutRigidbodyVelocity) playerRigidbody.velocity = Vector3.zero;
 
+        OnBlinkExecuted?.Invoke(destination);
         Log($"Blink → {destination}");
     }
 
     private void TryKillTarget(Transform target)
     {
         if (!target) return;
-
         var controller = target.GetComponentInParent<EntityController>();
         if (controller != null)
         {
@@ -328,26 +310,18 @@ public class LockOnBlink : MonoBehaviour
                 Log($"Killed via HealthComponent.Intakill | target={controller.Origin.name}");
                 return;
             }
-
             controller.OnNotify(EntityController.DESTROY);
             Log($"Destroyed via EntityController observer | target={controller.Origin.name}");
-            return;
         }
-
-        Log("No EntityController found on target");
     }
 
     private Transform AcquireTarget()
     {
         if (!_aimCam) return null;
-
         var ray = _aimCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         float radius = GetDynamicLockRadius();
 
-        int hitCount = Physics.SphereCastNonAlloc(
-            ray, radius, _hitsBuffer, maxLockDistance, targetLayers, QueryTriggerInteraction.Ignore
-        );
-
+        int hitCount = Physics.SphereCastNonAlloc(ray, radius, _hitsBuffer, maxLockDistance, targetLayers, QueryTriggerInteraction.Ignore);
         Transform best = null;
         float bestDist = float.MaxValue;
 
@@ -356,16 +330,14 @@ public class LockOnBlink : MonoBehaviour
             ref var h = ref _hitsBuffer[i];
             var tr = h.collider.transform;
 
-            if (!string.IsNullOrEmpty(requiredTargetTag) && !tr.CompareTag(requiredTargetTag))
-                continue;
+            if (!string.IsNullOrEmpty(requiredTargetTag) && !tr.CompareTag(requiredTargetTag)) continue;
 
             if (requireLineOfSight)
             {
                 Vector3 dir = (h.point - _aimCam.transform.position).normalized;
                 if (Physics.Raycast(_aimCam.transform.position, dir, out var block, h.distance - 0.01f, ~0, QueryTriggerInteraction.Ignore))
                 {
-                    if (block.collider.transform != tr && !IsChildOf(block.collider.transform, tr))
-                        continue;
+                    if (block.collider.transform != tr && !IsChildOf(block.collider.transform, tr)) continue;
                 }
             }
 
@@ -381,7 +353,7 @@ public class LockOnBlink : MonoBehaviour
         float progress = Mathf.Clamp01(lockOnTimeSeconds > 0f ? _lockTimer / lockOnTimeSeconds : 1f);
         float k = Mathf.Clamp01(lockRadiusRamp != null ? lockRadiusRamp.Evaluate(progress) : progress);
         float baseR = Mathf.Max(0f, lockSphereRadius);
-        float maxR  = Mathf.Max(baseR, lockSphereRadiusWhileCharging);
+        float maxR = Mathf.Max(baseR, lockSphereRadiusWhileCharging);
         return Mathf.Lerp(baseR, maxR, k);
     }
 
@@ -394,14 +366,10 @@ public class LockOnBlink : MonoBehaviour
             s_originalTimeScale = Time.timeScale;
             s_originalFixedDelta = Time.fixedDeltaTime;
         }
-
         s_slowMoOwners++;
         _slowMoActive = true;
-
         Time.timeScale = Mathf.Clamp(slowTimeScale, 0.01f, 1f);
-        if (adjustFixedDeltaWhileSlowed)
-            Time.fixedDeltaTime = s_originalFixedDelta * Time.timeScale;
-
+        if (adjustFixedDeltaWhileSlowed) Time.fixedDeltaTime = s_originalFixedDelta * Time.timeScale;
         Log($"SlowMo ON (owners={s_slowMoOwners}, scale={Time.timeScale:0.###})");
     }
 
@@ -410,12 +378,10 @@ public class LockOnBlink : MonoBehaviour
         if (!_slowMoActive) return;
         _slowMoActive = false;
         s_slowMoOwners = Mathf.Max(0, s_slowMoOwners - 1);
-
         if (s_slowMoOwners == 0)
         {
             Time.timeScale = s_originalTimeScale;
-            if (adjustFixedDeltaWhileSlowed)
-                Time.fixedDeltaTime = s_originalFixedDelta;
+            if (adjustFixedDeltaWhileSlowed) Time.fixedDeltaTime = s_originalFixedDelta;
             Log("SlowMo OFF (restored original scales)");
         }
         else
@@ -426,48 +392,15 @@ public class LockOnBlink : MonoBehaviour
 
     private void ResetLockState(bool hardReset = false)
     {
+        bool wasCharging = _chargingTarget != null || _currentTarget != null || _readyToBlink || _lockTimer > 0f;
         _lockTimer = 0f;
         _readyToBlink = false;
-
         if (hardReset)
         {
             _chargingTarget = null;
             _currentTarget = null;
         }
-
-        if (lockOnProgressSlider)
-        {
-            lockOnProgressSlider.value = 0f;
-            if (autoShowHideSlider)
-            {
-                _uiHideAtTime = 0f;
-            }
-        }
-    }
-
-    private void BeginSliderGraceHide()
-    {
-        if (!autoShowHideSlider) return;
-        if (!lockOnProgressSlider) return;
-        if (!_sliderVisible) return;
-        _uiHideAtTime = Now + Mathf.Max(0f, uiVisibilityGraceSeconds);
-    }
-
-    private void SetSliderVisible(bool visible)
-    {
-        if (!lockOnProgressSlider) return;
-        if (!_sliderVisible && visible)
-        {
-            lockOnProgressSlider.gameObject.SetActive(true);
-            _sliderVisible = true;
-            return;
-        }
-        if (_sliderVisible && !visible)
-        {
-            lockOnProgressSlider.gameObject.SetActive(false);
-            _sliderVisible = false;
-            return;
-        }
+        if (wasCharging) OnLockCanceled?.Invoke();
     }
 
     private static bool IsChildOf(Transform child, Transform potentialParent)
@@ -492,7 +425,6 @@ public class LockOnBlink : MonoBehaviour
     {
         if (!drawGizmos) return;
         Gizmos.color = gizmoColor;
-
         if (aimCameraTransform)
         {
             var cam = aimCameraTransform.GetComponent<Camera>();
@@ -502,15 +434,12 @@ public class LockOnBlink : MonoBehaviour
                 Gizmos.DrawRay(ray.origin, ray.direction * Mathf.Min(8f, maxLockDistance));
             }
         }
-
         if (_currentTarget)
         {
             Gizmos.DrawWireSphere(_currentTarget.position, 0.25f);
             Gizmos.DrawLine(transform.position, _currentTarget.position);
         }
-
-        if (_lastBlinkDestination != default)
-            Gizmos.DrawWireCube(_lastBlinkDestination, Vector3.one * 0.2f);
+        if (_lastBlinkDestination != default) Gizmos.DrawWireCube(_lastBlinkDestination, Vector3.one * 0.2f);
     }
 #endif
 }
