@@ -49,13 +49,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1870c6933d25ed44493c863b23713743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalOffset: 0
+  offset: {x: 0, y: 0}
+  defaultPlayPosition: {x: 0, y: 0}
+  canvas: {fileID: 0}
   pivot: {fileID: 5962017509578538273}
   anims:
-  - duration: 0.5
+  - duration: 0.4
     delay: 0
-    endPosition: 100
-    curve:
+    endPosition: {x: 100, y: 0}
+    curveX:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -79,10 +81,34 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  - duration: 0.1
+    curveY:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  - duration: 0.05
     delay: 0
-    endPosition: -5
-    curve:
+    endPosition: {x: -5, y: 0}
+    curveX:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -106,18 +132,15 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  - duration: 0.01
-    delay: 0
-    endPosition: 3
-    curve:
+    curveY:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0
+        value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
         outWeight: 0
@@ -126,7 +149,7 @@ MonoBehaviour:
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 0
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
         outWeight: 0
@@ -135,8 +158,8 @@ MonoBehaviour:
       m_RotationOrder: 4
   - duration: 0.005
     delay: 0
-    endPosition: 0
-    curve:
+    endPosition: {x: 3, y: 0}
+    curveX:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -160,6 +183,84 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    curveY:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  - duration: 0.0025
+    delay: 0
+    endPosition: {x: 0, y: 0}
+    curveX:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    curveY:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  onCompleteAnim:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &3079211696362477218
 GameObject:
   m_ObjectHideFlags: 0

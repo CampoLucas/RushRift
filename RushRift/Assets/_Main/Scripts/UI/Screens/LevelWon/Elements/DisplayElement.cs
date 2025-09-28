@@ -14,20 +14,22 @@ public class DisplayElement : MonoBehaviour
     {
         public float duration;
         public float delay;
-        public float endPosition;
-        public AnimationCurve curve;
+        public Vector2 endPosition;
+        public AnimationCurve curveX;
+        public AnimationCurve curveY;
     }
     
     [Header("Settings")]
-    [SerializeField] private float horizontalOffset;
-    
+    [SerializeField] private Vector2 offset;
+    [SerializeField] private Vector2 defaultPlayPosition;
+
     [Header("References")]
+    [SerializeField] private Canvas canvas;
     [SerializeField] private RectTransform pivot;
 
     [Header("Animation")]
     [SerializeField] private SlideAnim[] anims;
 
-    [FormerlySerializedAs("onComplete")]
     [Header("Events")]
     [SerializeField] private UnityEvent onCompleteAnim = new UnityEvent();
 
@@ -36,9 +38,15 @@ public class DisplayElement : MonoBehaviour
     private void OnEnable()
     {
         if (onCompleteAnim == null) onCompleteAnim = new UnityEvent();
+        
     }
 
-    public void SetXPos(float pos)
+    private void Awake()
+    {
+        if (canvas) canvas.enabled = false;
+    }
+
+    public void SetPosition(Vector2 pos)
     {
         if (!pivot)
         {
@@ -48,11 +56,33 @@ public class DisplayElement : MonoBehaviour
             return;
         }
         
-        var targetX = pos + horizontalOffset;
-        pivot.anchoredPosition = new Vector2(targetX, pivot.anchoredPosition.y);
+        pivot.anchoredPosition = pos + offset;
     }
 
-    public void DoAnim(float startPos, float delay = 0f, Action onComplete = null)
+    public void Play()
+    {
+        if (canvas) canvas.enabled = true;
+        DoAnim(defaultPlayPosition);
+    }
+    
+    public void Stop()
+    {
+        if (canvas) canvas.enabled = true;
+        
+        if (_animCoroutine != null)
+        {
+            StopCoroutine(_animCoroutine);
+            _animCoroutine = null;
+        }
+        
+        // Instantly set to final state
+        if (anims != null && anims.Length > 0)
+            SetPosition(anims[^1].endPosition);
+
+        onCompleteAnim?.Invoke();
+    }
+
+    public void DoAnim(Vector2 startPos, float delay = 0f, Action onComplete = null)
     {
         StopAnim();
 
@@ -74,6 +104,8 @@ public class DisplayElement : MonoBehaviour
             return;
         }
         
+        SetPosition(startPos);
+        
         _animCoroutine = StartCoroutine(PlayRecursive(anims, 0, startPos, delay, onComplete));
     }
 
@@ -84,10 +116,18 @@ public class DisplayElement : MonoBehaviour
         _animCoroutine = null;
     }
 
-    private IEnumerator PlayRecursive(SlideAnim[] slides, int index, float startPos, float delay, Action onComplete)
+    private IEnumerator PlayRecursive(SlideAnim[] slides, int index, Vector2 startPos, float delay, Action onComplete)
     {
-        if (index >= slides.Length)
+        var maxSlides = index >= MAX_SLIDES;
+        if (index >= slides.Length || maxSlides)
         {
+            if (maxSlides)
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning($"WARNING: Maximum slides ({MAX_SLIDES}) in DisplayElement reached.", this);
+#endif
+            }
+            
             OnAnimComplete(onComplete);
             yield break;
         }
@@ -97,21 +137,28 @@ public class DisplayElement : MonoBehaviour
 
         var slide = slides[index];
 
-        yield return SlideRoutine(slide.duration, slide.delay, startPos, slide.endPosition, slide.curve, (endPos) =>
+        var sDur = slide.duration;
+        var sDelay = slide.delay;
+        var curveX = slide.curveX;
+        var curveY = slide.curveY;
+        var end = slide.endPosition;
+        
+        yield return SlideRoutine(sDur, sDelay, startPos, end, curveX, curveY, (endPos) =>
         {
-            StartCoroutine(PlayRecursive(slides, index + 1, endPos, 0, onComplete));
+            _animCoroutine = StartCoroutine(PlayRecursive(slides, index + 1, endPos, 0, onComplete));
         });
     }
 
-    private IEnumerator SlideRoutine(float duration, float delay, float start, float end, AnimationCurve curve, Action<float> onCompleted)
+    private IEnumerator SlideRoutine(float duration, float delay, Vector2 start, Vector2 end, AnimationCurve curveX, 
+        AnimationCurve curveY, Action<Vector2> onCompleted)
     {
-        SetXPos(start);
+        SetPosition(start);
         
         if (delay > 0) yield return new WaitForSeconds(delay);
         
         if (duration <= 0)
         {
-            SetXPos(end);
+            SetPosition(end);
             onCompleted?.Invoke(end);
             yield break;
         }
@@ -124,16 +171,18 @@ public class DisplayElement : MonoBehaviour
             var t = Mathf.Clamp01(time / duration);
             
             // Use curve if provided, otherwise linear
-            float curvedT = (curve != null && curve.length > 0) ? curve.Evaluate(t) : t;
+            var xCurvedT = curveX is { length: > 0 } ? curveX.Evaluate(t) : t;
+            var yCurvedT = curveY is { length: > 0 } ? curveY.Evaluate(t) : t;
             
             //var x = Mathf.Lerp(start, end, t);
-            var x = Mathf.LerpUnclamped(start, end, curvedT);
-            SetXPos(x);
+            var pos = new Vector2(Mathf.LerpUnclamped(start.x, end.x, xCurvedT), 
+                Mathf.LerpUnclamped(start.y, end.y, yCurvedT));
+            SetPosition(pos);
 
             yield return null;
         }
         
-        SetXPos(end);
+        SetPosition(end);
         onCompleted?.Invoke(end);
     }
 
@@ -159,7 +208,7 @@ public class DisplayElement : MonoBehaviour
         }
         else
         {
-            SetXPos(0);
+            SetPosition(Vector2.zero);
         }
     }
 
