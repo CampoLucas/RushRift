@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ namespace Game.UI.Screens
     public class LevelWonView : UIView
     {
         [SerializeField] private Animator animator;
-
+        [SerializeField] private UnityEvent onShow = new UnityEvent();
 
         protected override void Awake()
         {
@@ -21,6 +22,7 @@ namespace Game.UI.Screens
             base.OnShow();
             //animator.enabled = true;
 
+            onShow.Invoke();
             BestTime();
         }
 
