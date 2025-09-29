@@ -5002,7 +5002,7 @@ GameObject:
   - component: {fileID: 7981733825534306698}
   - component: {fileID: 1000959784041531099}
   - component: {fileID: 5842538790836895472}
-  - component: {fileID: 1062659068036494891}
+  - component: {fileID: 1619986567707656487}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -5152,7 +5152,7 @@ MonoBehaviour:
   behavioursToDisable:
   - {fileID: 5050218275519897064}
   - {fileID: 3512940525932754459}
---- !u!114 &1062659068036494891
+--- !u!114 &1619986567707656487
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5176,9 +5176,9 @@ MonoBehaviour:
   adjustFixedDeltaWhileSlowed: 1
   useUnscaledForLockTimerWhenSlowed: 1
   aimCameraTransform: {fileID: 0}
-  maxLockDistance: 60
-  lockSphereRadius: 0.35
-  lockSphereRadiusWhileCharging: 0.6
+  maxLockDistance: 20000
+  lockSphereRadius: 8
+  lockSphereRadiusWhileCharging: 10
   lockRadiusRamp:
     serializedVersion: 2
     m_Curve:
@@ -5209,13 +5209,33 @@ MonoBehaviour:
   requiredTargetTag: Enemy
   requireLineOfSight: 1
   spherecastMaxHits: 64
+  crosshairProbeUsesBaseRadius: 1
+  enableTargetStickiness: 1
+  targetRetainGraceSeconds: 0.25
+  retargetAngleToleranceDegrees: 10
+  retargetDistanceToleranceMeters: 1
   lockOnTimeSeconds: 0.3
-  destinationOffset: {x: 0, y: 0, z: -1.25}
+  destinationOffset: {x: 0, y: 0.5, z: 0}
   destinationOffsetSpace: 1
   snapRotationToTarget: 1
   zeroOutRigidbodyVelocity: 1
   shouldKillTargetOnBlink: 1
   preferHealthComponentKill: 1
+  shouldPlayLockChargingSfx: 1
+  lockChargingSfxEventName: Blink
+  shouldAutoBlinkWhenReady: 0
+  enableLockVisualFx: 1
+  lockFxChromaticTarget: 1
+  lockFxChromaticInDurationSeconds: 0.35
+  lockFxChromaticOutDurationSeconds: 0.25
+  lockFxVignetteTarget: 0.6
+  lockFxVignetteInDurationSeconds: 0.25
+  lockFxVignetteOutDurationSeconds: 0.25
+  lockFxUseUnscaledTime: 1
+  enableLockMusicLowPass: 1
+  lockLowPassPausedCutoffHz: 250
+  lockLowPassPauseRampSeconds: 0.05
+  lockLowPassResumeRampSeconds: 0.25
   playerRigidbody: {fileID: 0}
   isDebugLoggingEnabled: 0
   drawGizmos: 1
