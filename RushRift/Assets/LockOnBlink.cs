@@ -1,4 +1,6 @@
+using _Main.Scripts.Feedbacks;
 using UnityEngine;
+using Game;
 using Game.Entities;
 using Game.Entities.Components;
 
@@ -62,6 +64,16 @@ public class LockOnBlink : MonoBehaviour
     [SerializeField, Tooltip("Max hits buffer for the non-alloc spherecast.")]
     private int spherecastMaxHits = 64;
 
+    [Header("Target Stickiness")]
+    [SerializeField, Tooltip("If enabled, the ability will keep the current target briefly through minor aim jitter or brief LOS loss.")]
+    private bool enableTargetStickiness = true;
+    [SerializeField, Tooltip("Seconds to retain the current target after it momentarily drops out.")]
+    private float targetRetainGraceSeconds = 0.25f;
+    [SerializeField, Tooltip("Max angle change (degrees) allowed before switching to a different target.")]
+    private float retargetAngleToleranceDegrees = 10f;
+    [SerializeField, Tooltip("Max change in target distance (meters) allowed before switching to a different target.")]
+    private float retargetDistanceToleranceMeters = 1.0f;
+
     [Header("Lock & Blink")]
     [SerializeField, Tooltip("Time you must keep an enemy in sight to arm the blink.")]
     private float lockOnTimeSeconds = 0.3f;
@@ -79,6 +91,34 @@ public class LockOnBlink : MonoBehaviour
     private bool shouldKillTargetOnBlink = true;
     [SerializeField, Tooltip("If true, tries to kill via HealthComponent.Intakill; otherwise falls back to EntityController.DESTROY.")]
     private bool preferHealthComponentKill = true;
+
+    [Header("Audio")]
+    [SerializeField, Tooltip("If enabled, plays an SFX when locking begins.")]
+    private bool shouldPlayLockChargingSfx = true;
+    [SerializeField, Tooltip("Audio event name played when lock starts.")]
+    private string lockChargingSfxEventName = "Blink";
+
+    [Header("Auto Blink")]
+    [SerializeField, Tooltip("If enabled, automatically teleports as soon as the lock completes.")]
+    private bool shouldAutoBlinkWhenReady = false;
+
+    [Header("Lock Visual FX")]
+    [SerializeField, Tooltip("If enabled, applies chromatic aberration and vignette while locking, and resets on release.")]
+    private bool enableLockVisualFx = true;
+    [SerializeField, Tooltip("Target chromatic aberration intensity while locking.")]
+    private float lockFxChromaticTarget = 1f;
+    [SerializeField, Tooltip("Seconds to reach chromatic target.")]
+    private float lockFxChromaticInDurationSeconds = 0.35f;
+    [SerializeField, Tooltip("Seconds to return chromatic to 0 on release.")]
+    private float lockFxChromaticOutDurationSeconds = 0.25f;
+    [SerializeField, Tooltip("Target vignette intensity while locking.")]
+    private float lockFxVignetteTarget = 0.6f;
+    [SerializeField, Tooltip("Seconds to reach vignette target.")]
+    private float lockFxVignetteInDurationSeconds = 0.25f;
+    [SerializeField, Tooltip("Seconds to return vignette to 0 on release.")]
+    private float lockFxVignetteOutDurationSeconds = 0.25f;
+    [SerializeField, Tooltip("If true, the FX tweens use unscaled time.")]
+    private bool lockFxUseUnscaledTime = true;
 
     [Header("State & References")]
     [SerializeField, Tooltip("Optional explicit reference to a Rigidbody on the player.")]
@@ -114,6 +154,12 @@ public class LockOnBlink : MonoBehaviour
     private static float s_originalTimeScale = 1f;
     private static float s_originalFixedDelta = 0.02f;
     private static bool s_originalCaptured;
+
+    private float _lastSeenTargetAtTime;
+    private float _lastTargetDistance;
+    private Vector3 _lastTargetDirFromCam;
+
+    private bool _lockFxActive;
 
     private float Now => timeMode == TimeMode.Unscaled ? Time.unscaledTime : Time.time;
 
@@ -167,7 +213,7 @@ public class LockOnBlink : MonoBehaviour
             if (lockKey != KeyCode.None && Input.GetKeyUp(lockKey))
             {
                 if (_readyToBlink) { TryPerformBlink(); }
-                else { ResetLockState(true); ReleaseSlowMoIfOwned(); }
+                else { StopLockAudioNow(); ResetLockState(true); ReleaseSlowMoIfOwned(); }
             }
         }
         else
@@ -202,6 +248,7 @@ public class LockOnBlink : MonoBehaviour
     {
         if (Now < _cooldownUntil)
         {
+            StopLockAudioNow();
             ResetLockState();
             ReleaseSlowMoIfOwned();
             return;
@@ -211,17 +258,26 @@ public class LockOnBlink : MonoBehaviour
         {
             if (lockStartMode != LockStartMode.OnKeyHold)
             {
+                StopLockAudioNow();
                 ResetLockState();
                 ReleaseSlowMoIfOwned();
             }
             return;
         }
 
-        var target = AcquireTarget();
-        _currentTarget = target;
+        var raw = AcquireTargetRaw();
+        var canonical = CanonicalizeTarget(raw);
 
-        if (!target)
+        if (enableTargetStickiness)
         {
+            canonical = ApplyStickiness(canonical);
+        }
+
+        _currentTarget = canonical;
+
+        if (!_currentTarget)
+        {
+            StopLockAudioNow();
             ResetLockState();
             ReleaseSlowMoIfOwned();
             return;
@@ -229,13 +285,15 @@ public class LockOnBlink : MonoBehaviour
 
         if (slowTimeWhileCharging && !_slowMoActive) AcquireSlowMo();
 
-        if (_chargingTarget != target)
+        if (_chargingTarget != _currentTarget)
         {
-            _chargingTarget = target;
+            _chargingTarget = _currentTarget;
             _lockTimer = 0f;
             _readyToBlink = false;
             OnLockStarted?.Invoke(_chargingTarget);
             OnLockProgressChanged?.Invoke(0f);
+            if (shouldPlayLockChargingSfx && !string.IsNullOrEmpty(lockChargingSfxEventName)) AudioManager.Play(lockChargingSfxEventName);
+            if (enableLockVisualFx) StartLockVisualFx();
             Log($"Lock started → {_chargingTarget.name}");
         }
 
@@ -251,8 +309,103 @@ public class LockOnBlink : MonoBehaviour
                 OnLockProgressChanged?.Invoke(1f);
                 OnLockReady?.Invoke();
                 Log("Lock ready");
+                if (shouldAutoBlinkWhenReady) TryPerformBlink();
             }
         }
+    }
+
+    private Transform AcquireTargetRaw()
+    {
+        if (!_aimCam) return null;
+        var ray = _aimCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        float radius = GetDynamicLockRadius();
+
+        int hitCount = Physics.SphereCastNonAlloc(ray, radius, _hitsBuffer, maxLockDistance, targetLayers, QueryTriggerInteraction.Ignore);
+        Transform best = null;
+        float bestDist = float.MaxValue;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            ref var h = ref _hitsBuffer[i];
+            var tr = h.collider.transform;
+
+            if (!string.IsNullOrEmpty(requiredTargetTag) && !tr.CompareTag(requiredTargetTag)) continue;
+
+            if (requireLineOfSight)
+            {
+                Vector3 dir = (h.point - _aimCam.transform.position).normalized;
+                if (Physics.Raycast(_aimCam.transform.position, dir, out var block, h.distance - 0.01f, ~0, QueryTriggerInteraction.Ignore))
+                {
+                    if (block.collider.transform != tr && !IsChildOf(block.collider.transform, tr)) continue;
+                }
+            }
+
+            if (h.distance < bestDist) { bestDist = h.distance; best = tr; }
+        }
+
+        return best;
+    }
+
+    private Transform CanonicalizeTarget(Transform tr)
+    {
+        if (!tr) return null;
+        var controller = tr.GetComponentInParent<EntityController>();
+        if (controller && controller.Origin) return controller.Origin.transform;
+        return tr;
+    }
+
+    private Transform ApplyStickiness(Transform candidate)
+    {
+        if (!_chargingTarget && !candidate) return null;
+        if (!_chargingTarget && candidate)
+        {
+            _lastSeenTargetAtTime = Now;
+            CacheTargetMetrics(candidate);
+            return candidate;
+        }
+
+        if (candidate)
+        {
+            var canonicalCandidate = CanonicalizeTarget(candidate);
+            if (canonicalCandidate == _chargingTarget) { _lastSeenTargetAtTime = Now; CacheTargetMetrics(canonicalCandidate); return canonicalCandidate; }
+
+            if (_aimCam)
+            {
+                Vector3 camPos = _aimCam.transform.position;
+                Vector3 newDir = (canonicalCandidate.position - camPos);
+                float newDist = newDir.magnitude;
+                if (newDist > 0f) newDir /= newDist;
+
+                float angleDelta = Vector3.Angle(_lastTargetDirFromCam, newDir);
+                float distDelta = Mathf.Abs(newDist - _lastTargetDistance);
+
+                if (angleDelta <= Mathf.Max(0f, retargetAngleToleranceDegrees) && distDelta <= Mathf.Max(0f, retargetDistanceToleranceMeters))
+                {
+                    _lastSeenTargetAtTime = Now;
+                    return _chargingTarget;
+                }
+            }
+
+            _lastSeenTargetAtTime = Now;
+            CacheTargetMetrics(canonicalCandidate);
+            return canonicalCandidate;
+        }
+        else
+        {
+            if (_chargingTarget && (Now - _lastSeenTargetAtTime) <= Mathf.Max(0f, targetRetainGraceSeconds))
+                return _chargingTarget;
+
+            return null;
+        }
+    }
+
+    private void CacheTargetMetrics(Transform t)
+    {
+        if (!_aimCam || !t) { _lastTargetDirFromCam = Vector3.forward; _lastTargetDistance = 0f; return; }
+        Vector3 camPos = _aimCam.transform.position;
+        Vector3 v = (t.position - camPos);
+        _lastTargetDistance = v.magnitude;
+        _lastTargetDirFromCam = _lastTargetDistance > 0f ? v / _lastTargetDistance : Vector3.forward;
     }
 
     private void TryPerformBlink()
@@ -320,38 +473,6 @@ public class LockOnBlink : MonoBehaviour
         }
     }
 
-    private Transform AcquireTarget()
-    {
-        if (!_aimCam) return null;
-        var ray = _aimCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        float radius = GetDynamicLockRadius();
-
-        int hitCount = Physics.SphereCastNonAlloc(ray, radius, _hitsBuffer, maxLockDistance, targetLayers, QueryTriggerInteraction.Ignore);
-        Transform best = null;
-        float bestDist = float.MaxValue;
-
-        for (int i = 0; i < hitCount; i++)
-        {
-            ref var h = ref _hitsBuffer[i];
-            var tr = h.collider.transform;
-
-            if (!string.IsNullOrEmpty(requiredTargetTag) && !tr.CompareTag(requiredTargetTag)) continue;
-
-            if (requireLineOfSight)
-            {
-                Vector3 dir = (h.point - _aimCam.transform.position).normalized;
-                if (Physics.Raycast(_aimCam.transform.position, dir, out var block, h.distance - 0.01f, ~0, QueryTriggerInteraction.Ignore))
-                {
-                    if (block.collider.transform != tr && !IsChildOf(block.collider.transform, tr)) continue;
-                }
-            }
-
-            if (h.distance < bestDist) { bestDist = h.distance; best = tr; }
-        }
-
-        return best;
-    }
-
     private float GetDynamicLockRadius()
     {
         if (!_chargingActive) return Mathf.Max(0f, lockSphereRadius);
@@ -406,6 +527,8 @@ public class LockOnBlink : MonoBehaviour
             _currentTarget = null;
         }
         if (wasCharging) OnLockCanceled?.Invoke();
+        if (enableLockVisualFx) StopLockVisualFx();
+        StopLockAudioNow();
     }
 
     private static bool IsChildOf(Transform child, Transform potentialParent)
@@ -419,6 +542,28 @@ public class LockOnBlink : MonoBehaviour
         return false;
     }
 
+    private void StartLockVisualFx()
+    {
+        if (_lockFxActive) return;
+        _lockFxActive = true;
+        if (ChromaticAberrationPlayer.GlobalInstance) ChromaticAberrationPlayer.GlobalInstance.ChromaticTween(0f, Mathf.Max(0f, lockFxChromaticTarget), Mathf.Max(0f, lockFxChromaticInDurationSeconds), lockFxUseUnscaledTime);
+        VignettePlayer.VignetteTweenGlobal(0f, Mathf.Max(0f, lockFxVignetteTarget), Mathf.Max(0f, lockFxVignetteInDurationSeconds), lockFxUseUnscaledTime);
+    }
+
+    private void StopLockVisualFx()
+    {
+        if (!_lockFxActive) return;
+        _lockFxActive = false;
+        if (ChromaticAberrationPlayer.GlobalInstance) ChromaticAberrationPlayer.GlobalInstance.ChromaticTween(Mathf.Max(0f, lockFxChromaticTarget), 0f, Mathf.Max(0f, lockFxChromaticOutDurationSeconds), lockFxUseUnscaledTime);
+        VignettePlayer.VignetteTweenGlobal(Mathf.Max(0f, lockFxVignetteTarget), 0f, Mathf.Max(0f, lockFxVignetteOutDurationSeconds), lockFxUseUnscaledTime);
+    }
+    
+    private void StopLockAudioNow()
+    {
+        if (shouldPlayLockChargingSfx && !string.IsNullOrEmpty(lockChargingSfxEventName))
+            AudioManager.Stop(lockChargingSfxEventName);
+    }
+    
     private void Log(string msg)
     {
         if (!isDebugLoggingEnabled) return;
