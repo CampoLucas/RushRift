@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game.UI.Animations;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class DisplayContainer : MonoBehaviour
+public class TimesDisplays : MonoBehaviour
 {
     [System.Serializable]
     public struct ContainerSetup
@@ -16,6 +17,7 @@ public class DisplayContainer : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private Vector2 startPos;
     [SerializeField] private ContainerSetup[] setups;
+    [SerializeField] private UIAnim animatidfdfdonn;
     
     [Header("References")]
     [SerializeField] private Canvas canvas;
