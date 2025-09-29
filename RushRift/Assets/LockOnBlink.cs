@@ -316,87 +316,17 @@ public class LockOnBlink : MonoBehaviour
 
     private Transform AcquireTargetRaw()
     {
-        if (!_aimCam) return null;
-        var ray = _aimCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        float radius = GetDynamicLockRadius();
-
-        int hitCount = Physics.SphereCastNonAlloc(ray, radius, _hitsBuffer, maxLockDistance, targetLayers, QueryTriggerInteraction.Ignore);
-        Transform best = null;
-        float bestDist = float.MaxValue;
-
-        for (int i = 0; i < hitCount; i++)
-        {
-            ref var h = ref _hitsBuffer[i];
-            var tr = h.collider.transform;
-
-            if (!string.IsNullOrEmpty(requiredTargetTag) && !tr.CompareTag(requiredTargetTag)) continue;
-
-            if (requireLineOfSight)
-            {
-                Vector3 dir = (h.point - _aimCam.transform.position).normalized;
-                if (Physics.Raycast(_aimCam.transform.position, dir, out var block, h.distance - 0.01f, ~0, QueryTriggerInteraction.Ignore))
-                {
-                    if (block.collider.transform != tr && !IsChildOf(block.collider.transform, tr)) continue;
-                }
-            }
-
-            if (h.distance < bestDist) { bestDist = h.distance; best = tr; }
-        }
-
-        return best;
+        return LockOnBlinkUtilities.AcquireTargetRaw(_aimCam, GetDynamicLockRadius(), maxLockDistance, targetLayers, requiredTargetTag, requireLineOfSight, _hitsBuffer);
     }
 
     private Transform CanonicalizeTarget(Transform tr)
     {
-        if (!tr) return null;
-        var controller = tr.GetComponentInParent<EntityController>();
-        if (controller && controller.Origin) return controller.Origin.transform;
-        return tr;
+        return LockOnBlinkUtilities.CanonicalizeTarget(tr);
     }
 
     private Transform ApplyStickiness(Transform candidate)
     {
-        if (!_chargingTarget && !candidate) return null;
-        if (!_chargingTarget && candidate)
-        {
-            _lastSeenTargetAtTime = Now;
-            CacheTargetMetrics(candidate);
-            return candidate;
-        }
-
-        if (candidate)
-        {
-            var canonicalCandidate = CanonicalizeTarget(candidate);
-            if (canonicalCandidate == _chargingTarget) { _lastSeenTargetAtTime = Now; CacheTargetMetrics(canonicalCandidate); return canonicalCandidate; }
-
-            if (_aimCam)
-            {
-                Vector3 camPos = _aimCam.transform.position;
-                Vector3 newDir = (canonicalCandidate.position - camPos);
-                float newDist = newDir.magnitude;
-                if (newDist > 0f) newDir /= newDist;
-
-                float angleDelta = Vector3.Angle(_lastTargetDirFromCam, newDir);
-                float distDelta = Mathf.Abs(newDist - _lastTargetDistance);
-
-                if (angleDelta <= Mathf.Max(0f, retargetAngleToleranceDegrees) && distDelta <= Mathf.Max(0f, retargetDistanceToleranceMeters))
-                {
-                    _lastSeenTargetAtTime = Now;
-                    return _chargingTarget;
-                }
-            }
-
-            _lastSeenTargetAtTime = Now;
-            CacheTargetMetrics(canonicalCandidate);
-            return canonicalCandidate;
-        }
-        else
-        {
-            if (_chargingTarget && (Now - _lastSeenTargetAtTime) <= Mathf.Max(0f, targetRetainGraceSeconds))
-                return _chargingTarget;
-
-            return null;
-        }
+        return LockOnBlinkUtilities.ApplyStickiness(_chargingTarget, candidate, _aimCam, Now, ref _lastSeenTargetAtTime, ref _lastTargetDirFromCam, ref _lastTargetDistance, retargetAngleToleranceDegrees, retargetDistanceToleranceMeters, targetRetainGraceSeconds);
     }
 
     private void CacheTargetMetrics(Transform t)
@@ -475,12 +405,7 @@ public class LockOnBlink : MonoBehaviour
 
     private float GetDynamicLockRadius()
     {
-        if (!_chargingActive) return Mathf.Max(0f, lockSphereRadius);
-        float progress = Mathf.Clamp01(lockOnTimeSeconds > 0f ? _lockTimer / lockOnTimeSeconds : 1f);
-        float k = Mathf.Clamp01(lockRadiusRamp != null ? lockRadiusRamp.Evaluate(progress) : progress);
-        float baseR = Mathf.Max(0f, lockSphereRadius);
-        float maxR = Mathf.Max(baseR, lockSphereRadiusWhileCharging);
-        return Mathf.Lerp(baseR, maxR, k);
+        return LockOnBlinkUtilities.ComputeDynamicLockRadius(_chargingActive, lockOnTimeSeconds, _lockTimer, lockSphereRadius, lockSphereRadiusWhileCharging, lockRadiusRamp);
     }
 
     private void AcquireSlowMo()
@@ -546,16 +471,14 @@ public class LockOnBlink : MonoBehaviour
     {
         if (_lockFxActive) return;
         _lockFxActive = true;
-        if (ChromaticAberrationPlayer.GlobalInstance) ChromaticAberrationPlayer.GlobalInstance.ChromaticTween(0f, Mathf.Max(0f, lockFxChromaticTarget), Mathf.Max(0f, lockFxChromaticInDurationSeconds), lockFxUseUnscaledTime);
-        VignettePlayer.VignetteTweenGlobal(0f, Mathf.Max(0f, lockFxVignetteTarget), Mathf.Max(0f, lockFxVignetteInDurationSeconds), lockFxUseUnscaledTime);
+        LockOnBlinkUtilities.StartLockVisualFx(enableLockVisualFx, lockFxChromaticTarget, lockFxChromaticInDurationSeconds, lockFxVignetteTarget, lockFxVignetteInDurationSeconds, lockFxUseUnscaledTime);
     }
 
     private void StopLockVisualFx()
     {
         if (!_lockFxActive) return;
         _lockFxActive = false;
-        if (ChromaticAberrationPlayer.GlobalInstance) ChromaticAberrationPlayer.GlobalInstance.ChromaticTween(Mathf.Max(0f, lockFxChromaticTarget), 0f, Mathf.Max(0f, lockFxChromaticOutDurationSeconds), lockFxUseUnscaledTime);
-        VignettePlayer.VignetteTweenGlobal(Mathf.Max(0f, lockFxVignetteTarget), 0f, Mathf.Max(0f, lockFxVignetteOutDurationSeconds), lockFxUseUnscaledTime);
+        LockOnBlinkUtilities.StopLockVisualFx(enableLockVisualFx, lockFxChromaticTarget, lockFxChromaticOutDurationSeconds, lockFxVignetteTarget, lockFxVignetteOutDurationSeconds, lockFxUseUnscaledTime);
     }
     
     private void StopLockAudioNow()
