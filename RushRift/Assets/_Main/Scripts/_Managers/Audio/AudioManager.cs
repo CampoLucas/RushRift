@@ -40,10 +40,11 @@ namespace Game
         private ActionObserver<float> _onMusicVolumeChanged;
         private ActionObserver<float> _onSFXVolumeChanged;
 
-        // === Persistent music channel (never recycled, never destroyed) ===
         private static GameObject s_musicGO;
         private static AudioSource s_musicSource;
         private static string s_currentMusicName;
+
+        private readonly Dictionary<string, HashSet<AudioSource>> _activeSourcesByName = new Dictionary<string, HashSet<AudioSource>>(StringComparer.Ordinal);
 
         private void Awake()
         {
@@ -63,10 +64,9 @@ namespace Game
                 return;
             }
 
-            _soundMap = sounds.ToDictionary(s => s.Name, s => s);
+            _soundMap = sounds.ToDictionary(s => s.Name, s => s, StringComparer.Ordinal);
             _pool = new AudioSourcePool(gameObject, GetComponents<AudioSource>());
 
-            // PlayOnAwake only once (first, persistent instance). Duplicates are killed before they can fire.
             for (int i = 0; i < sounds.Length; i++)
             {
                 var sound = sounds[i];
@@ -93,8 +93,6 @@ namespace Game
             Options.OnSFXVolumeChanged.Attach(_onSFXVolumeChanged);
         }
 
-        // -------------------- Public API --------------------
-
         public static void Play(string name)
         {
             if (!_instance)
@@ -119,7 +117,43 @@ namespace Game
             sound.RegisterPlayTime();
         }
 
-        // -------------------- Internals --------------------
+        public static void Stop(string name)
+        {
+            if (!_instance)
+            {
+                Debug.LogWarning("WARNING: AudioManager instance is null.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(name)) return;
+
+            if (_instance.isDebugLoggingEnabled) Debug.Log($"[AudioManager] Stop requested for '{name}'.");
+
+            if (s_musicSource && string.Equals(s_currentMusicName, name, StringComparison.Ordinal))
+            {
+                s_musicSource.Stop();
+                s_currentMusicName = null;
+            }
+
+            if (_instance._activeSourcesByName.TryGetValue(name, out var set) && set != null && set.Count > 0)
+            {
+                var snapshot = ListCache;
+                snapshot.Clear();
+                foreach (var src in set) if (src) snapshot.Add(src);
+
+                for (int i = 0; i < snapshot.Count; i++)
+                {
+                    var src = snapshot[i];
+                    if (!src) continue;
+                    src.Stop();
+                    _instance._pool.Recycle(src);
+                    _instance.UnregisterActiveSource(name, src);
+                }
+                snapshot.Clear();
+            }
+        }
+
+        private static readonly List<AudioSource> ListCache = new List<AudioSource>(16);
 
         private void PlaySound(Sound sound)
         {
@@ -131,23 +165,22 @@ namespace Game
 
             var source = _pool.Get();
             sound.Play(source);
-            StartCoroutine(WaitForEnd(source, recycle: true));
+            RegisterActiveSource(sound.Name, source);
+            StartCoroutine(WaitForEnd(source, sound.Name, recycle: true));
         }
 
         private void PlayMusic(Sound sound)
         {
             EnsureMusicChannel();
 
-            // If the same music is already assigned, keep it going; do NOT restart time.
             if (s_musicSource && string.Equals(s_currentMusicName, sound.Name, StringComparison.Ordinal))
             {
                 if (!s_musicSource.isPlaying)
-                    s_musicSource.UnPause(); // in case it was paused by a pause system
+                    s_musicSource.UnPause();
                 if (isDebugLoggingEnabled) Debug.Log($"[AudioManager] Music '{sound.Name}' already active; no restart.", this);
                 return;
             }
 
-            // Different track (or first time): configure and play on the dedicated channel.
             sound.Initialize(s_musicSource);
             var clipsField = typeof(Sound).GetField("clips", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var clips = (AudioClip[])clipsField.GetValue(sound);
@@ -158,11 +191,11 @@ namespace Game
             }
             var idx = clips.Length > 1 ? UnityEngine.Random.Range(0, clips.Length) : 0;
             s_musicSource.clip = clips[idx];
-            s_musicSource.time = Mathf.Clamp(s_musicSource.time, 0f, s_musicSource.clip.length - 0.001f); // keep current time if same clip; otherwise it’s 0
+            s_musicSource.time = Mathf.Clamp(s_musicSource.time, 0f, s_musicSource.clip.length - 0.001f);
             s_currentMusicName = sound.Name;
 
             if (!s_musicSource.isPlaying)
-                s_musicSource.Play(); // start or continue from set time
+                s_musicSource.Play();
         }
 
         private static void EnsureMusicChannel()
@@ -180,15 +213,36 @@ namespace Game
             if (!s_musicSource)
                 s_musicSource = s_musicGO.AddComponent<AudioSource>();
 
-            // Reasonable defaults; per-track mixer/group/loop/vol will be set by Sound.Initialize
             s_musicSource.playOnAwake = false;
             s_musicSource.loop = true;
         }
 
-        private IEnumerator WaitForEnd(AudioSource source, bool recycle)
+        private IEnumerator WaitForEnd(AudioSource source, string name, bool recycle)
         {
             yield return new WaitUntil(() => !source || !source.isPlaying);
+            if (source) UnregisterActiveSource(name, source);
             if (recycle && source) _pool.Recycle(source);
+        }
+
+        private void RegisterActiveSource(string name, AudioSource source)
+        {
+            if (string.IsNullOrEmpty(name) || !source) return;
+            if (!_activeSourcesByName.TryGetValue(name, out var set))
+            {
+                set = new HashSet<AudioSource>();
+                _activeSourcesByName[name] = set;
+            }
+            set.Add(source);
+        }
+
+        private void UnregisterActiveSource(string name, AudioSource source)
+        {
+            if (string.IsNullOrEmpty(name) || !source) return;
+            if (_activeSourcesByName.TryGetValue(name, out var set))
+            {
+                set.Remove(source);
+                if (set.Count == 0) _activeSourcesByName.Remove(name);
+            }
         }
 
         private void OnDestroy()
@@ -203,6 +257,15 @@ namespace Game
                 for (int i = 0; i < sounds.Length; i++)
                     sounds[i]?.Dispose();
                 sounds = null;
+            }
+
+            if (_activeSourcesByName.Count > 0)
+            {
+                foreach (var kv in _activeSourcesByName)
+                {
+                    foreach (var src in kv.Value) if (src) src.Stop();
+                }
+                _activeSourcesByName.Clear();
             }
 
             _pool?.Dispose();
