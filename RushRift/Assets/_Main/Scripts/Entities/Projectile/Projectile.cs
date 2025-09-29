@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Game.DesignPatterns.Observers;
 using Game.DesignPatterns.Pool;
 using Game.Entities.Components;
+using Game.UI;
+using Game.VFX;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Game.Entities
 {
-    public class Projectile : MonoBehaviour, IPoolableObject<Projectile, ProjectileData>
+    public class Projectile : PauseBehaviour, IPoolableObject<Projectile, ProjectileData>
     {
         public ProjectileData Data => data;
 
@@ -22,7 +25,8 @@ namespace Game.Entities
 
         [Header("VFX")]
         [SerializeField] private TrailRenderer trail;
-        [SerializeField] private GameObject explosion;
+        [SerializeField] private VFXPrefabID explosion;
+        [SerializeField] private float explosionScale;
 
         private Transform _transform;
         private float _timer;
@@ -35,18 +39,40 @@ namespace Game.Entities
         private int _penetrations;
         private HashSet<GameObject> _collided = new();
 
-        private void Awake()
+        private Vector3 _prevPauseVelocity;
+
+        
+
+        protected override void Awake()
         {
+            base.Awake();
+            
             _transform = transform;
             _timer = 0;
             if (!body) body = GetComponent<Rigidbody>();
             if (!coll) coll = GetComponent<Collider>();
+
             
-            //if (LevelManager.Instance.ScreenManager) _transform.SetParent(LevelManager.Instance.ScreenManager.GetScreenTransform(ScreenName.Gameplay));
         }
+
+        protected override void OnPause()
+        {
+            _prevPauseVelocity = body.velocity;
+            body.velocity = Vector3.zero;
+            body.isKinematic = true;
+        }
+
+        protected override void OnUnpause()
+        {
+            body.isKinematic = false;
+            body.velocity = _prevPauseVelocity;
+        }
+
 
         private void Update()
         {
+            if (Paused) return;
+            
             _timer += Time.deltaTime;
             if (_timer >= data.LifeTime)
             {
@@ -138,6 +164,13 @@ namespace Game.Entities
             ResetPoolable(position, rotation);
         }
 
+        public void DestroyProjectile()
+        {
+            Debug.Log("SuperTest: DestroyProjectile");
+            LevelManager.OnProjectileDestroyed.NotifyAll();
+            ExplodeCollision(Vector3.up);
+        }
+
         public void OnCollisionEnter(Collision other)
         {
             OnCollision(other.gameObject, other);
@@ -164,8 +197,6 @@ namespace Game.Entities
                 if (_wallCollisions < data.WallBounce)
                 {
                     _wallCollisions++;
-                    
-                    
                 }
                 else
                 {
@@ -249,6 +280,12 @@ namespace Game.Entities
 
         private void ExplodeCollision(Vector3 normal, bool recycle = true)
         {
+            LevelManager.TryGetVFX(explosion, new VFXEmitterParams()
+            {
+                position = transform.position,
+                rotation = transform.rotation,
+                scale = explosionScale * data.Size
+            }, out var emitter);
             //VFXPool.TryGetParticle(transform.position, transform.rotation, Data.Size, out var p);
             //p.transform.rotation = Quaternion.LookRotation(normal);
             

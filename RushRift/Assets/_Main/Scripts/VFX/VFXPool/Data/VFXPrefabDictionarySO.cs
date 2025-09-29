@@ -32,5 +32,6 @@ namespace Game.VFX
     {
         HitImpact,
         Explosion,
+        ProjectileExplosion,
     }
 }

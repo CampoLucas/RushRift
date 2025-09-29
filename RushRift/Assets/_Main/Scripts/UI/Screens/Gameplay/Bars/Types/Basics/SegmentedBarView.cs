@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
@@ -15,19 +16,20 @@ namespace Game.UI.Screens
 
         [Header("References")]
         [SerializeField] private RectTransform container;
-        [SerializeField] private TMP_Text text;
+        [SerializeField] protected TMP_Text text;
+        [SerializeField] protected Image icon;
 
         [Header("Settings")]
         //[SerializeField] private int segmentsCount = 10;
-        [SerializeField] private float fadeDelay = 0.2f;
+        [SerializeField] protected float fadeDelay = 0.2f;
         [SerializeField] private float fadeSpeed = 0.5f; 
 
         [Header("Colors")]
-        [SerializeField] private Color filledColor = Color.cyan;
-        [SerializeField] private Color secondaryColor = Color.red;
-        [SerializeField] private Color emptyColor = Color.grey;
+        [SerializeField] protected Color filledColor = Color.cyan;
+        [SerializeField] protected Color secondaryColor = Color.red;
+        [SerializeField] protected Color emptyColor = Color.grey;
 
-        private List<BarSegment> _segments = new();
+        protected List<BarSegment> Segments = new();
         private Coroutine _secondaryCoroutine;
         
         private float _valuePerSegment;
@@ -49,9 +51,9 @@ namespace Game.UI.Screens
 
             var filledSegments = Mathf.FloorToInt(current / _valuePerSegment);
 
-            for (var i = 0; i < _segments.Count; i++)
+            for (var i = 0; i < Segments.Count; i++)
             {
-                _segments[i].SetColor(i < filledSegments ? filledColor : emptyColor);
+                Segments[i].SetColor(i < filledSegments ? filledColor : emptyColor);
             }
         }
 
@@ -75,20 +77,20 @@ namespace Game.UI.Screens
             
             
             
-            for (var i = 0; i < _segments.Count; i++) // Instantly update filled segments
+            for (var i = 0; i < Segments.Count; i++) // Instantly update filled segments
             {
                 if (i < currentFilled)
                 {
-                    _segments[i].SetColor(filledColor);
+                    Segments[i].SetColor(filledColor);
                 }
                 else if (i >= currentFilled && i < previousFilled)
                 {
                     // if Just lost fill, switch to secondary color
-                    _segments[i].SetColor(secondaryColor);
+                    Segments[i].SetColor(secondaryColor);
                 }
                 else
                 {
-                    _segments[i].SetColor(emptyColor); // Already empty
+                    Segments[i].SetColor(emptyColor); // Already empty
                 }
             }
 
@@ -110,7 +112,7 @@ namespace Game.UI.Screens
             var newSegmentsCount = max; // Calculate new segment count
             _valuePerSegment = 1;
 
-            var currentCount = _segments.Count;
+            var currentCount = Segments.Count;
 
             if (newSegmentsCount > currentCount)
             {
@@ -120,7 +122,7 @@ namespace Game.UI.Screens
                 {
                     var newSegment = Instantiate(barSegmentPrefab, container);
                     newSegment.SetColor(emptyColor);
-                    _segments.Add(newSegment);
+                    Segments.Add(newSegment);
                 }
             }
             else if (newSegmentsCount < currentCount)
@@ -129,9 +131,9 @@ namespace Game.UI.Screens
 
                 for (var i = 0; i < toRemove; i++)
                 {
-                    var index = _segments.Count - 1;
-                    Destroy(_segments[index].gameObject);
-                    _segments.RemoveAt(index);
+                    var index = Segments.Count - 1;
+                    Destroy(Segments[index].gameObject);
+                    Segments.RemoveAt(index);
                 }
             }
         }
@@ -150,28 +152,30 @@ namespace Game.UI.Screens
 
                 var indexThreshold = Mathf.FloorToInt(currentFill);
                 
-                for (var i = 0; i < _segments.Count; i++)
+                for (var i = 0; i < Segments.Count; i++)
                 {
                     if (i > indexThreshold)
                     {
-                        _segments[i].SetColor(emptyColor);
+                        Segments[i].SetColor(emptyColor);
                     }
                 }
 
                 yield return null;
             }
 
-            for (var i = 0; i < _segments.Count; i++)
+            for (var i = 0; i < Segments.Count; i++)
             {
-                if (i > targetFill) _segments[i].SetColor(emptyColor);
+                if (i > targetFill) Segments[i].SetColor(emptyColor);
             }
 
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
-            _segments.Clear();
-            _segments = null;
+            if (_secondaryCoroutine != null) StopCoroutine(_secondaryCoroutine);
+            
+            Segments.Clear();
+            Segments = null;
         }
     }
 }

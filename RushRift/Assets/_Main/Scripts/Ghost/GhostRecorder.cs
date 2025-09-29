@@ -288,7 +288,9 @@ public class GhostRecorder : MonoBehaviour
     private void Log(string msg)
     {
         if (!isDebugLoggingEnabled) return;
+#if UNITY_EDITOR
         Debug.Log($"[GhostRecorder] {name}: {msg}", this);
+#endif
     }
 
 #if UNITY_EDITOR
