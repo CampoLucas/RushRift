@@ -52,5 +52,17 @@ namespace _Main.Scripts.Feedbacks
 
         public static void PlayGlobal() { if (s_global) s_global.PlayOnce(); }
         public static void PlayGlobalStrong(float amplitude) { if (s_global) s_global.PlayStrong(amplitude); }
+
+        [Header("Direct Tween")]
+        [SerializeField, Tooltip("If true, TweenIntensity calls will use unscaled time by default.")]
+        private bool tweenUseUnscaledByDefault = true;
+
+        public void LensDistortionTween(float fromValue, float toValue, float durationSeconds, bool useUnscaled = true) =>
+            TweenIntensity(fromValue, toValue, durationSeconds, useUnscaled);
+
+        public static void LensDistortionTweenGlobal(float fromValue, float toValue, float durationSeconds, bool useUnscaled = true)
+        {
+            if (s_global) s_global.TweenIntensity(fromValue, toValue, durationSeconds, useUnscaled);
+        }
     }
 }

@@ -122,6 +122,19 @@ namespace _Main.Scripts.Feedbacks
             Log("Stopped");
         }
 
+        public void TweenIntensity(float fromValue, float toValue, float duration, bool unscaled)
+        {
+            if (!IsReady) { Log("Tween ignored: not ready"); return; }
+
+            if (playCoroutine != null)
+            {
+                if (restartIfAlreadyPlaying) { StopCoroutine(playCoroutine); playCoroutine = null; }
+                else { Log("Tween ignored: already playing"); return; }
+            }
+
+            playCoroutine = StartCoroutine(TweenRoutine(ClampValue(fromValue), ClampValue(toValue), Mathf.Max(0f, duration), unscaled));
+        }
+
         private void Play(AnimationCurve curve, float duration, float amplitude, float remapMin, float remapMax, bool unscaled)
         {
             if (!IsReady) { Log("Play ignored: not ready"); return; }
@@ -158,6 +171,27 @@ namespace _Main.Scripts.Feedbacks
             Log("Play finished");
         }
 
+        private IEnumerator TweenRoutine(float fromValue, float toValue, float duration, bool unscaled)
+        {
+            SetIntensityImmediate(fromValue);
+
+            float start = unscaled ? Time.unscaledTime : Time.time;
+            float end = start + Mathf.Max(0.0001f, duration);
+
+            while ((unscaled ? Time.unscaledTime : Time.time) < end)
+            {
+                float now = unscaled ? Time.unscaledTime : Time.time;
+                float t = Mathf.InverseLerp(start, end, now);
+                float v = Mathf.Lerp(fromValue, toValue, t);
+                SetIntensityImmediate(v);
+                yield return null;
+            }
+
+            SetIntensityImmediate(toValue);
+            playCoroutine = null;
+            Log("Tween finished");
+        }
+
         protected void SetIntensityImmediate(float value)
         {
             if (!IsReady) return;
@@ -182,7 +216,6 @@ namespace _Main.Scripts.Feedbacks
             if (_cachedVolume) { targetVolume = _cachedVolume; return; }
 
             var any = FindObjectsByType<Volume>(FindObjectsSortMode.None);
-            
             for (int i = 0; i < any.Length; i++)
             {
                 if (any[i] && any[i].isGlobal)
@@ -198,7 +231,6 @@ namespace _Main.Scripts.Feedbacks
             _cachedVolume = go.AddComponent<Volume>();
             _cachedVolume.isGlobal = true;
             _cachedVolume.priority = 100f;
-            
             if (_cachedVolume.profile == null) _cachedVolume.profile = ScriptableObject.CreateInstance<VolumeProfile>();
             _createdVolumeRuntime = true;
             targetVolume = _cachedVolume;
