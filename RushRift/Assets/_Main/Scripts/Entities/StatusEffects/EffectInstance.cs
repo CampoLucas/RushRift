@@ -7,7 +7,7 @@ namespace Game.Entities
     public class EffectInstance : IEffectInstance
     {
         private IController _controller;
-        
+
         private List<IEffectStrategy> _strategies = new();
         private TriggerCollection _startTriggers = new();
         private TriggerCollection _stopTriggers = new();
@@ -25,17 +25,17 @@ namespace Game.Entities
 
         private readonly bool _removeWhenApplied;
         private readonly bool _detachWhenApplied;
-        
+
         private readonly float _duration;
         private readonly bool _temporary;
         private float _elapsedTime;
-        
+
         public EffectInstance(IEffectStrategy[] strategies, Trigger[] startTriggers,
             Trigger[] stopTriggers, Trigger[] removeTriggers, bool removeWhenApplied, bool detachWhenApplied)
         {
             _removeWhenApplied = removeWhenApplied;
             _detachWhenApplied = detachWhenApplied;
-            
+
             if (strategies is { Length: > 0 }) _strategies.AddRange(strategies);
             if (startTriggers is { Length: > 0 }) _startTriggers.AddRange(startTriggers);
             if (stopTriggers is { Length: > 0 }) _stopTriggers.AddRange(stopTriggers);
@@ -47,8 +47,8 @@ namespace Game.Entities
         }
 
         public EffectInstance(IEffectStrategy[] strategies, Trigger[] startTriggers,
-            Trigger[] stopTriggers, Trigger[] removeTriggers, bool removeWhenApplied, bool detachWhenApplied, float duration) : this(strategies, startTriggers,
-            stopTriggers, removeTriggers, removeWhenApplied, detachWhenApplied)
+            Trigger[] stopTriggers, Trigger[] removeTriggers, bool removeWhenApplied, bool detachWhenApplied, float duration)
+            : this(strategies, startTriggers, stopTriggers, removeTriggers, removeWhenApplied, detachWhenApplied)
         {
             if (duration <= 0) return;
 
@@ -61,39 +61,42 @@ namespace Game.Entities
         public void Initialize(IController controller)
         {
             _controller = controller;
-            
-            if (!controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
+
+            if (_controller == null)
+            {
+                // Global/no-host effect: skip runner + triggers; run immediately.
+                OnStart();
+                return;
+            }
+
+            if (!_controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
             {
                 statusEffectRunner = new StatusEffectRunner();
-                controller.GetModel().TryAddComponent(statusEffectRunner);
+                _controller.GetModel().TryAddComponent(statusEffectRunner);
             }
-            
+
             statusEffectRunner.AddEffect(this);
-            
-            // If it has remove triggers, it subscribes the on remove observer
+
             if (_removeTriggers.Count > 0)
             {
-                // If the condition to remove already happens when added, it gets removed before being applied.
+                // With a valid controller we can evaluate/remove immediately if needed
                 if (_removeTriggers.Evaluate(ref controller))
                 {
                     statusEffectRunner.RemoveEffect(this);
                     return;
                 }
-                
                 _removeTriggers.Attach(_onRemove);
             }
-            
-            // If it has start triggers, it subscribes the on start observer
+
             if (_startTriggers.Count > 0)
             {
                 _startTriggers.Attach(_onStart);
-
                 if (_startTriggers.Evaluate(ref controller))
                 {
                     OnStart();
                 }
             }
-            else // if it doesn't have, it starts the effect
+            else
             {
                 OnStart();
             }
@@ -110,20 +113,15 @@ namespace Game.Entities
             observer = default;
             return false;
         }
-        
-        /// <summary>
-        /// Dispose is automatically invoked when removed.
-        /// </summary>
+
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
-            
+
             for (var i = 0; i < _strategies.Count; i++)
-            {
                 _strategies[i].Dispose();
-            }
-            
+
             _startTriggers.Dispose();
             _stopTriggers.Dispose();
             _removeTriggers.Dispose();
@@ -147,7 +145,7 @@ namespace Game.Entities
             if (_disposed || (_started && _detachWhenApplied) || _removed) return;
             _started = true;
             _stopped = false;
-            
+
             Start();
 
             if (_removeWhenApplied)
@@ -155,83 +153,65 @@ namespace Game.Entities
                 OnRemove();
                 return;
             }
-            
-            // When the effect starts, it unsubscribes from all the start subjects
-            if (_detachWhenApplied)
-            {
-                _startTriggers.Detach(_onStart);
-            }
-            
-            // When it starts, it subscribes to all the stop subjects
-            _stopTriggers.Attach(_onStop);
-            
 
-            // Executes the effect logic from when the effect starts
+            if (_detachWhenApplied)
+                _startTriggers.Detach(_onStart);
+
+            _stopTriggers.Attach(_onStop);
         }
 
         private void OnStop()
         {
-            Debug.Log("Stop Effect");
             OnStop(true);
         }
-        
+
         private void OnStop(bool attachTriggers)
         {
             if (_disposed || _stopped) return;
             _stopped = true;
             _started = false;
-            
-            Stop();
-            
-            // When the effect stops, it unsubscribes from all the stop subjects
-            _stopTriggers.Detach(_onStop);
 
-            // When it stops, it subscribes to all the start subjects
+            Stop();
+
+            _stopTriggers.Detach(_onStop);
             if (attachTriggers) _startTriggers.Attach(_onStart);
-            
         }
 
         private void OnRemove()
         {
             if (_disposed || _removed) return;
             _removed = true;
-            
+
             _startTriggers.DetachAll();
             _stopTriggers.DetachAll();
             _removeTriggers.DetachAll();
-            
-            if (_started) Stop(); // it doesn't subscribe back to the start subjects
-            
-            if (_controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
+
+            if (_started) Stop();
+
+            // Only touch the runner if we have a controller
+            if (_controller != null &&
+                _controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
             {
                 statusEffectRunner.RemoveEffect(this);
             }
+
             Dispose();
         }
-        
+
         private void Start()
         {
-            // Executes the effect logic from when the effect starts
-            if (_strategies == null || _strategies.Count == 0 || _removed)
-            {
-                return;
-            }
-            
-            
+            if (_strategies == null || _strategies.Count == 0 || _removed) return;
+
             for (var i = 0; i < _strategies.Count; i++)
-            {
-                _strategies[i].StartEffect(_controller);
-            }
+                _strategies[i].StartEffect(_controller); // _controller may be null for global effects
         }
-        
+
         private void Stop()
         {
             if (_strategies == null || _strategies.Count == 0) return;
-            
+
             for (var i = 0; i < _strategies.Count; i++)
-            {
                 _strategies[i].StopEffect(_controller);
-            }
         }
     }
 }
