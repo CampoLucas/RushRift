@@ -14,6 +14,29 @@ namespace Game.UI.Screens.Elements
         [SerializeField] private PopUpData silver;
         [SerializeField] private PopUpData gold;
 
+        public void Init()
+        {
+            var model = presenter.GetModel();
+
+            var bronzeInfo = model.BronzeInfo;
+            if (bronzeInfo is { PrevUnlocked: false, Unlocked: true })
+            {
+                bronze.popUp.gameObject.SetActive(true);
+            }
+            
+            var silverInfo = model.SilverInfo;
+            if (silverInfo is { PrevUnlocked: false, Unlocked: true })
+            {
+                silver.popUp.gameObject.SetActive(true);
+            }
+            
+            var goldInfo = model.GoldInfo;
+            if (goldInfo is { PrevUnlocked: false, Unlocked: true })
+            {
+                gold.popUp.gameObject.SetActive(true);
+            }
+        }
+        
         public void Play()
         {
             StartCoroutine(OpenPopUps());

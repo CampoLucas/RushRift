@@ -1142,7 +1142,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5439059751270428115}
   - component: {fileID: 6068924345956335391}
-  - component: {fileID: 1420819804774203771}
   - component: {fileID: 3001157856840821438}
   m_Layer: 0
   m_Name: UnlockedEffects
@@ -1203,18 +1202,6 @@ MonoBehaviour:
     icon: {fileID: 889949886, guid: ec9137f6b001a7c4a8e0e08407a057a8, type: 3}
     color: {r: 0.84276724, g: 0.60471237, b: 0, a: 1}
     popUp: {fileID: 8088039406721351802}
---- !u!225 &1420819804774203771
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1567458271309284229}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!114 &3001157856840821438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1740,6 +1727,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6068924345956335391}
+        m_TargetAssemblyTypeName: Game.UI.Screens.Elements.PopUpGroup, Assembly-CSharp
+        m_MethodName: Init
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &5095450298601748496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2237,7 +2236,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentTimeText: {fileID: 6040660634705343123}
   bestTimeText: {fileID: 5414715862053954706}
-  duration: 0.75
+  duration: 0.25
   onCompleted:
     m_PersistentCalls:
       m_Calls:
@@ -2413,6 +2412,7 @@ GameObject:
   - component: {fileID: 8366404529135467595}
   - component: {fileID: 8484130762464975490}
   - component: {fileID: 8911146816115802413}
+  - component: {fileID: 2925390571787718280}
   m_Layer: 0
   m_Name: Buttons
   m_TagString: Untagged
@@ -2683,6 +2683,23 @@ MonoBehaviour:
   onAllSequencesComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2925390571787718280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519040123437529590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &8923522352290925169
 GameObject:
   m_ObjectHideFlags: 0

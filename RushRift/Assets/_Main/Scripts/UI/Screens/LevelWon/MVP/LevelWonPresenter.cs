@@ -113,6 +113,8 @@ namespace Game.UI.Screens
             
             SaveUnlockedMedals(model, ref data);
             SaveNewBest(model, ref data);
+            
+            data.Save();
         }
         
         private void SaveUnlockedMedals(in LevelWonModel model, ref SaveData data)
