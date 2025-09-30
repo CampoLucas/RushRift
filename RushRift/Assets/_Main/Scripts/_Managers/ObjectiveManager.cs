@@ -58,11 +58,11 @@ public class ObjectiveManager : MonoBehaviour
 
     }
 
-    private void Start()
-    {
-        ResolveMedalThresholds();
-        InitializeMedalIconOnStart();
-    }
+    // private void Start()
+    // {
+    //     ResolveMedalThresholds();
+    //     InitializeMedalIconOnStart();
+    // }
 
     private void Update()
     {
@@ -74,10 +74,13 @@ public class ObjectiveManager : MonoBehaviour
         if (stopTimer) return;
 
         _timer += Time.deltaTime;
-        _newTimer = TimerFormatter.GetNewTimer(_timer);
-        FormatAll(timerText, timerTexts, _newTimer[0], _newTimer[1], _newTimer[2]);
+        
+        LevelManager.OnTimeUpdated.NotifyAll(_timer);
+        
+        //_newTimer = TimerFormatter.GetNewTimer(_timer);
+        //FormatAll(timerText, timerTexts, _newTimer[0], _newTimer[1], _newTimer[2]);
 
-        UpdateMedalIconForTime(_timer);
+        //UpdateMedalIconForTime(_timer);
     }
 
     private void OnWinLevel()
@@ -89,10 +92,10 @@ public class ObjectiveManager : MonoBehaviour
 
         LevelManager.SetLevelCompleteTime(_timer);
 
-        var data = SaveAndLoad.Load();
-        if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
-        if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
-        SaveAndLoad.Save(data);
+        // var data = SaveAndLoad.Load();
+        // if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
+        // if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
+        // SaveAndLoad.Save(data);
 
         // var best = TimerFormatter.GetNewTimer(data.BestTimes[currentLevel]);
         // FormatAll(bestTimerText, bestTimerTexts, best[0], best[1], best[2]);
@@ -123,32 +126,32 @@ public class ObjectiveManager : MonoBehaviour
         }
     }
 
-    private void ResolveMedalThresholds()
-    {
-        _hasThresholds = false;
-        _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
+    // private void ResolveMedalThresholds()
+    // {
+    //     _hasThresholds = false;
+    //     _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
+    //
+    //     if (LevelManager.TryGetLevelConfig(out var medal) && medal)
+    //     {
+    //         _goldThreshold   = Mathf.Max(0f, medal.Gold.requiredTime);
+    //         _silverThreshold = Mathf.Max(0f, medal.Silver.requiredTime);
+    //         _bronzeThreshold = Mathf.Max(0f, medal.Bronze.requiredTime);
+    //         _hasThresholds = true;
+    //     }
+    //
+    //     ApplyMedalVisibility(_hasThresholds || !hideIconIfNoMedalData);
+    // }
 
-        if (LevelManager.TryGetLevelConfig(out var medal) && medal)
-        {
-            _goldThreshold   = Mathf.Max(0f, medal.Gold.requiredTime);
-            _silverThreshold = Mathf.Max(0f, medal.Silver.requiredTime);
-            _bronzeThreshold = Mathf.Max(0f, medal.Bronze.requiredTime);
-            _hasThresholds = true;
-        }
-
-        ApplyMedalVisibility(_hasThresholds || !hideIconIfNoMedalData);
-    }
-
-    private void InitializeMedalIconOnStart()
-    {
-        if (!_hasThresholds)
-        {
-            if (hideIconIfNoMedalData) ApplyMedalVisibility(false);
-            else ApplyMedalState(MedalState.Fail);
-            return;
-        }
-        ApplyMedalState(MedalState.Gold);
-    }
+    // private void InitializeMedalIconOnStart()
+    // {
+    //     if (!_hasThresholds)
+    //     {
+    //         if (hideIconIfNoMedalData) ApplyMedalVisibility(false);
+    //         else ApplyMedalState(MedalState.Fail);
+    //         return;
+    //     }
+    //     ApplyMedalState(MedalState.Gold);
+    // }
 
     private void UpdateMedalIconForTime(float time)
     {

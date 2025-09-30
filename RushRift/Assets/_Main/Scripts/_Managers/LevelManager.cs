@@ -19,6 +19,7 @@ namespace Game
         public static readonly ISubject OnEnemyDeathSubject = new Subject();
         public static readonly ISubject OnEnemySpawnSubject = new Subject();
         public static readonly ISubject OnProjectileDestroyed = new Subject();
+        public static readonly ISubject<float> OnTimeUpdated = new Subject<float>(); 
 
         public static bool CanUseTerminal
         {
@@ -253,6 +254,7 @@ namespace Game
             OnEnemyDeathSubject.DetachAll();
             OnEnemySpawnSubject.DetachAll();
             OnProjectileDestroyed.DetachAll();
+            OnTimeUpdated.DetachAll();
             
             if (_instance == this)
                 _instance = null; // limpiar la referencia estática
