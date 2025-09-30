@@ -195,7 +195,7 @@ namespace Game
             else
             {
 #if UNITY_EDITOR
-                Debug.Log("LOG: TryGetVFX: Failure");
+                Debug.LogWarning("WARNING: TryGetVFX: Failure");
 #endif
                 return false;
             }
