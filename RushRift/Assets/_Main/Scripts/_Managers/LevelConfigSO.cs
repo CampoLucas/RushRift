@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 namespace Game.General
 {
     [CreateAssetMenu(menuName = "Game/LevelConfig", fileName = "New LevelConfig")]
-    public class LevelConfigSO : ScriptableObject
+    public class LevelConfigSO : SerializableSO
     {
         public int LevelID => levelID;
         public string LevelName => LevelName;

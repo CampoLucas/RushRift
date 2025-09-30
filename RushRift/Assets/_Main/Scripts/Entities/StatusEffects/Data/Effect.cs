@@ -6,7 +6,7 @@ namespace Game.Entities
     [CreateAssetMenu(menuName = "Game/Status Effects/Effect")]
     public class Effect : ScriptableObject
     {
-        public string Name => effectName;
+        public string EffectName => effectName;
         
         [Header("Settings")]
         [SerializeField] private string effectName;

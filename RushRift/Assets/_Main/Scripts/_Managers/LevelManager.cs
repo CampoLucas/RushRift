@@ -214,7 +214,7 @@ namespace Game
             Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.requiredTime}]");
 #endif
             
-            return new MedalInfo(type.ToString(), medal.upgrade.name, endTime <= medal.requiredTime, data.IsMedalUnlocked(currLevel, type), medal.requiredTime);
+            return new MedalInfo(type.ToString(), medal.upgrade.EffectName, endTime <= medal.requiredTime, data.IsMedalUnlocked(currLevel, type), medal.requiredTime);
         }
         
         private void OnPlayerDeath()
