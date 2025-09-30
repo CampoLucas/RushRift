@@ -53,62 +53,6 @@ public class ShopManager : MonoBehaviour
         currentSelectedLevel = level;
         gate.text = levelName;
     }
-
-    private void Start()
-    {
-        var data = SaveAndLoad.Load();
-
-        if(data.BestTimes.Count != 0)
-        {
-            int[] _newTimer;
-            if (data.BestTimes.ContainsKey(_level1))
-            {
-                _newTimer = TimerFormatter.GetNewTimer(data.BestTimes[_level1]);
-                TimerFormatter.FormatTimer(level1BestTime, _newTimer[0], _newTimer[1], _newTimer[2]);
-            }
-
-            if (data.BestTimes.ContainsKey(_level2))
-            {
-                _newTimer = TimerFormatter.GetNewTimer(data.BestTimes[_level2]);
-                TimerFormatter.FormatTimer(level2BestTime, _newTimer[0], _newTimer[1], _newTimer[2]);
-            }
-
-            if (data.BestTimes.ContainsKey(_level3))
-            {
-                _newTimer = TimerFormatter.GetNewTimer(data.BestTimes[_level3]);
-                TimerFormatter.FormatTimer(level3BestTime, _newTimer[0], _newTimer[1], _newTimer[2]);
-            }
-            
-        }
-
-        if (data.LevelsMedalsTimes.Count != 0)
-        {
-            var medalTimes = data.LevelsMedalsTimes;
-
-            /*if (medalTimes[_level1].bronze.isAcquired) level1Adquired[0].enabled = true;
-            if (medalTimes[_level1].silver.isAcquired) level1Adquired[1].enabled = true;
-            if (medalTimes[_level1].gold.isAcquired) level1Adquired[2].enabled = true;*/
-
-            /*if (medalTimes[_level2].bronze.isAcquired) level2Adquired[0].enabled = true;
-            if (medalTimes[_level2].silver.isAcquired) level2Adquired[1].enabled = true;
-            if (medalTimes[_level2].gold.isAcquired) level2Adquired[2].enabled = true;
-
-            if (medalTimes[_level3].bronze.isAcquired) level3Adquired[0].enabled = true;
-            if (medalTimes[_level3].silver.isAcquired) level3Adquired[1].enabled = true;
-            if (medalTimes[_level3].gold.isAcquired) level3Adquired[2].enabled = true;*/
-        }
-
-
-        var medals = LevelManager.GetMedalsList();
-
-        foreach (var item in medals)
-        {
-            if (data.LevelsMedalsTimes.ContainsKey(item.levelNumber)) continue;
-            data.LevelsMedalsTimes.Add(item.levelNumber, item.levelMedalTimes);
-        }
-
-        SaveAndLoad.Save(data);
-    }
     
     private void OnTriggerEnter(Collider other)
     {

@@ -6,7 +6,10 @@ namespace Game.Entities
     [CreateAssetMenu(menuName = "Game/Status Effects/Effect")]
     public class Effect : ScriptableObject
     {
+        public string Name => effectName;
+        
         [Header("Settings")]
+        [SerializeField] private string effectName;
         [SerializeField] private float duration;
         [SerializeField] private bool removeWhenApplied = false;
         [SerializeField] private bool detachWhenApplied = true;

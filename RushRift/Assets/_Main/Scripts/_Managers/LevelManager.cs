@@ -5,12 +5,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
+using Game.General;
 using Game.UI.Screens;
 
 namespace Game
 {
-    public enum MedalType { Bronze, Silver, Gold }
-    
     /// <summary>
     /// Manages the level state, including win and lose conditions.
     /// </summary>
@@ -34,36 +33,11 @@ namespace Game
         }
 
         [Header("References")]
-        [SerializeField, Tooltip("Root references for effects and default medal list for this level.")]
-        private ScriptableReferenceSO scriptableReference;
-
-        [SerializeField, Tooltip("Explicit medal asset to use for this scene. If set, auto-resolution is skipped.")]
-        private LevelMedalsSO levelMedalsOverride;
-
-        [FormerlySerializedAs("vfxPool")]
-        [SerializeField, Tooltip("Effect pool for spawning VFX emitters during gameplay.")]
-        private EffectPool effectPool;
-
-        [Header("Level Number Resolution")]
-        [SerializeField, Tooltip("If true and no override is set, resolves medal by Scene build index + offset.")]
-        private bool useSceneBuildIndexForLevelNumber = true;
-
-        [SerializeField, Tooltip("Added to SceneManager.GetActiveScene().buildIndex when resolving level number.")]
-        private int buildIndexToLevelOffset = 0;
-
-        [SerializeField, Tooltip("Used as the resolved level number if Use Scene Build Index is false and no override is set.")]
-        private int levelNumberOverride = 0;
-
+        [SerializeField] private LevelConfigSO levelConfig;
+        [SerializeField] private EffectPool effectPool;
+        
         [Header("Runtime Flags")]
-        [SerializeField, Tooltip("If true, explosive barrels become invulnerable to players when the medal is acquired.")]
-        private bool _barrelInvulnerabilityEnabled;
-
-        [Header("Debug Logging")]
-        [SerializeField, Tooltip("Enable startup logs of picked medal source and details.")]
-        private bool enableStartupLogging = false;
-
-        [SerializeField, Tooltip("If enabled, includes per-tier medal details in the startup log.")]
-        private bool verboseMedalLogging = false;
+        [SerializeField] private bool _barrelInvulnerabilityEnabled;
 
         private static LevelManager _instance;
 
@@ -88,11 +62,14 @@ namespace Game
 
         private void Awake()
         {
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+            }
+            
             _instance = this;
             _onPlayerDeath = new ActionObserver(OnPlayerDeath);
             _onEnemyDeath = new ActionObserver(OnEnemyDeath);
-            FillEffectsDic();
-            DumpStartupReferences();
         }
 
         public static void GetPlayerReference(ISubject onDeath)
@@ -106,10 +83,7 @@ namespace Game
             return _instance.effectsReferencesDic[upgrade];
         }
 
-        public static List<LevelMedalsSO> GetMedalsList()
-        {
-            return _instance && _instance.scriptableReference ? _instance.scriptableReference.medalReferences : null;
-        }
+        public static LevelConfigSO GetLevelConfig() => _instance ? _instance.levelConfig : null;
 
         public static bool BarrelInvulnerabilityEnabled
         {
@@ -148,35 +122,51 @@ namespace Game
             return _instance._gameOver;
         }
 
-        public static int GetResolvedLevelNumber()
+        public static int GetLevelID()
         {
-            if (_instance == null) return 0;
-            if (_instance.useSceneBuildIndexForLevelNumber)
-                return SceneManager.GetActiveScene().buildIndex + _instance.buildIndexToLevelOffset;
-            if (_instance.levelNumberOverride > 0) return _instance.levelNumberOverride;
-            return SceneManager.GetActiveScene().buildIndex;
+            if (_instance == null)
+            {
+#if UNITY_EDITOR
+                Debug.LogError("ERROR: Trying to get the Level ID when the instance is null. Returning -1.");
+#endif
+                return -1;
+            }
+
+            var config = GetLevelConfig();
+            if (!config)
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning("WARNING: Trying to get the Level ID from a Level without a config. Returning Scene index.");
+#endif
+                return SceneManager.GetActiveScene().buildIndex;
+            }
+
+            return config.LevelID;
         }
 
-        public static bool TryGetActiveMedal(out LevelMedalsSO medal)
+        public static bool TryGetLevelConfig(out LevelConfigSO config)
         {
-            medal = null;
-            if (_instance == null) return false;
-
-            if (_instance.levelMedalsOverride)
+            config = null;
+            if (_instance == null)
             {
-                medal = _instance.levelMedalsOverride;
+#if UNITY_EDITOR
+                Debug.LogError("ERROR: Couldn't get the level config. The level manager is not instantiated.");
+#endif
+
+                return false;
+            }
+
+            config = GetLevelConfig();
+            if (config)
+            {
                 return true;
             }
+            
+#if UNITY_EDITOR
+            Debug.LogError("ERROR: Couldn't get the level config. The level config is null.");
+#endif
 
-            if (_instance.scriptableReference == null || _instance.scriptableReference.medalReferences == null) return false;
-
-            int target = GetResolvedLevelNumber();
-            var list = _instance.scriptableReference.medalReferences;
-            for (int i = 0; i < list.Count; i++)
-            {
-                var m = list[i];
-                if (m != null && m.levelNumber == target) { medal = m; return true; }
-            }
+            config = null;
             return false;
         }
 
@@ -214,24 +204,19 @@ namespace Game
         public static MedalInfo GetMedalInfo(MedalType type)
         {
             var data = SaveAndLoad.Load();
-            var currLevel = GetCurrentLevel();
-            var medal = type switch
-            {
-                MedalType.Bronze => data.LevelsMedalsTimes[currLevel].bronze,
-                MedalType.Silver => data.LevelsMedalsTimes[currLevel].silver,
-                MedalType.Gold   => data.LevelsMedalsTimes[currLevel].gold,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
+            var currLevel = GetLevelID();
+            var config = LevelManager.GetLevelConfig();
+            var medal = config.GetMedal(type);
             
             var endTime = LevelCompleteTime();
 
 #if UNITY_EDITOR
-            Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.time}]");
+            Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.requiredTime}]");
 #endif
             
-            return new MedalInfo(type.ToString(), medal.upgradeText, endTime <= medal.time, medal.isAcquired, medal.time);
+            return new MedalInfo(type.ToString(), medal.upgrade.name, endTime <= medal.requiredTime, data.IsMedalUnlocked(currLevel, type), medal.requiredTime);
         }
-
+        
         private void OnPlayerDeath()
         {
             if (_gameOverNotified) return;
@@ -244,85 +229,17 @@ namespace Game
         {
             _deadEnemies += 1;
         }
-
-        private void FillEffectsDic()
-        {
-            if (!scriptableReference || scriptableReference.effectsReferences == null) return;
-            for (int i = 0; i < scriptableReference.effectsReferences.Count; i++)
-            {
-                var key = scriptableReference.effectsReferences[i].upgradeEnum;
-                var value = scriptableReference.effectsReferences[i].effect;
-                if (!effectsReferencesDic.ContainsKey(key))
-                    effectsReferencesDic.Add(key, value);
-            }
-        }
         
-        public static bool TryGetActiveMedalTimes(out float bronze, out float silver, out float gold, out LevelMedalsSO medal)
+        public static bool TryGetActiveMedalTimes(out float bronze, out float silver, out float gold, out LevelConfigSO config)
         {
             bronze = silver = gold = 0f;
-            medal = null;
-            if (!TryGetActiveMedal(out medal) || !medal) return false;
-
-            bronze = Mathf.Max(0f, medal.levelMedalTimes.bronze.time);
-            silver = Mathf.Max(0f, medal.levelMedalTimes.silver.time);
-            gold   = Mathf.Max(0f, medal.levelMedalTimes.gold.time);
+            config = null;
+            if (!TryGetLevelConfig(out config) || !config) return false;
+            
+            bronze = Mathf.Max(0f, config.Bronze.requiredTime);
+            silver = Mathf.Max(0f, config.Silver.requiredTime);
+            gold   = Mathf.Max(0f, config.Gold.requiredTime);
             return true;
-        }
-
-        
-        private void DumpStartupReferences()
-        {
-            if (!enableStartupLogging) return;
-
-            var scene = SceneManager.GetActiveScene();
-            int resolved = GetResolvedLevelNumber();
-            string refName = scriptableReference ? scriptableReference.name : "null";
-            int effectsCount = scriptableReference && scriptableReference.effectsReferences != null ? scriptableReference.effectsReferences.Count : 0;
-            int medalsCount = scriptableReference && scriptableReference.medalReferences != null ? scriptableReference.medalReferences.Count : 0;
-
-            Debug.Log($"[LevelManager] Startup | SceneIndex={scene.buildIndex} SceneName={scene.name} | ResolvedLevel={resolved} | ScriptableReferenceSO={refName} | Effects={effectsCount} | MedalSO Count={medalsCount}", this);
-
-            if (levelMedalsOverride)
-            {
-                var mt = levelMedalsOverride.levelMedalTimes;
-                if (verboseMedalLogging)
-                    Debug.Log($"[LevelManager] Medal Source=Override | '{levelMedalsOverride.name}' | levelNumber={levelMedalsOverride.levelNumber} | bronze(time={mt.bronze.time}, acquired={mt.bronze.isAcquired}, upgrade={mt.bronze.upgrade}) | silver(time={mt.silver.time}, acquired={mt.silver.isAcquired}, upgrade={mt.silver.upgrade}) | gold(time={mt.gold.time}, acquired={mt.gold.isAcquired}, upgrade={mt.gold.upgrade})  <-- PICKED", this);
-                else
-                    Debug.Log($"[LevelManager] Medal Source=Override | '{levelMedalsOverride.name}' | levelNumber={levelMedalsOverride.levelNumber}  <-- PICKED", this);
-                return;
-            }
-
-            LevelMedalsSO picked = null;
-            if (scriptableReference && scriptableReference.medalReferences != null)
-            {
-                for (int i = 0; i < scriptableReference.medalReferences.Count; i++)
-                {
-                    var m = scriptableReference.medalReferences[i];
-                    if (!m)
-                    {
-                        Debug.Log($"[LevelManager] MedalSO[{i}] = null", this);
-                        continue;
-                    }
-
-                    bool isPick = m.levelNumber == resolved;
-                    if (isPick) picked = m;
-
-                    if (verboseMedalLogging)
-                    {
-                        var mt = m.levelMedalTimes;
-                        Debug.Log($"[LevelManager] MedalSO[{i}] '{m.name}' | levelNumber={m.levelNumber} | bronze(time={mt.bronze.time}, acquired={mt.bronze.isAcquired}, upgrade={mt.bronze.upgrade}) | silver(time={mt.silver.time}, acquired={mt.silver.isAcquired}, upgrade={mt.silver.upgrade}) | gold(time={mt.gold.time}, acquired={mt.gold.isAcquired}, upgrade={mt.gold.upgrade})" + (isPick ? "  <-- PICKED" : ""), this);
-                    }
-                    else
-                    {
-                        Debug.Log($"[LevelManager] MedalSO[{i}] '{m.name}' | levelNumber={m.levelNumber}" + (isPick ? "  <-- PICKED" : ""), this);
-                    }
-                }
-            }
-
-            if (!picked)
-                Debug.LogWarning($"[LevelManager] No LevelMedalsSO matched ResolvedLevel={resolved}. Assign an Override to force a specific asset.", this);
-            else
-                Debug.Log($"[LevelManager] Medal Source=ListMatch | Using '{picked.name}' for ResolvedLevel={resolved}  <-- PICKED", this);
         }
 
         private void OnDestroy()
@@ -336,6 +253,9 @@ namespace Game
             OnEnemyDeathSubject.DetachAll();
             OnEnemySpawnSubject.DetachAll();
             OnProjectileDestroyed.DetachAll();
+            
+            if (_instance == this)
+                _instance = null; // limpiar la referencia estática
         }
     }
 }

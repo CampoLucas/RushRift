@@ -1,5 +1,8 @@
+using System;
 using Game.Entities;
 using System.Collections.Generic;
+using Game;
+using Game.General;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -14,21 +17,6 @@ public class SaveData
     {
         get => _bestTimes ??= new Dictionary<int, float>();
         private set => _bestTimes = value;
-    }
-
-    public Dictionary<int, medalTimes> LevelsMedalsTimes
-    {
-        get => _levelsMedalsTimes ??= new Dictionary<int, medalTimes>();
-        private set => _levelsMedalsTimes = value;
-    }
-
-    /// <summary>
-    /// A property that in the case someone plays with an old save that didn't had the UnlockedEffects dictionary, it creates it.
-    /// </summary>
-    public Dictionary<int, bool> UnlockedEffects
-    {
-        get => _unlockedEffects ??= new Dictionary<int, bool>();
-        private set => _unlockedEffects = value;
     }
 
     /// <summary>
@@ -49,25 +37,19 @@ public class SaveData
         private set => _sound = value;
     }
     
+    private Dictionary<int, MedalSaveData> MedalsSaveData
+    {
+        get => _levelsMedalsTimes ??= new Dictionary<int, MedalSaveData>();
+        set => _levelsMedalsTimes = value;
+    }
+    
     public int playerCurrency;
     
     private Dictionary<int, bool> _unlockedEffects = new();
     private Dictionary<int, float> _bestTimes = new();
-    private Dictionary<int, medalTimes> _levelsMedalsTimes = new();
+    private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
     private CameraSettings _camera = new();
     private SoundSettings _sound = new();
-    
-    public List<int> GetActiveEffects()
-    {
-        if (UnlockedEffects == null) return null;
-        List<int> effects = new List<int>();
-        foreach (var item in UnlockedEffects)
-        {
-            if (item.Value == true) effects.Add(item.Key);
-        }
-
-        return effects;
-    }
 
     public void CheckBestTime(int level, float currTime, out float prevBest, out float currBest, out bool newRecord)
     {
@@ -80,6 +62,86 @@ public class SaveData
     }
 
     public void SetNewBestTime(int level, float newBest) => BestTimes[level] = newBest;
+
+    #region Medal Methods
+
+    public bool IsMedalUnlocked(int currLevel, MedalType type)
+    {
+        if (!MedalsSaveData.TryGetValue(currLevel, out var saveData))
+        {
+            MedalsSaveData[currLevel] = saveData;
+        }
+        
+        return type switch
+        {
+            MedalType.Bronze => saveData.bronzeUnlocked,
+            MedalType.Silver => saveData.silverUnlocked,
+            MedalType.Gold   => saveData.goldUnlocked,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    public int TryGetUnlockedEffects(int levelID, out Effect[] unlockedEffects)
+    {
+        var unlocked = new List<Effect>();
+        if (!LevelManager.TryGetLevelConfig(out var config))
+        {
+#if UNITY_EDITOR
+            Debug.LogError("ERROR: Couldn't find the level config. returning.");
+#endif
+
+            unlockedEffects = unlocked.ToArray();
+            return 0;
+        }
+
+        if (IsMedalUnlocked(levelID, MedalType.Bronze))
+        {
+            unlocked.Add(config.Bronze.upgrade);
+        }
+        
+        if (IsMedalUnlocked(levelID, MedalType.Silver))
+        {
+            unlocked.Add(config.Silver.upgrade);
+        }
+        
+        if (IsMedalUnlocked(levelID, MedalType.Gold))
+        {
+            unlocked.Add(config.Gold.upgrade);
+        }
+
+        unlockedEffects = unlocked.ToArray();
+        return unlocked.Count;
+    }
+    
+    public void UnlockMedal(int levelID, MedalType type)
+    {
+        if (!MedalsSaveData.TryGetValue(levelID, out var medalSaveData))
+        {
+            MedalsSaveData[levelID] = medalSaveData;
+        }
+        
+        switch (type)
+        {
+            case MedalType.Bronze:
+                medalSaveData.bronzeUnlocked = true;
+                break;
+            case MedalType.Silver:
+                medalSaveData.silverUnlocked = true;
+                break;
+            case MedalType.Gold:
+                medalSaveData.goldUnlocked = true;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
+
+        MedalsSaveData[levelID] = medalSaveData;
+    }
+
+    #endregion
+
+
+    
 }
 
 

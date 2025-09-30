@@ -7,7 +7,7 @@ using TMPro;
 
 public class ObjectiveManager : MonoBehaviour
 {
-    public int currentLevel => LevelManager.GetResolvedLevelNumber();
+    public int currentLevel => LevelManager.GetLevelID();
 
     [Header("Single UI Targets (optional, kept for backward-compat)")]
     [SerializeField] private TMP_Text timerText; // Gameplay
@@ -56,6 +56,10 @@ public class ObjectiveManager : MonoBehaviour
 
         stopTimer = false;
 
+    }
+
+    private void Start()
+    {
         ResolveMedalThresholds();
         InitializeMedalIconOnStart();
     }
@@ -124,11 +128,11 @@ public class ObjectiveManager : MonoBehaviour
         _hasThresholds = false;
         _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
 
-        if (LevelManager.TryGetActiveMedal(out var medal) && medal)
+        if (LevelManager.TryGetLevelConfig(out var medal) && medal)
         {
-            _goldThreshold   = Mathf.Max(0f, medal.levelMedalTimes.gold.time);
-            _silverThreshold = Mathf.Max(0f, medal.levelMedalTimes.silver.time);
-            _bronzeThreshold = Mathf.Max(0f, medal.levelMedalTimes.bronze.time);
+            _goldThreshold   = Mathf.Max(0f, medal.Gold.requiredTime);
+            _silverThreshold = Mathf.Max(0f, medal.Silver.requiredTime);
+            _bronzeThreshold = Mathf.Max(0f, medal.Bronze.requiredTime);
             _hasThresholds = true;
         }
 

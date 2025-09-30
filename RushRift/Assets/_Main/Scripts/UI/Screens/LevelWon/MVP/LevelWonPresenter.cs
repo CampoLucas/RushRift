@@ -1,4 +1,5 @@
 using System;
+using Game.General;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -94,9 +95,6 @@ namespace Game.UI.Screens
         private void SetModelValues(in LevelWonModel model)
         {
             var data = SaveAndLoad.Load();
-
-            var currLevel = CurrentLevel;
-            var medals = data.LevelsMedalsTimes[currLevel];
             var endTime = LevelManager.LevelCompleteTime();
             data.CheckBestTime(CurrentLevel, endTime, out var prevBest, out var currBest, out var newRecord);
 
@@ -119,13 +117,11 @@ namespace Game.UI.Screens
         
         private void SaveUnlockedMedals(in LevelWonModel model, ref SaveData data)
         {
-            var medals = data.LevelsMedalsTimes[CurrentLevel];
-
-            if (model.BronzeInfo.Unlocked) medals.bronze.isAcquired = true;
-            if (model.SilverInfo.Unlocked) medals.silver.isAcquired = true;
-            if (model.GoldInfo.Unlocked)   medals.gold.isAcquired   = true;
-
-            data.LevelsMedalsTimes[CurrentLevel] = medals;
+            var levelID = LevelManager.GetLevelID();
+            
+            if (data.IsMedalUnlocked(levelID, MedalType.Bronze)) data.UnlockMedal(levelID, MedalType.Bronze);
+            if (data.IsMedalUnlocked(levelID, MedalType.Silver)) data.UnlockMedal(levelID, MedalType.Silver);
+            if (data.IsMedalUnlocked(levelID, MedalType.Gold)) data.UnlockMedal(levelID, MedalType.Gold);
         }
 
         private void SaveNewBest(in LevelWonModel model, ref SaveData data)

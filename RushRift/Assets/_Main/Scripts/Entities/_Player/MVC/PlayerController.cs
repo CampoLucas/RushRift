@@ -48,8 +48,6 @@ namespace Game.Entities
                 LevelManager.GetPlayerReference(healthComponent.OnEmptyValue);
             }
 
-            var saveData = SaveAndLoad.Load();
-            if (saveData == null) return;
 
             for (var i = 0; i < startEffects.Length; i++)
             {
@@ -57,32 +55,21 @@ namespace Game.Entities
                 if (effect.IsNullOrMissingReference()) continue;
                 effect.ApplyEffect(this);
             }
+            
+            // var data = SaveAndLoad.Load();
+            // if (data == null) return;
+            //
+            // var levelID = LevelManager.GetLevelID();
+            // if (levelID == 0) return;
 
-            var currentLevel = LevelManager.GetResolvedLevelNumber();
-            if (currentLevel == 0) return;
+            var data = SaveAndLoad.Load();
+            var levelID = Game.LevelManager.GetLevelID();
+        
+            var effectsAmount = data.TryGetUnlockedEffects(levelID, out var effects);
 
-            // >>> prevent double-application; UpgradeManager owns medal upgrades <<<
-            if (UpgradeManager.HasAppliedOwnedUpgradesThisScene) return;
-
-            var medalEffects = saveData.LevelsMedalsTimes;
-            if (medalEffects.TryGetValue(currentLevel, out var medalTimes))
+            for (var i = 0; i < effectsAmount; i++)
             {
-                Effect currentEffect;
-                if (medalTimes.bronze.isAcquired)
-                {
-                    currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].bronze.upgrade);
-                    currentEffect.ApplyEffect(this);
-                }
-                if (medalTimes.silver.isAcquired)
-                {
-                    currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].silver.upgrade);
-                    currentEffect.ApplyEffect(this);
-                }
-                if (medalTimes.gold.isAcquired)
-                {
-                    currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].gold.upgrade);
-                    currentEffect.ApplyEffect(this);
-                }
+                effects[i].ApplyEffect(this);
             }
         }
 
