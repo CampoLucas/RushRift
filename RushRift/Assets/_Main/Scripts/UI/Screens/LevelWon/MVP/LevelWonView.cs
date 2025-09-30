@@ -8,14 +8,7 @@ namespace Game.UI.Screens
 {
     public class LevelWonView : UIView
     {
-        [SerializeField] private Animator animator;
         [SerializeField] private UnityEvent onShow = new UnityEvent();
-
-        protected override void Awake()
-        {
-            base.Awake();
-            animator.enabled = false;
-        }
 
         protected override void OnShow()
         {

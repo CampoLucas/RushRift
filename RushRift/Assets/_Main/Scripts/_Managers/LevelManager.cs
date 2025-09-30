@@ -1,13 +1,17 @@
+using System;
 using Game.DesignPatterns.Observers;
 using Game.VFX;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
+using Game.UI.Screens;
 
 
 namespace Game
 {
+    public enum MedalType { Bronze, Silver, Gold }
+    
     /// <summary>
     /// Manages the level state, including win and lose conditions.
     /// </summary>
@@ -182,6 +186,27 @@ namespace Game
                 return false;
             }
             
+        }
+
+        public static MedalInfo GetMedalInfo(MedalType type)
+        {
+            var data = SaveAndLoad.Load();
+            var currLevel = GetCurrentLevel();
+            var medal = type switch
+            {
+                MedalType.Bronze => data.LevelsMedalsTimes[currLevel].bronze,
+                MedalType.Silver => data.LevelsMedalsTimes[currLevel].silver,
+                MedalType.Gold   => data.LevelsMedalsTimes[currLevel].gold,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+            
+            var endTime = LevelCompleteTime();
+
+#if UNITY_EDITOR
+            Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.time}]");
+#endif
+            
+            return new MedalInfo(type.ToString(), medal.upgradeText, endTime <= medal.time, medal.isAcquired, medal.time);
         }
 
         private void OnPlayerDeath()

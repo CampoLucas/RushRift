@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,35 +10,27 @@ namespace Game.UI.Screens
 {
     public class LevelWonPresenter : UIPresenter<LevelWonModel, LevelWonView>
     {
-        public int currentLevel => SceneManager.GetActiveScene().buildIndex;
+#if true
+        public int CurrentLevel => SceneManager.GetActiveScene().buildIndex;
+#else
+        public int currentLevel => LevelManager.GetCurrentLevel();
+#endif
+        
         [Header("Buttons")]
         [SerializeField] private Button continueButton;
         [SerializeField] private Button retryButton;
         [SerializeField] private Button hubButton;
 
-        [Header("Timers")]
-        [SerializeField] private TMP_Text current;
-        [SerializeField] private TMP_Text best;
-        [SerializeField] private GameObject newBest;
-        [SerializeField] private TMP_Text bronzeText;
-        [SerializeField] private TMP_Text silverText;
-        [SerializeField] private TMP_Text goldText;
-
-        [Header("Icons")]
-        [SerializeField] private Image bronzeAcquired;
-        [SerializeField] private Image silverAcquired;
-        [SerializeField] private Image goldAcquired;
-        [SerializeField] private Sprite acquiredIcon;
-        [SerializeField] private Sprite normalIcon;
-
-        [Header("Effects")]
-        [SerializeField] private TMP_Text bronzeEffectText;
-        [SerializeField] private TMP_Text silverEffectText;
-        [SerializeField] private TMP_Text goldEffectText;
-        [SerializeField] private GameObject bronzeEffect;
-        [SerializeField] private GameObject silverEffect;
-        [SerializeField] private GameObject goldEffect;
-
+        [Header("Events")]
+        [SerializeField] private UnityEvent onBegin = new UnityEvent();
+        
+        private void Awake()
+        {
+            continueButton.onClick.AddListener(OnLoadNextHandler);
+            retryButton.onClick.AddListener(RetryLevelHandler);
+            hubButton.onClick.AddListener(HubLevelHandler);
+        }
+        
         public override void Begin()
         {
             base.Begin();
@@ -47,24 +40,22 @@ namespace Game.UI.Screens
             // Set Cursor
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
-            CheckTime();
-            OnWinLevel();
+            //OnWinLevel();
+            
+            SetModelValues(Model);
+            UpdateSaveData(Model);
+            CheckTime(Model);
+            
+            onBegin?.Invoke();
         }
 
         public override void End()
         {
             base.End();
-            
             EventSystem.current.SetSelectedGameObject(null);
         }
-
-        private void Awake()
-        {
-            continueButton.onClick.AddListener(OnLoadNextHandler);
-            retryButton.onClick.AddListener(RetryLevelHandler);
-            hubButton.onClick.AddListener(HubLevelHandler);
-            
-        }
+        
+        public LevelWonModel GetModel() => Model;
 
         private void HubLevelHandler()
         {
@@ -93,80 +84,54 @@ namespace Game.UI.Screens
             SceneManager.LoadScene(sceneToLoad);
         }
 
-        private void CheckTime()
+        private void CheckTime(in LevelWonModel model)
+        {
+            if (model.LevelWon) return;
+            
+            continueButton.interactable = false;
+        }
+        
+        private void SetModelValues(in LevelWonModel model)
         {
             var data = SaveAndLoad.Load();
-            var currentTime = LevelManager.LevelCompleteTime();
-            var currentIndex = SceneManager.GetActiveScene().buildIndex;
 
+            var currLevel = CurrentLevel;
+            var medals = data.LevelsMedalsTimes[currLevel];
+            var endTime = LevelManager.LevelCompleteTime();
+            data.CheckBestTime(CurrentLevel, endTime, out var prevBest, out var currBest, out var newRecord);
 
-            if (currentTime > data.LevelsMedalsTimes[currentIndex].bronze.time)
-            {
-                continueButton.interactable = false;
-                return;
-            }
+            var bronze = LevelManager.GetMedalInfo(MedalType.Bronze);
+            var silver = LevelManager.GetMedalInfo(MedalType.Silver);
+            var gold = LevelManager.GetMedalInfo(MedalType.Gold);
 
+            model.Initialize(endTime, currBest, newRecord, bronze, silver, gold);
         }
 
-        private void OnWinLevel()
+        private void UpdateSaveData(in LevelWonModel model)
         {
             var data = SaveAndLoad.Load();
-            var medals = data.LevelsMedalsTimes[currentLevel];
-            var time = LevelManager.LevelCompleteTime();
+            
+            SaveUnlockedMedals(model, ref data);
+            SaveNewBest(model, ref data);
+        }
+        
+        private void SaveUnlockedMedals(in LevelWonModel model, ref SaveData data)
+        {
+            var medals = data.LevelsMedalsTimes[CurrentLevel];
 
+            if (model.BronzeInfo.Unlocked) medals.bronze.isAcquired = true;
+            if (model.SilverInfo.Unlocked) medals.silver.isAcquired = true;
+            if (model.GoldInfo.Unlocked)   medals.gold.isAcquired   = true;
 
-            if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, time);
+            data.LevelsMedalsTimes[CurrentLevel] = medals;
+        }
 
-            if (data.BestTimes[currentLevel] > time) data.BestTimes[currentLevel] = time;
-
-
-            if (data.LevelsMedalsTimes[currentLevel].bronze.time > time && !data.LevelsMedalsTimes[currentLevel].bronze.isAcquired)
+        private void SaveNewBest(in LevelWonModel model, ref SaveData data)
+        {
+            if (model.NewRecord)
             {
-                medals.bronze.isAcquired = true;
-                bronzeEffectText.text = data.LevelsMedalsTimes[currentLevel].bronze.upgradeText;
-                bronzeEffect.SetActive(true);
+                data.SetNewBestTime(CurrentLevel, model.BestTime);
             }
-
-            if (data.LevelsMedalsTimes[currentLevel].silver.time > time && !data.LevelsMedalsTimes[currentLevel].silver.isAcquired)
-            {
-                medals.silver.isAcquired = true;
-                silverEffectText.text = data.LevelsMedalsTimes[currentLevel].silver.upgradeText;
-                silverEffect.SetActive(true);
-            } 
-
-            if (data.LevelsMedalsTimes[currentLevel].gold.time > time && !data.LevelsMedalsTimes[currentLevel].gold.isAcquired)
-            {
-                medals.gold.isAcquired = true;
-                goldEffectText.text = data.LevelsMedalsTimes[currentLevel].gold.upgradeText;
-                goldEffect.SetActive(true);
-            } 
-
-            data.LevelsMedalsTimes[currentLevel] = medals;
-
-
-            var _newTimer = TimerFormatter.GetNewTimer(data.BestTimes[currentLevel]);
-            TimerFormatter.FormatTimer(best, _newTimer[0], _newTimer[1], _newTimer[2]);
-            _newTimer = TimerFormatter.GetNewTimer(time);
-            TimerFormatter.FormatTimer(current, _newTimer[0], _newTimer[1], _newTimer[2]);
-
-            _newTimer = TimerFormatter.GetNewTimer(data.LevelsMedalsTimes[currentLevel].bronze.time);
-            TimerFormatter.FormatTimer(bronzeText, _newTimer[0], _newTimer[1], _newTimer[2]);
-            _newTimer = TimerFormatter.GetNewTimer(data.LevelsMedalsTimes[currentLevel].silver.time);
-            TimerFormatter.FormatTimer(silverText, _newTimer[0], _newTimer[1], _newTimer[2]);
-            _newTimer = TimerFormatter.GetNewTimer(data.LevelsMedalsTimes[currentLevel].gold.time);
-            TimerFormatter.FormatTimer(goldText, _newTimer[0], _newTimer[1], _newTimer[2]);
-
-            if (medals.bronze.isAcquired) bronzeAcquired.sprite = acquiredIcon;
-            else bronzeAcquired.enabled = false;
-
-            if (medals.silver.isAcquired) silverAcquired.sprite = acquiredIcon;
-            else silverAcquired.enabled = false;
-
-            if (medals.gold.isAcquired) goldAcquired.sprite = acquiredIcon;
-            else goldAcquired.enabled = false;
-
-
-            SaveAndLoad.Save(data);
         }
 
         private void OnDestroy()
@@ -174,6 +139,7 @@ namespace Game.UI.Screens
             continueButton.onClick.RemoveAllListeners();
             retryButton.onClick.RemoveAllListeners();
             hubButton.onClick.RemoveAllListeners();
+            onBegin.RemoveAllListeners();
         }
     }
 }

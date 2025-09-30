@@ -68,6 +68,18 @@ public class SaveData
 
         return effects;
     }
+
+    public void CheckBestTime(int level, float currTime, out float prevBest, out float currBest, out bool newRecord)
+    {
+        if (!BestTimes.TryGetValue(level, out var bestTime) || bestTime < 0f)
+            bestTime = -1f;
+
+        prevBest = bestTime;
+        newRecord = bestTime < 0f || currTime < bestTime;
+        currBest = newRecord ? currTime : bestTime;
+    }
+
+    public void SetNewBestTime(int level, float newBest) => BestTimes[level] = newBest;
 }
 
 

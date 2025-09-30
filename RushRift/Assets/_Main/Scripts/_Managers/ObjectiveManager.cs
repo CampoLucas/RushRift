@@ -13,8 +13,6 @@ public class ObjectiveManager : MonoBehaviour
 
     [Header("Single UI Targets (optional, kept for backward-compat)")]
     [SerializeField] private TMP_Text timerText; // Gameplay
-    [SerializeField] private TMP_Text finalTimerText; // Level Won
-    [SerializeField] private TMP_Text bestTimerText; // Level Won
 
     [Header("Multiple UI Targets")] // Should be their own stand alone class
     [SerializeField] private TMP_Text[] timerTexts;
@@ -98,11 +96,11 @@ public class ObjectiveManager : MonoBehaviour
 
         SaveAndLoad.Save(data);
 
-        var best = TimerFormatter.GetNewTimer(data.BestTimes[currentLevel]);
-        FormatAll(bestTimerText, bestTimerTexts, best[0], best[1], best[2]);
+        // var best = TimerFormatter.GetNewTimer(data.BestTimes[currentLevel]);
+        // FormatAll(bestTimerText, bestTimerTexts, best[0], best[1], best[2]);
 
-        var final = TimerFormatter.GetNewTimer(_timer);
-        FormatAll(finalTimerText, finalTimerTexts, final[0], final[1], final[2]);
+        // var final = TimerFormatter.GetNewTimer(_timer);
+        // FormatAll(finalTimerText, finalTimerTexts, final[0], final[1], final[2]);
     }
 
     private void OnDestroy()
