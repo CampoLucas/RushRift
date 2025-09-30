@@ -39,9 +39,9 @@ namespace Game.Entities
         }
 
         protected override void Start()
-        {        
+        {
             base.Start();
-            
+
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
                 healthComponent.OnValueChanged.Attach(_onPlayerDamage);
@@ -49,44 +49,41 @@ namespace Game.Entities
             }
 
             var saveData = SaveAndLoad.Load();
-
             if (saveData == null) return;
 
-            var medalEffects = saveData.LevelsMedalsTimes;
-            var currentLevel = LevelManager.GetCurrentLevel();
-            Effect currentEffect;
-            
             for (var i = 0; i < startEffects.Length; i++)
             {
                 var effect = startEffects[i];
                 if (effect.IsNullOrMissingReference()) continue;
-                
                 effect.ApplyEffect(this);
             }
-            
+
+            var currentLevel = LevelManager.GetResolvedLevelNumber();
             if (currentLevel == 0) return;
 
+            // >>> prevent double-application; UpgradeManager owns medal upgrades <<<
+            if (UpgradeManager.HasAppliedOwnedUpgradesThisScene) return;
+
+            var medalEffects = saveData.LevelsMedalsTimes;
             if (medalEffects.TryGetValue(currentLevel, out var medalTimes))
             {
+                Effect currentEffect;
                 if (medalTimes.bronze.isAcquired)
                 {
                     currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].bronze.upgrade);
                     currentEffect.ApplyEffect(this);
                 }
-
                 if (medalTimes.silver.isAcquired)
                 {
                     currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].silver.upgrade);
                     currentEffect.ApplyEffect(this);
                 }
-
                 if (medalTimes.gold.isAcquired)
                 {
                     currentEffect = LevelManager.GetEffect(medalEffects[currentLevel].gold.upgrade);
                     currentEffect.ApplyEffect(this);
                 }
             }
-            
         }
 
         protected override void SetJoins()
