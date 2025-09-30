@@ -85,9 +85,9 @@ public class ShopManager : MonoBehaviour
         {
             var medalTimes = data.LevelsMedalsTimes;
 
-            if (medalTimes[_level1].bronze.isAcquired) level1Adquired[0].enabled = true;
+            /*if (medalTimes[_level1].bronze.isAcquired) level1Adquired[0].enabled = true;
             if (medalTimes[_level1].silver.isAcquired) level1Adquired[1].enabled = true;
-            if (medalTimes[_level1].gold.isAcquired) level1Adquired[2].enabled = true;
+            if (medalTimes[_level1].gold.isAcquired) level1Adquired[2].enabled = true;*/
 
             /*if (medalTimes[_level2].bronze.isAcquired) level2Adquired[0].enabled = true;
             if (medalTimes[_level2].silver.isAcquired) level2Adquired[1].enabled = true;
@@ -99,7 +99,7 @@ public class ShopManager : MonoBehaviour
         }
 
 
-        var medals = LevelManager.GetMedals();
+        var medals = LevelManager.GetMedalsList();
 
         foreach (var item in medals)
         {
