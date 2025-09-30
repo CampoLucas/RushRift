@@ -119,9 +119,9 @@ namespace Game.UI.Screens
         {
             var levelID = LevelManager.GetLevelID();
             
-            if (data.IsMedalUnlocked(levelID, MedalType.Bronze)) data.UnlockMedal(levelID, MedalType.Bronze);
-            if (data.IsMedalUnlocked(levelID, MedalType.Silver)) data.UnlockMedal(levelID, MedalType.Silver);
-            if (data.IsMedalUnlocked(levelID, MedalType.Gold)) data.UnlockMedal(levelID, MedalType.Gold);
+            if (model.IsMedalUnlocked(MedalType.Bronze)) data.UnlockMedal(levelID, MedalType.Bronze);
+            if (model.IsMedalUnlocked(MedalType.Silver)) data.UnlockMedal(levelID, MedalType.Silver);
+            if (model.IsMedalUnlocked(MedalType.Gold)) data.UnlockMedal(levelID, MedalType.Gold);
         }
 
         private void SaveNewBest(in LevelWonModel model, ref SaveData data)

@@ -1,3 +1,6 @@
+using System;
+using Game.General;
+
 namespace Game.UI.Screens
 {
     public class LevelWonModel : UIModel
@@ -19,6 +22,17 @@ namespace Game.UI.Screens
             SilverInfo = silver;
             GoldInfo = gold;
             LevelWon = bronze.Unlocked || silver.Unlocked || gold.Unlocked;
+        }
+
+        public bool IsMedalUnlocked(MedalType type)
+        {
+            return type switch
+            {
+                MedalType.Bronze => BronzeInfo.Unlocked,
+                MedalType.Silver => SilverInfo.Unlocked,
+                MedalType.Gold => GoldInfo.Unlocked,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
         }
     }
 
