@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 17167675724738487}
   - component: {fileID: 189018925005410179}
   - component: {fileID: 2266012989696685568}
+  - component: {fileID: 7028289189763740876}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -269,21 +270,6 @@ MonoBehaviour:
     pitchRange: {x: 0.8, y: 1.2}
     timeBetweenPlays: 0.5
     isMusic: 0
-  - name: JumpPad
-    loop: 0
-    playOnAwake: 0
-    delaySeconds: 0
-    clips:
-    - {fileID: 8300000, guid: 56bce5423a011e94290eb3a1cabc4be3, type: 3}
-    mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
-    randomVolume: 1
-    volume: 1
-    volumeRange: {x: 0.8, y: 1}
-    pitch: 1
-    randomPitch: 1
-    pitchRange: {x: 0.8, y: 1.2}
-    timeBetweenPlays: 0.5
-    isMusic: 0
   - name: Blink
     loop: 0
     playOnAwake: 0
@@ -293,14 +279,30 @@ MonoBehaviour:
     mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
     randomVolume: 1
     volume: 1
-    volumeRange: {x: 1, y: 1}
-    pitch: 1
+    volumeRange: {x: 0.8, y: 1}
+    pitch: 0.98
     randomPitch: 1
-    pitchRange: {x: 1, y: 1}
+    pitchRange: {x: 0.8, y: 1.2}
+    timeBetweenPlays: 0.5
+    isMusic: 0
+  - name: JumpPad
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 56bce5423a011e94290eb3a1cabc4be3, type: 3}
+    mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 1
+    volume: 1
+    volumeRange: {x: 1, y: 1}
+    pitch: 0.98
+    randomPitch: 1
+    pitchRange: {x: 0.8, y: 1.2}
     timeBetweenPlays: 0.5
     isMusic: 0
   mixer: {fileID: 24100000, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
   keepAcrossScenes: 1
+  forcePersistAcrossScenes: 1
   persistWhenMusicTaggedPresent: 1
   isDebugLoggingEnabled: 0
 --- !u!82 &11858957848135684
@@ -1839,3 +1841,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7028289189763740876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7095539490065185307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82f50eaaa55e948418df7253ae86c477, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boundAudioMixer: {fileID: 24100000, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+  boundExposedParameterName: MusicLowpassHz
+  defaultUnpausedCutoffHz: 5000
+  useUnscaledTimeForRamps: 1
+  resetToUnpausedOnSceneLoaded: 1
+  isDebugLoggingEnabled: 0
