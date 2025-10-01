@@ -214,8 +214,9 @@ namespace Game
 #if UNITY_EDITOR
             Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.requiredTime}]");
 #endif
-            
-            return new MedalInfo(type.ToString(), medal.upgrade.EffectName, endTime <= medal.requiredTime, data.IsMedalUnlocked(currLevel, type), medal.requiredTime);
+
+            var isUnlocked = data.IsMedalUnlocked(currLevel, type);
+            return new MedalInfo(type.ToString(), medal.upgrade.EffectName, isUnlocked || endTime <= medal.requiredTime, isUnlocked, medal.requiredTime);
         }
         
         private void OnPlayerDeath()
