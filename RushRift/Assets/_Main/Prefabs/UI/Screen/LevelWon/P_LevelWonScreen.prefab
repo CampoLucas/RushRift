@@ -1189,18 +1189,18 @@ MonoBehaviour:
   delay: 0.1
   bronze:
     name: Bronze
-    icon: {fileID: 1310574420, guid: 72f1f81eea2d6be4ebbf08b4d19bca92, type: 3}
-    color: {r: 0.9433962, g: 0.3820569, b: 0, a: 1}
+    medalColor: {r: 0.48235297, g: 0.21176472, b: 0, a: 1}
+    backgroundColor: {r: 0.9433962, g: 0.3820569, b: 0, a: 1}
     popUp: {fileID: 6988250157402203967}
   silver:
     name: Silver
-    icon: {fileID: -5834672, guid: 94cdf75b95da6714c88d265227991e4e, type: 3}
-    color: {r: 0.836478, g: 0.836478, b: 0.836478, a: 1}
+    medalColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.836478, g: 0.836478, b: 0.836478, a: 1}
     popUp: {fileID: 4627197553452523365}
   gold:
     name: Gold
-    icon: {fileID: 889949886, guid: ec9137f6b001a7c4a8e0e08407a057a8, type: 3}
-    color: {r: 0.84276724, g: 0.60471237, b: 0, a: 1}
+    medalColor: {r: 1, g: 0.7254902, b: 0, a: 1}
+    backgroundColor: {r: 0.84276724, g: 0.60471237, b: 0, a: 1}
     popUp: {fileID: 8088039406721351802}
 --- !u!114 &3001157856840821438
 MonoBehaviour:
@@ -2777,7 +2777,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 0
   playScale: 0
-  playColor: {r: 1, g: 0, b: 0.16078432, a: 1}
+  playColor: {r: 1, g: 0, b: 0.5254902, a: 1}
   canvas: {fileID: 2689322760797115282}
   targetRect: {fileID: 644536383175026439}
   targetGraphic: {fileID: 2407944107287914781}
@@ -3314,10 +3314,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SilverMedal
       objectReference: {fileID: 0}
-    - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: -5834672, guid: 94cdf75b95da6714c88d265227991e4e, type: 3}
     - target: {fileID: 6361265753897291744, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -3433,15 +3429,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Color.b
-      value: 0.81761
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Color.g
-      value: 0.81761
+      value: 0.21268907
       objectReference: {fileID: 0}
     - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Color.r
-      value: 0.81761
+      value: 0.48427665
       objectReference: {fileID: 0}
     - target: {fileID: 6361265753897291744, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Pivot.x
@@ -3683,20 +3679,16 @@ PrefabInstance:
       value: GoldMedal
       objectReference: {fileID: 0}
     - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 889949886, guid: ec9137f6b001a7c4a8e0e08407a057a8, type: 3}
-    - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Color.b
-      value: 0.8113208
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Color.g
-      value: 0.8113208
+      value: 0.7248159
       objectReference: {fileID: 0}
     - target: {fileID: 2712907203918157798, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Color.r
-      value: 0.8113208
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6361265753897291744, guid: fe8f35c4bcd28b94ababf8567936b545, type: 3}
       propertyPath: m_Pivot.x

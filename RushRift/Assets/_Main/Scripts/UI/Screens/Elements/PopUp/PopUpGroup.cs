@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.UI.Screens.Elements
 {
@@ -67,7 +68,7 @@ namespace Game.UI.Screens.Elements
 
         private IEnumerator OpenMedal(PopUpData data, MedalInfo medalInfo)
         {
-            yield return data.popUp.OpenRoutine(title, medalInfo.UpgradeName, data.icon, data.color, delay);
+            yield return data.popUp.OpenRoutine(title, medalInfo.UpgradeName, data.medalColor, data.backgroundColor, delay);
         }
 
         private void OnDestroy()
@@ -80,8 +81,8 @@ namespace Game.UI.Screens.Elements
     public struct PopUpData
     {
         public string name;
-        public Sprite icon;
-        public Color color;
+        public Color medalColor;
+        [FormerlySerializedAs("color")] public Color backgroundColor;
         public PopUp popUp;
     }
 }

@@ -42,18 +42,18 @@ namespace Game.UI.Screens.Elements
             StartCoroutine(Close(closeDelay));
         }
 
-        public void Open(string title, string info, Sprite icon, Color color, float delay = 0)
+        public void Open(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
             StopAllCoroutines();
-            StartCoroutine(OpenRoutine(title, info, icon, color, delay));
+            StartCoroutine(OpenRoutine(title, info, iconColor, backgroundColor, delay));
         }
 
-        public IEnumerator OpenRoutine(string title, string info, Sprite icon, Color color, float delay = 0)
+        public IEnumerator OpenRoutine(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
             titleText.text = title;
             infoText.text = info;
-            iconImage.sprite = icon;
-            background.color = color;
+            iconImage.color = iconColor;
+            background.color = backgroundColor;
 
             gameObject.SetActive(true);
 

@@ -14,8 +14,8 @@ public class MedalGroup : MonoBehaviour
     {
         var model = presenter.GetModel();
         
-        bronze.Init(model.BronzeInfo.MedalTime);
-        silver.Init(model.SilverInfo.MedalTime);
-        gold.Init(model.GoldInfo.MedalTime);
+        bronze.Init(model.BronzeInfo.MedalTime, model.BronzeInfo.Unlocked);
+        silver.Init(model.SilverInfo.MedalTime, model.SilverInfo.Unlocked);
+        gold.Init(model.GoldInfo.MedalTime, model.GoldInfo.Unlocked);
     }
 }
