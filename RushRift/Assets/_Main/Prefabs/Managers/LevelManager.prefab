@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8112877830504442526}
   - component: {fileID: 8175684923960723666}
+  - component: {fileID: 6626778848651629046}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -44,6 +45,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fc2991e38ef4a499db3172ca837e96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scriptableReference: {fileID: 11400000, guid: dc2b17ebdc808b445b319f6e4a6f05c2, type: 2}
+  levelConfig: {fileID: 0}
   effectPool:
     prefabDictionary: {fileID: 11400000, guid: cd2417d236e092c4aa1fd10bf435716b, type: 2}
+  _barrelInvulnerabilityEnabled: 0
+--- !u!114 &6626778848651629046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1227565069033795109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c80f98a95010c4eaf51746b58f2df5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  behavioursToDisable:
+  - {fileID: 8175684923960723666}
