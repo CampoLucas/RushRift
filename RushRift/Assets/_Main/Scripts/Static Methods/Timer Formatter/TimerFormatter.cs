@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class TimerFormatter : MonoBehaviour
+public static class TimerFormatter
 {
     public static int[] GetNewTimer(float time)
     {
@@ -17,6 +17,13 @@ public class TimerFormatter : MonoBehaviour
 
     public static void FormatTimer(TMP_Text text, int minutes, int seconds, int miliseconds)
     {
+        if (!text)
+        {
+#if UNITY_EDITOR
+            Debug.LogError("ERROR: The passed TMP_Text is null. Returning.");
+#endif
+            return;
+        }
         text.text = string.Format("{0:0}:{1:00}.{2:00}", minutes, seconds, miliseconds);
     }
 }

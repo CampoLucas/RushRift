@@ -80,5 +80,17 @@ namespace MyTools.Utils
 
             return sb.ToString();
         }
+
+        public static string FormatToTimer(this float targetTime)
+        {
+            if (targetTime < 0f)
+                return "--:--.---"; // fallback if no time recorded
+
+            var minutes = (int)(targetTime / 60f);
+            var seconds = (int)(targetTime % 60f);
+            var milliseconds = (int)((targetTime * 1000f) % 1000f);
+
+            return $"{minutes:00}:{seconds:00}.{milliseconds:000}";
+        }
     }
 }
