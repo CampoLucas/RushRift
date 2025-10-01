@@ -116,8 +116,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 2
-      minScalar: 1
+      scalar: 3
+      minScalar: 2
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -976,7 +976,7 @@ ParticleSystem:
     m_BurstCount: 0
     m_Bursts: []
   SizeModule:
-    enabled: 0
+    enabled: 1
     curve:
       serializedVersion: 2
       minMaxState: 1
@@ -987,22 +987,22 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 0
-          inSlope: 0
-          outSlope: 1
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
           value: 1
-          inSlope: 1
+          inSlope: 0
           outSlope: 0
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
@@ -5239,8 +5239,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 5, y: 2.5, z: 5}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 7.5, y: 3, z: 5}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &3838691123807341751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5262,6 +5262,9 @@ MonoBehaviour:
   tangentialRetention01: 0
   clampExitSpeedToLaunch: 1
   triggerOnlyOnEnter: 1
+  allowReLaunchWhileInside: 1
+  reLaunchDotThreshold: -0.08
+  reLaunchCooldownSeconds: 0.2
   debugLogs: 1
 --- !u!1001 &8983108905818498286
 PrefabInstance:
