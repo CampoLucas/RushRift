@@ -4,7 +4,7 @@ Shader "S_Medal"
 {
     Properties
     {
-        [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+        //[PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
 
         _StencilComp ("Stencil Comparison", Float) = 8
@@ -17,8 +17,8 @@ Shader "S_Medal"
 
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
 
-        _MainTex("MainTex", 2D) = "white" {}
         _PinMaskStep("PinMaskStep", Range( -1 , 1)) = 0
+        _MainTex("_MainTex", 2D) = "white" {}
         _PinMaskPower("PinMaskPower", Range( -1 , 1)) = 0
         _ColorMaskPower("ColorMaskPower", Float) = 0
         _Min("Min", Float) = 0
@@ -181,8 +181,8 @@ Shader "S_Medal"
 }
 /*ASEBEGIN
 Version=19801
-Node;AmplifyShaderEditor.SamplerNode;3;-1248,-816;Inherit;True;Property;_MainTex;MainTex;0;0;Fetch;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.RangedFloatNode;21;-1184,-400;Inherit;False;Property;_ColorMaskPower;ColorMaskPower;3;0;Create;True;0;0;0;False;0;False;0;1.27;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;3;-1280,-896;Inherit;True;Property;_MainTex;_MainTex;1;0;Fetch;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.PowerNode;20;-928,-448;Inherit;False;False;2;0;FLOAT;0;False;1;FLOAT;1;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;27;-928,-304;Inherit;False;Property;_Min;Min;4;0;Create;True;0;0;0;False;0;False;0;-0.35;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;29;-928,-208;Inherit;False;Property;_Max;Max;5;0;Create;True;0;0;0;False;0;False;0;1.55;0;0;0;1;FLOAT;0
@@ -192,7 +192,7 @@ Node;AmplifyShaderEditor.VertexColorNode;1;-704,-176;Inherit;False;0;5;COLOR;0;F
 Node;AmplifyShaderEditor.RangedFloatNode;8;-784,-544;Inherit;False;Property;_PinMaskPower;PinMaskPower;2;0;Create;True;0;0;0;False;0;False;0;0.6737618;-1;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.LerpOp;30;-416,-336;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;1,1,1,1;False;2;FLOAT;0;False;1;COLOR;0
 Node;AmplifyShaderEditor.PowerNode;7;-656,-656;Inherit;False;False;2;0;FLOAT;0;False;1;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;6;-480,-544;Inherit;False;Property;_PinMaskStep;PinMaskStep;1;0;Create;True;0;0;0;False;0;False;0;0.06506614;-1;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;6;-480,-544;Inherit;False;Property;_PinMaskStep;PinMaskStep;0;0;Create;True;0;0;0;False;0;False;0;0.06506614;-1;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;22;-240,-448;Inherit;False;2;2;0;FLOAT;0;False;1;COLOR;0,0,0,0;False;1;COLOR;0
 Node;AmplifyShaderEditor.StepOpNode;5;-320,-656;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SaturateNode;23;-48,-448;Inherit;False;1;0;COLOR;0,0,0,0;False;1;COLOR;0
@@ -243,4 +243,4 @@ WireConnection;25;2;24;2
 WireConnection;25;3;19;0
 WireConnection;0;0;25;0
 ASEEND*/
-//CHKSM=6A2F62B9C84483F7D1E8F35BB7FC0CB47F7C6B3B
+//CHKSM=B7AC3B86380E3FA5E045A8AC2841BFAA7F2DEFC0

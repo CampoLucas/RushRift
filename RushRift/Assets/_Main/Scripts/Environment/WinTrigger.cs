@@ -15,13 +15,7 @@ using UnityEditor.SceneManagement;
 [RequireComponent(typeof(Collider))]
 public class WinTrigger : MonoBehaviour
 {
-    public static readonly ISubject OnWinSaveTimes = new Subject();
-    
-    [Header("Points")]
-    [SerializeField] private int points;
-
     [Header("Trigger Settings")]
-    [Tooltip("Tag required to activate the trigger (default: Player).")]
     [SerializeField] private string triggerTag = "Player";
     
     private void Reset()
@@ -32,16 +26,10 @@ public class WinTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag(triggerTag)) return;
-        OnWinSaveTimes.NotifyAll();
-
         if (LevelManager.TryGetLevelWon(out var levelWonSubject))
         {
             levelWonSubject.NotifyAll();
         }
     }
-
-    private void OnDestroy()
-    {
-        OnWinSaveTimes.DetachAll();
-    }
+    
 }

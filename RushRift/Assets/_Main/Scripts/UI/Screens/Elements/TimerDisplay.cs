@@ -53,7 +53,10 @@ public class TimerDisplay : MonoBehaviour
 
     private void Start()
     {
-        LevelManager.OnTimeUpdated.Attach(_timerObserver);
+        if (LevelManager.TryGetTimerSubject(out var subject))
+        {
+            subject.Attach(_timerObserver);
+        }
         
         _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
 
@@ -161,7 +164,10 @@ public class TimerDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
-        LevelManager.OnTimeUpdated.Detach(_timerObserver);
+        if (LevelManager.TryGetTimerSubject(out var subject))
+        {
+            subject.Detach(_timerObserver);
+        }
         StopAllCoroutines();
         
         _timerObserver.Dispose();

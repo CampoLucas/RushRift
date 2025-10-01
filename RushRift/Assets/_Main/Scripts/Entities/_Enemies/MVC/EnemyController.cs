@@ -46,8 +46,6 @@ namespace Game.Entities
 
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
-                LevelManager.GetEnemiesReference(healthComponent.OnEmptyValue);
-                
                 healthComponent.OnValueChanged.Attach(_onDamageObserver);
                 healthComponent.OnEmptyValue.Attach(_onDeathObserver);
             }
