@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Game;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Game.DesignPatterns.Observers;
@@ -87,10 +88,18 @@ public class GhostRecorder : MonoBehaviour
         }
 
         winObserver = new ActionObserver(OnLevelWon);
-        WinTrigger.OnWinSaveTimes.Attach(winObserver);
+        
 
         if (startRecordingOnEnable) StartRecording();
         Log("Recorder Awake");
+    }
+
+    private void Start()
+    {
+        if (LevelManager.TryGetLevelWon(out var subject))
+        {
+            subject.Attach(winObserver);
+        }
     }
 
     private void OnEnable()
@@ -110,7 +119,11 @@ public class GhostRecorder : MonoBehaviour
         StopRecording();
         if (winObserver != null)
         {
-            WinTrigger.OnWinSaveTimes.Detach(winObserver);
+            if (LevelManager.TryGetLevelWon(out var subject))
+            {
+                subject.Attach(winObserver);
+            }
+            
             winObserver.Dispose();
             winObserver = null;
         }

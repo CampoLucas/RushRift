@@ -92,5 +92,17 @@ namespace MyTools.Utils
 
             return $"{minutes:00}:{seconds:00}.{milliseconds:000}";
         }
+
+        public static string FormatToClockTimer(this float targetTime)
+        {
+            if (targetTime < 0f)
+                return "--:--:--"; // fallback if no time recorded
+
+            var minutes = (int)(targetTime / 60f);
+            var seconds = (int)(targetTime % 60f);
+            var milliseconds = (int)((targetTime * 1000f) % 1000f);
+
+            return $"{minutes:00}:{seconds:00}:{milliseconds:00}";
+        }
     }
 }
