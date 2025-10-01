@@ -23,6 +23,9 @@ namespace Game
         [Header("Persistence")]
         [SerializeField, Tooltip("If enabled, this AudioManager persists across scene loads.")]
         private bool keepAcrossScenes = true;
+        
+        [SerializeField, Tooltip("If true, the first AudioManager instance will ALWAYS persist across scenes (ignores other persistence toggles).")]
+        private bool forcePersistAcrossScenes = true;
 
         [SerializeField, Tooltip("If true, the manager will automatically persist if any Sound is tagged as Music.")]
         private bool persistWhenMusicTaggedPresent = true;
@@ -49,12 +52,20 @@ namespace Game
         private void Awake()
         {
             bool anyMusicTagged = sounds != null && sounds.Any(s => s != null && s.IsMusic);
-            bool shouldPersist = keepAcrossScenes || (persistWhenMusicTaggedPresent && anyMusicTagged);
+            bool shouldPersist = forcePersistAcrossScenes || keepAcrossScenes || (persistWhenMusicTaggedPresent && anyMusicTagged);
 
             if (_instance == null)
             {
                 _instance = this;
-                if (shouldPersist) DontDestroyOnLoad(gameObject);
+
+                if (shouldPersist)
+                {
+                    if (transform.parent != null)
+                        transform.SetParent(null, worldPositionStays: true); // ensure root so DontDestroyOnLoad is honored
+
+                    DontDestroyOnLoad(gameObject);
+                }
+
                 EnsureMusicChannel();
             }
             else
