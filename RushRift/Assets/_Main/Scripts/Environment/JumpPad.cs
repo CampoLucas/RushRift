@@ -1,6 +1,7 @@
 using Game.LevelElements.Terminal;
 using UnityEngine;
 using System.Collections.Generic;
+using Game;
 
 namespace _Main.Scripts.Environment
 {
@@ -176,6 +177,8 @@ namespace _Main.Scripts.Environment
                 return;
             }
 
+            AudioManager.Play("JumpPad");
+            
             Vector3 dir = GetDirection();
             Vector3 v = rb.velocity;
 
