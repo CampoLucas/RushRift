@@ -16,10 +16,15 @@ namespace Game
     [AddComponentMenu("Game/Level Manager")]
     public class LevelManager : MonoBehaviour
     {
+        #region Static Subjects
+
         public static readonly ISubject OnEnemyDeathSubject = new Subject();
         public static readonly ISubject OnEnemySpawnSubject = new Subject();
         public static readonly ISubject OnProjectileDestroyed = new Subject();
-        public static readonly ISubject<float> OnTimeUpdated = new Subject<float>(); 
+
+        #endregion
+
+        #region Static Properties
 
         public static bool CanUseTerminal
         {
@@ -32,60 +37,7 @@ namespace Game
             get => _instance && _instance._hasDashDamage;
             set { if (_instance) _instance._hasDashDamage = value; }
         }
-
-        [Header("References")]
-        [SerializeField] private LevelConfigSO levelConfig;
-        [SerializeField] private EffectPool effectPool;
         
-        [Header("Runtime Flags")]
-        [SerializeField] private bool _barrelInvulnerabilityEnabled;
-
-        private static LevelManager _instance;
-
-        private ISubject _onGameOver = new Subject();
-        private ISubject _onLevelWon = new Subject();
-        private IObserver _onPlayerDeath;
-        private IObserver _onEnemyDeath;
-
-        private Dictionary<UpgradeEnum, Entities.Effect> effectsReferencesDic = new();
-
-        private int _allEnemies;
-        private int _deadEnemies;
-        private bool _gameOver;
-        private bool _gameOverNotified;
-        private float _levelCompleteTime;
-        private bool _canUseTerminals;
-        private bool _hasDashDamage;
-        private bool _canUseLockOnBlink;
-        
-        public static bool HasAppliedOwnedUpgradesThisScene { get; private set; }
-
-
-        private void Awake()
-        {
-            if (_instance != null && _instance != this)
-            {
-                Destroy(gameObject);
-            }
-            
-            _instance = this;
-            _onPlayerDeath = new ActionObserver(OnPlayerDeath);
-            _onEnemyDeath = new ActionObserver(OnEnemyDeath);
-        }
-
-        public static void GetPlayerReference(ISubject onDeath)
-        {
-            if (_instance == null) return;
-            onDeath.Attach(_instance._onPlayerDeath);
-        }
-
-        public static Entities.Effect GetEffect(UpgradeEnum upgrade)
-        {
-            return _instance.effectsReferencesDic[upgrade];
-        }
-
-        public static LevelConfigSO GetLevelConfig() => _instance ? _instance.levelConfig : null;
-
         public static bool BarrelInvulnerabilityEnabled
         {
             get => _instance && _instance._barrelInvulnerabilityEnabled;
@@ -98,30 +50,59 @@ namespace Game
             set { if (_instance) _instance._canUseLockOnBlink = value; }
         }
 
-        public static void GetEnemiesReference(ISubject onDeath)
+        #endregion
+
+        [Header("References")]
+        [SerializeField] private LevelConfigSO levelConfig;
+        [SerializeField] private EffectPool effectPool;
+        
+        [Header("Runtime Flags")]
+        [SerializeField] private bool _barrelInvulnerabilityEnabled;
+
+        private static LevelManager _instance;
+        private TimerHandler _levelTimer = new();
+
+        private ISubject _onGameOver = new Subject();
+        private ISubject _onLevelWon = new Subject();
+        private IObserver _onPlayerDeath;
+        private IObserver _levelEnded;
+
+        private Dictionary<UpgradeEnum, Entities.Effect> effectsReferencesDic = new();
+
+        private bool _gameOver;
+        private bool _gameOverNotified;
+        private float _levelCompleteTime;
+        private bool _canUseTerminals;
+        private bool _hasDashDamage;
+        private bool _canUseLockOnBlink;
+        
+
+
+        private void Awake()
         {
-            if (_instance == null) return;
-            onDeath.Attach(_instance._onEnemyDeath);
-            _instance._allEnemies += 1;
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
+            _instance = this;
+            _onPlayerDeath = new ActionObserver(OnPlayerDeath);
+            _levelEnded = new ActionObserver(OnLevelEndedHandler);
+
+            _onLevelWon.Attach(_levelEnded);
+            _onGameOver.Attach(_levelEnded);
         }
 
-        public static bool TryGetGameOver(out ISubject subject)
+        private void Update()
         {
-            if (_instance == null || _instance._onGameOver == null) { subject = null; return false; }
-            subject = _instance._onGameOver; return true;
+            if (!_gameOver) _levelTimer.DoUpdate(Time.deltaTime);
         }
 
-        public static bool TryGetLevelWon(out ISubject subject)
-        {
-            if (_instance == null || _instance._onLevelWon == null) { subject = null; return false; }
-            subject = _instance._onLevelWon; return true;
-        }
+        #region Static Methods
 
-        public static bool IsGameOver()
-        {
-            if (_instance == null) return true;
-            return _instance._gameOver;
-        }
+        #region Level Config
+        public static LevelConfigSO GetLevelConfig() => _instance ? _instance.levelConfig : null;
 
         public static int GetLevelID()
         {
@@ -171,15 +152,43 @@ namespace Game
             return false;
         }
 
-        public static float LevelCompleteTime()
+        #endregion
+
+        #region Subject Getters
+
+        public static void GetPlayerReference(ISubject onDeath)
         {
-            if (_instance) return _instance._levelCompleteTime;
-            return 0;
+            if (_instance == null) return;
+            onDeath.Attach(_instance._onPlayerDeath);
         }
 
-        public static void SetLevelCompleteTime(float time)
+        public static bool TryGetGameOver(out ISubject subject)
         {
-            if (_instance) _instance._levelCompleteTime = time;
+            if (_instance == null || _instance._onGameOver == null) { subject = null; return false; }
+            subject = _instance._onGameOver; return true;
+        }
+
+        public static bool TryGetLevelWon(out ISubject subject)
+        {
+            if (_instance == null || _instance._onLevelWon == null) { subject = null; return false; }
+            subject = _instance._onLevelWon; return true;
+        }
+
+        public static bool TryGetTimerSubject(out ISubject<float> subject)
+        {
+            subject = null;
+            if (!_instance) return false;
+
+            subject = _instance._levelTimer.OnTimeUpdated;
+            return subject != null;
+        }
+
+        #endregion
+
+        public static float LevelCompleteTime()
+        {
+            if (_instance) return _instance._levelTimer.CurrentTime;
+            return 0;
         }
 
         public static bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
@@ -206,7 +215,7 @@ namespace Game
         {
             var data = SaveAndLoad.Load();
             var currLevel = GetLevelID();
-            var config = LevelManager.GetLevelConfig();
+            var config = GetLevelConfig();
             var medal = config.GetMedal(type);
             
             var endTime = LevelCompleteTime();
@@ -218,6 +227,16 @@ namespace Game
             var isUnlocked = data.IsMedalUnlocked(currLevel, type);
             return new MedalInfo(type.ToString(), medal.upgrade.EffectName, isUnlocked || endTime <= medal.requiredTime, isUnlocked, medal.requiredTime);
         }
+
+        #endregion
+
+        private void OnLevelEndedHandler()
+        {
+            _onLevelWon.Detach(_levelEnded);
+            _onGameOver.Detach(_levelEnded);
+            
+            _gameOver = true;
+        }
         
         private void OnPlayerDeath()
         {
@@ -227,35 +246,19 @@ namespace Game
             _onGameOver.NotifyAll();
         }
 
-        private void OnEnemyDeath()
-        {
-            _deadEnemies += 1;
-        }
-        
-        public static bool TryGetActiveMedalTimes(out float bronze, out float silver, out float gold, out LevelConfigSO config)
-        {
-            bronze = silver = gold = 0f;
-            config = null;
-            if (!TryGetLevelConfig(out config) || !config) return false;
-            
-            bronze = Mathf.Max(0f, config.Bronze.requiredTime);
-            silver = Mathf.Max(0f, config.Silver.requiredTime);
-            gold   = Mathf.Max(0f, config.Gold.requiredTime);
-            return true;
-        }
-
         private void OnDestroy()
         {
+            _levelTimer.Dispose();
+            _levelTimer = null;
+            
             _onLevelWon.Dispose();
             _onGameOver.Dispose();
             _onPlayerDeath.Dispose();
-            _onEnemyDeath.Dispose();
             effectPool.Dispose();
 
             OnEnemyDeathSubject.DetachAll();
             OnEnemySpawnSubject.DetachAll();
             OnProjectileDestroyed.DetachAll();
-            OnTimeUpdated.DetachAll();
             
             if (_instance == this)
                 _instance = null; // limpiar la referencia estática
