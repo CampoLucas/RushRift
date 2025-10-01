@@ -4,24 +4,20 @@ using UnityEngine;
 using Game.DesignPatterns.Observers;
 using UnityEngine.UI;
 using TMPro;
-using Game.Entities;
-using UnityEngine.SceneManagement;
 
 public class ObjectiveManager : MonoBehaviour
 {
-    public int currentLevel => SceneManager.GetActiveScene().buildIndex;
+    public int currentLevel => LevelManager.GetLevelID();
 
     [Header("Single UI Targets (optional, kept for backward-compat)")]
     [SerializeField] private TMP_Text timerText; // Gameplay
-    [SerializeField] private TMP_Text finalTimerText; // Level Won
-    [SerializeField] private TMP_Text bestTimerText; // Level Won
 
-    [Header("Multiple UI Targets")] // Should be their own stand alone class
+    [Header("Multiple UI Targets")]
     [SerializeField] private TMP_Text[] timerTexts;
     [SerializeField] private TMP_Text[] finalTimerTexts;
     [SerializeField] private TMP_Text[] bestTimerTexts;
 
-    [Header("Medal Icon")] // should be on the gameplay ui
+    [Header("Medal Icon")]
     [SerializeField, Tooltip("Primary Image to display the current medal icon.")]
     private Image medalImage;
     [SerializeField, Tooltip("Optional additional medal images to keep in sync.")]
@@ -56,15 +52,17 @@ public class ObjectiveManager : MonoBehaviour
     private void Awake()
     {
         _onWinLevelObserver = new ActionObserver(OnWinLevel);
-
         WinTrigger.OnWinSaveTimes.Attach(_onWinLevelObserver);
 
         stopTimer = false;
-        var data = SaveAndLoad.Load();
 
-        ResolveMedalThresholds();
-        InitializeMedalIconOnStart();
     }
+
+    // private void Start()
+    // {
+    //     ResolveMedalThresholds();
+    //     InitializeMedalIconOnStart();
+    // }
 
     private void Update()
     {
@@ -76,10 +74,13 @@ public class ObjectiveManager : MonoBehaviour
         if (stopTimer) return;
 
         _timer += Time.deltaTime;
-        _newTimer = TimerFormatter.GetNewTimer(_timer);
-        FormatAll(timerText, timerTexts, _newTimer[0], _newTimer[1], _newTimer[2]);
+        
+        LevelManager.OnTimeUpdated.NotifyAll(_timer);
+        
+        //_newTimer = TimerFormatter.GetNewTimer(_timer);
+        //FormatAll(timerText, timerTexts, _newTimer[0], _newTimer[1], _newTimer[2]);
 
-        UpdateMedalIconForTime(_timer);
+        //UpdateMedalIconForTime(_timer);
     }
 
     private void OnWinLevel()
@@ -91,18 +92,16 @@ public class ObjectiveManager : MonoBehaviour
 
         LevelManager.SetLevelCompleteTime(_timer);
 
-        var data = SaveAndLoad.Load();
+        // var data = SaveAndLoad.Load();
+        // if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
+        // if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
+        // SaveAndLoad.Save(data);
 
-        if (!data.BestTimes.ContainsKey(currentLevel)) data.BestTimes.Add(currentLevel, _timer);
-        if (data.BestTimes[currentLevel] > _timer) data.BestTimes[currentLevel] = _timer;
+        // var best = TimerFormatter.GetNewTimer(data.BestTimes[currentLevel]);
+        // FormatAll(bestTimerText, bestTimerTexts, best[0], best[1], best[2]);
 
-        SaveAndLoad.Save(data);
-
-        var best = TimerFormatter.GetNewTimer(data.BestTimes[currentLevel]);
-        FormatAll(bestTimerText, bestTimerTexts, best[0], best[1], best[2]);
-
-        var final = TimerFormatter.GetNewTimer(_timer);
-        FormatAll(finalTimerText, finalTimerTexts, final[0], final[1], final[2]);
+        // var final = TimerFormatter.GetNewTimer(_timer);
+        // FormatAll(finalTimerText, finalTimerTexts, final[0], final[1], final[2]);
     }
 
     private void OnDestroy()
@@ -127,42 +126,32 @@ public class ObjectiveManager : MonoBehaviour
         }
     }
 
-    private void ResolveMedalThresholds()
-    {
-        _hasThresholds = false;
-        _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
+    // private void ResolveMedalThresholds()
+    // {
+    //     _hasThresholds = false;
+    //     _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
+    //
+    //     if (LevelManager.TryGetLevelConfig(out var medal) && medal)
+    //     {
+    //         _goldThreshold   = Mathf.Max(0f, medal.Gold.requiredTime);
+    //         _silverThreshold = Mathf.Max(0f, medal.Silver.requiredTime);
+    //         _bronzeThreshold = Mathf.Max(0f, medal.Bronze.requiredTime);
+    //         _hasThresholds = true;
+    //     }
+    //
+    //     ApplyMedalVisibility(_hasThresholds || !hideIconIfNoMedalData);
+    // }
 
-        var list = LevelManager.GetMedals();
-        if (list == null || list.Count == 0) { ApplyMedalVisibility(false); return; }
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            var m = list[i];
-            if (m != null && m.levelNumber == currentLevel)
-            {
-                _goldThreshold = Mathf.Max(0f, m.levelMedalTimes.gold.time);
-                _silverThreshold = Mathf.Max(0f, m.levelMedalTimes.silver.time);
-                _bronzeThreshold = Mathf.Max(0f, m.levelMedalTimes.bronze.time);
-                _hasThresholds = true;
-                break;
-            }
-        }
-
-        ApplyMedalVisibility(_hasThresholds || !hideIconIfNoMedalData);
-    }
-
-    private void InitializeMedalIconOnStart()
-    {
-        if (!_hasThresholds)
-        {
-            if (hideIconIfNoMedalData) ApplyMedalVisibility(false);
-            else ApplyMedalState(MedalState.Fail);
-            return;
-        }
-
-        // Start run at Gold, then degrade as time exceeds thresholds
-        ApplyMedalState(MedalState.Gold);
-    }
+    // private void InitializeMedalIconOnStart()
+    // {
+    //     if (!_hasThresholds)
+    //     {
+    //         if (hideIconIfNoMedalData) ApplyMedalVisibility(false);
+    //         else ApplyMedalState(MedalState.Fail);
+    //         return;
+    //     }
+    //     ApplyMedalState(MedalState.Gold);
+    // }
 
     private void UpdateMedalIconForTime(float time)
     {

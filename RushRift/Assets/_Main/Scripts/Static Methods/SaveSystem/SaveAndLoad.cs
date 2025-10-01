@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Game.Entities;
 
-public class SaveAndLoad
+public static class SaveAndLoad
 {
     private static readonly string Path = $"{Application.persistentDataPath}/rushrift_{Application.version}.save";
     private static BinaryFormatter _formatter;
@@ -12,7 +12,7 @@ public class SaveAndLoad
 
     public static string SaveFilePath => Path;
 
-    public static void Save(SaveData data)
+    public static void Save(this SaveData data)
     {
         _formatter = new BinaryFormatter();
         _create = new FileStream(Path, FileMode.Create);
