@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Game.DesignPatterns.Observers;
 using MyTools.Utils;
 using TMPro;
@@ -8,9 +9,11 @@ namespace Game.Enviroment
 {
     public class TimeBillboard : MonoBehaviour
     {
+        [Header("Reference")]
         [SerializeField] private TMP_Text text;
 
         private ActionObserver<float> _updateTimeObserver;
+        private Coroutine _tickCoroutine;
 
         private void Awake()
         {
@@ -27,11 +30,14 @@ namespace Game.Enviroment
 
         private void TimeUpdatedHandler(float time)
         {
-            text.text = time.FormatToTimer();
+            var snappedTime = Mathf.Floor(time * 100f) / 100f; // snap to 0.01s
+            text.text = snappedTime.FormatToClockTimer();
         }
 
         private void OnDestroy()
         {
+            StopAllCoroutines();
+            
             if (LevelManager.TryGetTimerSubject(out var subject))
             {
                 subject.Detach(_updateTimeObserver);
