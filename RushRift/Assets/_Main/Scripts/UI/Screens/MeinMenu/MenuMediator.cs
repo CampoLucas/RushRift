@@ -60,7 +60,7 @@ namespace Game.UI.Screens
 
         private void NewGame()
         {
-            SaveAndLoad.Reset();
+            SaveAndLoad.ResetGame();
 
             SceneManager.LoadScene(UIManager.FirstLevelIndex);
             // creates new save and takes you to the first level.

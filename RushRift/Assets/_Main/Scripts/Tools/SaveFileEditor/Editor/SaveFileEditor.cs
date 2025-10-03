@@ -16,16 +16,16 @@ public static class SaveFileEditor
     [MenuItem("Tools/Save Data/New Save File")]
     private static void ResetSaveFile()
     {
-        SaveAndLoad.Reset();
+        SaveAndLoad.ResetGame();
         Debug.Log("Save Data has been set to new.");
     }
     
-    [MenuItem("Tools/Save Data/Add 1000 Currency")]
-    private static void AddMoney()
-    {
-        SaveAndLoad.AddMoney(1000);
-        Debug.Log("Added 1000 to currency.");
-    }
     
+    [MenuItem("Tools/Save Data/New Settings File")]
+    private static void ResetSettingsSaveFile()
+    {
+        SaveAndLoad.ResetSettings();
+        Debug.Log("Save Settings Data has been set to new.");
+    }
     
 }

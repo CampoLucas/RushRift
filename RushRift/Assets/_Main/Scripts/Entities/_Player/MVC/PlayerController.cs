@@ -62,7 +62,7 @@ namespace Game.Entities
             // var levelID = LevelManager.GetLevelID();
             // if (levelID == 0) return;
 
-            var data = SaveAndLoad.Load();
+            var data = SaveAndLoad.LoadGame();
             var levelID = Game.LevelManager.GetLevelID();
         
             var effectsAmount = data.TryGetUnlockedEffects(levelID, out var effects);

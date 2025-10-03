@@ -94,7 +94,7 @@ namespace Game.UI.Screens
         
         private void SetModelValues(in LevelWonModel model)
         {
-            var data = SaveAndLoad.Load();
+            var data = SaveAndLoad.LoadGame();
             var endTime = LevelManager.LevelCompleteTime();
             data.CheckBestTime(CurrentLevel, endTime, out var prevBest, out var currBest, out var newRecord);
 
@@ -107,12 +107,12 @@ namespace Game.UI.Screens
 
         private void UpdateSaveData(in LevelWonModel model)
         {
-            var data = SaveAndLoad.Load();
+            var data = SaveAndLoad.LoadGame();
             
             SaveUnlockedMedals(model, ref data);
             SaveNewBest(model, ref data);
             
-            data.Save();
+            data.SaveGame();
         }
         
         private void SaveUnlockedMedals(in LevelWonModel model, ref SaveData data)

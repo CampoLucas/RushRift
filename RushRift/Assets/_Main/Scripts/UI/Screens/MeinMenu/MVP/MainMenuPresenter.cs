@@ -55,7 +55,7 @@ namespace Game.UI.Screens
         {
             base.OnInit();
 
-            if (!SaveAndLoad.HasSaveData())
+            if (!SaveAndLoad.HasSaveGame())
             {
                 continueButton.interactable = false;
             }
@@ -63,7 +63,7 @@ namespace Game.UI.Screens
 
         private void OnTryNewGameHandler()
         {
-            if (SaveAndLoad.HasSaveData())
+            if (SaveAndLoad.HasSaveGame())
             {
                 // ToDo: if you have a save data open a pop up.
                 popUpBackground.gameObject.SetActive(true);
@@ -71,7 +71,7 @@ namespace Game.UI.Screens
             }
             else
             {
-                OnTryNewGameHandler();
+                OnNewGameHandler();
             }
         }
 
