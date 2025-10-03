@@ -37,7 +37,15 @@ namespace Game.UI
 
         private void Awake()
         {
-            if (canvas) canvas.enabled = false;
+            Reset();
+        }
+
+        public override void Reset()
+        {
+            if (canvas)
+            {
+                canvas.enabled = false;
+            }
         }
 
         public void SetPosition(Vector2 pos)

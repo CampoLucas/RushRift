@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 namespace Game.UI.Group
 {
-    public class UIGroupAnimation : UIAnimation
+    public sealed class UIGroupAnimation : UIAnimation
     {
         [SerializeField] private Canvas canvas;
         [SerializeField] private List<UIGroupData> animations;
@@ -22,6 +22,28 @@ namespace Game.UI.Group
             if (canvas)
             {
                 canvas.enabled = false;
+            }
+        }
+
+        public override void Reset()
+        {
+            if (canvas)
+            {
+                canvas.enabled = false;
+            }
+
+            for (var i = 0; i < animations.Count; i++)
+            {
+                var anim = animations[i].Animation;
+
+                if (!anim)
+                {
+#if UNITY_EDITOR
+                    Debug.LogWarning("WARNING: Animation is null.", this);    
+#endif
+                    continue;
+                }
+                anim.Reset();
             }
         }
 
