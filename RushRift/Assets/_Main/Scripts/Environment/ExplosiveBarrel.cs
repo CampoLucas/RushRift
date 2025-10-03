@@ -6,6 +6,7 @@ using Game.Entities.Components;
 using UnityEngine;
 using UnityEngine.VFX;
 using _Main.Scripts.Feedbacks;
+using Game.VFX;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
@@ -118,7 +119,7 @@ public class ExplosiveBarrel : MonoBehaviour
 
     [Header("Visual Effects")]
     [SerializeField, Tooltip("Visual Effect Graph asset spawned at the explosion point.")]
-    private VisualEffectAsset explosionVfxAsset;
+    private VFXPrefabID explosionVFX;
 
     [SerializeField, Tooltip("Local offset from the explosion origin where the VFX will be placed.")]
     private Vector3 explosionVfxLocalOffset = Vector3.zero;
@@ -326,16 +327,15 @@ public class ExplosiveBarrel : MonoBehaviour
     {
         if (shouldPlayExplosionAudio && !string.IsNullOrEmpty(explosionAudioEventName))
             AudioManager.Play(explosionAudioEventName);
+        
+        var pos = originWorld + transform.TransformVector(explosionVfxLocalOffset);
 
-        if (explosionVfxAsset)
+        LevelManager.TryGetVFX(explosionVFX, new VFXEmitterParams()
         {
-            var go = new GameObject("VFX_Explosion");
-            go.transform.position = originWorld + transform.TransformVector(explosionVfxLocalOffset);
-            var vfx = go.AddComponent<VisualEffect>();
-            vfx.visualEffectAsset = explosionVfxAsset;
-            vfx.Play();
-            if (explosionVfxAutoDestroySeconds > 0f) Destroy(go, explosionVfxAutoDestroySeconds);
-        }
+            position = pos,
+            rotation = Quaternion.identity,
+            scale = explosionRadiusMeters
+        }, out var emitter);
     }
 
     private IEnumerator DelayedPostExplosionAction(float delaySeconds)

@@ -75,8 +75,6 @@ namespace Game
         private bool _canUseTerminals;
         private bool _hasDashDamage;
         private bool _canUseLockOnBlink;
-        
-
 
         private void Awake()
         {
