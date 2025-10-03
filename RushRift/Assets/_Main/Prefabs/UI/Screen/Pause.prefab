@@ -2031,6 +2031,7 @@ GameObject:
   - component: {fileID: 3137408143232224309}
   - component: {fileID: 4995141253448380566}
   - component: {fileID: 4071129754376277752}
+  - component: {fileID: 3920419367003661073}
   m_Layer: 0
   m_Name: Pause
   m_TagString: Untagged
@@ -2150,6 +2151,29 @@ MonoBehaviour:
   canvas: {fileID: 4669887903585593174}
   hideCanvas: 0
   versionText: {fileID: 3619210694907674203}
+--- !u!114 &3920419367003661073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5242406548660957475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7671cce3363b994418515f5560cb488f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetAudioMixer: {fileID: 24100000, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+  exposedParameterName: MusicLowpassHz
+  pausedCutoffHz: 250
+  unpausedCutoffHz: 22000
+  captureUnpausedFromMixerOnStart: 1
+  pauseRampSeconds: 0.05
+  resumeRampSeconds: 1.25
+  useUnscaledTime: 1
+  applyOnEnableAndClearOnDisable: 0
+  resetOnSceneLoaded: 1
+  isDebugLoggingEnabled: 0
 --- !u!1 &5671604393461722527
 GameObject:
   m_ObjectHideFlags: 0
