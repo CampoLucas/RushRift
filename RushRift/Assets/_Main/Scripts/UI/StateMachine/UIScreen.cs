@@ -5,6 +5,9 @@ namespace Game.UI.Screens
         Gameplay,
         GameOver,
         LevelWon,
-        Pause
+        Pause,
+        Options,
+        MainMenu,
+        Credits,
     }
 }

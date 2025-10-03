@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public class LevelWonPresenter : UIPresenter<LevelWonModel, LevelWonView>
+    public sealed class LevelWonPresenter : UIPresenter<LevelWonModel, LevelWonView>
     {
 #if true
         public int CurrentLevel => SceneManager.GetActiveScene().buildIndex;
@@ -132,12 +132,14 @@ namespace Game.UI.Screens
             }
         }
 
-        private void OnDestroy()
+        public override void Dispose()
         {
             continueButton.onClick.RemoveAllListeners();
             retryButton.onClick.RemoveAllListeners();
             hubButton.onClick.RemoveAllListeners();
             onBegin.RemoveAllListeners();
+            
+            base.Dispose();
         }
     }
 }

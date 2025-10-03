@@ -13,11 +13,7 @@ namespace Tools.Scripts.Classes
 
         public Vector2Curve()
         {
-            x = AnimationCurve.Linear(0, 1, 1, 1);
-            y = AnimationCurve.Linear(0, 1, 1, 1);
-            speedModifier = 1;
-            scaleModifier = 1;
-            axisMultiplier = Vector2.one;
+            
         }
 
         public Vector2Curve(AnimationCurve x, AnimationCurve y, float speed = 1, float scale = 1)

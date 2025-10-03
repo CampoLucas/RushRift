@@ -57,4 +57,9 @@ public static class SaveAndLoad
         data.playerCurrency += amount;
         Save(data);
     }
+
+    public static bool HasSaveData()
+    {
+        return File.Exists(Path);
+    }
 }

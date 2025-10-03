@@ -39,16 +39,19 @@ namespace Game.UI.Screens
 
         public virtual void Dispose()
         {
-            Model.Dispose();
+            Model?.Dispose();
             Model = null;
-            
-            View.Dispose();
             View = null;
         }
 
         protected virtual void OnInit()
         {
             
+        }
+
+        private void OnDestroy()
+        {
+            Dispose();
         }
     }
 }

@@ -13,5 +13,11 @@ namespace Game.UI.Screens
 
             versionText.text = $"Version: {Application.version}";
         }
+
+        public override void Dispose()
+        {
+            versionText = null;
+            base.Dispose();
+        }
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 
 namespace Game.UI.Screens
 {
-    public class GameplayPresenter : UIPresenter<GameplayModel, GameplayView>
+    public sealed class GameplayPresenter : UIPresenter<GameplayModel, GameplayView>
     {
         [Header("Attributes")]
         [SerializeField] private BarPresenter healthBarPresenter;

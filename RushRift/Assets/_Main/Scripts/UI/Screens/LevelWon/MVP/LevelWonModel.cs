@@ -3,7 +3,7 @@ using Game.General;
 
 namespace Game.UI.Screens
 {
-    public class LevelWonModel : UIModel
+    public sealed class LevelWonModel : UIModel
     {
         public float EndTime { get; private set; }
         public float BestTime { get; private set; }

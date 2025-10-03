@@ -1,6 +1,6 @@
 namespace Game.UI.Screens
 {
-    public class LevelWonState : UIStatePresenter<LevelWonPresenter, LevelWonModel, LevelWonView>
+    public class LevelWonState : UIState<LevelWonPresenter, LevelWonModel, LevelWonView>
     {
         public LevelWonState(LevelWonPresenter presenter) : base(presenter)
         {

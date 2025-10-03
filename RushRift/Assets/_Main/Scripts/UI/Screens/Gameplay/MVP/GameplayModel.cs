@@ -15,12 +15,13 @@ namespace Game.UI.Screens
 
         public override void Dispose()
         {
-            base.Dispose();
             HealthBar.Dispose();
             HealthBar = null;
             
             EnergyBar.Dispose();
             EnergyBar = null;
+            
+            base.Dispose();
         }
     }
 }

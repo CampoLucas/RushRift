@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public class PausePresenter : UIPresenter<PauseModel, PauseView>
+    public class PausePresenter : MenuPresenter<PauseModel, PauseView>
     {
         public bool OnOptions { get; private set; }
 
@@ -16,7 +16,8 @@ namespace Game.UI.Screens
         [SerializeField] private Button restartButton;
         [SerializeField] private Button optionsButton;
         [SerializeField] private Button optionsBackButton;
-        [SerializeField] private Button quitButton;
+        [SerializeField] private Button hubButton;
+        [SerializeField] private Button mainMenuButton;
 
         [Header("Screens")]
         [SerializeField] private Canvas main;
@@ -24,7 +25,7 @@ namespace Game.UI.Screens
 
         [Header("Audio")]
         [SerializeField] private PauseMusicLowPass pauseMusicLowPass;
-
+        
         public override void Begin()
         {
             base.Begin();
@@ -59,16 +60,26 @@ namespace Game.UI.Screens
         protected override void OnInit()
         {
             base.OnInit();
+
+            if (SceneManager.GetActiveScene().buildIndex == UIManager.HubIndex)
+            {
+                hubButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                hubButton.onClick.AddListener(OnHubHandler);
+            }
+            
             resumeButton.onClick.AddListener(OnResumeHandler);
             restartButton.onClick.AddListener(OnRestartHandler);
             optionsButton.onClick.AddListener(OnOptionsHandler);
             optionsBackButton.onClick.AddListener(OnOptionsBackHandler);
-            quitButton.onClick.AddListener(OnQuitHandler);
+            mainMenuButton.onClick.AddListener(OnMainMenuHandler);
         }
 
         private void OnResumeHandler()
         {
-            UIManager.SetScreen(UIScreen.Gameplay, .25f, 0, 0);
+            NotifyAll(MenuState.Back);
         }
 
         private void OnOptionsHandler()
@@ -87,24 +98,30 @@ namespace Game.UI.Screens
         
         private void OnRestartHandler()
         {
-            PauseEventBus.SetPaused(false);
-            Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            NotifyAll(MenuState.Restart);
         }
 
 
-        private void OnQuitHandler()
+        private void OnMainMenuHandler()
         {
-            Application.Quit();
+            NotifyAll(MenuState.MainMenu);
         }
 
-        private void OnDestroy()
+        private void OnHubHandler()
         {
+            NotifyAll(MenuState.HUB);
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            
             resumeButton.onClick.RemoveAllListeners();
             restartButton.onClick.RemoveAllListeners();
             optionsButton.onClick.RemoveAllListeners();
             optionsBackButton.onClick.RemoveAllListeners();
-            quitButton.onClick.RemoveAllListeners();
+            mainMenuButton.onClick.RemoveAllListeners();
+            hubButton.onClick.RemoveAllListeners();
         }
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Game.UI.Screens
 {
-    public class GameOverPresenter : UIPresenter<GameOverModel, GameOverView>
+    public sealed class GameOverPresenter : UIPresenter<GameOverModel, GameOverView>
     {
         public override void Begin()
         {
