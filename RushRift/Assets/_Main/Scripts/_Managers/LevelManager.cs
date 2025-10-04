@@ -80,7 +80,7 @@ namespace Game
 
         private void Awake()
         {
-            if (_instance != null && _instance != this)
+            if (_instance && _instance != this)
             {
                 Destroy(gameObject);
                 return;
@@ -96,7 +96,10 @@ namespace Game
 
         private void Update()
         {
-            if (!_gameOver) _levelTimer.DoUpdate(Time.deltaTime);
+            if (!_gameOver)
+            {
+                _levelTimer.DoUpdate(Time.deltaTime);
+            }
         }
 
         #region Static Methods
@@ -198,7 +201,7 @@ namespace Game
             if (_instance.effectPool.TryGetVFX(id, vfxParams, out emitter))
             {
 #if UNITY_EDITOR
-                Debug.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}");
+                Debug.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}", emitter);
 #endif
                 return true;
             }
