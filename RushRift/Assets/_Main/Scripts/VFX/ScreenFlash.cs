@@ -15,12 +15,6 @@ public class ScreenFlash : MonoBehaviour
     [Tooltip("Default color of the flash.")]
     [SerializeField] private Color flashColor = Color.white;
 
-    [Tooltip("Max alpha value of the flash.")]
-    [SerializeField, Range(0f, 1f)] private float flashAlpha = 1f;
-
-    [Tooltip("Total duration of the flash effect.")]
-    [SerializeField, Range(0f, 5f)] private float flashDuration = 0.2f;
-
     [Tooltip("Curve controlling fade in/out.")]
     [SerializeField] private AnimationCurve flashCurve = AnimationCurve.EaseInOut(0, 0, 1, 0);
 

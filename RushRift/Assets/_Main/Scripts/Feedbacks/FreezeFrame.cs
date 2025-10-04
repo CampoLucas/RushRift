@@ -70,7 +70,12 @@ namespace _Main.Scripts.Feedbacks
             _originalTimeScale = Time.timeScale;
             _originalFixedDeltaTime = Time.fixedDeltaTime;
 
-            if (persistAcrossScenes) DontDestroyOnLoad(gameObject);
+            if (persistAcrossScenes)
+            {
+                if (transform.parent != null)
+                    transform.SetParent(null, worldPositionStays: true); // ensure root so DontDestroyOnLoad is honored
+                DontDestroyOnLoad(gameObject);
+            }
             SceneManager.sceneLoaded += HandleSceneLoaded;
         }
 

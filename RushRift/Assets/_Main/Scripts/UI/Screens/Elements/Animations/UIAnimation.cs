@@ -16,6 +16,9 @@ namespace Game.UI
         {
             Play(0);
         }
+
+        public abstract void Reset();
+        
         public abstract void Play(float delay);
         public abstract IEnumerator PlayRoutine(float delay);
         public abstract void Stop();

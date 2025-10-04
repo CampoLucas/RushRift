@@ -7,7 +7,7 @@ namespace Game.UI.Screens
     public class BarModel : UIModel, IObserver<float, float, float>
     {
         public AttributeBarData Data { get; private set; }
-        public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
+        public NullCheck<Subject<float, float, float>> OnValueChanged { get; private set; } = new Subject<float, float, float>();
 
         public BarModel(AttributeBarData data)
         {
@@ -17,18 +17,23 @@ namespace Game.UI.Screens
 
         public void OnNotify(float currentHealth, float previousHealth, float maxHealth)
         {
-            OnValueChanged.NotifyAll(currentHealth, previousHealth, maxHealth);
+            OnValueChanged.Get().NotifyAll(currentHealth, previousHealth, maxHealth);
         }
 
         public override void Dispose()
         {
-            base.Dispose();
             Data.OnValueChanged.Detach(this);
             Data.Dispose();
+
+            if (OnValueChanged.TryGetValue(out var subject))
+            {
+                subject.DetachAll();
+                subject.Dispose();
+            }
             
-            OnValueChanged.DetachAll();
-            OnValueChanged.Dispose();
             OnValueChanged = null;
+            
+            base.Dispose();
         }
     }
 

@@ -34,16 +34,6 @@ namespace Game.Entities.Components
         [SerializeField] private float minRateRange;
         [SerializeField] private float maxRateRange;
 
-        [Header("FOV")]
-        [SerializeField] private float minFOV;
-        [SerializeField] private float maxFOV;
-
-        [Space(10)] [Header("Distortion")]
-        [SerializeField] private float distortionScale = 32f;
-        [SerializeField] private float distortionPower = .8f;
-        [SerializeField] private float distortionMultiplier = .05f;
-        [SerializeField] private Gradient _gradient;
-
         public float SetEffect(float currentVelocity, VisualEffect effect)
         {
             var f = Mathf.Clamp01((currentVelocity - minVelocity) / (maxVelocity - minVelocity));

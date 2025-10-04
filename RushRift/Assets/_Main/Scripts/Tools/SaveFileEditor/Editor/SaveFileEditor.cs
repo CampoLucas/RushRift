@@ -4,28 +4,28 @@ using UnityEngine;
 public static class SaveFileEditor
 {
     [MenuItem("Tools/Save Data/Open Save File Location")]
-    private static void OpenSaveFolder() => EditorUtility.RevealInFinder(SaveAndLoad.SaveFilePath);
+    private static void OpenSaveFolder() => EditorUtility.RevealInFinder(SaveSystem.SaveFilePath);
 
     [MenuItem("Tools/Save Data/Copy Save File Path")]
     private static void CopySavePath()
     {
-        EditorGUIUtility.systemCopyBuffer = SaveAndLoad.SaveFilePath;
-        Debug.Log($"Copied Save File Path: {SaveAndLoad.SaveFilePath}");
+        EditorGUIUtility.systemCopyBuffer = SaveSystem.SaveFilePath;
+        Debug.Log($"Copied Save File Path: {SaveSystem.SaveFilePath}");
     }
 
     [MenuItem("Tools/Save Data/New Save File")]
     private static void ResetSaveFile()
     {
-        SaveAndLoad.Reset();
+        SaveSystem.ResetGame();
         Debug.Log("Save Data has been set to new.");
     }
     
-    [MenuItem("Tools/Save Data/Add 1000 Currency")]
-    private static void AddMoney()
-    {
-        SaveAndLoad.AddMoney(1000);
-        Debug.Log("Added 1000 to currency.");
-    }
     
+    [MenuItem("Tools/Save Data/New Settings File")]
+    private static void ResetSettingsSaveFile()
+    {
+        SaveSystem.ResetSettings();
+        Debug.Log("Save Settings Data has been set to new.");
+    }
     
 }

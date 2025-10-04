@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,8 +6,9 @@ using UnityEngine.Events;
 
 namespace Game.UI.Group
 {
-    public class UIGroupAnimation : UIAnimation
+    public sealed class UIGroupAnimation : UIAnimation
     {
+        [SerializeField] private Canvas canvas;
         [SerializeField] private List<UIGroupData> animations;
         
         [Header("Events")]
@@ -14,17 +16,55 @@ namespace Game.UI.Group
         [SerializeField] private UnityEvent onAllSequencesComplete = new UnityEvent();
 
         private Coroutine _coroutine;
-        
+
+        private void Awake()
+        {
+            if (canvas)
+            {
+                canvas.enabled = false;
+            }
+        }
+
+        public override void Reset()
+        {
+            if (canvas)
+            {
+                canvas.enabled = false;
+            }
+
+            for (var i = 0; i < animations.Count; i++)
+            {
+                var anim = animations[i].Animation;
+
+                if (!anim)
+                {
+#if UNITY_EDITOR
+                    Debug.LogWarning("WARNING: Animation is null.", this);    
+#endif
+                    continue;
+                }
+                anim.Reset();
+            }
+        }
+
         public override void Play(float delay)
         {
             Stop();
+            
             _coroutine = StartCoroutine(PlayRoutine(delay));
         }
 
         public override IEnumerator PlayRoutine(float delay)
         {
-            if (delay > 0) yield return new WaitForSeconds(delay);
-            
+            if (delay > 0)
+            {
+                yield return new WaitForSeconds(delay);
+            }
+
+            if (canvas)
+            {
+                canvas.enabled = true;
+            }
             onPlaySequences?.Invoke();
             
             var running = new List<Coroutine>();
@@ -37,7 +77,9 @@ namespace Game.UI.Group
 
             // Wait for all to finish
             foreach (var coroutine in running)
+            {
                 yield return coroutine;
+            }
             
             onAllSequencesComplete?.Invoke();
         }

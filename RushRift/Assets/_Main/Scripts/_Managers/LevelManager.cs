@@ -211,7 +211,7 @@ namespace Game
 
         public static MedalInfo GetMedalInfo(MedalType type)
         {
-            var data = SaveAndLoad.Load();
+            var data = SaveSystem.LoadGame();
             var currLevel = GetLevelID();
             var config = GetLevelConfig();
             var medal = config.GetMedal(type);

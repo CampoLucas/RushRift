@@ -26,7 +26,7 @@ public class TimesDisplays : MonoBehaviour
 
     public void Play()
     {
-        var data = SaveAndLoad.Load();
+        var data = SaveSystem.LoadGame();
         Play(LevelManager.LevelCompleteTime(), data.BestTimes[SceneManager.GetActiveScene().buildIndex]);
     }
     

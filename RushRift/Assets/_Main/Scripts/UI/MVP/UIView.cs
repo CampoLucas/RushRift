@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Game.UI.Screens
@@ -14,6 +15,9 @@ namespace Game.UI.Screens
 
         [Header("Trailer Settings")]
         [SerializeField] private bool hideCanvas;
+        
+        [Header("Events")]
+        [SerializeField] protected UnityEvent onShow = new UnityEvent();
         
         private bool _enabled;
         private bool _started;
@@ -36,6 +40,8 @@ namespace Game.UI.Screens
             }
             
             OnShow();
+            
+            onShow.Invoke();
         }
 
         public void Hide()

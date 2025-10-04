@@ -8,8 +8,10 @@ using UnityEngine.Serialization;
 
 
 [System.Serializable]
-public class SaveData
+public class SaveData : BaseSaveData
 {
+    public string lastScene;
+    
     /// <summary>
     /// A property that in the case someone plays with an old save that didn't had the BestTime dictionary, it creates it.
     /// </summary>
@@ -18,24 +20,6 @@ public class SaveData
         get => _bestTimes ??= new Dictionary<int, float>();
         private set => _bestTimes = value;
     }
-
-    /// <summary>
-    /// A property that in the case someone plays with an old save that didn't had the Camera class, it creates it.
-    /// </summary>
-    public CameraSettings Camera
-    {
-        get => _camera ??= new CameraSettings();
-        private set => _camera = value;
-    }
-    
-    /// <summary>
-    /// A property that in the case someone plays with an old save that didn't had the Sound class, it creates it.
-    /// </summary>
-    public SoundSettings Sound
-    {
-        get => _sound ??= new SoundSettings();
-        private set => _sound = value;
-    }
     
     private Dictionary<int, MedalSaveData> MedalsSaveData
     {
@@ -43,14 +27,14 @@ public class SaveData
         set => _levelsMedalsTimes = value;
     }
     
-    public int playerCurrency;
-    
-    private Dictionary<int, bool> _unlockedEffects = new();
     private Dictionary<int, float> _bestTimes = new();
     private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
-    private CameraSettings _camera = new();
-    private SoundSettings _sound = new();
 
+    public SaveData()
+    {
+        version = Application.version;
+    }
+    
     public void CheckBestTime(int level, float currTime, out float prevBest, out float currBest, out bool newRecord)
     {
         if (!BestTimes.TryGetValue(level, out var bestTime) || bestTime < 0f)
@@ -139,9 +123,42 @@ public class SaveData
     }
 
     #endregion
+}
 
-
+[System.Serializable]
+public class SettingsData : BaseSaveData
+{
+    /// <summary>
+    /// A property that in the case someone plays with an old save that didn't had the Camera class, it creates it.
+    /// </summary>
+    public CameraSettings Camera
+    {
+        get => _camera ??= new CameraSettings();
+        private set => _camera = value;
+    }
     
+    /// <summary>
+    /// A property that in the case someone plays with an old save that didn't had the Sound class, it creates it.
+    /// </summary>
+    public SoundSettings Sound
+    {
+        get => _sound ??= new SoundSettings();
+        private set => _sound = value;
+    }
+    
+    public SettingsData()
+    {
+        version = Application.version;
+    }
+    
+    private CameraSettings _camera = new();
+    private SoundSettings _sound = new();
+}
+
+[System.Serializable]
+public class BaseSaveData
+{
+    public string version; // stored game version
 }
 
 
