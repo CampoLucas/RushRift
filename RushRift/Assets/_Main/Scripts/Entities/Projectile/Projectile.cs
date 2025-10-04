@@ -58,6 +58,7 @@ namespace Game.Entities
         protected override void OnPause()
         {
             _prevPauseVelocity = body.velocity;
+            body.isKinematic = false;
             body.velocity = Vector3.zero;
             body.isKinematic = true;
         }

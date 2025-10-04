@@ -14,28 +14,15 @@ public static class SaveSystem
 
     private static void Save<TData>(TData data, string path) where TData : BaseSaveData
     {
-//         data.version = Application.version; // keep version updated.
-//         
-//         var formatter = new BinaryFormatter();
-//         using var fs = new FileStream(path, FileMode.Create);
-//         formatter.Serialize(fs, data);
-//         
-//         //fs.Close();
-//         
-// #if UNITY_EDITOR
-//         Debug.Log($"[SaveSystem] Saved data at: {path}");
-// #endif
         var formatter = new BinaryFormatter();
         using var fs = new FileStream(path, FileMode.Create);
         Save(data, path, formatter, fs);
     }
     
-    private static void Save<TData>(TData data, string path, in BinaryFormatter formatter, in FileStream fs) where TData : BaseSaveData
+    private static void Save<TData>(TData data, string path, BinaryFormatter formatter, FileStream fs) where TData : BaseSaveData
     {
         data.version = Application.version; // keep version updated.
         formatter.Serialize(fs, data);
-        
-        //fs.Close();
         
 #if UNITY_EDITOR
         Debug.Log($"[SaveSystem] Saved data at: {path}");
@@ -58,18 +45,15 @@ public static class SaveSystem
         var formatter = new BinaryFormatter();
         using var fs = new FileStream(path, FileMode.Open);
         var data = (TData) formatter.Deserialize(fs);
-        //fs.Close();
 
-        if (data.version != Application.version)
-        {
+        if (data.version == Application.version) return data;
 #if UNITY_EDITOR
-            Debug.LogWarning($"[SaveSystem] Save version mismatch! Expected {Application.version}, found {data.version}. Resetting save.");
+        Debug.LogWarning($"[SaveSystem] Save version mismatch! Expected {Application.version}, found {data.version}. Resetting save.");
 #endif
 
-            data = createDefault();
-            Save(data, path, formatter, fs);
-        }
-        
+        data = createDefault();
+        Save(data, path, formatter, fs);
+
         return data;
     }
     

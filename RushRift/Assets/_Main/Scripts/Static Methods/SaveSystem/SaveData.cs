@@ -10,6 +10,8 @@ using UnityEngine.Serialization;
 [System.Serializable]
 public class SaveData : BaseSaveData
 {
+    public string lastScene;
+    
     /// <summary>
     /// A property that in the case someone plays with an old save that didn't had the BestTime dictionary, it creates it.
     /// </summary>

@@ -60,7 +60,7 @@ namespace Game.UI.Screens
 
         private void HubLevelHandler()
         {
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(UIManager.HubIndex);
         }
 
         private void RetryLevelHandler()
