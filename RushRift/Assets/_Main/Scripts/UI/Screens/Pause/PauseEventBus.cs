@@ -1,4 +1,5 @@
 using System;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -37,7 +38,10 @@ public sealed class PauseEventBus : MonoBehaviour
     {
         if (FindObjectsOfType<PauseEventBus>().Length > 1)
         {
-            if (isDebugLoggingEnabled) Debug.Log("[PauseEventBus] Duplicate found, destroying.", this);
+            if (isDebugLoggingEnabled)
+            {
+                this.Log("Duplicate found, destroying", LogType.Warning);
+            }
             Destroy(gameObject);
         }
     }

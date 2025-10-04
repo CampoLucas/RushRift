@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MyTools.Global;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -12,17 +13,13 @@ public class LocationRandomizer : MonoBehaviour
     {
         if (locations == null)
         {
-#if UNITY_EDITOR
-            Debug.LogWarning("WARNING: Locations is null", this);
-#endif
+            this.Log("Locations are null.", LogType.Warning);
             return;
         }
 
         if (locations.Count == 0)
         {
-#if UNITY_EDITOR
-            Debug.LogWarning("WARNING: Locations count is 0", this);
-#endif
+            this.Log("Has 0 locations", LogType.Warning);
             return;
         }
 
