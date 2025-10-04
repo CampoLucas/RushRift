@@ -124,9 +124,6 @@ public class ExplosiveBarrel : MonoBehaviour
     [SerializeField, Tooltip("Local offset from the explosion origin where the VFX will be placed.")]
     private Vector3 explosionVfxLocalOffset = Vector3.zero;
 
-    [SerializeField, Tooltip("Seconds before the spawned VFX GameObject is destroyed.")]
-    private float explosionVfxAutoDestroySeconds = 3f;
-
     [Header("Debug")]
     [SerializeField, Tooltip("If enabled, prints detailed debug logs.")]
     private bool isDebugLoggingEnabled = false;

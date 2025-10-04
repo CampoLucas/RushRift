@@ -65,12 +65,13 @@ namespace Game.UI.Screens
         {
             if (SaveAndLoad.HasSaveGame())
             {
-                // ToDo: if you have a save data open a pop up.
+                Debug.Log("Open pop up");
                 popUpBackground.gameObject.SetActive(true);
                 popUp.Open(OnNewGameHandler);
             }
             else
             {
+                Debug.Log("Don't open pop up");
                 OnNewGameHandler();
             }
         }
