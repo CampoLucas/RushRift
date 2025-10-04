@@ -92,16 +92,6 @@ namespace Game.Utils
         {
             return SceneManager.GetActiveScene();
         }
-        
-        public static Scene GetSceneByIndex(int index)
-        {
-            return SceneManager.GetSceneByBuildIndex(index);
-        }
-        
-        public static Scene GetSceneByName(string name)
-        {
-            return SceneManager.GetSceneByName(name);
-        }
 
         #endregion
 
