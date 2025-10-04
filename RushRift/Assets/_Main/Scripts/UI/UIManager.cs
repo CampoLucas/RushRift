@@ -25,6 +25,9 @@ namespace Game.UI
         [SerializeField] private PausePresenter pausePresenter;
         [SerializeField] private LevelWonPresenter levelWonPresenter;
 
+        [Header("Loading Screen")] // ToDo: make it a state so it fades in
+        [SerializeField] private GameObject loadingScreen;
+        
         [Header("Effects")]
         [SerializeField] private FadeScreen screenFade;
         [SerializeField] private ScreenDamageEffect screenDamage;
@@ -34,6 +37,7 @@ namespace Game.UI
         private IObserver<float, float, float> _onHealthChanged;
         private IObserver _onGameOver;
         private IObserver _onLevelWon;
+        private IObserver _onSceneChanged;
         
         private void Awake()
         {
@@ -47,6 +51,7 @@ namespace Game.UI
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver(OnGameOverHandler);
             _onLevelWon = new ActionObserver(OnLevelWonHandler);
+            _onSceneChanged = new ActionObserver(OnSceneChangedHandler);
             
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -54,6 +59,7 @@ namespace Game.UI
 
         private void Start()
         {
+            SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
             InitStateMachine();
 
             pausePresenter.Attach(this);
@@ -77,6 +83,18 @@ namespace Game.UI
         private void Update()
         {
             _stateMachine.Update(Time.deltaTime);
+        }
+        
+        private void OnSceneChangedHandler()
+        {
+            if (_onSceneChanged != null)
+            {
+                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+                _onSceneChanged.Dispose();
+                _onSceneChanged = null;
+            }
+
+            if (loadingScreen) loadingScreen.SetActive(true);
         }
 
         public static bool SetScreen(UIScreen screen, float fadeOutTime = 0, float fadeInTime = 0, float fadeInStartTime = 0)
@@ -189,6 +207,13 @@ namespace Game.UI
 
         public void Dispose()
         {
+            if (_onSceneChanged != null)
+            {
+                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+                _onSceneChanged.Dispose();
+                _onSceneChanged = null;
+            }
+            
             if (LevelManager.TryGetGameOver(out var gameOverSubject))
             {
                 gameOverSubject.Detach(_onGameOver);

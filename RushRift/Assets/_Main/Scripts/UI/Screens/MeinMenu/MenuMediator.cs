@@ -1,4 +1,5 @@
 using System;
+using Game.DesignPatterns.Observers;
 using Game.Saves;
 using Game.Utils;
 using UnityEngine;
@@ -20,6 +21,9 @@ namespace Game.UI.Screens
         [SerializeField] private MainMenuPresenter mainMenuPresenter;
         [SerializeField] private OptionsPresenter optionsMenuPresenter;
         [SerializeField] private CreditsPresenter creditsPresenter;
+        
+        [Header("Loading Screen")] // ToDo: make it a state so it fades in
+        [SerializeField] private GameObject loadingScreen;
 
         [Header("Screen Transitions")]
         [SerializeField] private float fadeOut;
@@ -28,16 +32,20 @@ namespace Game.UI.Screens
         
 
         private UIStateMachine _stateMachine;
+        private IObserver _onSceneChanged;
         
         private void Awake()
         {
             mainMenuPresenter.Attach(this);
             optionsMenuPresenter.Attach(this);
             creditsPresenter.Attach(this);
+            
+            _onSceneChanged = new ActionObserver(OnSceneChangedHandler);
         }
 
         private void Start()
         {
+            SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
             InitStateMachine();
         }
 
@@ -58,6 +66,18 @@ namespace Game.UI.Screens
             _stateMachine.TryAddState(UIScreen.Credits, creditsState);
 
             _stateMachine.TransitionTo(UIScreen.MainMenu, 0, 0, 0);
+        }
+
+        private void OnSceneChangedHandler()
+        {
+            if (_onSceneChanged != null)
+            {
+                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+                _onSceneChanged.Dispose();
+                _onSceneChanged = null;
+            }
+
+            if (loadingScreen) loadingScreen.SetActive(true);
         }
 
         private void NewGame()
@@ -125,6 +145,13 @@ namespace Game.UI.Screens
 
         public void Dispose()
         {
+            if (_onSceneChanged != null)
+            {
+                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+                _onSceneChanged.Dispose();
+                _onSceneChanged = null;
+            }
+            
             _stateMachine.Dispose();
             
             mainMenuPresenter.Detach(this);
