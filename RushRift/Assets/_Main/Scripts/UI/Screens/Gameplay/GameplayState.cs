@@ -3,7 +3,7 @@ using Game.Entities.Components;
 
 namespace Game.UI.Screens
 {
-    public sealed class GameplayState : UIStatePresenter<GameplayPresenter, GameplayModel, GameplayView>
+    public sealed class GameplayState : UIState<GameplayPresenter, GameplayModel, GameplayView>
     {
         public GameplayState(IModel playerModel, GameplayPresenter presenter) : base(presenter)
         {

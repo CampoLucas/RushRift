@@ -77,6 +77,8 @@ namespace _Main.Scripts.Feedbacks
             if (found) { _instance = found; return _instance; }
 
             var go = new GameObject("_MusicLowPassService");
+            if (go.transform.parent != null)
+                go.transform.SetParent(null, worldPositionStays: true); // ensure root so DontDestroyOnLoad is honored
             DontDestroyOnLoad(go);
             _instance = go.AddComponent<MusicLowPassService>();
             return _instance;

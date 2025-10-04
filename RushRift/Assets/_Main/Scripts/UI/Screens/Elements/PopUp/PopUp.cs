@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Game.UI;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -18,6 +19,7 @@ namespace Game.UI.Screens.Elements
         [SerializeField] private Graphic background;
         [SerializeField] private Image iconImage;
         [SerializeField] private Button closeButton;
+        [SerializeField] private Button confirmButton;
 
         [Header("Animation")]
         [SerializeField] private UIAnimation openAnim;
@@ -32,29 +34,68 @@ namespace Game.UI.Screens.Elements
             closeButton.onClick.AddListener(CloseHandler);
         }
 
+        public void Open(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
+        {
+            _closed = false;
+            StopAllCoroutines();
+            
+            titleText.text = title;
+            infoText.text = info;
+            iconImage.color = iconColor;
+            background.color = backgroundColor;
+            
+            StartCoroutine(OpenRoutine(delay));
+        }
+
+        public void Open(UnityAction onConfirm, float delay = 0)
+        {
+            _closed = false;
+            StopAllCoroutines();
+            
+            if (confirmButton && onConfirm != null)
+            {
+                confirmButton.onClick.AddListener(onConfirm);
+            }
+
+            StartCoroutine(OpenRoutine(delay));
+        }
+        
+        public void Close()
+        {
+            if (confirmButton) confirmButton.onClick.RemoveAllListeners();
+            
+            StopAllCoroutines();
+            StartCoroutine(CloseRoutine(closeDelay));
+        }
+
+        public void Close(float delay)
+        {
+            StopAllCoroutines();
+            StartCoroutine(CloseRoutine(delay));
+        }
+        
         private void CloseHandler()
         {
             if (_closed) return;
             _closed = true;
             closeButton.interactable = false;
 
-            StopAllCoroutines();
-            StartCoroutine(Close(closeDelay));
-        }
-
-        public void Open(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
-        {
-            StopAllCoroutines();
-            StartCoroutine(OpenRoutine(title, info, iconColor, backgroundColor, delay));
+            Close();
         }
 
         public IEnumerator OpenRoutine(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
+            _closed = false;
             titleText.text = title;
             infoText.text = info;
             iconImage.color = iconColor;
             background.color = backgroundColor;
 
+            yield return OpenRoutine(delay);
+        }
+        public IEnumerator OpenRoutine(float delay = 0)
+        {
+            _closed = false;
             gameObject.SetActive(true);
 
             if (openAnim)
@@ -67,7 +108,7 @@ namespace Game.UI.Screens.Elements
             }
         }
 
-        private IEnumerator Close(float delay)
+        private IEnumerator CloseRoutine(float delay)
         {
             _closed = true;
 
@@ -78,7 +119,8 @@ namespace Game.UI.Screens.Elements
 
         private void OnDestroy()
         {
-            closeButton.onClick.RemoveAllListeners();
+            if (closeButton) closeButton.onClick.RemoveAllListeners();
+            if (confirmButton) confirmButton.onClick.RemoveAllListeners();
 
             titleText = null;
             infoText = null;

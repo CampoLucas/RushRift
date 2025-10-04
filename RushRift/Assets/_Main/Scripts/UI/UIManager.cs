@@ -11,14 +11,17 @@ using UnityEngine.SceneManagement;
 
 namespace Game.UI
 {
-    public class UIManager : MonoBehaviour
+    public class UIManager : MonoBehaviour, DesignPatterns.Observers.IObserver<MenuState>
     {
         public static readonly ISubject OnPaused = new Subject();
         public static readonly ISubject OnUnpaused = new Subject();
+        public static readonly int MainMenuIndex = 0;
+        public static readonly int HubIndex = 1;
+        public static readonly int FirstLevelIndex = 2;
         
         [SerializeField] private PlayerController player;
         
-        [Header("Views")]
+        [Header("Presenters")]
         [SerializeField] private GameplayPresenter gameplayPresenter;
         [SerializeField] private GameOverPresenter gameOverPresenter;
         [SerializeField] private PausePresenter pausePresenter;
@@ -55,6 +58,8 @@ namespace Game.UI
         {
             InitStateMachine();
 
+            pausePresenter.Attach(this);
+            
             if (LevelManager.TryGetGameOver(out var gameOverSubject))
             {
                 gameOverSubject.Attach(_onGameOver);
@@ -75,16 +80,6 @@ namespace Game.UI
         {
             _stateMachine.Update(Time.deltaTime);
         }
-
-        // public static bool SetScreen(UIScreen screen)
-        // {
-        //     if (_instance)
-        //     {
-        //         return _instance._stateMachine.TryChangeState(screen);
-        //     }
-        //
-        //     return false;
-        // }
 
         public static bool SetScreen(UIScreen screen, float fadeOutTime = 0, float fadeInTime = 0, float fadeInStartTime = 0)
         {
@@ -142,6 +137,60 @@ namespace Game.UI
 
         private void OnDestroy()
         {
+            Dispose();
+        }
+
+        public void OnNotify(MenuState arg)
+        {
+            switch (arg)
+            {
+                case MenuState.MainMenu:
+                    LoadMainMenu();
+                    break;
+                case MenuState.HUB:
+                    LoadHUB();
+                    break;
+                case MenuState.Back:
+                    BackToGameplay();
+                    break;
+                case MenuState.Restart:
+                    Restart();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(arg), arg, null);
+            }
+        }
+
+        private void LoadMainMenu()
+        {
+            PauseEventBus.SetPaused(false);
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(MainMenuIndex);
+        }
+
+        private void LoadHUB()
+        {
+            PauseEventBus.SetPaused(false);
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(HubIndex);
+        }
+
+        private void BackToGameplay()
+        {
+            PauseEventBus.SetPaused(false);
+            Time.timeScale = 1f;
+            _stateMachine.TransitionTo(UIScreen.Gameplay, .25f, 0, 0);
+        }
+
+        private void Restart()
+        {
+            PauseEventBus.SetPaused(false);
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
+        public void Dispose()
+        {
             if (LevelManager.TryGetGameOver(out var gameOverSubject))
             {
                 gameOverSubject.Detach(_onGameOver);
@@ -158,6 +207,7 @@ namespace Game.UI
                 health.OnValueChanged.Detach(_onHealthChanged);
             }
             
+            pausePresenter.Detach(this);
             
             gameplayPresenter = null;
             gameOverPresenter = null;

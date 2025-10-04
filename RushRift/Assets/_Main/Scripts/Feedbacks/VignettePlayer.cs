@@ -155,10 +155,6 @@ public class VignettePlayer : VolumeEffectPlayerBase<Vignette>
         Log("Play finished");
     }
 
-    [Header("Direct Tween")]
-    [SerializeField, Tooltip("If true, TweenIntensity calls will use unscaled time by default.")]
-    private bool tweenUseUnscaledByDefault = true;
-
     public void VignetteTween(float fromValue, float toValue, float durationSeconds, bool useUnscaled = true) =>
         TweenIntensity(fromValue, toValue, durationSeconds, useUnscaled);
 

@@ -75,8 +75,6 @@ namespace Game
         private bool _canUseTerminals;
         private bool _hasDashDamage;
         private bool _canUseLockOnBlink;
-        
-
 
         private void Awake()
         {
@@ -216,7 +214,7 @@ namespace Game
 
         public static MedalInfo GetMedalInfo(MedalType type)
         {
-            var data = SaveAndLoad.Load();
+            var data = SaveSystem.LoadGame();
             var currLevel = GetLevelID();
             var config = GetLevelConfig();
             var medal = config.GetMedal(type);

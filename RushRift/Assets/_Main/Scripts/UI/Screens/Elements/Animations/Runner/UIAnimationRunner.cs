@@ -37,16 +37,21 @@ namespace Game.UI
 
         private void Awake()
         {
-            if (canvas) canvas.enabled = false;
+            Reset();
+        }
+
+        public override void Reset()
+        {
+            if (canvas)
+            {
+                canvas.enabled = false;
+            }
         }
 
         public void SetPosition(Vector2 pos)
         {
             if (!targetRect)
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: The UIAnimationRunner the targetRect is missing, cannot set the position", this);
-#endif
                 return;
             }
         
@@ -57,9 +62,6 @@ namespace Game.UI
         {
             if (!targetRect)
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: The UIAnimationRunner the targetRect is missing, cannot set the rotation", this);
-#endif
                 return;
             }
             
@@ -71,9 +73,6 @@ namespace Game.UI
         {
             if (!targetRect)
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: The UIAnimationRunner the targetRect is missing, cannot set the scale", this);
-#endif
                 return;
             }
             
@@ -84,9 +83,6 @@ namespace Game.UI
         {
             if (!targetGraphic)
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: The UIAnimationRunner the targetGraphic is missing, cannot set the color", this);
-#endif
                 return;
             }
             

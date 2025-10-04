@@ -41,8 +41,6 @@ public class TimeDilationZone : MonoBehaviour
     private float enterLowPassRampSeconds = 0.15f;
     [SerializeField, Tooltip("Seconds to ramp back to the outside cutoff.")]
     private float exitLowPassRampSeconds = 0.35f;
-    [SerializeField, Tooltip("Use unscaled time for audio ramps.")]
-    private bool useUnscaledTimeForAudio = true;
 
     [Header("Debug")]
     [SerializeField, Tooltip("If enabled, prints detailed logs and draws gizmos.")]

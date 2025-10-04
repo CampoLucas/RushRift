@@ -66,7 +66,7 @@ namespace Game.UI.Screens
         }
     }
     
-    public abstract class UIStatePresenter<TPresenter, TModel, TView> : UIState 
+    public abstract class UIState<TPresenter, TModel, TView> : UIState 
         where TModel : UIModel 
         where TView : UIView 
         where TPresenter : UIPresenter<TModel, TView> 
@@ -78,12 +78,12 @@ namespace Game.UI.Screens
         private ISubject _startSubject = new Subject();
         private ISubject _endSubject = new Subject();
 
-        protected UIStatePresenter()
+        private UIState()
         {
             Init();
         }
         
-        protected UIStatePresenter(TPresenter presenter) : this()
+        protected UIState(TPresenter presenter) : this()
         {
             Presenter = presenter;
         }

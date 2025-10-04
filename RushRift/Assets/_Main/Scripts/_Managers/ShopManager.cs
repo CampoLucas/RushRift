@@ -15,23 +15,9 @@ public class ShopManager : MonoBehaviour
     private int _level3;
     private int currentSelectedLevel;
     private string level1Text = "Rush 1";
-    private string level2Text = "Old 1";
-    private string level3Text = "Old 2";
-
-    [Header("Medal Adquired")]
-    [SerializeField] private Image[] level1Adquired; 
-    [SerializeField] private Image[] level2Adquired; 
-    [SerializeField] private Image[] level3Adquired;
-
-    [Header("Level Best Time")]
-    [SerializeField] private TMP_Text level1BestTime;
-    [SerializeField] private TMP_Text level2BestTime;
-    [SerializeField] private TMP_Text level3BestTime;
 
     [Header("Level Buttons")]
     [SerializeField] private Button level1Button;
-    [SerializeField] private Button level2Button;
-    [SerializeField] private Button level3Button;
 
     [Header("Gate Text")]
     [SerializeField] private TMP_Text gate;

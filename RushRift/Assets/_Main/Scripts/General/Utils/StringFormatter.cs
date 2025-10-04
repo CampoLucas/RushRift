@@ -21,7 +21,6 @@ namespace MyTools.Utils
 
             // Initialize variables for tracking word boundaries, capitalization, and previous character
             var isWordStart = true;
-            var isFirstLetter = true;
             var previousChar = '\0';
 
             // Check if the input string is all uppercase
@@ -35,7 +34,6 @@ namespace MyTools.Utils
                 {
                     // Set the word start flag to true for the next word
                     isWordStart = true;
-                    isFirstLetter = true;
                 }
                 else
                 {
@@ -72,9 +70,6 @@ namespace MyTools.Utils
 
                     // Update the previous character
                     previousChar = c;
-
-                    // Reset the isFirstLetter flag for subsequent characters in the word
-                    isFirstLetter = false;
                 }
             }
 
