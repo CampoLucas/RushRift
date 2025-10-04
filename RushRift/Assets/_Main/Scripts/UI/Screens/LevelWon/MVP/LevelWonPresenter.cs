@@ -1,5 +1,7 @@
 using System;
 using Game.General;
+using Game.Saves;
+using Game.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,11 +13,7 @@ namespace Game.UI.Screens
 {
     public sealed class LevelWonPresenter : UIPresenter<LevelWonModel, LevelWonView>
     {
-#if true
-        public int CurrentLevel => SceneManager.GetActiveScene().buildIndex;
-#else
-        public int currentLevel => LevelManager.GetCurrentLevel();
-#endif
+        public int CurrentLevel => LevelManager.GetLevelID();
         
         [Header("Buttons")]
         [SerializeField] private Button continueButton;
@@ -29,7 +27,7 @@ namespace Game.UI.Screens
         {
             continueButton.onClick.AddListener(OnLoadNextHandler);
             retryButton.onClick.AddListener(RetryLevelHandler);
-            hubButton.onClick.AddListener(HubLevelHandler);
+            hubButton.onClick.AddListener(HubHandler);
         }
         
         public override void Begin()
@@ -58,31 +56,29 @@ namespace Game.UI.Screens
         
         public LevelWonModel GetModel() => Model;
 
-        private void HubLevelHandler()
+        private void HubHandler()
         {
-            SceneManager.LoadScene(UIManager.HubIndex);
+            SceneHandler.LoadHub();
         }
 
         private void RetryLevelHandler()
         {
-            var currentIndex = SceneManager.GetActiveScene().buildIndex;
-            SceneManager.LoadScene(currentIndex);
+            SceneHandler.ReloadCurrent();
         }
 
         private void OnLoadNextHandler()
         {
-            var sceneCount = SceneManager.sceneCountInBuildSettings;
-            var currentIndex = SceneManager.GetActiveScene().buildIndex;
+            var sceneCount = SceneHandler.GetSceneCount();
+            var currentIndex = SceneHandler.GetCurrentSceneIndex();
 
-            var sceneToLoad = 0;
-
+            var sceneToLoad = SceneHandler.HubIndex;
             
             if (currentIndex < sceneCount - 1)
             {
                 sceneToLoad = currentIndex + 1;
             }
 
-            SceneManager.LoadScene(sceneToLoad);
+            SceneHandler.LoadSceneAsync(sceneToLoad);
         }
 
         private void CheckTime(in LevelWonModel model)

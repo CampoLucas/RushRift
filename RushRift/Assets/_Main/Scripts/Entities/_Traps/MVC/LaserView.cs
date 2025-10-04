@@ -81,7 +81,7 @@ namespace Game.Entities
         {
             var tr = transform;
             
-            LevelManager.TryGetVFX(destroyVFX, new VFXEmitterParams()
+            EffectManager.TryGetVFX(destroyVFX, new VFXEmitterParams()
             {
                 position = tr.GetOffsetPos(offset),
                 rotation = tr.rotation,

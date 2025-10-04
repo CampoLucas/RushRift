@@ -281,7 +281,7 @@ namespace Game.Entities
 
         private void ExplodeCollision(Vector3 normal, bool recycle = true)
         {
-            LevelManager.TryGetVFX(explosion, new VFXEmitterParams()
+            EffectManager.TryGetVFX(explosion, new VFXEmitterParams()
             {
                 position = transform.position,
                 rotation = transform.rotation,

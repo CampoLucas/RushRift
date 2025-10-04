@@ -113,7 +113,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                 }
                 
 
-                LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
+                EffectManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
                 {
                     scale = Data.ImpactSize,
                     position = point,
@@ -134,7 +134,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                 //     rotation = Quaternion.identity,
                 // }, out var emitter);
 
-                LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
+                EffectManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
                 {
                     scale = Data.ImpactSize,
                     position = hit.point,

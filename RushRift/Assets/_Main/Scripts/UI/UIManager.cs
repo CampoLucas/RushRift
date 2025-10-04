@@ -6,6 +6,7 @@ using Game.Input;
 using Game.Inputs;
 using Game.ScreenEffects;
 using Game.UI.Screens;
+using Game.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,9 +16,6 @@ namespace Game.UI
     {
         public static readonly ISubject OnPaused = new Subject();
         public static readonly ISubject OnUnpaused = new Subject();
-        public static readonly int MainMenuIndex = 0;
-        public static readonly int HubIndex = 1;
-        public static readonly int FirstLevelIndex = 2;
         
         [SerializeField] private PlayerController player;
         
@@ -165,14 +163,14 @@ namespace Game.UI
         {
             PauseEventBus.SetPaused(false);
             Time.timeScale = 1f;
-            SceneManager.LoadScene(MainMenuIndex);
+            SceneHandler.LoadMainMenu();
         }
 
         private void LoadHUB()
         {
             PauseEventBus.SetPaused(false);
             Time.timeScale = 1f;
-            SceneManager.LoadScene(HubIndex);
+            SceneHandler.LoadHub();
         }
 
         private void BackToGameplay()
@@ -186,7 +184,7 @@ namespace Game.UI
         {
             PauseEventBus.SetPaused(false);
             Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneHandler.ReloadCurrent();
         }
 
         public void Dispose()

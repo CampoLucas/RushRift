@@ -1,5 +1,6 @@
 using System;
 using _Main.Scripts.Feedbacks;
+using Game.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -61,7 +62,7 @@ namespace Game.UI.Screens
         {
             base.OnInit();
 
-            if (SceneManager.GetActiveScene().buildIndex == UIManager.HubIndex)
+            if (SceneHandler.GetCurrentSceneName().GetHashCode() == SceneHandler.HubIndex.GetHashCode())
             {
                 hubButton.gameObject.SetActive(false);
             }

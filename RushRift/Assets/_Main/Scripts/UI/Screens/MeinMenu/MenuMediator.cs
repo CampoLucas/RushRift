@@ -1,4 +1,6 @@
 using System;
+using Game.Saves;
+using Game.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -62,14 +64,14 @@ namespace Game.UI.Screens
         {
             SaveSystem.ResetGame();
 
-            SceneManager.LoadScene(UIManager.FirstLevelIndex);
+            SceneHandler.LoadFirstLevel();
             // creates new save and takes you to the first level.
         }
 
         private void Continue()
         {
             // ToDo: go to the last scene the player was playing
-            SceneManager.LoadScene(UIManager.HubIndex);
+            SceneHandler.LoadLastLevel();
         }
 
         private void Options()
