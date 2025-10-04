@@ -36,6 +36,7 @@ namespace Game.UI.Screens.Elements
 
         public void Open(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
+            _closed = false;
             StopAllCoroutines();
             
             titleText.text = title;
@@ -48,6 +49,7 @@ namespace Game.UI.Screens.Elements
 
         public void Open(UnityAction onConfirm, float delay = 0)
         {
+            _closed = false;
             StopAllCoroutines();
             
             if (confirmButton && onConfirm != null)
@@ -60,7 +62,7 @@ namespace Game.UI.Screens.Elements
         
         public void Close()
         {
-            confirmButton.onClick.RemoveAllListeners();
+            if (confirmButton) confirmButton.onClick.RemoveAllListeners();
             
             StopAllCoroutines();
             StartCoroutine(CloseRoutine(closeDelay));
@@ -83,6 +85,7 @@ namespace Game.UI.Screens.Elements
 
         public IEnumerator OpenRoutine(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
+            _closed = false;
             titleText.text = title;
             infoText.text = info;
             iconImage.color = iconColor;
@@ -92,6 +95,7 @@ namespace Game.UI.Screens.Elements
         }
         public IEnumerator OpenRoutine(float delay = 0)
         {
+            _closed = false;
             gameObject.SetActive(true);
 
             if (openAnim)
