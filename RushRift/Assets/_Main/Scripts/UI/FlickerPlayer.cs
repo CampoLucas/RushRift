@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using MyTools.Global;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -569,10 +570,10 @@ public class FlickerPlayer : MonoBehaviour
         RestoreMaterialTargets();
     }
 
-    private void Log(string msg)
+    private void Log(string message)
     {
         if (!isDebugLoggingEnabled) return;
-        Debug.Log($"[FlickerPlayer] {name}: {msg}", this);
+        this.Log($"{name}: {message}", LogType.Log);
     }
 
 #if UNITY_EDITOR

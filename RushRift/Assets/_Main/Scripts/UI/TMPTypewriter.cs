@@ -1,4 +1,5 @@
 using System.Collections;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
@@ -77,9 +78,12 @@ public class TMPTypewriter : MonoBehaviour
 
     private void Awake()
     {
-        if (!targetText) targetText = GetComponent<TMP_Text>();
-        if (!targetText) Debug.LogError("[TMPTypewriter] Missing TMP_Text target.", this);
-
+        if (!targetText)
+        {
+            targetText = GetComponent<TMP_Text>();
+            this.Log("Missing TMP_Text target.", LogType.Error);
+        }
+        
         EnsureColliderForwarder();
     }
 
@@ -169,7 +173,7 @@ public class TMPTypewriter : MonoBehaviour
         var colliderOnTarget = activationColliderObject.GetComponent<Collider>();
         if (!colliderOnTarget)
         {
-            Debug.LogWarning($"[TMPTypewriter] The assigned Activation Collider Object '{activationColliderObject.name}' has no Collider.", this);
+            this.Log($"The assigned Activation collider {activationColliderObject} has no collider", LogType.Warning);
             return;
         }
 
@@ -296,7 +300,7 @@ public class TMPTypewriter : MonoBehaviour
     private void Log(string message)
     {
         if (!isDebugLoggingEnabled) return;
-        Debug.Log($"[TMPTypewriter] {name}: {message}", this);
+        this.Log($"{name}: {message}", LogType.Log);
     }
 
     // ---------- forwarder component ----------

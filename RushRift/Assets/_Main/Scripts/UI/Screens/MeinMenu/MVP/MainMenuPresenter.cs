@@ -1,6 +1,7 @@
 using System;
 using Game.Saves;
 using Game.UI.Screens.Elements;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -66,13 +67,13 @@ namespace Game.UI.Screens
         {
             if (SaveSystem.HasSaveGame())
             {
-                Debug.Log("Open pop up");
+                this.Log("Open pop up");
                 popUpBackground.gameObject.SetActive(true);
                 popUp.Open(OnNewGameHandler);
             }
             else
             {
-                Debug.Log("Don't open pop up");
+                this.Log("Don't open pop up");
                 OnNewGameHandler();
             }
         }

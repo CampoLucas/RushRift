@@ -54,9 +54,17 @@ namespace Game.General.Utils
             
             // Create readable timestamp: yyyy-MM-dd_HH-mm-ss
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+
+            var name = "";
+
+#if UNITY_EDITOR
+            name = "editor_";
+#else
+            name = "build_";
+#endif
             
             // Full path: persistentDataPath/logs/<version>/<timestamp>.txt
-            _logFilePath = Path.Combine(logFolder, $"{timestamp}.txt");
+            _logFilePath = Path.Combine(logFolder, $"{name}{timestamp}.txt");
             
             // Start file
             var afterAssemblies = "AfterAssembliesLoaded";
