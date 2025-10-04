@@ -6,6 +6,7 @@ using Game.Input;
 using Game.Inputs;
 using Game.ScreenEffects;
 using Game.UI.Screens;
+using Game.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,9 +16,6 @@ namespace Game.UI
     {
         public static readonly ISubject OnPaused = new Subject();
         public static readonly ISubject OnUnpaused = new Subject();
-        public static readonly int MainMenuIndex = 0;
-        public static readonly int HubIndex = 1;
-        public static readonly int FirstLevelIndex = 2;
         
         [SerializeField] private PlayerController player;
         
@@ -27,6 +25,9 @@ namespace Game.UI
         [SerializeField] private PausePresenter pausePresenter;
         [SerializeField] private LevelWonPresenter levelWonPresenter;
 
+        [Header("Loading Screen")] // ToDo: make it a state so it fades in
+        [SerializeField] private GameObject loadingScreen;
+        
         [Header("Effects")]
         [SerializeField] private FadeScreen screenFade;
         [SerializeField] private ScreenDamageEffect screenDamage;
@@ -36,6 +37,7 @@ namespace Game.UI
         private IObserver<float, float, float> _onHealthChanged;
         private IObserver _onGameOver;
         private IObserver _onLevelWon;
+        private IObserver _onSceneChanged;
         
         private void Awake()
         {
@@ -49,6 +51,7 @@ namespace Game.UI
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver(OnGameOverHandler);
             _onLevelWon = new ActionObserver(OnLevelWonHandler);
+            _onSceneChanged = new ActionObserver(OnSceneChangedHandler);
             
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -56,6 +59,7 @@ namespace Game.UI
 
         private void Start()
         {
+            SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
             InitStateMachine();
 
             pausePresenter.Attach(this);
@@ -79,6 +83,18 @@ namespace Game.UI
         private void Update()
         {
             _stateMachine.Update(Time.deltaTime);
+        }
+        
+        private void OnSceneChangedHandler()
+        {
+            if (_onSceneChanged != null)
+            {
+                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+                _onSceneChanged.Dispose();
+                _onSceneChanged = null;
+            }
+
+            if (loadingScreen) loadingScreen.SetActive(true);
         }
 
         public static bool SetScreen(UIScreen screen, float fadeOutTime = 0, float fadeInTime = 0, float fadeInStartTime = 0)
@@ -165,14 +181,14 @@ namespace Game.UI
         {
             PauseEventBus.SetPaused(false);
             Time.timeScale = 1f;
-            SceneManager.LoadScene(MainMenuIndex);
+            SceneHandler.LoadMainMenu();
         }
 
         private void LoadHUB()
         {
             PauseEventBus.SetPaused(false);
             Time.timeScale = 1f;
-            SceneManager.LoadScene(HubIndex);
+            SceneHandler.LoadHub();
         }
 
         private void BackToGameplay()
@@ -186,11 +202,18 @@ namespace Game.UI
         {
             PauseEventBus.SetPaused(false);
             Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneHandler.ReloadCurrent();
         }
 
         public void Dispose()
         {
+            if (_onSceneChanged != null)
+            {
+                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+                _onSceneChanged.Dispose();
+                _onSceneChanged = null;
+            }
+            
             if (LevelManager.TryGetGameOver(out var gameOverSubject))
             {
                 gameOverSubject.Detach(_onGameOver);

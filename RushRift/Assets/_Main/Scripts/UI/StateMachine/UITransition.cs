@@ -1,4 +1,5 @@
 using System;
+using Game.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -72,19 +73,19 @@ namespace Game.UI.Screens
             switch (_sceneTransition)
             {
                 case SceneTransition.Current:
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                    SceneHandler.ReloadCurrent();
                     break;
                 case SceneTransition.Next:
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                    SceneHandler.LoadScene(SceneHandler.GetCurrentSceneIndex() + 1);
                     break;
                 case SceneTransition.Previous:
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+                    SceneHandler.LoadScene(SceneHandler.GetCurrentSceneIndex() - 1);
                     break;
                 case SceneTransition.Name:
-                    SceneManager.LoadScene(_name);
+                    SceneHandler.LoadScene(_name);
                     break;
                 case SceneTransition.First:
-                    SceneManager.LoadScene(0);
+                    SceneHandler.LoadScene(0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

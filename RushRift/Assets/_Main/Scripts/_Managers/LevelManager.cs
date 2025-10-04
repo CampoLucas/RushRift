@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
 using Game.General;
+using Game.Saves;
 using Game.UI.Screens;
 
 namespace Game
@@ -54,7 +55,6 @@ namespace Game
 
         [Header("References")]
         [SerializeField] private LevelConfigSO levelConfig;
-        [SerializeField] private EffectPool effectPool;
         
         [Header("Runtime Flags")]
         [SerializeField] private bool _barrelInvulnerabilityEnabled;
@@ -189,25 +189,7 @@ namespace Game
             return 0;
         }
 
-        public static bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
-        {
-            if (!_instance) { emitter = null; return false; }
-
-            if (_instance.effectPool.TryGetVFX(id, vfxParams, out emitter))
-            {
-#if UNITY_EDITOR
-                Debug.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}");
-#endif
-                return true;
-            }
-            else
-            {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: TryGetVFX: Failure");
-#endif
-                return false;
-            }
-        }
+        
 
         public static MedalInfo GetMedalInfo(MedalType type)
         {
@@ -252,7 +234,6 @@ namespace Game
             _onLevelWon.Dispose();
             _onGameOver.Dispose();
             _onPlayerDeath.Dispose();
-            effectPool.Dispose();
 
             OnEnemyDeathSubject.DetachAll();
             OnEnemySpawnSubject.DetachAll();

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Game;
 using Game.UI.Animations;
+using Game.UI.Screens;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,6 +12,8 @@ using UnityEngine.Serialization;
 
 public class TimesDisplays : MonoBehaviour
 {
+    [SerializeField] private LevelWonPresenter presenter;
+    
     [Header("References")]
     [SerializeField] private TMP_Text currentTimeText;
     [SerializeField] private TMP_Text bestTimeText;
@@ -26,8 +29,8 @@ public class TimesDisplays : MonoBehaviour
 
     public void Play()
     {
-        var data = SaveSystem.LoadGame();
-        Play(LevelManager.LevelCompleteTime(), data.BestTimes[SceneManager.GetActiveScene().buildIndex]);
+        var model = presenter.GetModel();
+        Play(model.EndTime, model.BestTime);
     }
     
     /// <summary>
