@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 
 [System.Serializable]
-public class SaveData
+public class SaveData : BaseSaveData
 {
     /// <summary>
     /// A property that in the case someone plays with an old save that didn't had the BestTime dictionary, it creates it.
@@ -27,6 +27,11 @@ public class SaveData
     
     private Dictionary<int, float> _bestTimes = new();
     private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
+
+    public SaveData()
+    {
+        version = Application.version;
+    }
     
     public void CheckBestTime(int level, float currTime, out float prevBest, out float currBest, out bool newRecord)
     {
@@ -119,7 +124,7 @@ public class SaveData
 }
 
 [System.Serializable]
-public class SettingsData
+public class SettingsData : BaseSaveData
 {
     /// <summary>
     /// A property that in the case someone plays with an old save that didn't had the Camera class, it creates it.
@@ -139,8 +144,19 @@ public class SettingsData
         private set => _sound = value;
     }
     
+    public SettingsData()
+    {
+        version = Application.version;
+    }
+    
     private CameraSettings _camera = new();
     private SoundSettings _sound = new();
+}
+
+[System.Serializable]
+public class BaseSaveData
+{
+    public string version; // stored game version
 }
 
 

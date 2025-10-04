@@ -88,7 +88,7 @@ namespace Game
 
         private void Start()
         {
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
             var sound = saveData.Sound;
 
             SetMasterVolume(sound.masterVolume);

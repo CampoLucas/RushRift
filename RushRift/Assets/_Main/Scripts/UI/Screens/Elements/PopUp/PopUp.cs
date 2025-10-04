@@ -115,8 +115,8 @@ namespace Game.UI.Screens.Elements
 
         private void OnDestroy()
         {
-            closeButton.onClick.RemoveAllListeners();
-            confirmButton.onClick.RemoveAllListeners();
+            if (closeButton) closeButton.onClick.RemoveAllListeners();
+            if (confirmButton) confirmButton.onClick.RemoveAllListeners();
 
             titleText = null;
             infoText = null;

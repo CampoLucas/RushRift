@@ -47,7 +47,7 @@ namespace Game.UI
         private void Start()
         {
             // init values from the save file
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
 
             sensibilitySlider.Value = saveData.Camera.sensibility;
             smoothnessSlider.Value = saveData.Camera.smoothness;
@@ -61,10 +61,10 @@ namespace Game.UI
             OnCameraSensibilityChanged.NotifyAll(value);
             
             // save value
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
 
             saveData.Camera.sensibility = value;
-            SaveAndLoad.SaveSettings(saveData);
+            SaveSystem.SaveSettings(saveData);
         }
         
         public void OnSmoothnessChangedHandler(float value)
@@ -72,10 +72,10 @@ namespace Game.UI
             OnCameraSmoothnessChanged.NotifyAll(value);
             
             // Save value
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
 
             saveData.Camera.smoothness = value;
-            SaveAndLoad.SaveSettings(saveData);
+            SaveSystem.SaveSettings(saveData);
         }
         
         public void OnMasterChangedHandler(float value)
@@ -83,10 +83,10 @@ namespace Game.UI
             OnMasterVolumeChanged.NotifyAll(value);
             
             // Save value
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
 
             saveData.Sound.masterVolume = value;
-            SaveAndLoad.SaveSettings(saveData);
+            SaveSystem.SaveSettings(saveData);
         }
         
         public void OnMusicChangedHandler(float value)
@@ -94,10 +94,10 @@ namespace Game.UI
             OnMusicVolumeChanged.NotifyAll(value);
             
             // Save value
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
 
             saveData.Sound.musicVolume = value;
-            SaveAndLoad.SaveSettings(saveData);
+            SaveSystem.SaveSettings(saveData);
         }
         
         public void OnSFXChangedHandler(float value)
@@ -105,10 +105,10 @@ namespace Game.UI
             OnSFXVolumeChanged.NotifyAll(value);
             
             // Save value
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
 
             saveData.Sound.sfxVolume = value;
-            SaveAndLoad.SaveSettings(saveData);
+            SaveSystem.SaveSettings(saveData);
         }
 
         private void OnDestroy()

@@ -29,7 +29,7 @@ namespace Game
 
         private void Start()
         {
-            var saveData = SaveAndLoad.LoadSettings();
+            var saveData = SaveSystem.LoadSettings();
 
             sensibility = saveData.Camera.sensibility;
             smoothing = saveData.Camera.smoothness;
