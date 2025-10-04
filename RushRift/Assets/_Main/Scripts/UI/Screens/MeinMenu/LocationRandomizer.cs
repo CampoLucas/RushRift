@@ -29,6 +29,7 @@ public class LocationRandomizer : MonoBehaviour
         var location = locations[Random.Range(0, locations.Count)];
 
         var tr = transform;
+        
         tr.position = location.position;
         tr.rotation = location.rotation;
     }
