@@ -1,4 +1,6 @@
+using MyTools.Global;
 using UnityEngine;
+using Logger = MyTools.Global.Logger;
 
 namespace Game.UI.Screens
 {
@@ -13,9 +15,7 @@ namespace Game.UI.Screens
             }
             else
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: couldn't find the subject in the BarModel, not attaching the view.", this);
-#endif
+                this.Log("Couldn't find the subject in the BarModel, not attaching the view", LogType.Warning);
             }
             View.SetStartValue(Model.Data.StartValue, Model.Data.StartMaxValue);
         }
@@ -29,9 +29,7 @@ namespace Game.UI.Screens
             }
             else
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: couldn't find the subject in the BarModel, not detaching the view.", this);
-#endif
+                this.Log("Couldn't find the subject in the BarModel, not detaching the view", LogType.Warning);
             }
         }
         

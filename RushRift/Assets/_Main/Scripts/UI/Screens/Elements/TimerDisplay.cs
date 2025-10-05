@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Game;
 using Game.DesignPatterns.Observers;
+using MyTools.Global;
 using MyTools.Utils;
 using TMPro;
 using UnityEngine;
@@ -62,9 +63,7 @@ public class TimerDisplay : MonoBehaviour
 
         if (!LevelManager.TryGetLevelConfig(out var levelConfig) && levelConfig)
         {
-#if UNITY_EDITOR
-            Debug.LogError("ERROR: TimerDisplay couldn't find the level config");
-#endif
+            this.Log("TimerDisplay couldn't find the level config", LogType.Error);
         }
         
         _goldThreshold   = Mathf.Max(0f, levelConfig.Gold.requiredTime);

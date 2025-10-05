@@ -327,7 +327,7 @@ public class ExplosiveBarrel : MonoBehaviour
         
         var pos = originWorld + transform.TransformVector(explosionVfxLocalOffset);
 
-        LevelManager.TryGetVFX(explosionVFX, new VFXEmitterParams()
+        EffectManager.TryGetVFX(explosionVFX, new VFXEmitterParams()
         {
             position = pos,
             rotation = Quaternion.identity,

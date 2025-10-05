@@ -32,7 +32,7 @@ namespace Game.BehaviourTree.Nodes
             // VFXPool.TryGetParticle(Owner.transform.position, Owner.transform.rotation,
             //     Owner.transform.lossyScale.magnitude * 5, out var p);
 
-            LevelManager.TryGetVFX(Data.VFXId, new VFXEmitterParams()
+            EffectManager.TryGetVFX(Data.VFXId, new VFXEmitterParams()
             {
                 scale = Data.Scale,
                 position = Owner.transform.position,

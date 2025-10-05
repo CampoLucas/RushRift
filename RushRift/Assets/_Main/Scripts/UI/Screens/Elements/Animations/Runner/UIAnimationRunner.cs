@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game.UI.Animations;
+using MyTools.Global;
 using TMPro;
 using Tools.Scripts.Classes;
 using UnityEngine;
@@ -183,9 +184,7 @@ namespace Game.UI
             {
                 if (maxAnims)
                 {
-#if UNITY_EDITOR
-                    Debug.LogWarning($"WARNING: Maximum animations ({MAX_ANIMS}) in UIAnimationRunner reached.", this);
-#endif
+                    this.Log($"Maximum animations ({MAX_ANIMS}) in UIAnimationRunner reached.", LogType.Warning);
                 }
                 
                 yield break;
@@ -250,7 +249,6 @@ namespace Game.UI
         
         private IEnumerator ScaleRoutine(float duration, float delay, float start, float end, AnimationCurve curve)
         {
-            Debug.Log($"SuperTest: scale start {start}");
             SetScale(start);
             
             if (delay > 0) yield return new WaitForSeconds(delay);

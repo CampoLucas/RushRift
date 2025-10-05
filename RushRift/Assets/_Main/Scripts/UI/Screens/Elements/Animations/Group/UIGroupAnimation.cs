@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -38,9 +39,7 @@ namespace Game.UI.Group
 
                 if (!anim)
                 {
-#if UNITY_EDITOR
-                    Debug.LogWarning("WARNING: Animation is null.", this);    
-#endif
+                    this.Log("Animation is null", LogType.Warning);
                     continue;
                 }
                 anim.Reset();
