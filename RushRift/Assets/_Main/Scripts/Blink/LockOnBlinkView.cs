@@ -8,21 +8,27 @@ public class LockOnBlinkView : MonoBehaviour
     public enum DisplayMode { AutoShowHide, AlwaysVisible }
 
     [Header("Ability Reference")]
-    [SerializeField, Tooltip("LockOnBlink ability instance attached to the player.")]
+    [SerializeField, Tooltip("LockOnBlink ability instance attached to the player. If empty, it will auto-bind on Start.")]
     private LockOnBlink lockOnBlinkAbility;
 
-    [Header("UI")]
-    [SerializeField, Tooltip("Slider visualizing lock progress (0..1).")]
-    private Slider lockProgressSlider;
+    [Header("Progress (Radial)")]
+    [SerializeField, Tooltip("Filled radial Image that visualizes lock progress (0..1).")]
+    private Image lockProgressImage;
 
-    [SerializeField, Tooltip("Display behavior for the slider.")]
-    private DisplayMode sliderDisplayMode = DisplayMode.AutoShowHide;
-
-    [SerializeField, Tooltip("Keep the slider visible briefly after release/cancel to prevent flicker (AutoShowHide mode).")]
-    private float uiVisibilityGraceSeconds = 0.15f;
+    [SerializeField, Tooltip("Display behavior for the progress image.")]
+    private DisplayMode progressDisplayMode = DisplayMode.AutoShowHide;
 
     [SerializeField, Tooltip("If true, uses unscaled time for UI timing.")]
     private bool useUnscaledTimeForUi = true;
+
+    [SerializeField, Tooltip("Keep the progress visible briefly after cancel (AutoShowHide mode).")]
+    private float uiVisibilityGraceSeconds = 0.15f;
+
+    [SerializeField, Tooltip("Radial fill origin for the progress image.")]
+    private Image.Origin360 radialFillOrigin = Image.Origin360.Top;
+
+    [SerializeField, Tooltip("If true, sets fill direction clockwise.")]
+    private bool radialFillClockwise = true;
 
     [Header("Crosshair Sprites")]
     [SerializeField, Tooltip("Image component used for the crosshair.")]
@@ -34,28 +40,6 @@ public class LockOnBlinkView : MonoBehaviour
     [SerializeField, Tooltip("Sprite used while aiming a valid lockable target.")]
     private Sprite crosshairLockSprite;
 
-    [Header("Crosshair World Offset")]
-    [SerializeField, Tooltip("If enabled, offsets the crosshair toward the target's on-screen position.")]
-    private bool enableCrosshairWorldOffset = true;
-
-    [SerializeField, Tooltip("Canvas containing the crosshair.")]
-    private Canvas targetCanvas;
-
-    [SerializeField, Tooltip("Optional camera for Screen Space - Camera canvases; leave empty for Screen Space - Overlay or to auto-pick Camera.main.")]
-    private Camera canvasCameraOverride;
-
-    [SerializeField, Tooltip("Maximum offset distance in pixels from the base crosshair position.")]
-    private float crosshairOffsetMaxPixels = 48f;
-
-    [SerializeField, Tooltip("Interpolation speed toward the desired offset.")]
-    private float crosshairOffsetLerpSpeed = 14f;
-
-    [SerializeField, Tooltip("If true, crosshair offsets only when a lockable target is detected; otherwise offsets toward any probed target if available.")]
-    private bool onlyOffsetWhenLockable = true;
-
-    [SerializeField, Tooltip("Extra vertical offset in pixels applied to the lock crosshair when a target is present (positive is up).")]
-    private float crosshairAdditionalYOffsetPixels = 0f;
-
     [Header("Audio")]
     [SerializeField, Tooltip("If enabled, plays a sound once when the aim first touches a valid lockable target.")]
     private bool playTargetLockedSfx = true;
@@ -63,53 +47,38 @@ public class LockOnBlinkView : MonoBehaviour
     [SerializeField, Tooltip("Audio event name played when the aim first touches a lockable target.")]
     private string targetLockedSfxEventName = "TargetLocked";
 
-    [SerializeField, Tooltip("Minimum time between consecutive TargetLocked SFX plays to avoid jitter spam.")]
+    [SerializeField, Tooltip("Minimum time between consecutive TargetLocked SFX plays.")]
     private float targetLockedRetriggerCooldownSeconds = 0.15f;
 
     [Header("Auto Setup")]
-    [SerializeField, Tooltip("If true and no slider is assigned, fetches the first Slider in children (inactive included).")]
-    private bool autoFindChildSliderIfMissing = true;
+    [SerializeField, Tooltip("If true and no progress image is assigned, fetches the first Image in children (inactive included).")]
+    private bool autoFindChildImageIfMissing = true;
 
     [Header("Debug")]
     [SerializeField, Tooltip("Enable debug logs for the view.")]
     private bool isDebugLoggingEnabled = false;
 
-    private bool isSliderCurrentlyVisible;
+    private bool isProgressCurrentlyVisible;
     private float hideAtAbsoluteTime;
-
-    private RectTransform crosshairRect;
-    private RectTransform canvasRect;
-    private Vector2 crosshairBaseAnchoredPosition;
-    private Vector2 crosshairCurrentAnchoredPosition;
-    private Camera resolvedCanvasCamera;
 
     private bool lastHasLockableTarget;
     private float nextTargetLockedAllowedTime;
 
+    private const string PlayerTag = "Player";
     private float Now => useUnscaledTimeForUi ? Time.unscaledTime : Time.time;
-    private float Dt => useUnscaledTimeForUi ? Time.unscaledDeltaTime : Time.deltaTime;
 
     private void Awake()
     {
-        if (!lockProgressSlider && autoFindChildSliderIfMissing)
-            lockProgressSlider = GetComponentInChildren<Slider>(true);
+        if (!lockProgressImage && autoFindChildImageIfMissing)
+            lockProgressImage = GetComponentInChildren<Image>(true);
 
-        if (lockProgressSlider)
+        if (lockProgressImage)
         {
-            lockProgressSlider.minValue = 0f;
-            lockProgressSlider.maxValue = 1f;
-            lockProgressSlider.value = 0f;
-        }
-
-        crosshairRect = crosshairImage ? crosshairImage.rectTransform : null;
-        if (!targetCanvas && crosshairRect) targetCanvas = crosshairRect.GetComponentInParent<Canvas>();
-        canvasRect = targetCanvas ? targetCanvas.GetComponent<RectTransform>() : null;
-        resolvedCanvasCamera = canvasCameraOverride ? canvasCameraOverride : Camera.main;
-
-        if (crosshairRect)
-        {
-            crosshairBaseAnchoredPosition = crosshairRect.anchoredPosition;
-            crosshairCurrentAnchoredPosition = crosshairBaseAnchoredPosition;
+            lockProgressImage.type = Image.Type.Filled;
+            lockProgressImage.fillMethod = Image.FillMethod.Radial360;
+            lockProgressImage.fillOrigin = (int)radialFillOrigin;
+            lockProgressImage.fillClockwise = radialFillClockwise;
+            lockProgressImage.fillAmount = 0f;
         }
 
         ApplyInitialVisibility();
@@ -122,19 +91,10 @@ public class LockOnBlinkView : MonoBehaviour
 
     private void OnEnable()
     {
-        if (lockOnBlinkAbility)
-        {
-            lockOnBlinkAbility.OnLockStarted += HandleLockStarted;
-            lockOnBlinkAbility.OnLockProgressChanged += HandleLockProgress;
-            lockOnBlinkAbility.OnLockReady += HandleLockReady;
-            lockOnBlinkAbility.OnLockCanceled += HandleLockCanceled;
-            lockOnBlinkAbility.OnBlinkExecuted += HandleBlinkExecuted;
-        }
-
+        EnsureSubscribed();
         ApplyInitialVisibility();
         hideAtAbsoluteTime = 0f;
         RefreshCrosshairImmediate();
-        ResetCrosshairOffsetImmediate();
 
         lastHasLockableTarget = false;
         nextTargetLockedAllowedTime = 0f;
@@ -142,39 +102,42 @@ public class LockOnBlinkView : MonoBehaviour
 
     private void Start()
     {
+        if (!lockOnBlinkAbility) AutoBindFromPlayerTag();
+        EnsureSubscribed();
         ApplyInitialVisibility();
         RefreshCrosshairImmediate();
-        ResetCrosshairOffsetImmediate();
     }
 
     private void OnDisable()
     {
-        if (lockOnBlinkAbility)
-        {
-            lockOnBlinkAbility.OnLockStarted -= HandleLockStarted;
-            lockOnBlinkAbility.OnLockProgressChanged -= HandleLockProgress;
-            lockOnBlinkAbility.OnLockReady -= HandleLockReady;
-            lockOnBlinkAbility.OnLockCanceled -= HandleLockCanceled;
-            lockOnBlinkAbility.OnBlinkExecuted -= HandleBlinkExecuted;
-        }
-
-        if (lockProgressSlider) lockProgressSlider.gameObject.SetActive(false);
-        isSliderCurrentlyVisible = false;
+        Unsubscribe();
+        if (lockProgressImage) lockProgressImage.gameObject.SetActive(false);
+        isProgressCurrentlyVisible = false;
         hideAtAbsoluteTime = 0f;
 
         SetCrosshairLocked(null);
-        ResetCrosshairOffsetImmediate();
-
         lastHasLockableTarget = false;
     }
 
     private void Update()
     {
-        if (sliderDisplayMode == DisplayMode.AutoShowHide && isSliderCurrentlyVisible && hideAtAbsoluteTime > 0f && Now >= hideAtAbsoluteTime)
-            SetSliderVisible(false);
+        if (progressDisplayMode == DisplayMode.AutoShowHide && isProgressCurrentlyVisible && hideAtAbsoluteTime > 0f && Now >= hideAtAbsoluteTime)
+            SetProgressVisible(false);
 
-        Transform target = lockOnBlinkAbility ? lockOnBlinkAbility.ProbeAimedLockableTarget() : null;
+        bool canSwapCrosshair = lockOnBlinkAbility && lockOnBlinkAbility.IsAbilityAvailable();
+
+        Transform target = null;
+        if (canSwapCrosshair)
+            target = lockOnBlinkAbility.ProbeAimedLockableTarget();
+
         bool hasTarget = target;
+
+        if (!canSwapCrosshair)
+        {
+            lastHasLockableTarget = false;
+            SetCrosshairLocked(null);
+            return;
+        }
 
         if (playTargetLockedSfx && hasTarget && !lastHasLockableTarget && Now >= nextTargetLockedAllowedTime && !string.IsNullOrEmpty(targetLockedSfxEventName))
         {
@@ -184,52 +147,48 @@ public class LockOnBlinkView : MonoBehaviour
         }
 
         lastHasLockableTarget = hasTarget;
-
         SetCrosshairLocked(target);
-
-        if (enableCrosshairWorldOffset)
-            TickCrosshairOffset(target);
     }
 
     private void ApplyInitialVisibility()
     {
-        if (!lockProgressSlider) return;
-        if (sliderDisplayMode == DisplayMode.AlwaysVisible) SetSliderVisible(true);
-        else SetSliderVisible(false);
+        if (!lockProgressImage) return;
+        if (progressDisplayMode == DisplayMode.AlwaysVisible) SetProgressVisible(true);
+        else SetProgressVisible(false);
     }
 
     private void HandleLockStarted(Transform target)
     {
-        if (lockProgressSlider)
+        if (lockProgressImage)
         {
-            lockProgressSlider.value = 0f;
+            lockProgressImage.fillAmount = 0f;
             hideAtAbsoluteTime = 0f;
-            if (sliderDisplayMode == DisplayMode.AutoShowHide) SetSliderVisible(true);
+            if (progressDisplayMode == DisplayMode.AutoShowHide) SetProgressVisible(true);
         }
         Log(target ? $"Lock started on {target.name}" : "Lock started");
     }
 
     private void HandleLockProgress(float progress01)
     {
-        if (!lockProgressSlider) return;
-        lockProgressSlider.value = progress01;
+        if (!lockProgressImage) return;
+        lockProgressImage.fillAmount = Mathf.Clamp01(progress01);
         hideAtAbsoluteTime = 0f;
-        if (sliderDisplayMode == DisplayMode.AutoShowHide && !isSliderCurrentlyVisible) SetSliderVisible(true);
+        if (progressDisplayMode == DisplayMode.AutoShowHide && !isProgressCurrentlyVisible) SetProgressVisible(true);
     }
 
     private void HandleLockReady()
     {
-        if (!lockProgressSlider) return;
-        lockProgressSlider.value = 1f;
+        if (!lockProgressImage) return;
+        lockProgressImage.fillAmount = 1f;
         hideAtAbsoluteTime = 0f;
         Log("Lock ready");
     }
 
     private void HandleLockCanceled()
     {
-        if (!lockProgressSlider) return;
-        lockProgressSlider.value = 0f;
-        if (sliderDisplayMode == DisplayMode.AutoShowHide)
+        if (!lockProgressImage) return;
+        lockProgressImage.fillAmount = 0f;
+        if (progressDisplayMode == DisplayMode.AutoShowHide)
             hideAtAbsoluteTime = Now + Mathf.Max(0f, uiVisibilityGraceSeconds);
         Log("Lock canceled");
     }
@@ -242,7 +201,9 @@ public class LockOnBlinkView : MonoBehaviour
 
     private void RefreshCrosshairImmediate()
     {
-        Transform t = lockOnBlinkAbility ? lockOnBlinkAbility.ProbeAimedLockableTarget() : null;
+        Transform t = lockOnBlinkAbility && lockOnBlinkAbility.IsAbilityAvailable()
+            ? lockOnBlinkAbility.ProbeAimedLockableTarget()
+            : null;
         SetCrosshairLocked(t);
     }
 
@@ -254,68 +215,46 @@ public class LockOnBlinkView : MonoBehaviour
         if (desired && crosshairImage.sprite != desired) crosshairImage.sprite = desired;
     }
 
-    private void ResetCrosshairOffsetImmediate()
+    private void SetProgressVisible(bool visible)
     {
-        if (!crosshairRect) return;
-        crosshairCurrentAnchoredPosition = crosshairBaseAnchoredPosition;
-        crosshairRect.anchoredPosition = crosshairCurrentAnchoredPosition;
+        if (!lockProgressImage) return;
+        lockProgressImage.gameObject.SetActive(visible);
+        isProgressCurrentlyVisible = visible;
     }
 
-    private void TickCrosshairOffset(Transform target)
+    private void EnsureSubscribed()
     {
-        if (!crosshairRect || !canvasRect || !targetCanvas) return;
-
-        bool shouldOffset = target || !onlyOffsetWhenLockable;
-        Vector2 desired = crosshairBaseAnchoredPosition;
-
-        if (shouldOffset)
-        {
-            Vector2 targetLocal;
-            bool ok = target ? TryWorldToCanvasLocal(target.position, out targetLocal) : TryWorldToCanvasLocal(Vector3.positiveInfinity, out targetLocal);
-            if (ok)
-            {
-                targetLocal.y += crosshairAdditionalYOffsetPixels;
-                Vector2 from = crosshairBaseAnchoredPosition;
-                Vector2 dir = targetLocal - from;
-                float mag = dir.magnitude;
-                if (mag > 0.0001f) dir /= mag;
-                float clamped = Mathf.Min(mag, Mathf.Max(0f, crosshairOffsetMaxPixels));
-                desired = from + dir * clamped;
-            }
-        }
-
-        crosshairCurrentAnchoredPosition = Vector2.Lerp(crosshairCurrentAnchoredPosition, desired, 1f - Mathf.Exp(-crosshairOffsetLerpSpeed * Dt));
-        crosshairRect.anchoredPosition = crosshairCurrentAnchoredPosition;
+        if (!lockOnBlinkAbility) return;
+        lockOnBlinkAbility.OnLockStarted += HandleLockStarted;
+        lockOnBlinkAbility.OnLockProgressChanged += HandleLockProgress;
+        lockOnBlinkAbility.OnLockReady += HandleLockReady;
+        lockOnBlinkAbility.OnLockCanceled += HandleLockCanceled;
+        lockOnBlinkAbility.OnBlinkExecuted += HandleBlinkExecuted;
     }
 
-    private bool TryWorldToCanvasLocal(Vector3 worldPos, out Vector2 localPoint)
+    private void Unsubscribe()
     {
-        localPoint = crosshairBaseAnchoredPosition;
-        if (!targetCanvas) return false;
-
-        var renderMode = targetCanvas.renderMode;
-        if (renderMode == RenderMode.ScreenSpaceOverlay)
-        {
-            if (!resolvedCanvasCamera) resolvedCanvasCamera = Camera.main;
-            Vector3 sp = resolvedCanvasCamera ? resolvedCanvasCamera.WorldToScreenPoint(worldPos) : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
-            return RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, sp, null, out localPoint);
-        }
-        else
-        {
-            var cam = canvasCameraOverride ? canvasCameraOverride : resolvedCanvasCamera;
-            if (!cam) cam = Camera.main;
-            resolvedCanvasCamera = cam;
-            if (!cam) return false;
-            Vector3 sp = cam.WorldToScreenPoint(worldPos);
-            return RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, sp, cam, out localPoint);
-        }
+        if (!lockOnBlinkAbility) return;
+        lockOnBlinkAbility.OnLockStarted -= HandleLockStarted;
+        lockOnBlinkAbility.OnLockProgressChanged -= HandleLockProgress;
+        lockOnBlinkAbility.OnLockReady -= HandleLockReady;
+        lockOnBlinkAbility.OnLockCanceled -= HandleLockCanceled;
+        lockOnBlinkAbility.OnBlinkExecuted -= HandleBlinkExecuted;
     }
 
-    private void SetSliderVisible(bool visible)
+    private void AutoBindFromPlayerTag()
     {
-        if (!lockProgressSlider) return;
-        lockProgressSlider.gameObject.SetActive(visible);
-        isSliderCurrentlyVisible = visible;
+        var player = GameObject.FindGameObjectWithTag(PlayerTag);
+        if (!player) return;
+
+        var ability = player.GetComponentInChildren<LockOnBlink>(true);
+        if (!ability) ability = player.GetComponent<LockOnBlink>();
+        if (!ability) return;
+
+        Unsubscribe();
+        lockOnBlinkAbility = ability;
+        EnsureSubscribed();
+        RefreshCrosshairImmediate();
     }
 
     private void Log(string msg)
