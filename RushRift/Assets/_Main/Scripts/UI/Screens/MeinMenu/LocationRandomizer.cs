@@ -8,45 +8,65 @@ using Game.ScreenEffects;
 [AddComponentMenu("Locations/Location Randomizer")]
 public class LocationRandomizer : MonoBehaviour
 {
-    [Header("Locations")]
-    [SerializeField] private List<LocationData> locations;
+    [Header("Locations (Drag empty GameObjects here)")]
+    [Tooltip("Ordered list of Transforms used as target locations.")]
+    [SerializeField] private List<Transform> _locationPoints = new List<Transform>();
+    [Tooltip("Optional parent under which new locations will be created when using SaveLocation.")]
+    [SerializeField] private Transform _locationsParent;
 
     [Header("Switching")]
-    [SerializeField] private bool autoSwitch = true;
-    [SerializeField, Min(0.1f)] private float switchInterval = 10f;
-    [SerializeField] private bool randomizeOnAwake = true;
+    [Tooltip("Automatically switch to a different location on a timer.")]
+    [SerializeField] private bool _autoSwitch = true;
+    [Tooltip("Seconds between switches.")]
+    [SerializeField, Min(0.1f)] private float _switchInterval = 10f;
+    [Tooltip("Pick a random location on Awake.")]
+    [SerializeField] private bool _randomizeOnAwake = true;
 
     [Header("Fade (UI-based)")]
-    [SerializeField] private FadeScreenUI fadeUI;
+    [Tooltip("Optional fade UI used during switching.")]
+    [SerializeField] private FadeScreenUI _fadeUI;
 
     [Header("Integration")]
     [Tooltip("Optional CameraWiggle to rebase after switching.")]
-    [SerializeField] private CameraWiggle cameraWiggle;
+    [SerializeField] private CameraWiggle _cameraWiggle;
+
+    [Header("Debug")]
+    [Tooltip("Enable debug logs.")]
+    [SerializeField] private bool _debugLogs = false;
+
+    [Header("Gizmos")]
+    [Tooltip("Draw gizmos for target locations.")]
+    [SerializeField] private bool _drawGizmos = true;
+    [Tooltip("Gizmo color for target points.")]
+    [SerializeField] private Color _gizmoColor = new Color(0.2f, 0.8f, 1f, 0.9f);
+    [Tooltip("Gizmo sphere radius at each target.")]
+    [SerializeField, Min(0f)] private float _gizmoRadius = 0.15f;
 
     private int _currentIndex = -1;
     private Coroutine _loop;
 
     private void Awake()
     {
-        if (locations == null)
+        if (_locationPoints == null)
         {
-            this.Log("Locations are null.", LogType.Warning);
+            this.Log("Location list is null.", LogType.Warning);
             return;
         }
 
-        if (locations.Count == 0)
+        if (_locationPoints.Count == 0)
         {
-            this.Log("Has 0 locations", LogType.Warning);
+            this.Log("No location points assigned.", LogType.Warning);
             return;
         }
 
-        if (!cameraWiggle) cameraWiggle = GetComponent<CameraWiggle>();
+        if (!_cameraWiggle) _cameraWiggle = GetComponent<CameraWiggle>();
 
-        if (randomizeOnAwake)
+        if (_randomizeOnAwake)
         {
-            _currentIndex = Random.Range(0, locations.Count);
-            ApplyLocation(locations[_currentIndex]);
-            if (cameraWiggle) cameraWiggle.RebaseFromCurrentTransform();
+            _currentIndex = Random.Range(0, _locationPoints.Count);
+            ApplyLocation(_locationPoints[_currentIndex]);
+            if (_cameraWiggle) _cameraWiggle.RebaseFromCurrentTransform();
+            if (_debugLogs) Debug.Log($"[LocationRandomizer] Awake → Set to {_locationPoints[_currentIndex].name}");
         }
         else
         {
@@ -56,7 +76,7 @@ public class LocationRandomizer : MonoBehaviour
 
     private void OnEnable()
     {
-        if (autoSwitch && _loop == null)
+        if (_autoSwitch && _loop == null)
             _loop = StartCoroutine(AutoSwitchLoop());
     }
 
@@ -69,16 +89,15 @@ public class LocationRandomizer : MonoBehaviour
         }
     }
 
-    [ContextMenu("Save Location")]
+    [ContextMenu("Save Location (Create Empty At Current Pose)")]
     public void SaveLocation()
     {
-        var tr = transform;
-        locations.Add(new LocationData()
-        {
-            position = tr.position,
-            rotation = tr.rotation,
-            rotationEuler = tr.rotation.eulerAngles,
-        });
+        var go = new GameObject($"Location_{_locationPoints.Count:00}");
+        if (_locationsParent) go.transform.SetParent(_locationsParent, true);
+        go.transform.position = transform.position;
+        go.transform.rotation = transform.rotation;
+        _locationPoints.Add(go.transform);
+        if (_debugLogs) Debug.Log($"[LocationRandomizer] Saved new location: {go.name}");
     }
 
     [ContextMenu("Switch Now")]
@@ -91,13 +110,13 @@ public class LocationRandomizer : MonoBehaviour
 
     public void StartAutoSwitching()
     {
-        autoSwitch = true;
+        _autoSwitch = true;
         if (_loop == null) _loop = StartCoroutine(AutoSwitchLoop());
     }
 
     public void StopAutoSwitching()
     {
-        autoSwitch = false;
+        _autoSwitch = false;
         if (_loop != null)
         {
             StopCoroutine(_loop);
@@ -107,8 +126,8 @@ public class LocationRandomizer : MonoBehaviour
 
     private IEnumerator AutoSwitchLoop()
     {
-        var wait = new WaitForSeconds(switchInterval);
-        while (autoSwitch && enabled)
+        var wait = new WaitForSeconds(_switchInterval);
+        while (_autoSwitch && enabled)
         {
             yield return wait;
             yield return SwitchOnce();
@@ -117,22 +136,23 @@ public class LocationRandomizer : MonoBehaviour
 
     private IEnumerator SwitchOnce()
     {
-        if (locations == null || locations.Count == 0)
+        if (_locationPoints == null || _locationPoints.Count == 0)
             yield break;
 
-        if (fadeUI != null)
-            yield return fadeUI.FadeOutRoutine();
+        if (_fadeUI != null)
+            yield return _fadeUI.FadeOutRoutine();
 
-        int next = (_currentIndex < 0 || locations.Count == 1)
-            ? Random.Range(0, locations.Count)
-            : PickDifferentIndex(_currentIndex, locations.Count);
+        int next = (_currentIndex < 0 || _locationPoints.Count == 1)
+            ? Random.Range(0, _locationPoints.Count)
+            : PickDifferentIndex(_currentIndex, _locationPoints.Count);
 
         _currentIndex = next;
-        ApplyLocation(locations[_currentIndex]);
-        if (cameraWiggle) cameraWiggle.RebaseFromCurrentTransform();
+        ApplyLocation(_locationPoints[_currentIndex]);
+        if (_cameraWiggle) _cameraWiggle.RebaseFromCurrentTransform();
+        if (_debugLogs) Debug.Log($"[LocationRandomizer] Switched → {_locationPoints[_currentIndex].name}");
 
-        if (fadeUI != null)
-            yield return fadeUI.FadeInRoutine();
+        if (_fadeUI != null)
+            yield return _fadeUI.FadeInRoutine();
     }
 
     private static int PickDifferentIndex(int current, int count)
@@ -142,18 +162,23 @@ public class LocationRandomizer : MonoBehaviour
         return idx;
     }
 
-    private void ApplyLocation(in LocationData loc)
+    private void ApplyLocation(Transform target)
     {
-        var tr = transform;
-        tr.position = loc.position;
-        tr.rotation = loc.rotation;
+        if (!target) return;
+        transform.position = target.position;
+        transform.rotation = target.rotation;
     }
-}
 
-[System.Serializable]
-public struct LocationData
-{
-    public Vector3 position;
-    public Quaternion rotation;
-    public Vector3 rotationEuler;
+    private void OnDrawGizmos()
+    {
+        if (!_drawGizmos || _locationPoints == null) return;
+        Gizmos.color = _gizmoColor;
+        for (int i = 0; i < _locationPoints.Count; i++)
+        {
+            var t = _locationPoints[i];
+            if (!t) continue;
+            Gizmos.DrawWireSphere(t.position, _gizmoRadius);
+            Gizmos.DrawLine(t.position, t.position + t.forward * (_gizmoRadius * 2f));
+        }
+    }
 }
