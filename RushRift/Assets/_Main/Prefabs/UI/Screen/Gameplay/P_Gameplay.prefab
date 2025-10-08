@@ -540,6 +540,81 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4535544074302893872
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6047482865248925642}
+  - component: {fileID: 3873765849256350243}
+  - component: {fileID: 4603535357459495189}
+  m_Layer: 0
+  m_Name: FilledImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6047482865248925642
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4535544074302893872}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 423199596040086227}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &3873765849256350243
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4535544074302893872}
+  m_CullTransparentMesh: 1
+--- !u!114 &4603535357459495189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4535544074302893872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.35686275}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: be19ff208bfe6c340bfcf5de7e010007, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &5244816213187963460
 GameObject:
   m_ObjectHideFlags: 0
@@ -646,6 +721,7 @@ RectTransform:
   m_Children:
   - {fileID: 2989637727477384893}
   - {fileID: 8703433384870084406}
+  - {fileID: 6047482865248925642}
   m_Father: {fileID: 5057742216693615305}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -666,24 +742,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lockOnBlinkAbility: {fileID: 0}
-  lockProgressSlider: {fileID: 2326651188794396898}
-  sliderDisplayMode: 0
-  uiVisibilityGraceSeconds: 0.25
+  lockProgressImage: {fileID: 0}
+  progressDisplayMode: 0
   useUnscaledTimeForUi: 1
+  uiVisibilityGraceSeconds: 0.25
+  radialFillOrigin: 2
+  radialFillClockwise: 1
   crosshairImage: {fileID: 1826817246675303956}
   crosshairNormalSprite: {fileID: 21300000, guid: 0ce5025d20a3c0e48a103b59dff87b31, type: 3}
-  crosshairLockSprite: {fileID: 21300000, guid: be19ff208bfe6c340bfcf5de7e010007, type: 3}
-  enableCrosshairWorldOffset: 1
-  targetCanvas: {fileID: 0}
-  canvasCameraOverride: {fileID: 0}
-  crosshairOffsetMaxPixels: 48
-  crosshairOffsetLerpSpeed: 14
-  onlyOffsetWhenLockable: 1
-  crosshairAdditionalYOffsetPixels: 0
+  crosshairLockSprite: {fileID: 21300000, guid: 404fb771ea9cc6a40a1bc952b0cfdff6, type: 3}
   playTargetLockedSfx: 1
   targetLockedSfxEventName: TargetLocked
   targetLockedRetriggerCooldownSeconds: 0.15
-  autoFindChildSliderIfMissing: 1
+  autoFindChildImageIfMissing: 1
   isDebugLoggingEnabled: 0
 --- !u!1 &5862715178397216356
 GameObject:
@@ -774,8 +845,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flashColor: {r: 0.9450981, g: 0.9803922, b: 0, a: 1}
-  flashAlpha: 0.05
-  flashDuration: 0.1
   flashCurve:
     serializedVersion: 2
     m_Curve:
@@ -927,6 +996,9 @@ MonoBehaviour:
   canvasGroup: {fileID: 1174527273821591050}
   canvas: {fileID: 3825083627376476309}
   hideCanvas: 0
+  onShow:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6229980796475406923
 GameObject:
   m_ObjectHideFlags: 0

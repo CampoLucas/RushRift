@@ -13,10 +13,13 @@ public class LockOnBlink : MonoBehaviour
 
     [Header("Upgrade Gate")]
     [SerializeField, Tooltip("If true, uses Local Enabled instead of LevelManager.CanUseLockOnBlink.")]
-    private bool overrideUpgradeGate = false;
+    private bool overrideUpgradeGate;
 
     [SerializeField, Tooltip("Local enable used only when Override Gate is true.")]
-    private bool localUpgradeEnabled = false;
+    private bool localUpgradeEnabled;
+    
+    [SerializeField, Tooltip("Read-only: reflects whether the ability is currently usable, considering medal/override gate.")]
+    private bool abilityGateMirror;
 
     [Header("Lock Start Mode")]
     [SerializeField, Tooltip("Automatic: lock charges when a target is in sight. OnKeyHold: hold Lock Key to charge; release to blink. OnKeyPress: toggle charge on key press.")]
@@ -104,7 +107,7 @@ public class LockOnBlink : MonoBehaviour
 
     [Header("Auto Blink")]
     [SerializeField, Tooltip("If enabled, automatically teleports as soon as the lock completes.")]
-    private bool shouldAutoBlinkWhenReady = false;
+    private bool shouldAutoBlinkWhenReady;
 
     [Header("Lock Visual FX")]
     [SerializeField, Tooltip("If enabled, applies chromatic aberration and vignette while locking, and resets on release.")]
@@ -194,6 +197,13 @@ public class LockOnBlink : MonoBehaviour
     public Transform GetCurrentTarget() => _currentTarget;
     public float GetCooldownRemaining() => Mathf.Max(0f, _cooldownUntil - Now);
     public bool IsReadyToBlink() => _readyToBlink;
+    
+    public bool IsAbilityAvailable()
+    {
+        bool open = IsAbilityEnabled();
+        abilityGateMirror = open;
+        return open;
+    }
 
     private void Awake()
     {
