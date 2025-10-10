@@ -217,7 +217,7 @@ Shader "S_Medal_Animated"
 /*ASEBEGIN
 Version=19801
 Node;AmplifyShaderEditor.RangedFloatNode;48;-2192,-752;Inherit;False;Property;_AnimSpeed;AnimSpeed;7;0;Create;True;0;0;0;False;0;False;0;12;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;51;-2160,-672;Inherit;False;Property;_Animate;Animate;9;0;Create;True;0;0;0;False;0;False;0;1;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;51;-2160,-672;Inherit;False;Property;_Animate;Animate;9;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleTimeNode;47;-2000,-640;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
 Node;AmplifyShaderEditor.LerpOp;50;-1968,-768;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.TextureCoordinatesNode;46;-2032,-896;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
@@ -228,7 +228,7 @@ Node;AmplifyShaderEditor.PowerNode;20;-928,-448;Inherit;False;False;2;0;FLOAT;0;
 Node;AmplifyShaderEditor.RangedFloatNode;27;-928,-304;Inherit;False;Property;_Min;Min;3;0;Create;True;0;0;0;False;0;False;0;0.08;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;29;-928,-208;Inherit;False;Property;_Max;Max;4;0;Create;True;0;0;0;False;0;False;0;1.31;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SmoothstepOpNode;28;-704,-336;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;31;-736,0;Inherit;False;Property;_LightColor;LightColor;5;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0.9910492,1,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode;31;-736,0;Inherit;False;Property;_LightColor;LightColor;5;0;Create;True;0;0;0;False;0;False;0,0,0,0;1,1,1,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.VertexColorNode;1;-704,-176;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RangedFloatNode;8;-784,-544;Inherit;False;Property;_PinMaskPower;PinMaskPower;1;0;Create;True;0;0;0;False;0;False;0;0.63;-1;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.LerpOp;30;-416,-336;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;1,1,1,1;False;2;FLOAT;0;False;1;COLOR;0
@@ -291,4 +291,4 @@ WireConnection;25;2;24;2
 WireConnection;25;3;19;0
 WireConnection;0;0;25;0
 ASEEND*/
-//CHKSM=D8FF39D8612413D212262C033BB8D8B72EBE5511
+//CHKSM=05B6EF4EC30F43743D0B48F81DFF9D2D44137C40

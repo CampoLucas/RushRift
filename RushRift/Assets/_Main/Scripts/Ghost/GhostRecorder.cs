@@ -5,6 +5,7 @@ using Game;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Game.DesignPatterns.Observers;
+using MyTools.Global;
 
 [DisallowMultipleComponent]
 public class GhostRecorder : MonoBehaviour
@@ -301,9 +302,7 @@ public class GhostRecorder : MonoBehaviour
     private void Log(string msg)
     {
         if (!isDebugLoggingEnabled) return;
-#if UNITY_EDITOR
-        Debug.Log($"[GhostRecorder] {name}: {msg}", this);
-#endif
+        this.Log($"{name}: {msg}", LogType.Log);
     }
 
 #if UNITY_EDITOR

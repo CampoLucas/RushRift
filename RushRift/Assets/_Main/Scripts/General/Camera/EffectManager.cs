@@ -2,7 +2,9 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.Utils;
 using Game.VFX;
+using MyTools.Global;
 using UnityEngine;
+using Logger = MyTools.Global.Logger;
 
 namespace Game
 {
@@ -110,16 +112,12 @@ namespace Game
 
             if (_instance.effectPool.TryGetVFX(id, vfxParams, out emitter))
             {
-#if UNITY_EDITOR
-                Debug.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}");
-#endif
+                Logger.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}");
                 return true;
             }
             else
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("WARNING: TryGetVFX: Failure");
-#endif
+                Logger.Log("WARNING: TryGetVFX: Failure", logType: LogType.Warning);
                 return false;
             }
         }
