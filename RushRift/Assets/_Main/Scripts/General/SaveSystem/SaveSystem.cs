@@ -11,8 +11,13 @@ namespace Game.Saves
     public static class SaveSystem
     {
         public static string SaveFilePath => GamePath;
+#if UNITY_EDITOR
+        private static readonly string GamePath = $"{Application.persistentDataPath}/rushrift_editor.save";
+        private static readonly string SettingsPath = $"{Application.persistentDataPath}/rushrift_settings_editor.save";
+#else
         private static readonly string GamePath = $"{Application.persistentDataPath}/rushrift_game.save";
         private static readonly string SettingsPath = $"{Application.persistentDataPath}/rushrift_settings.save";
+#endif
 
         #region Generic
 
