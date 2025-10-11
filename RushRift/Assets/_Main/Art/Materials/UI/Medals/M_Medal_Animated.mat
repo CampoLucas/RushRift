@@ -24,7 +24,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: f586b733fa421c3479695eb579ce8efb, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:
@@ -34,11 +34,25 @@ Material:
     m_Ints: []
     m_Floats:
     - _AnimSpeed: 8
-    - _Animate: 1
+    - _Animate: 0
+    - _BorderUseVertexColor: 1
+    - _BorderWidth: 0.2
+    - _BorderWitdth: 0.001
     - _ColorMask: 15
     - _ColorMaskPower: 1.1
+    - _Float0: 1
+    - _LinesAmplitude: 0.3
+    - _LinesDir: 1
+    - _LinesFracAmplitude: 0.6
+    - _LinesFracFrequency: 4.33
+    - _LinesFrequency: 5
+    - _LinesSpeed: 30
+    - _LinesStep: 0
+    - _LinesUseVertexColor: 1
     - _Max: 1.31
     - _Min: 0.08
+    - _OutlineUseVertexColor: 1
+    - _OutlineWidth: 0
     - _PinMaskPower: 0.63
     - _PinMaskStep: 0.03
     - _Stencil: 0
@@ -46,9 +60,16 @@ Material:
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
+    - _UseLines: 0
     - _UseUIAlphaClip: 0
     m_Colors:
+    - _BorderColor: {r: 0, g: 0.6366434, b: 1, a: 1}
+    - _BorderScale: {r: 0.0025, g: 0.05, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _LightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LinesColor: {r: 0, g: 0.6310754, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0.6366434, b: 1, a: 1}
+    - _OutlineScale: {r: 0.0025, g: 0.05, b: 0, a: 0}
     - _StartEnd: {r: 0, g: 30, b: 0, a: 0}
+    - _Vector0: {r: 0.0025, g: 0.05, b: 0, a: 0}
   m_BuildTextureStacks: []

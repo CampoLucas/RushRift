@@ -17,7 +17,7 @@ namespace Game.UI.Screens.Elements
 
         [SerializeField] private TMP_Text infoText;
         [SerializeField] private Graphic background;
-        [SerializeField] private Image iconImage;
+        [SerializeField] private Graphic iconImage;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button confirmButton;
 

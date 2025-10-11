@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MyTools.Utils;
@@ -8,10 +9,20 @@ using UnityEngine.UI;
 
 public class Medal : MonoBehaviour
 {
-    [SerializeField] private Image icon;
+    [SerializeField] private Graphic icon;
     [SerializeField] private TMP_Text text;
-    [SerializeField] private Image lockIcon;
+    [SerializeField] private Graphic lockIcon;
     [SerializeField, Range(0, 1)] private float lockedIntensity = .25f;
+
+    private Material _material;
+    private static readonly int UseLines = Shader.PropertyToID("_UseLines");
+
+    private void Awake()
+    {
+        _material = new Material(icon.material);
+
+        icon.material = _material;
+    }
 
     public void Init(float time, bool unlocked)
     {
@@ -29,10 +40,12 @@ public class Medal : MonoBehaviour
             text.color = targetTextColor;
 
             lockIcon.gameObject.SetActive(true);
+            _material.SetFloat(UseLines, 0);
         }
         else
         {
             lockIcon.gameObject.SetActive(false);
+            _material.SetFloat(UseLines, 1);
         }
     }
 }
