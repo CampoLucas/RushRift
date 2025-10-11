@@ -123,9 +123,15 @@ namespace Game.UI
 
         public override void Stop()
         {
+            this.Log("Stop Animation");
             StopCoroutine();
             
-            // ToDo: it needs to set the state of the last anim in each sequence, also the sequence needs top have a bool to be prevent it from being stopped.
+            SetPosition(playPosition);
+            SetRotation(playRotation);
+            SetScale(playScale);
+            SetColor(playColor);
+
+            onAllSequencesComplete?.Invoke();
         }
 
         private void StopCoroutine()

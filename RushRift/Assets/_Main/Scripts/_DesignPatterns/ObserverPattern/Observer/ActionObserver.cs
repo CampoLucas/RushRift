@@ -2,7 +2,7 @@ using System;
 
 namespace Game.DesignPatterns.Observers
 {
-    public class ActionObserverBase<T> : IDisposable
+    public class ActionObserverBase<T> : IDisposable where T : class
     {
         protected NullCheck<T> Action;
 

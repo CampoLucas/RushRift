@@ -9,7 +9,7 @@ namespace MyTools.Global
 {
     [Serializable]
 
-    public class SerializedDictionary<T1, T2> : ISerializationCallbackReceiver, IDictionary<T1, T2>
+    public class SerializedDictionary<T1, T2> : ISerializationCallbackReceiver, IDictionary<T1, T2>, IDisposable
     {
         [Serializable]
         public struct DictionaryElement
@@ -191,5 +191,16 @@ namespace MyTools.Global
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            data.Clear();
+            _dictionary.Clear();
+            _cachedData.Clear();
+
+            data = null;
+            _dictionary = null;
+            _cachedData = null;
+        }
     }
 }

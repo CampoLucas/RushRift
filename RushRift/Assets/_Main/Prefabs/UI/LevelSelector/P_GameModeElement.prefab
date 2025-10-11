@@ -85,7 +85,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4709391971355946074}
   - component: {fileID: 4819301268492024170}
-  - component: {fileID: 4735029579233580745}
+  - component: {fileID: 3956367938753752132}
+  - component: {fileID: 8894873262040153938}
+  - component: {fileID: 6860332883567980774}
   m_Layer: 0
   m_Name: P_GameModeElement
   m_TagString: Untagged
@@ -105,10 +107,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 532601240260599563}
-  - {fileID: 1452536808549204308}
-  - {fileID: 1621844870076449497}
-  - {fileID: 5408002887543136704}
+  - {fileID: 5846308369604752451}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -128,10 +127,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 159632f04be6e8b419aba9c054d0e1bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 4735029579233580745}
+  animations:
+    data:
+    - key: 1
+      value: {fileID: 8894873262040153938}
+    - key: 2
+      value: {fileID: 6860332883567980774}
+  button: {fileID: 3956367938753752132}
   text: {fileID: 8933403190696539122}
-  icons: []
---- !u!114 &4735029579233580745
+  icons:
+  - {fileID: 0}
+--- !u!114 &3956367938753752132
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -140,7 +146,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 937814487620407625}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 0c3d2f7358f84205a6764f324c0dd6c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -152,8 +158,8 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 0
   m_Colors:
-    m_NormalColor: {r: 1, g: 0, b: 0, a: 1}
-    m_HighlightedColor: {r: 1, g: 0.9655434, b: 0, a: 1}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
@@ -173,6 +179,250 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 0}
   m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &8894873262040153938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 937814487620407625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0}
+  playPosition: {x: 0, y: 0}
+  playRotation: 0
+  playScale: 1
+  playColor: {r: 1, g: 1, b: 1, a: 0.11764706}
+  canvas: {fileID: 0}
+  targetRect: {fileID: 5846308369604752451}
+  targetGraphic: {fileID: 999148422404109445}
+  sequences:
+  - looping: 0
+    anims:
+    - duration: 0
+      delay: 0
+      type: 3
+      moveAnim:
+        endPosition: {x: 0, y: 0}
+        curve:
+          x:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          y:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          speedModifier: 0
+          scaleModifier: 0
+          axisMultiplier: {x: 0, y: 0}
+      scaleAnim:
+        endScale: 1.05
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 0
+      rotationAnim:
+        endRotation: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      colorAnim:
+        endColor: {r: 1, g: 0.5803922, b: 0, a: 0.41960785}
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 0
+  onPlaySequences:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4819301268492024170}
+        m_TargetAssemblyTypeName: Game.UI.Screens.Elements.GameModeElement, Assembly-CSharp
+        m_MethodName: AnimateIcon
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  onAllSequencesComplete:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &6860332883567980774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 937814487620407625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0}
+  playPosition: {x: 0, y: 0}
+  playRotation: 0
+  playScale: 1
+  playColor: {r: 1, g: 1, b: 1, a: 0.11764706}
+  canvas: {fileID: 0}
+  targetRect: {fileID: 5846308369604752451}
+  targetGraphic: {fileID: 999148422404109445}
+  sequences:
+  - looping: 0
+    anims:
+    - duration: 0
+      delay: 0
+      type: 3
+      moveAnim:
+        endPosition: {x: 0, y: 0}
+        curve:
+          x:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          y:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          speedModifier: 0
+          scaleModifier: 0
+          axisMultiplier: {x: 0, y: 0}
+      scaleAnim:
+        endScale: 1.05
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 0
+      rotationAnim:
+        endRotation: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      colorAnim:
+        endColor: {r: 1, g: 1, b: 1, a: 0.11764706}
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 0
+  onPlaySequences:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4819301268492024170}
+        m_TargetAssemblyTypeName: Game.UI.Screens.Elements.GameModeElement, Assembly-CSharp
+        m_MethodName: AnimateIcon
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onAllSequencesComplete:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &2528515302859472920
@@ -206,7 +456,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3209975420743937786}
-  m_Father: {fileID: 4709391971355946074}
+  m_Father: {fileID: 5846308369604752451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -356,11 +606,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4709391971355946074}
+  m_Father: {fileID: 5846308369604752451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 37.184998}
+  m_AnchoredPosition: {x: 0, y: 37.184975}
   m_SizeDelta: {x: -43.190002, y: 74.369995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7002593989769277115
@@ -460,6 +710,54 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &4791667721768656774
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5846308369604752451}
+  - component: {fileID: 6970432865289687817}
+  m_Layer: 0
+  m_Name: Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5846308369604752451
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4791667721768656774}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 532601240260599563}
+  - {fileID: 1452536808549204308}
+  - {fileID: 1621844870076449497}
+  - {fileID: 5408002887543136704}
+  m_Father: {fileID: 4709391971355946074}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &6970432865289687817
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4791667721768656774}
+  m_CullTransparentMesh: 1
 --- !u!1 &5644484683324124918
 GameObject:
   m_ObjectHideFlags: 0
@@ -485,13 +783,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5644484683324124918}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3124686303182213717}
-  m_Father: {fileID: 4709391971355946074}
+  m_Father: {fileID: 5846308369604752451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -566,7 +864,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4709391971355946074}
+  m_Father: {fileID: 5846308369604752451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}

@@ -212,15 +212,19 @@ Shader "S_Medal_Animated"
                 float BorderWidth44_g12 = OutlineWidth100;
                 float2 BorderOffset46_g12 = ( BorderWidth44_g12 * _OutlineScale );
                 float2 appendResult64_g12 = (float2(BorderOffset46_g12.x , 0.0));
+                float2 temp_output_4_0_g16 = ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult64_g12 );
                 float2 appendResult62_g12 = (float2(( BorderOffset46_g12.x * -1.0 ) , 0.0));
+                float2 temp_output_4_0_g15 = ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult62_g12 );
                 float2 appendResult61_g12 = (float2(0.0 , BorderOffset46_g12.y));
+                float2 temp_output_4_0_g14 = ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult61_g12 );
                 float2 appendResult59_g12 = (float2(0.0 , ( BorderOffset46_g12.y * -1.0 )));
-                float temp_output_75_0_g12 = saturate( ( tex2D( _MainTex, ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult64_g12 ) ).a + tex2D( _MainTex, ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult62_g12 ) ).a + tex2D( _MainTex, ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult61_g12 ) ).a + tex2D( _MainTex, ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult59_g12 ) ).a ) );
+                float2 temp_output_4_0_g13 = ( ( UVs41_g12 * float2( 1,1 ) ) + appendResult59_g12 );
+                float temp_output_75_0_g12 = saturate( ( tex2D( _MainTex, temp_output_4_0_g16 ).a + tex2D( _MainTex, temp_output_4_0_g15 ).a + tex2D( _MainTex, temp_output_4_0_g14 ).a + tex2D( _MainTex, temp_output_4_0_g13 ).a ) );
                 float OutlineMask80 = temp_output_75_0_g12;
                 float4 VertexColor82 = IN.color;
                 float4 lerpResult144 = lerp( _OutlineColor , VertexColor82 , (float)_OutlineUseVertexColor);
-                float4 temp_output_2_0_g19 = ( lerpResult144 * _OutilineStrength );
-                float4 appendResult120 = (float4(( OutlineMask80 * (temp_output_2_0_g19).rgb ) , ( OutlineMask80 * (temp_output_2_0_g19).a )));
+                float4 temp_output_2_0_g20 = ( lerpResult144 * _OutilineStrength );
+                float4 appendResult120 = (float4(( OutlineMask80 * (temp_output_2_0_g20).rgb ) , ( OutlineMask80 * (temp_output_2_0_g20).a )));
                 float4 tex2DNode3 = tex2D( _MainTex, UVs55 );
                 float TexMask123 = tex2DNode3.b;
                 float temp_output_20_0 = pow( TexMask123 , _ColorMaskPower );
@@ -235,8 +239,8 @@ Shader "S_Medal_Animated"
                 float4 break24 = lerpResult4;
                 float4 appendResult25 = (float4(break24.r , break24.g , break24.b , Alpha18));
                 float4 lerpResult139 = lerp( _LinesColor , VertexColor82 , (float)_LinesUseVertexColor);
-                float4 temp_output_2_0_g1 = lerpResult139;
-                float4 appendResult167 = (float4(( (temp_output_2_0_g1).rgb * _LinesStrength ) , Alpha18));
+                float4 temp_output_2_0_g19 = lerpResult139;
+                float4 appendResult167 = (float4(( (temp_output_2_0_g19).rgb * _LinesStrength ) , Alpha18));
                 float2 texCoord20_g18 = IN.texcoord.xy * float2( 1,1 ) + float2( 0,0 );
                 float2 break18_g18 = texCoord20_g18;
                 float lerpResult17_g18 = lerp( break18_g18.x , break18_g18.y , _LinesDir);
@@ -350,12 +354,12 @@ Node;AmplifyShaderEditor.GetLocalVarNode;101;-240,1888;Inherit;False;100;Outline
 Node;AmplifyShaderEditor.FunctionNode;109;-320,992;Inherit;False;F_SineMask;-1;;18;1defe6340f89a2142b7c5511d772d51f;0;6;6;FLOAT2;0,0;False;7;FLOAT;100;False;9;FLOAT;1;False;8;FLOAT;0;False;12;FLOAT;1;False;15;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;163;-368,1536;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT;0;False;1;COLOR;0
 Node;AmplifyShaderEditor.RangedFloatNode;166;-400,896;Inherit;False;Property;_LinesStrength;Lines Strength;13;0;Create;True;0;0;0;False;0;False;1;1;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;168;-176,560;Inherit;False;Alpha Split;-1;;1;07dab7960105b86429ac8eebd729ed6d;0;1;2;COLOR;0,0,0,0;False;2;FLOAT3;0;FLOAT;6
+Node;AmplifyShaderEditor.FunctionNode;168;-176,560;Inherit;False;Alpha Split;-1;;19;07dab7960105b86429ac8eebd729ed6d;0;1;2;COLOR;0,0,0,0;False;2;FLOAT3;0;FLOAT;6
 Node;AmplifyShaderEditor.BreakToComponentsNode;24;-16,192;Inherit;False;COLOR;1;0;COLOR;0,0,0,0;False;16;FLOAT;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT;5;FLOAT;6;FLOAT;7;FLOAT;8;FLOAT;9;FLOAT;10;FLOAT;11;FLOAT;12;FLOAT;13;FLOAT;14;FLOAT;15
 Node;AmplifyShaderEditor.GetLocalVarNode;116;-80,336;Inherit;False;18;Alpha;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.AbsOpNode;102;0,1888;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;86;-160,1536;Inherit;False;80;OutlineMask;1;0;OBJECT;;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;146;-208,1648;Inherit;False;Alpha Split;-1;;19;07dab7960105b86429ac8eebd729ed6d;0;1;2;COLOR;0,0,0,0;False;2;FLOAT3;0;FLOAT;6
+Node;AmplifyShaderEditor.FunctionNode;146;-208,1648;Inherit;False;Alpha Split;-1;;20;07dab7960105b86429ac8eebd729ed6d;0;1;2;COLOR;0,0,0,0;False;2;FLOAT3;0;FLOAT;6
 Node;AmplifyShaderEditor.SaturateNode;155;-16,992;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;161;-16,1104;Inherit;False;Property;_UseLines;UseLines;20;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;165;16,560;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;1;FLOAT3;0
@@ -460,4 +464,4 @@ WireConnection;85;1;108;0
 WireConnection;85;2;99;0
 WireConnection;0;0;85;0
 ASEEND*/
-//CHKSM=D734108DB844B201F345F87CEC35921CBED81992
+//CHKSM=C99F7A66765BAEF242716EFD62303053088A28B2
