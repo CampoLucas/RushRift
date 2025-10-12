@@ -4,7 +4,6 @@ using Game.Entities;
 using Game.Saves;
 using Game.Utils;
 using MyTools.Global;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -24,11 +23,11 @@ namespace Game.Levels
         [SerializeField] private Medal gold;
 
         [Header("Scene")]
-        [SerializeField] private SceneAsset scene;
+        [SerializeField] private string scene;
 
         public override void LoadLevel()
         {
-            SceneHandler.LoadScene(scene.name);
+            SceneHandler.LoadScene(scene);
         }
 
         public override bool IsUnlocked(List<BaseLevelSO> levelsList, int currIndex)

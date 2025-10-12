@@ -105,13 +105,15 @@ namespace Game.UI.Screens.Elements
             Dispose();
             base.OnDestroy();
         }
-        
+
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
             if (transition != Transition.None)
                 transition = Transition.None;
         }
+#endif
         
         private void NotifyTransition(ButtonSelectState state)
         {

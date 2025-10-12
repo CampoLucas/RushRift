@@ -39,6 +39,11 @@ public class PortalPrototype : MonoBehaviour
         }
     }
 
+    public void SetTargetLevel(BaseLevelSO level)
+    {
+        _levelToLoad = level;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!_enabled) return;

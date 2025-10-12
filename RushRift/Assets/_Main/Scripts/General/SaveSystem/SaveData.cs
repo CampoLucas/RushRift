@@ -131,6 +131,31 @@ namespace Game.Saves
 
             MedalsSaveData[levelID] = medalSaveData;
         }
+        
+        public int GetUnlockedMedalsCount(int currLevel)
+        {
+            var medalsUnlocked = 0;
+            if (!MedalsSaveData.TryGetValue(currLevel, out var saveData))
+            {
+                MedalsSaveData[currLevel] = saveData;
+            }
+
+            if (saveData.bronzeUnlocked)
+            {
+                medalsUnlocked++;
+            }
+            if (saveData.silverUnlocked)
+            {
+                medalsUnlocked++;
+            }
+            if (saveData.goldUnlocked)
+            {
+                medalsUnlocked++;
+            }
+            
+            Debug.Log($"Has {medalsUnlocked}");
+            return medalsUnlocked;
+        }
 
         #endregion
 

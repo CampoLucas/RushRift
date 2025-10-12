@@ -10,13 +10,18 @@ namespace Game.General
         public List<BaseLevelSO> Levels => levels;
         
         [SerializeField] private string displayName;
-        [SerializeField] private Sprite icon;
         [SerializeField] private List<BaseLevelSO> levels;
-
+        [SerializeField] private bool forceLock;
         [SerializeField] private bool specialUnlock;
+        
         
         public bool IsUnlocked()
         {
+            if (forceLock)
+            {
+                return false;
+            }
+            
             if (!specialUnlock)
             {
                 if (levels != null && levels.Count > 0)
