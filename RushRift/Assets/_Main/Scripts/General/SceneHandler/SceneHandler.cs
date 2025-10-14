@@ -153,8 +153,7 @@ namespace Game.Utils
 
         private static bool IsSaveable(string sceneName)
         {
-            var buildIndex = SceneUtility.GetBuildIndexByScenePath(sceneName);
-            return buildIndex != MainMenuIndex;
+            return sceneName != MainMenuName;
         }
 
         private static void NotifySceneChange(Scene from, string toName, int toIndex, bool isAsync)
