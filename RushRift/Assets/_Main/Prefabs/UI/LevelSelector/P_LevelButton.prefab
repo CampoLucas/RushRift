@@ -155,6 +155,9 @@ GameObject:
   - component: {fileID: 2353933431080110722}
   - component: {fileID: 8407561117317113623}
   - component: {fileID: 8611396848618676711}
+  - component: {fileID: 8023563105180087744}
+  - component: {fileID: 7692974116544604564}
+  - component: {fileID: 1078093792504365820}
   m_Layer: 5
   m_Name: P_LevelButton
   m_TagString: Untagged
@@ -174,9 +177,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8177187843358685269}
-  - {fileID: 5272295382421505256}
-  - {fileID: 6707900124928428693}
+  - {fileID: 2004762372460619877}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -209,7 +210,19 @@ MonoBehaviour:
   lockedBackgroundMat: {fileID: 2100000, guid: 992f7b96ddf22ae41b4a2f7335bedd3c, type: 2}
   lockedMedalMat: {fileID: 2100000, guid: 34e38ee42ef68f6469da08795455d65c, type: 2}
   animations:
-    data: []
+    data:
+    - key: 0
+      value: {fileID: 7692974116544604564}
+    - key: 2
+      value: {fileID: 7692974116544604564}
+    - key: 1
+      value: {fileID: 8023563105180087744}
+    - key: 3
+      value: {fileID: 1078093792504365820}
+    - key: 4
+      value: {fileID: 1078093792504365820}
+    - key: 6
+      value: {fileID: 1078093792504365820}
 --- !u!114 &8611396848618676711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,6 +267,228 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8023563105180087744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522266647200945027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0}
+  playPosition: {x: 0, y: 0}
+  playRotation: 0
+  playScale: 1
+  playColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.41568628}
+  canvas: {fileID: 0}
+  targetRect: {fileID: 2004762372460619877}
+  targetGraphic: {fileID: 1449425843301674022}
+  sequences:
+  - looping: 0
+    anims:
+    - duration: 0
+      delay: 0
+      type: 3
+      moveAnim:
+        endPosition: {x: 0, y: 0}
+        curve:
+          x:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          y:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          speedModifier: 0
+          scaleModifier: 0
+          axisMultiplier: {x: 0, y: 0}
+      scaleAnim:
+        endScale: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      rotationAnim:
+        endRotation: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      colorAnim:
+        endColor: {r: 1, g: 0.6864321, b: 0, a: 0.41568628}
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+  onPlaySequences:
+    m_PersistentCalls:
+      m_Calls: []
+  onAllSequencesComplete:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &7692974116544604564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522266647200945027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0}
+  playPosition: {x: 0, y: 0}
+  playRotation: 0
+  playScale: 1
+  playColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.41568628}
+  canvas: {fileID: 0}
+  targetRect: {fileID: 2004762372460619877}
+  targetGraphic: {fileID: 1449425843301674022}
+  sequences:
+  - looping: 0
+    anims:
+    - duration: 0
+      delay: 0
+      type: 3
+      moveAnim:
+        endPosition: {x: 0, y: 0}
+        curve:
+          x:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          y:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          speedModifier: 0
+          scaleModifier: 0
+          axisMultiplier: {x: 0, y: 0}
+      scaleAnim:
+        endScale: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      rotationAnim:
+        endRotation: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      colorAnim:
+        endColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.41568628}
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+  onPlaySequences:
+    m_PersistentCalls:
+      m_Calls: []
+  onAllSequencesComplete:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1078093792504365820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522266647200945027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0}
+  playPosition: {x: 0, y: 0}
+  playRotation: 0
+  playScale: 1
+  playColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.41568628}
+  canvas: {fileID: 0}
+  targetRect: {fileID: 2004762372460619877}
+  targetGraphic: {fileID: 1449425843301674022}
+  sequences:
+  - looping: 0
+    anims:
+    - duration: 0
+      delay: 0
+      type: 3
+      moveAnim:
+        endPosition: {x: 0, y: 0}
+        curve:
+          x:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          y:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+          speedModifier: 0
+          scaleModifier: 0
+          axisMultiplier: {x: 0, y: 0}
+      scaleAnim:
+        endScale: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      rotationAnim:
+        endRotation: 0
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+      colorAnim:
+        endColor: {r: 0.7342385, g: 0.9433962, b: 0.32929856, a: 0.41568628}
+        curve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 0
+          m_PostInfinity: 0
+          m_RotationOrder: 0
+  onPlaySequences:
+    m_PersistentCalls:
+      m_Calls: []
+  onAllSequencesComplete:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2027665394996445283
 GameObject:
   m_ObjectHideFlags: 0
@@ -279,12 +514,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2027665394996445283}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2353933431080110722}
+  m_Father: {fileID: 2004762372460619877}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -431,7 +666,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2353933431080110722}
+  m_Father: {fileID: 2004762372460619877}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
@@ -559,7 +794,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5565602739652219935}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -567,7 +802,7 @@ RectTransform:
   - {fileID: 306019736009162618}
   - {fileID: 1279096375069715344}
   - {fileID: 6036025105307739167}
-  m_Father: {fileID: 2353933431080110722}
+  m_Father: {fileID: 2004762372460619877}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -600,3 +835,41 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &6701385522790493789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2004762372460619877}
+  m_Layer: 5
+  m_Name: Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2004762372460619877
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6701385522790493789}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8177187843358685269}
+  - {fileID: 5272295382421505256}
+  - {fileID: 6707900124928428693}
+  m_Father: {fileID: 2353933431080110722}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}

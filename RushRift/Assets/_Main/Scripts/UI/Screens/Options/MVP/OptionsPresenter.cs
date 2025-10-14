@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public class OptionsPresenter : MenuPresenter<OptionsModel, OptionsView>
+    public class OptionsPresenter : UIPresenter<OptionsModel, OptionsView>
     {
         [Header("Buttons")]
         [SerializeField] private Button backButton;
@@ -24,6 +24,12 @@ namespace Game.UI.Screens
             backButton.onClick.RemoveAllListeners();
             
             base.Dispose();
+        }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            state = new OptionsMenuState(this);
+            return true;
         }
     }
 }

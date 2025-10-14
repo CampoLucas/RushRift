@@ -4,7 +4,7 @@ using Logger = MyTools.Global.Logger;
 
 namespace Game.UI.Screens
 {
-    public class BarPresenter : UIPresenter<BarModel, BarView>
+    public class BarBaseUIPresenter : UIPresenter<BarModel, BarView>
     {
         public override void Begin()
         {
@@ -31,6 +31,12 @@ namespace Game.UI.Screens
             {
                 this.Log("Couldn't find the subject in the BarModel, not detaching the view", LogType.Warning);
             }
+        }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            state = null;
+            return false;
         }
         
     }

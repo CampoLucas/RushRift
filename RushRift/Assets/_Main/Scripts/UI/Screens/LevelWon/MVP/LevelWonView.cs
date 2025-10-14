@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public class LevelWonView : UIView
+    public sealed class LevelWonView : UIView
     {
         
 

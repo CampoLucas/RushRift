@@ -9,6 +9,7 @@ using Game.UI.Screens;
 using Game.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Game.UI
 {

@@ -138,5 +138,11 @@ namespace Game.UI.Screens
             
             base.Dispose();
         }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            state = new LevelWonState(this);
+            return true;
+        }
     }
 }

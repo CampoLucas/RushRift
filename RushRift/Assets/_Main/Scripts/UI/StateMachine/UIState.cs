@@ -41,13 +41,16 @@ namespace Game.UI.Screens
 
         public virtual void Dispose()
         {
-            foreach (var transition in Transitions)
+            if (Transitions != null)
             {
-                transition.Dispose();
-            }
+                foreach (var transition in Transitions)
+                {
+                    transition.Dispose();
+                }
             
-            Transitions.Clear();
-            Transitions = null;
+                Transitions.Clear();
+                Transitions = null;
+            }
         }
 
         public void AddTransition(UIScreen to, IPredicate condition, float fadeOut = 0f, float fadeIn = 0f, float fadeInStart = 0f)
@@ -119,15 +122,18 @@ namespace Game.UI.Screens
         public override void Dispose()
         {
             base.Dispose();
-            Presenter.Dispose();
+            if (Presenter != null)
+            {
+                Presenter.Dispose();
+            }
             
-            _startSubject.Dispose();
+            _startSubject?.Dispose();
             _startSubject = null;
-            _endSubject.Dispose();
+            _endSubject?.Dispose();
             _endSubject = null;
-            _disableSubject.Dispose();
+            _disableSubject?.Dispose();
             _disableSubject = null;
-            _enableSubject.Dispose();
+            _enableSubject?.Dispose();
             _enableSubject = null;
         }
     }

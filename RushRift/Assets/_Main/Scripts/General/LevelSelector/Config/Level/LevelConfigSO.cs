@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Game.Entities;
 using Game.Saves;
 using Game.Utils;
 using MyTools.Global;
+using Tools.Scripts.PropertyAttributes;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace Game.Levels
 {
@@ -23,11 +21,14 @@ namespace Game.Levels
         [SerializeField] private Medal gold;
 
         [Header("Scene")]
-        [SerializeField] private string scene;
+        [ReadOnly, SerializeField] private string sceneName;
+#if UNITY_EDITOR
+        [SerializeField] private UnityEditor.SceneAsset scene;
+#endif
 
         public override void LoadLevel()
         {
-            SceneHandler.LoadScene(scene);
+            SceneHandler.LoadScene(sceneName);
         }
 
         public override bool IsUnlocked(List<BaseLevelSO> levelsList, int currIndex)
@@ -63,6 +64,14 @@ namespace Game.Levels
                 MedalType.Gold   => Gold,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
+        }
+        
+        private void OnValidate()
+        {
+#if UNITY_EDITOR
+            if (scene) sceneName = scene.name;
+            else sceneName = SceneHandler.FirstLevel;
+#endif
         }
     }
     

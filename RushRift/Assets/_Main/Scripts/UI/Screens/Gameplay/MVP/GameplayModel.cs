@@ -2,7 +2,7 @@ using Game.DesignPatterns.Observers;
 
 namespace Game.UI.Screens
 {
-    public class GameplayModel : UIModel
+    public sealed class GameplayModel : UIModel
     {
         public BarModel HealthBar { get; private set; }
         public BarModel EnergyBar { get; private set; }

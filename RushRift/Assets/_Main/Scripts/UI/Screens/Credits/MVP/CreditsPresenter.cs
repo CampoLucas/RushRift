@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public sealed class CreditsPresenter : MenuPresenter<CreditsModel, CreditsView>
+    public sealed class CreditsPresenter : UIPresenter<CreditsModel, CreditsView>
     {
         [Header("Buttons")]
         [SerializeField] private Button backButton;
@@ -24,6 +24,12 @@ namespace Game.UI.Screens
             backButton.onClick.RemoveAllListeners();
             
             base.Dispose();
+        }
+
+        public override bool TryGetState(out UIState state)
+        {
+            state = new CreditsState(this);
+            return true;
         }
     }
 }
