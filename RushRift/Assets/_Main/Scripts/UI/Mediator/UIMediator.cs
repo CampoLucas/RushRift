@@ -25,13 +25,18 @@ namespace Game.UI.Mediator
         
         private void Start()
         {
-            InitStateMachine(_stateMachine);
-            InitActions(_actions);
+            InitStateMachine(ref _stateMachine);
+            InitActions(ref _actions);
         }
 
-        protected abstract void InitActions(in Dictionary<MenuState, Action> actions);
+        private void Update()
+        {
+            _stateMachine.Update(Time.deltaTime);
+        }
 
-        protected void InitStateMachine(in UIStateMachine stateMachine)
+        protected abstract void InitActions(ref Dictionary<MenuState, Action> actions);
+
+        protected void InitStateMachine(ref UIStateMachine stateMachine)
         {
             var keys = presenters.Keys;
 
@@ -67,6 +72,11 @@ namespace Game.UI.Mediator
             
             presenters.Dispose();
             presenters = null;
+        }
+
+        private void OnDestroy()
+        {
+            Dispose();
         }
     }
 }

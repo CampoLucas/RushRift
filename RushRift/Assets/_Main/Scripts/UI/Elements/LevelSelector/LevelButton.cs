@@ -20,8 +20,8 @@ namespace Game.UI.Screens.Elements
         [SerializeField] private InteractiveButton button;
 
         [Header("Visuals")]
-        [SerializeField] private Graphic background;
         [SerializeField] private TMP_Text titleText;
+        [SerializeField] private Graphic background;
         
         [Header("Medals")]
         [SerializeField] private GameObject medalsContainer;
@@ -29,17 +29,17 @@ namespace Game.UI.Screens.Elements
         [SerializeField] private Graphic silverMedal;
         [SerializeField] private Graphic goldMedal;
 
-        [Header("Unlocked Materials")]
+        [Header("Background Materials")]
+        [SerializeField] private Material defaultMaterial;
         [SerializeField] private Material unlockedBackgroundMat;
-        [SerializeField] private Material unlockedMedalMat;
-
-        [Header("Locked Materials")]
         [SerializeField] private Material lockedBackgroundMat;
+        [SerializeField] private Material selectedBackgroundMat;
+        [SerializeField] private SerializedDictionary<ButtonSelectState, Material> materials;
+
+        [Header("Medal Materials")]
+        [SerializeField] private Material unlockedMedalMat;
         [SerializeField] private Material lockedMedalMat;
         
-        [Header("Animations")]
-        [SerializeField] private SerializedDictionary<ButtonSelectState, UIAnimation> animations;
-
         private NullCheck<BaseLevelSO> _level;
         private NullCheck<UIAnimation> _runningAnim;
         private NullCheck<GameObject> _medalContainer;
@@ -116,18 +116,28 @@ namespace Game.UI.Screens.Elements
             silverMedal.material = medalsUnlocked > 1 ? unlocked : locked;
             goldMedal.material = medalsUnlocked > 2 ? unlocked : locked;
         }
+        
+        public void Select()
+        {
+            button.interactable = false;
+            background.material = selectedBackgroundMat;
+        }
+        
+        public void Unselect()
+        {
+            button.interactable = true;
+            background.material = unlockedBackgroundMat;
+        }
 
         public void OnNotify(ButtonSelectState state)
         {
-            if (_runningAnim.TryGetValue(out var anim))
+            if (materials.TryGetValue(state, out var mat))
             {
-                anim.Stop();
+                background.material = mat;
             }
-            
-            if (animations.TryGetValue(state, out var animator))
+            else
             {
-                _runningAnim = animator;
-                animator.Play();
+                background.material = defaultMaterial;
             }
         }
 
@@ -139,8 +149,9 @@ namespace Game.UI.Screens.Elements
             }
 
             button = null;
-            animations.Dispose();
-            animations = null;
+            defaultMaterial = null;
+            materials.Dispose();
+            materials = null;
 
             background = null;
             titleText = null;

@@ -1,27 +1,25 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Game;
+using Game.DesignPatterns.Observers;
 using Game.Levels;
+using Game.UI.Screens;
 using Game.Utils;
 using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Serialization;
 
 /// <summary>
 /// Don't use this class, it is to prototype
 /// </summary>
 public class PortalPrototype : MonoBehaviour
 {
-    [SerializeField] private int buildIndex;
-
-    [FormerlySerializedAs("HubVolume")] [SerializeField] private VolumeProfile hubVolume;
-    [FormerlySerializedAs("GameVolume")] [SerializeField] private VolumeProfile gameVolume;
+    [SerializeField] private VolumeProfile hubVolume;
+    [SerializeField] private VolumeProfile gameVolume;
 
     [SerializeField] private BaseLevelSO defaultLevelToLoad;
     private NullCheck<BaseLevelSO> _levelToLoad;
     private NullCheck<Volume> _globalVolume;
+    private ActionObserver<BaseLevelSO> _levelSelected;
 
     private bool _enabled;
 
@@ -29,10 +27,13 @@ public class PortalPrototype : MonoBehaviour
     {
         _enabled = true;
         _globalVolume = FindObjectOfType<Volume>();
+        _levelSelected = new ActionObserver<BaseLevelSO>(SetTargetLevel);
+        LevelSelectorMediator.LevelSelected.Attach(_levelSelected);
     }
 
     private void Start()
     {
+        LevelSelectorMediator.LevelSelected.NotifyAll(defaultLevelToLoad);
         if (_globalVolume)
         {
             _globalVolume.Get().profile = hubVolume;
@@ -71,5 +72,13 @@ public class PortalPrototype : MonoBehaviour
             }
             //SceneHandler.LoadFirstLevel();
         }
+    }
+
+    private void OnDestroy()
+    {
+        LevelSelectorMediator.LevelSelected.Detach(_levelSelected);
+        defaultLevelToLoad = null;
+        hubVolume = null;
+        gameVolume = null;
     }
 }

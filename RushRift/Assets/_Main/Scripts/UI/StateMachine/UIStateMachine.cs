@@ -72,9 +72,6 @@ namespace Game.UI.Screens
 
         public void Dispose()
         {
-            _current?.Dispose();
-            _current = null;
-
             for (var i = 0; i < _statesList.Count; i++)
             {
                 var key = _statesList[i];

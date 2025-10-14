@@ -197,7 +197,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 112224016}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 516d3180918444eabd65f78272aac9de, type: 3}
   m_Name: 
@@ -218,7 +218,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 112224016}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 756b7de65f264d5ebd042bcf094e3930, type: 3}
   m_Name: 
@@ -230,9 +230,9 @@ MonoBehaviour:
       value: {fileID: 2055592703}
     - key: 8
       value: {fileID: 1908012635}
-  fadeOut: 0
-  fadeIn: 0
-  fadeInStart: 0
+  fadeOut: 1
+  fadeIn: 1
+  fadeInStart: 1
 --- !u!1 &117092981
 GameObject:
   m_ObjectHideFlags: 0
@@ -2442,7 +2442,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5617331437361809481, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.023651347
+      value: -0.048039902
       objectReference: {fileID: 0}
     - target: {fileID: 5869942653804623306, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2674,6 +2674,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8044517317340811428, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8106716514614907664, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
+      propertyPath: m_sendNavigationEvents
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8239827580762309533, guid: 066a8aa51c68435dac9ba54917f5f0f8, type: 3}
@@ -2923,7 +2927,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1575404593
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2987,19 +2991,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 112224016}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!222 &1575404595
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3251,6 +3243,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   View: {fileID: 1908012634}
+  buttonPrefab: {fileID: 8407561117317113623, guid: 86806b95a96be5b4f82101b35cfcd4f0, type: 3}
+  container: {fileID: 1492113509}
+  backButton: {fileID: 2116764166}
 --- !u!1 &1979562707
 GameObject:
   m_ObjectHideFlags: 0
@@ -3522,6 +3517,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   View: {fileID: 2055592702}
+  gameModes:
+  - {fileID: 1550139959}
+  - {fileID: 711412352}
+  - {fileID: 2053825008}
 --- !u!1 &2062018950
 GameObject:
   m_ObjectHideFlags: 0
@@ -3737,19 +3736,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 464320123}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 112224018}
-        m_TargetAssemblyTypeName: Game.LevelSelector.LevelSelector, Assembly-CSharp
-        m_MethodName: BackToModeSelection
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!222 &2116764167
 CanvasRenderer:
   m_ObjectHideFlags: 0

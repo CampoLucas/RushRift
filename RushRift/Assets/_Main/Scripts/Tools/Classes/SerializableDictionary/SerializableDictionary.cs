@@ -91,7 +91,9 @@ namespace MyTools.Global
                 
                 if (!_dictionary.ContainsKey(d.key))
                 {
+#if false
                     Debug.Log($"Key {d.key} Added to dictionary");
+#endif
                     _dictionary.Add(d.key, d.value);
                 }
                 else

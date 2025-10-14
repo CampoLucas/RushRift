@@ -38,8 +38,13 @@ namespace Game.UI.Screens
         {
             View.FadeOut(t, startTime, duration, ref onStart, ref onEnd);
         }
+        
+        public TModel GetModel()
+        {
+            return Model;
+        }
 
-        public virtual void Dispose()
+        public override void Dispose()
         {
             base.Dispose();
             

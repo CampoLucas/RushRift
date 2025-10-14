@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using MyTools.Global;
 using UnityEngine;
 
 namespace Game.UI.Screens
@@ -122,10 +123,6 @@ namespace Game.UI.Screens
         public override void Dispose()
         {
             base.Dispose();
-            if (Presenter != null)
-            {
-                Presenter.Dispose();
-            }
             
             _startSubject?.Dispose();
             _startSubject = null;

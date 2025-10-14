@@ -157,7 +157,6 @@ GameObject:
   - component: {fileID: 8611396848618676711}
   - component: {fileID: 8023563105180087744}
   - component: {fileID: 7692974116544604564}
-  - component: {fileID: 1078093792504365820}
   m_Layer: 5
   m_Name: P_LevelButton
   m_TagString: Untagged
@@ -199,15 +198,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lockedTitle: ???
   button: {fileID: 8611396848618676711}
-  background: {fileID: 1449425843301674022}
   titleText: {fileID: 3164041805307912979}
+  background: {fileID: 1449425843301674022}
   medalsContainer: {fileID: 5565602739652219935}
   bronzeMedal: {fileID: 5700487636184247227}
   silverMedal: {fileID: 1024141108206831892}
   goldMedal: {fileID: 525651614797050993}
   unlockedBackgroundMat: {fileID: 2100000, guid: f4ace29a2e170b3479e2d552ca7f8929, type: 2}
-  unlockedMedalMat: {fileID: 2100000, guid: afcb5478f748e9c4e9031095b77adc22, type: 2}
   lockedBackgroundMat: {fileID: 2100000, guid: 992f7b96ddf22ae41b4a2f7335bedd3c, type: 2}
+  selectedBackgroundMat: {fileID: 2100000, guid: 2e023306ca615274cb19f4d2b1663391, type: 2}
+  unlockedMedalMat: {fileID: 2100000, guid: afcb5478f748e9c4e9031095b77adc22, type: 2}
   lockedMedalMat: {fileID: 2100000, guid: 34e38ee42ef68f6469da08795455d65c, type: 2}
   animations:
     data:
@@ -217,12 +217,15 @@ MonoBehaviour:
       value: {fileID: 7692974116544604564}
     - key: 1
       value: {fileID: 8023563105180087744}
-    - key: 3
-      value: {fileID: 1078093792504365820}
-    - key: 4
-      value: {fileID: 1078093792504365820}
-    - key: 6
-      value: {fileID: 1078093792504365820}
+  defaultMaterial: {fileID: 2100000, guid: f4ace29a2e170b3479e2d552ca7f8929, type: 2}
+  materials:
+    data:
+    - key: 0
+      value: {fileID: 2100000, guid: f4ace29a2e170b3479e2d552ca7f8929, type: 2}
+    - key: 1
+      value: {fileID: 2100000, guid: 1f64b5ffefa70b94ca45e4ce68ad9ea0, type: 2}
+    - key: 2
+      value: {fileID: 2100000, guid: f4ace29a2e170b3479e2d552ca7f8929, type: 2}
 --- !u!114 &8611396848618676711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,7 +331,7 @@ MonoBehaviour:
           m_PostInfinity: 0
           m_RotationOrder: 0
       colorAnim:
-        endColor: {r: 1, g: 0.6864321, b: 0, a: 0.41568628}
+        endColor: {r: 1, g: 0.86725664, b: 0, a: 1}
         curve:
           serializedVersion: 2
           m_Curve: []
@@ -415,80 +418,6 @@ MonoBehaviour:
   onAllSequencesComplete:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1078093792504365820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1522266647200945027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offset: {x: 0, y: 0}
-  playPosition: {x: 0, y: 0}
-  playRotation: 0
-  playScale: 1
-  playColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.41568628}
-  canvas: {fileID: 0}
-  targetRect: {fileID: 2004762372460619877}
-  targetGraphic: {fileID: 1449425843301674022}
-  sequences:
-  - looping: 0
-    anims:
-    - duration: 0
-      delay: 0
-      type: 3
-      moveAnim:
-        endPosition: {x: 0, y: 0}
-        curve:
-          x:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 0
-            m_PostInfinity: 0
-            m_RotationOrder: 0
-          y:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 0
-            m_PostInfinity: 0
-            m_RotationOrder: 0
-          speedModifier: 0
-          scaleModifier: 0
-          axisMultiplier: {x: 0, y: 0}
-      scaleAnim:
-        endScale: 0
-        curve:
-          serializedVersion: 2
-          m_Curve: []
-          m_PreInfinity: 0
-          m_PostInfinity: 0
-          m_RotationOrder: 0
-      rotationAnim:
-        endRotation: 0
-        curve:
-          serializedVersion: 2
-          m_Curve: []
-          m_PreInfinity: 0
-          m_PostInfinity: 0
-          m_RotationOrder: 0
-      colorAnim:
-        endColor: {r: 0.7342385, g: 0.9433962, b: 0.32929856, a: 0.41568628}
-        curve:
-          serializedVersion: 2
-          m_Curve: []
-          m_PreInfinity: 0
-          m_PostInfinity: 0
-          m_RotationOrder: 0
-  onPlaySequences:
-    m_PersistentCalls:
-      m_Calls: []
-  onAllSequencesComplete:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &2027665394996445283
 GameObject:
   m_ObjectHideFlags: 0
@@ -547,7 +476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: f4ace29a2e170b3479e2d552ca7f8929, type: 2}
-  m_Color: {r: 0.78616345, g: 0.78616345, b: 0.78616345, a: 0.41568628}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

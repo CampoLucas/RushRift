@@ -54,8 +54,6 @@ namespace Game.UI.Screens
             base.End();
             EventSystem.current.SetSelectedGameObject(null);
         }
-        
-        public LevelWonModel GetModel() => Model;
 
         private void HubHandler()
         {
