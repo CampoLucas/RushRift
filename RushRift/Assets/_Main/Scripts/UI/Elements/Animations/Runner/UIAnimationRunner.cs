@@ -123,7 +123,6 @@ namespace Game.UI
 
         public override void Stop()
         {
-            this.Log("Stop Animation");
             StopCoroutine();
             
             SetPosition(playPosition);
