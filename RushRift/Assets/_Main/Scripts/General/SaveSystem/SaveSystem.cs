@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Game.Entities;
 using Game.Saves.Interfaces;
+using Unity.VisualScripting;
 
 namespace Game.Saves
 {
@@ -15,8 +17,8 @@ namespace Game.Saves
         private static readonly string GamePath = $"{Application.persistentDataPath}/rushrift_game_editor.save";
         private static readonly string SettingsPath = $"{Application.persistentDataPath}/rushrift_settings_editor.save";
 #else
-        private static readonly string GamePath = $"{Application.persistentDataPath}/rushrift_game.save";
-        private static readonly string SettingsPath = $"{Application.persistentDataPath}/rushrift_settings.save";
+        private static readonly string GamePath = $"{Application.persistentDataPath}/rushrift_game_build.save";
+        private static readonly string SettingsPath = $"{Application.persistentDataPath}/rushrift_settings_build.save";
 #endif
 
         #region Generic
@@ -53,22 +55,52 @@ namespace Game.Saves
 
 
             var formatter = new BinaryFormatter();
-            using var fs = new FileStream(path, FileMode.Open);
-            var data = (TData)formatter.Deserialize(fs);
-
-            if (data.Version == Application.version) return data;
-// #if UNITY_EDITOR
-//             Debug.LogWarning(
-//                 $"[SaveSystem] Save version mismatch! Expected {Application.version}, found {data.Version}. Resetting save.");
-// #endif
-
-#if true
-            data = ApplyMigrations(data, migrations);
-#else
-            data = createDefault();
-#endif
+            TData data;
             
-            Save(data, path, formatter, fs);
+            try
+            {
+                using var fs = new FileStream(path, FileMode.Open);
+                data = (TData)formatter.Deserialize(fs);
+            }
+            catch (SerializationException e)
+            {
+                Debug.LogWarning($"[SaveSystem] Failed to deserialize {typeof(TData).Name}: {e.Message}. Resetting save.");
+
+                var reset = createDefault();
+                Save(reset, path);
+                return reset;
+            }
+            
+            // Parse versions
+            var currentVersion = new Version(Application.version);
+            Version saveVersion;
+
+            if (!Version.TryParse(data.Version, out saveVersion))
+            {
+                Debug.LogWarning($"[SaveSystem] Invalid save version '{data.Version}', defaulting to 0.0.0");
+                saveVersion = new Version(0, 0, 0);
+            }
+            
+            // If the save is from the future (higher version)
+            if (saveVersion.CompareTo(currentVersion) > 0)
+            {
+                Debug.LogWarning($"[SaveSystem] Save version ({saveVersion}) is newer than current game ({currentVersion}). Resetting.");
+
+                var reset = createDefault();
+                Save(reset, path);
+                return reset;
+            }
+            
+            // If outdated, apply migrations
+            if (saveVersion.CompareTo(currentVersion) < 0 && migrations != null && migrations.Count > 0)
+            {
+#if true
+                data = ApplyMigrations(data, saveVersion, currentVersion, migrations);
+#else
+                data = createDefault();
+#endif
+                Save(data, path);
+            }
 
             return data;
         }
@@ -92,28 +124,32 @@ namespace Game.Saves
             return data.Version == Application.version;
         }
 
-        private static TData ApplyMigrations<TData>(TData data, List<ISaveMigration<TData>> migrations) where TData : BaseSaveData
+        private static TData ApplyMigrations<TData>(
+            TData oldData,
+            Version fromVersion,
+            Version targetVersion,
+            List<ISaveMigration<TData>> migrations
+        ) where TData : BaseSaveData
         {
-            var currentVersion = new Version(data.Version);
+#if UNITY_EDITOR
+            Debug.Log($"[SaveSystem] Applying migrations from {fromVersion} to {targetVersion}");
+#endif
+            migrations.Sort((a, b) => a.FromVersion.CompareTo(b.FromVersion));
             
             foreach (var migration in migrations)
             {
-                // Only apply migration from an older version
-                if (migration.FromVersion.CompareTo(currentVersion) > 0)
+                if (migration.FromVersion.CompareTo(fromVersion) >= 0 &&
+                    migration.ToVersion.CompareTo(targetVersion) <= 0)
                 {
-                    continue;
-                }
-
-                if (migration.FromVersion.CompareTo(currentVersion) <= 0 && migration.ToVersion.CompareTo(currentVersion) > 0)
-                {
-                    Debug.Log($"[SaveSystem] Desync between saves. Migrating save from {migration.FromVersion}, to {migration.ToVersion}");
-                    
-                    data = migration.Apply(data);
-                    currentVersion = new Version(data.Version);
+#if UNITY_EDITOR
+                    Debug.Log($"[SaveSystem] Migrating {typeof(TData).Name}: {migration.FromVersion} → {migration.ToVersion}");
+#endif
+                    oldData = migration.Apply(oldData);
+                    oldData.Version = migration.ToVersion.ToString();
                 }
             }
 
-            return data;
+            return oldData;
         }
 
         #endregion

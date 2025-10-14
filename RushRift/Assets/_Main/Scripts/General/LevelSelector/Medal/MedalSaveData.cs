@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Levels
+namespace Game.General
 {
     [Serializable]
     public struct MedalSaveData
