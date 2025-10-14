@@ -12,17 +12,9 @@ public class Medal : MonoBehaviour
     [SerializeField] private Graphic icon;
     [SerializeField] private TMP_Text text;
     [SerializeField] private Graphic lockIcon;
-    [SerializeField, Range(0, 1)] private float lockedIntensity = .25f;
+    [SerializeField] private Material lockedMaterial;
 
-    private Material _material;
-    private static readonly int UseLines = Shader.PropertyToID("_UseLines");
-
-    private void Awake()
-    {
-        _material = new Material(icon.material);
-
-        icon.material = _material;
-    }
+    //private static readonly int UseLines = Shader.PropertyToID("_UseLines");
 
     public void Init(float time, bool unlocked)
     {
@@ -30,22 +22,16 @@ public class Medal : MonoBehaviour
 
         if (!unlocked)
         {
-            var targetIconColor = icon.color * lockedIntensity; // 50% darker
-            targetIconColor.a = icon.color.a;
-            
-            var targetTextColor = text.color * lockedIntensity; // optional if you want the text darker too
-            targetTextColor.a = text.color.a;
-
-            icon.color = targetIconColor;
-            text.color = targetTextColor;
+            icon.material = lockedMaterial;
+            icon.color = Color.white;
 
             lockIcon.gameObject.SetActive(true);
-            _material.SetFloat(UseLines, 0);
+            //_material.SetFloat(UseLines, 0);
         }
         else
         {
             lockIcon.gameObject.SetActive(false);
-            _material.SetFloat(UseLines, 1);
+            //_material.SetFloat(UseLines, 1);
         }
     }
 }
