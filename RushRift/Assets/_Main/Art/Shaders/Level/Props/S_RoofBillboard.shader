@@ -33,9 +33,9 @@
         }
 
         LOD 300
-        Blend SrcAlpha OneMinusSrcAlpha
         Cull Off
         ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -43,7 +43,12 @@
             Tags { "LightMode"="UniversalForward" }
 
             HLSLPROGRAM
-            #pragma vertex vert
+            // ===== TARGET / BACKENDS =====
+            #pragma target 4.5                 // D3D11/Metal/Vulkan OK (sube si usás funciones modernas)
+            // (Si vas a Android con GLES2, baja a 3.0; en Android Vulkan/Metal no hace falta tocar)
+
+            // ===== VARIANTS (iluminación URP) =====
+            #pragma vertex   vert
             #pragma fragment frag
             #pragma multi_compile_fragment _ _MAIN_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHTS
@@ -53,6 +58,7 @@
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
 
+            // Mantener estas incluye rutas exactas (URP 14.x)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
@@ -63,6 +69,7 @@
                 float3 normalOS   : NORMAL;
                 float2 uv         : TEXCOORD0;
                 float4 tangentOS  : TANGENT;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
@@ -73,10 +80,10 @@
                 float3 tangentWS   : TEXCOORD2;
                 float3 bitangentWS : TEXCOORD3;
                 float3 posWS       : TEXCOORD4;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
+            // Texturas (renombradas para no chocar con SurfaceInput)
             TEXTURE2D(_BaseTex);   SAMPLER(sampler_BaseTex);
             TEXTURE2D(_NormalTex); SAMPLER(sampler_NormalTex);
             TEXTURE2D(_EmissTex);  SAMPLER(sampler_EmissTex);
@@ -101,8 +108,8 @@
 
             Varyings vert (Attributes IN)
             {
-                Varyings OUT;
                 UNITY_SETUP_INSTANCE_ID(IN);
+                Varyings OUT;
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
@@ -133,7 +140,7 @@
                 float4 baseSample = SAMPLE_TEXTURE2D(_BaseTex, sampler_BaseTex, uv) * _Color;
                 half3 baseColor = baseSample.rgb;
 
-                // Normal en TS -> WS
+                // Normal TS -> WS
                 float3 nTS = UnpackNormalScale(SAMPLE_TEXTURE2D(_NormalTex, sampler_NormalTex, uv), _NormalStrength);
                 float3x3 TBN = float3x3(normalize(IN.tangentWS), normalize(IN.bitangentWS), normalize(IN.normalWS));
                 float3 normalWS = normalize(mul(nTS, TBN));
@@ -144,11 +151,11 @@
                 float3 emissTex = SAMPLE_TEXTURE2D(_EmissTex, sampler_EmissTex, uv).rgb;
                 float3 emission = emissTex * _EmissionColor.rgb * _EmissionStrength * scan * flicker;
 
-                // --- IMPORTANTES: inicializar en cero ---
+                // SurfaceData / InputData inicializados (evita errores de BRDF init)
                 SurfaceData surf = (SurfaceData)0;
                 surf.albedo     = baseColor;
                 surf.metallic   = _Metallic;
-                surf.specular   = float3(0.0, 0.0, 0.0);   // workflow metálico
+                surf.specular   = float3(0,0,0); // no usado en metallic workflow
                 surf.smoothness = _Smoothness;
                 surf.normalTS   = nTS;
                 surf.occlusion  = 1.0;
