@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 1147592866789592159}
   - component: {fileID: 3908333180752436314}
   - component: {fileID: 3928336577590534314}
-  m_Layer: 0
+  - component: {fileID: 1487227380248973376}
+  m_Layer: 3
   m_Name: Image_Billboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d6c076c523be9a449bbc0d40b14690a1, type: 2}
+  - {fileID: 2100000, guid: 3d069a6c97077394eb633fb22560ac4a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -105,6 +106,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!64 &1487227380248973376
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2070675706679573755}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &4686279132235861537
 GameObject:
   m_ObjectHideFlags: 0
@@ -117,7 +140,8 @@ GameObject:
   - component: {fileID: 4760389093148109009}
   - component: {fileID: 9147380585896343592}
   - component: {fileID: 616630331196065912}
-  m_Layer: 0
+  - component: {fileID: 7821658408475479606}
+  m_Layer: 3
   m_Name: Image_Billboard (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,13 +156,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4686279132235861537}
   serializedVersion: 2
-  m_LocalRotation: {x: -8.659544e-17, y: -0.7083925, z: 1.5762018e-19, w: 0.7058187}
-  m_LocalPosition: {x: -21, y: -0.4, z: -31}
-  m_LocalScale: {x: 3.0005946, y: 180.10474, z: 289.79584}
+  m_LocalRotation: {x: -8.6595156e-17, y: -0.70930064, z: 2.691199e-19, w: 0.70490617}
+  m_LocalPosition: {x: -39.000057, y: -0.39999783, z: -31.999887}
+  m_LocalScale: {x: 3.0005946, y: 180.10474, z: -289.79584}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8299358833487074651}
-  m_LocalEulerAnglesHint: {x: 0, y: 1.958, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90.356, z: 0}
 --- !u!33 &4760389093148109009
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -167,7 +191,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d6c076c523be9a449bbc0d40b14690a1, type: 2}
+  - {fileID: 2100000, guid: 3d069a6c97077394eb633fb22560ac4a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -210,6 +234,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!64 &7821658408475479606
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4686279132235861537}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &8675883757524160481
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,7 +267,9 @@ GameObject:
   - component: {fileID: 8299358833487074651}
   - component: {fileID: 4936760438054476542}
   - component: {fileID: 7162432322147495476}
-  m_Layer: 0
+  - component: {fileID: 1373607844029034214}
+  - component: {fileID: 3543718271283400934}
+  m_Layer: 3
   m_Name: P_BillboardHotel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -236,9 +284,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8675883757524160481}
   serializedVersion: 2
-  m_LocalRotation: {x: 8.6580115e-17, y: 0.7203507, z: -1.6374144e-18, w: 0.6936101}
+  m_LocalRotation: {x: 0, y: 0.72035134, z: 0, w: 0.69360936}
   m_LocalPosition: {x: 291.2, y: 79.94, z: 125.8}
-  m_LocalScale: {x: 0.02876, y: 0.15408, z: 0.021839999}
+  m_LocalScale: {x: 0.052654456, y: 0.2998368, z: 0.036556195}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5475593533061698934}
@@ -295,3 +343,47 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1373607844029034214
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8675883757524160481}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2164833781328968336, guid: 701736b368a67ce4183fc27d21c0ec4b, type: 3}
+--- !u!64 &3543718271283400934
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8675883757524160481}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2164833781328968336, guid: 701736b368a67ce4183fc27d21c0ec4b, type: 3}
