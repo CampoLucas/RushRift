@@ -127,6 +127,15 @@ namespace Game.UI.Screens
             }
         }
 
+        private void OnApplicationFocus(bool focus)
+        {
+            if (focus)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
+        }
+
         public override void Dispose()
         {
             continueButton.onClick.RemoveAllListeners();
