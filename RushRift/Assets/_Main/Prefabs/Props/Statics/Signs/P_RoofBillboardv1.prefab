@@ -107,9 +107,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3195673095933331503}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.2013262, z: -0, w: 0.97952425}
+  m_LocalRotation: {x: 0, y: -0.20132585, z: 0, w: 0.9795243}
   m_LocalPosition: {x: -61.95955, y: 26.5, z: 101.74158}
-  m_LocalScale: {x: 1.1061, y: 1.1061, z: 1.1061}
+  m_LocalScale: {x: 1.7200334, y: 1.7200334, z: 1.7200334}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 542152238527056647}
@@ -212,6 +212,7 @@ GameObject:
   - component: {fileID: 1498163899552749341}
   - component: {fileID: 5537393778010960040}
   - component: {fileID: 4550343113822943026}
+  - component: {fileID: 3454947045121401076}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -306,3 +307,35 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &3454947045121401076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4644066406402473997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8748ad6dc2feb6b4c9559854a79964cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRenderer: {fileID: 5537393778010960040}
+  useSpriteRenderer: 0
+  baseTexture: {fileID: 2800000, guid: 0c5efd1f7c8e5914d804e55f79ca3519, type: 3}
+  baseTint: {r: 1, g: 1, b: 1, a: 1}
+  emissionStrength: 3
+  scrollSpeed: {x: 0.08, y: 0}
+  uvOffset: {x: 0, y: 0}
+  uvTiling: {x: 1, y: 1}
+  flickerSpeed: 13
+  flickerAmount: 1
+  glitchMaxOffsetX: 0.024
+  glitchBurstPerMin: 6.7
+  glitchBurstDuration: 0.196
+  enableScanlines: 1
+  scanlineDensity: 2570
+  scanlineContrast: 0.727
+  scanlineScrollSpeed: 2
+  scanlineRenderer: {fileID: 0}
+  applyWorldOffset: 0
+  worldOffset: {x: 0, y: 0, z: 0}

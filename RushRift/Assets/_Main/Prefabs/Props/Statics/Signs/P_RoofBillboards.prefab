@@ -26,7 +26,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.6866626, z: 0, w: 0.72697634}
   m_LocalPosition: {x: -453.56366, y: 246.7, z: -117.420044}
-  m_LocalScale: {x: 5.7565584, y: 5.7565584, z: 5.7565584}
+  m_LocalScale: {x: 6.6724277, y: 6.672427, z: 6.6724277}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4805301677665544873}
@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 959806092451638519}
   - component: {fileID: 452751942734813091}
   - component: {fileID: 4365130935537040964}
+  - component: {fileID: 4026773526354887278}
   m_Layer: 0
   m_Name: Sreen
   m_TagString: Untagged
@@ -224,6 +225,38 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &4026773526354887278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2524753298388969236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8748ad6dc2feb6b4c9559854a79964cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRenderer: {fileID: 452751942734813091}
+  useSpriteRenderer: 0
+  baseTexture: {fileID: 2800000, guid: 0c5efd1f7c8e5914d804e55f79ca3519, type: 3}
+  baseTint: {r: 1, g: 1, b: 1, a: 1}
+  emissionStrength: 3
+  scrollSpeed: {x: 0.08, y: 0}
+  uvOffset: {x: 0, y: 0}
+  uvTiling: {x: 1, y: 1}
+  flickerSpeed: 13
+  flickerAmount: 1
+  glitchMaxOffsetX: 0.024
+  glitchBurstPerMin: 6.7
+  glitchBurstDuration: 0.196
+  enableScanlines: 1
+  scanlineDensity: 2570
+  scanlineContrast: 0.727
+  scanlineScrollSpeed: 2
+  scanlineRenderer: {fileID: 0}
+  applyWorldOffset: 0
+  worldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &2662136873009589501
 GameObject:
   m_ObjectHideFlags: 0
