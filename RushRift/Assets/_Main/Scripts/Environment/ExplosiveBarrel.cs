@@ -7,8 +7,6 @@ using UnityEngine;
 using UnityEngine.VFX;
 using _Main.Scripts.Feedbacks;
 using Game.VFX;
-using MyTools.Global;
-using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
@@ -32,56 +30,116 @@ public class ExplosiveBarrel : MonoBehaviour
     }
 
     [Header("Health Integration")]
-    [SerializeField] private HealthComponentData healthComponentData;
+    [SerializeField, Tooltip("Health data used to construct and register the HealthComponent on the Entity Model.")]
+    private HealthComponentData healthComponentData;
+
     [SerializeField, Tooltip("If enabled, maps HealthComponentData.OnZeroHealth to the post explosion action.")]
     private bool useDieBehaviourForPostAction = true;
 
     [Header("Explosion Settings")]
-    [FormerlySerializedAs("shouldExplodeOnDestroy")] [SerializeField] private bool explodeOnDestroy = true;
-    [FormerlySerializedAs("explosionOriginLocalOffset")] [SerializeField] private Vector3 explosionOffset = Vector3.zero;
-    [FormerlySerializedAs("explosionRadiusMeters")] [SerializeField] private float explosionRadius = 6f;
-    [FormerlySerializedAs("explosionDelaySeconds")] [SerializeField] private float explosionDelay = 0f;
+    [SerializeField, Tooltip("If enabled, the barrel triggers its explosion when this GameObject is destroyed at runtime.")]
+    private bool shouldExplodeOnDestroy = true;
+
+    [SerializeField, Tooltip("Explosion origin offset in local space (added to this Transform.position).")]
+    private Vector3 explosionOriginLocalOffset = Vector3.zero;
+
+    [SerializeField, Tooltip("Explosion radius in meters for detecting targets.")]
+    private float explosionRadiusMeters = 6f;
+
+    [SerializeField, Tooltip("Optional delay in seconds before executing the explosion logic once triggered.")]
+    private float explosionDelaySeconds = 0f;
 
     [Header("Distance-Based Damage")]
-    [FormerlySerializedAs("explosionDamageMax")] [SerializeField] private float maxDamage = 100f;
-    [FormerlySerializedAs("explosionDamageMin")] [SerializeField] private float minDamage = 10f;
+    [SerializeField, Tooltip("Maximum damage dealt at zero distance.")]
+    private float explosionDamageMax = 100f;
+
+    [SerializeField, Tooltip("Minimum damage dealt at the edge of the radius.")]
+    private float explosionDamageMin = 10f;
 
     [Header("Distance-Based Impulse")]
-    [FormerlySerializedAs("playerLaunchSpeedMaxMetersPerSecond")] [SerializeField] private float maxImpulseSpeed = 18f;
-    [FormerlySerializedAs("playerLaunchSpeedMinMetersPerSecond")] [SerializeField] private float minImpulseSpeed = 6f;
-    [FormerlySerializedAs("otherRigidbodiesExplosionImpulseMax")] [SerializeField] private float otherMaxImpulse = 20f;
-    [FormerlySerializedAs("otherRigidbodiesExplosionImpulseMin")] [SerializeField] private float otherMinImpulse = 4f;
-    [FormerlySerializedAs("otherRigidbodiesUpwardsModifier")] [SerializeField] private float otherUpwardsModifier = 0.5f;
+    [SerializeField, Tooltip("Maximum launch speed for the player at zero distance (m/s).")]
+    private float playerLaunchSpeedMaxMetersPerSecond = 18f;
+
+    [SerializeField, Tooltip("Minimum launch speed for the player at the edge of the radius (m/s).")]
+    private float playerLaunchSpeedMinMetersPerSecond = 6f;
+
+    [SerializeField, Tooltip("Maximum AddExplosionForce applied to non-player rigidbodies at zero distance.")]
+    private float otherRigidbodiesExplosionImpulseMax = 20f;
+
+    [SerializeField, Tooltip("Minimum AddExplosionForce applied to non-player rigidbodies at the edge of the radius.")]
+    private float otherRigidbodiesExplosionImpulseMin = 4f;
+
+    [SerializeField, Tooltip("Upwards modifier used by AddExplosionForce for non-player rigidbodies.")]
+    private float otherRigidbodiesUpwardsModifier = 0.5f;
 
     [Header("Post Explosion Action")]
-    [SerializeField] private PostExplosionAction postExplosionAction = PostExplosionAction.DestroyGameObject;
-    [FormerlySerializedAs("postExplosionActionDelaySeconds")] [SerializeField] private float postDelay = 0f;
+    [SerializeField, Tooltip("What to do with this barrel after the explosion finishes.")]
+    private PostExplosionAction postExplosionAction = PostExplosionAction.DestroyGameObject;
+
+    [SerializeField, Tooltip("Optional extra delay in seconds before performing the post-explosion action.")]
+    private float postExplosionActionDelaySeconds = 0f;
 
     [Header("Player Target")]
-    [FormerlySerializedAs("requiredPlayerTag")] [SerializeField] private string targetTag = "Player";
-    [SerializeField] private LaunchDirectionSource launchDirectionSource = LaunchDirectionSource.RadialFromBarrelCenter;
-    [FormerlySerializedAs("customLaunchDirection")] [SerializeField] private Vector3 customDirection = Vector3.up;
-    [FormerlySerializedAs("directionReferenceTransform")] [SerializeField] private Transform directionReference;
-    [FormerlySerializedAs("shouldResetTangentialVelocity")] [SerializeField, Tooltip("If true, zeroes sideways velocity relative to the launch direction; otherwise preserves it.")]
-    private bool resetTangentialVel;
+    [SerializeField, Tooltip("Tag used to identify the Player object.")]
+    private string requiredPlayerTag = "Player";
+
+    [SerializeField, Tooltip("How the launch direction is determined.")]
+    private LaunchDirectionSource launchDirectionSource = LaunchDirectionSource.RadialFromBarrelCenter;
+
+    [SerializeField, Tooltip("Used when LaunchDirectionSource is CustomVector. Will be normalized; Vector3.zero falls back to world up.")]
+    private Vector3 customLaunchDirection = Vector3.up;
+
+    [SerializeField, Tooltip("Used when LaunchDirectionSource is ReferenceTransformForward/Up.")]
+    private Transform directionReferenceTransform;
+
+    [SerializeField, Tooltip("If true, zeroes sideways velocity relative to the launch direction; otherwise preserves it.")]
+    private bool shouldResetTangentialVelocity = false;
 
     [Header("Enemy Targeting")]
-    [SerializeField] private string enemyTag = "Enemy";
+    [SerializeField, Tooltip("Tag used to identify Enemy objects. Leave empty to affect any EntityController that is not the player.")]
+    private string enemyTag = "Enemy";
+
+    [Header("Medal Condition")]
+    [SerializeField, Tooltip("If true, overrides the global upgrade gate, otherwise the barrel reads LevelManager.BarrelInvulnerabilityEnabled.")]
+    private bool overrideMedalConditionLocally = false;
+
+    [SerializeField, Tooltip("Local medal condition used only when Override is enabled.")]
+    private bool localMedalConditionAchieved = false;
+    
+    [Header("External Triggering")]
+    [SerializeField, Tooltip("If enabled, external scripts can trigger the explosion explicitly.")]
+    private bool allowExternalExplosionTrigger = true;
 
     [Header("Audio")]
-    [FormerlySerializedAs("explosionAudioEventName")] [SerializeField] private string explosionAudioName = "BarrelExplosion";
+    [SerializeField, Tooltip("If enabled, plays an audio event when the barrel explodes.")]
+    private bool shouldPlayExplosionAudio = true;
+
+    [SerializeField, Tooltip("Audio event name passed to AudioManager.Play on explosion.")]
+    private string explosionAudioEventName = "BarrelExplosion";
 
     [Header("Visual Effects")]
-    [SerializeField] private VFXPrefabID explosionVFX;
-    [FormerlySerializedAs("explosionVfxLocalOffset")] [SerializeField] private Vector3 explosionVfxOffset = Vector3.zero;
+    [SerializeField, Tooltip("Visual Effect Graph asset spawned at the explosion point.")]
+    private VFXPrefabID explosionVFX;
 
-    private static Collider[] _overlapBuffer = new Collider[128];
-    private bool _explosionTriggered;
-    private bool _explosionInitiatedByOnDestroy;
+    [SerializeField, Tooltip("Local offset from the explosion origin where the VFX will be placed.")]
+    private Vector3 explosionVfxLocalOffset = Vector3.zero;
 
-    private NullCheck<EntityController> _cachedController;
-    private NullCheck<HealthComponent> _healthComponent;
-    private Coroutine _ensureRoutine;
+    [Header("Debug")]
+    [SerializeField, Tooltip("If enabled, prints detailed debug logs.")]
+    private bool isDebugLoggingEnabled = false;
+
+    [SerializeField, Tooltip("If enabled, draws gizmos for the explosion radius and example launch direction.")]
+    private bool drawGizmos = true;
+
+    private static readonly Collider[] OverlapBuffer = new Collider[128];
+    private bool hasExplosionAlreadyTriggered;
+    private bool applicationIsQuitting;
+    private bool explosionInitiatedByOnDestroy;
+
+    private EntityController cachedEntityController;
+    private IModel cachedModel;
+    private HealthComponent runtimeHealthComponent;
+    private Coroutine ensureRoutine;
 
     private class AggregatedHit
     {
@@ -97,7 +155,7 @@ public class ExplosiveBarrel : MonoBehaviour
         ResolveControllerAndModel();
         EnsureHealthRegisteredImmediateOrDeferred();
         SyncPostActionFromDieBehaviour();
-        if (explosionDelay > 0f && _explosionTriggered) Invoke(nameof(ExecuteExplosion), explosionDelay);
+        if (explosionDelaySeconds > 0f && hasExplosionAlreadyTriggered) Invoke(nameof(ExecuteExplosionNow), explosionDelaySeconds);
     }
 
     private void OnEnable()
@@ -114,54 +172,58 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private void OnDisable()
     {
-        if (_ensureRoutine != null)
+        if (ensureRoutine != null)
         {
-            StopCoroutine(_ensureRoutine);
-            _ensureRoutine = null;
+            StopCoroutine(ensureRoutine);
+            ensureRoutine = null;
         }
     }
+
+    private void OnApplicationQuit() => applicationIsQuitting = true;
 
     private void Update()
     {
-        if (!_explosionTriggered && _healthComponent.TryGetValue(out var component) && !component.IsAlive())
+        if (!hasExplosionAlreadyTriggered && runtimeHealthComponent != null)
         {
-            _explosionTriggered = true;
-            ExecuteExplosion();
+            if (!runtimeHealthComponent.IsAlive() || runtimeHealthComponent.Value <= 0f)
+            {
+                hasExplosionAlreadyTriggered = true;
+                ExecuteExplosionNow();
+            }
         }
     }
 
-    #region Execute Methods
+    private void OnDestroy()
+    {
+        if (!Application.isPlaying) return;
+        if (shouldExplodeOnDestroy && !hasExplosionAlreadyTriggered && !applicationIsQuitting)
+        {
+            explosionInitiatedByOnDestroy = true;
+            hasExplosionAlreadyTriggered = true;
+            ExecuteExplosionNow();
+        }
+    }
 
-    public void TriggerExplosion(Vector3? overrideWorldOrigin = null, bool useMaxForce = false, NullCheck<Rigidbody> target = new())
+    private void ExecuteExplosionNow()
     {
-        if (_explosionTriggered) return;
-        _explosionTriggered = true;
-        _explosionInitiatedByOnDestroy = false;
-        var origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOffset);
-        ExecuteExplosion(origin, useMaxForce, target);
+        Vector3 origin = transform.TransformPoint(explosionOriginLocalOffset);
+        ExecuteExplosionAtOrigin(origin, false, null);
     }
-    
-    
-    private void ExecuteExplosion()
-    {
-        var origin = transform.TransformPoint(explosionOffset);
-        ExecuteExplosion(origin, false, null);
-    }
-    
-    private void ExecuteExplosion(Vector3 origin, bool maxForce, NullCheck<Rigidbody> target)
+
+    private void ExecuteExplosionAtOrigin(Vector3 origin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget)
     {
         TriggerExplosionAudioVfxAndFreeze(origin);
 
-        var count = Physics.OverlapSphereNonAlloc(origin, Mathf.Max(0f, explosionRadius), _overlapBuffer, ~0, QueryTriggerInteraction.Collide);
+        int count = Physics.OverlapSphereNonAlloc(origin, Mathf.Max(0f, explosionRadiusMeters), OverlapBuffer, ~0, QueryTriggerInteraction.Collide);
         var byGroup = new Dictionary<Transform, AggregatedHit>(count);
 
-        for (var i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
-            var col = _overlapBuffer[i];
+            var col = OverlapBuffer[i];
             if (!col) continue;
 
             var controller = col.GetComponentInParent<EntityController>();
-            var group = controller ? controller.Origin.transform : (col.attachedRigidbody ? col.attachedRigidbody.transform : col.transform);
+            Transform group = controller ? controller.Origin.transform : (col.attachedRigidbody ? col.attachedRigidbody.transform : col.transform);
 
             if (!byGroup.TryGetValue(group, out var agg))
             {
@@ -177,8 +239,8 @@ public class ExplosiveBarrel : MonoBehaviour
                 if (rb) agg.Rigidbody = rb;
             }
 
-            var closest = origin;
-            var d = Vector3.Distance(origin, closest);
+            Vector3 closest = col.ClosestPoint(origin);
+            float d = Vector3.Distance(origin, closest);
             if (d < agg.MinDistance)
             {
                 agg.MinDistance = d;
@@ -186,17 +248,17 @@ public class ExplosiveBarrel : MonoBehaviour
             }
         }
 
-        if (target.TryGetValue(out var body))
+        if (guaranteedImpulseTarget)
         {
-            var group = body.transform;
+            Transform group = guaranteedImpulseTarget.transform;
             if (!byGroup.TryGetValue(group, out var agg))
             {
-                agg = new AggregatedHit { Group = group, MinDistance = 0f, HasDistance = true, Rigidbody = target };
+                agg = new AggregatedHit { Group = group, MinDistance = 0f, HasDistance = true, Rigidbody = guaranteedImpulseTarget };
                 byGroup.Add(group, agg);
             }
             else
             {
-                agg.Rigidbody = target;
+                agg.Rigidbody = guaranteedImpulseTarget;
                 agg.MinDistance = 0f;
                 agg.HasDistance = true;
             }
@@ -205,20 +267,20 @@ public class ExplosiveBarrel : MonoBehaviour
         foreach (var kv in byGroup)
         {
             var agg = kv.Value;
-            var distance = agg.HasDistance ? agg.MinDistance : Vector3.Distance(origin, agg.Group.position);
-            var closeness = Mathf.Clamp01(1f - Mathf.InverseLerp(0f, Mathf.Max(0.0001f, explosionRadius), distance));
+            float distance = agg.HasDistance ? agg.MinDistance : Vector3.Distance(origin, agg.Group.position);
+            float closeness = Mathf.Clamp01(1f - Mathf.InverseLerp(0f, Mathf.Max(0.0001f, explosionRadiusMeters), distance));
 
-            var scaledDamage = Mathf.Lerp(minDamage, maxDamage, closeness);
+            float scaledDamage = Mathf.Lerp(explosionDamageMin, explosionDamageMax, closeness);
 
-            var impulseT = maxForce ? 1f : closeness;
-            var scaledPlayerSpeed = Mathf.Lerp(minImpulseSpeed, maxImpulseSpeed, impulseT);
-            var scaledOtherImpulse = Mathf.Lerp(otherMinImpulse, otherMaxImpulse, impulseT);
+            float impulseT = forceMaxImpulseForPlayerAndRigidbodies ? 1f : closeness;
+            float scaledPlayerSpeed = Mathf.Lerp(playerLaunchSpeedMinMetersPerSecond, playerLaunchSpeedMaxMetersPerSecond, impulseT);
+            float scaledOtherImpulse = Mathf.Lerp(otherRigidbodiesExplosionImpulseMin, otherRigidbodiesExplosionImpulseMax, impulseT);
 
-            var targetObject = agg.Controller ? agg.Controller.Origin.gameObject : agg.Group.gameObject;
-            var isPlayer = !string.IsNullOrEmpty(targetTag) && targetObject.CompareTag(targetTag);
-            var isEnemyByTag = !string.IsNullOrEmpty(enemyTag) && targetObject.CompareTag(enemyTag);
-            var isEnemyByType = agg.Controller is EnemyController;
-            var isEnemy = isEnemyByTag || isEnemyByType;
+            GameObject targetObject = agg.Controller ? agg.Controller.Origin.gameObject : agg.Group.gameObject;
+            bool isPlayer = !string.IsNullOrEmpty(requiredPlayerTag) && targetObject.CompareTag(requiredPlayerTag);
+            bool isEnemyByTag = !string.IsNullOrEmpty(enemyTag) && targetObject.CompareTag(enemyTag);
+            bool isEnemyByType = agg.Controller is EnemyController;
+            bool isEnemy = isEnemyByTag || isEnemyByType;
 
             if (isPlayer)
             {
@@ -233,42 +295,43 @@ public class ExplosiveBarrel : MonoBehaviour
                 TryDealScaledDamageOrNotify(targetObject, isEnemy ? "Enemy" : "Entity", origin, Mathf.Max(0f, scaledDamage));
 
                 if (agg.Rigidbody && scaledOtherImpulse > 0f)
-                    agg.Rigidbody.AddExplosionForce(scaledOtherImpulse, origin, explosionRadius, otherUpwardsModifier, ForceMode.Impulse);
+                    agg.Rigidbody.AddExplosionForce(scaledOtherImpulse, origin, explosionRadiusMeters, otherRigidbodiesUpwardsModifier, ForceMode.Impulse);
             }
 
-            this.Log($"Applied | name={targetObject.name} dist={distance:0.##} close={closeness:0.##} dmg={scaledDamage:0.##} impulse={scaledOtherImpulse:0.##}");
+            LogDebug($"Applied | name={targetObject.name} dist={distance:0.##} close={closeness:0.##} dmg={scaledDamage:0.##} impulse={scaledOtherImpulse:0.##}");
         }
 
-        if (!_explosionInitiatedByOnDestroy)
+        if (!explosionInitiatedByOnDestroy)
         {
-            if (postDelay > 0f)
-            {
-                StartCoroutine(DelayedPostExplosionAction(postDelay));
-            }
-            else
-            {
-                DoPostExplosionAction();
-            }
+            if (postExplosionActionDelaySeconds > 0f) StartCoroutine(DelayedPostExplosionAction(postExplosionActionDelaySeconds));
+            else DoPostExplosionAction();
         }
 
-        this.Log($"Explosion done | origin={origin} radius={explosionRadius} medalActive={IsMedalConditionActive()}");
+        LogDebug($"Explosion done | origin={origin} radius={explosionRadiusMeters} medalActive={IsMedalConditionActive()}");
     }
 
-    #endregion
+    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool forceMaxImpulseForPlayerAndRigidbodies = false, Rigidbody guaranteedImpulseTarget = null)
+    {
+        if (!allowExternalExplosionTrigger) return;
+        if (hasExplosionAlreadyTriggered) return;
+        hasExplosionAlreadyTriggered = true;
+        explosionInitiatedByOnDestroy = false;
+        Vector3 origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOriginLocalOffset);
+        ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
+    }
     
-    // Should be in a View class executed bia events or observers
     private void TriggerExplosionAudioVfxAndFreeze(Vector3 originWorld)
     {
-        if (!string.IsNullOrEmpty(explosionAudioName))
-            AudioManager.Play(explosionAudioName);
+        if (shouldPlayExplosionAudio && !string.IsNullOrEmpty(explosionAudioEventName))
+            AudioManager.Play(explosionAudioEventName);
         
-        var pos = originWorld + transform.TransformVector(explosionVfxOffset);
+        var pos = originWorld + transform.TransformVector(explosionVfxLocalOffset);
 
         EffectManager.TryGetVFX(explosionVFX, new VFXEmitterParams()
         {
             position = pos,
             rotation = Quaternion.identity,
-            scale = explosionRadius
+            scale = explosionRadiusMeters
         }, out var emitter);
     }
 
@@ -293,41 +356,34 @@ public class ExplosiveBarrel : MonoBehaviour
         }
     }
 
-    private void ApplyJumpPadStyleLaunch(Rigidbody body, Vector3 origin, bool isPlayer, float targetSpeed)
+    private void ApplyJumpPadStyleLaunch(Rigidbody targetRigidbody, Vector3 explosionOriginWorld, bool isPlayer, float targetSpeed)
     {
-        var launchDirectionWorld = ComputeLaunchDirection(body, origin, isPlayer);
-        var v = body.velocity;
-        var along = Vector3.Dot(v, launchDirectionWorld);
-        var tangential = v - launchDirectionWorld * along;
-        if (resetTangentialVel) tangential = Vector3.zero;
-        body.velocity = tangential + launchDirectionWorld * Mathf.Max(0f, targetSpeed);
+        Vector3 launchDirectionWorld = ComputeLaunchDirection(targetRigidbody, explosionOriginWorld, isPlayer);
+        Vector3 v = targetRigidbody.velocity;
+        float along = Vector3.Dot(v, launchDirectionWorld);
+        Vector3 tangential = v - launchDirectionWorld * along;
+        if (shouldResetTangentialVelocity) tangential = Vector3.zero;
+        targetRigidbody.velocity = tangential + launchDirectionWorld * Mathf.Max(0f, targetSpeed);
     }
 
-    private Vector3 ComputeLaunchDirection(Rigidbody body, Vector3 origin, bool isPlayer)
+    private Vector3 ComputeLaunchDirection(Rigidbody targetRigidbody, Vector3 explosionOriginWorld, bool isPlayer)
     {
-#if true
         if (isPlayer && IsMedalConditionActive()) return Vector3.up;
 
-        var dir = launchDirectionSource switch
+        Vector3 dir;
+        switch (launchDirectionSource)
         {
-            LaunchDirectionSource.BarrelUp => transform.up,
-            LaunchDirectionSource.BarrelForward => transform.forward,
-            LaunchDirectionSource.RadialFromBarrelCenter => body.position - origin,
-            LaunchDirectionSource.CustomVector => customDirection,
-            LaunchDirectionSource.ReferenceTransformForward => directionReference
-                ? directionReference.forward
-                : transform.forward,
-            LaunchDirectionSource.ReferenceTransformUp => directionReference ? directionReference.up : transform.up,
-            _ => Vector3.up
-        };
+            case LaunchDirectionSource.BarrelUp: dir = transform.up; break;
+            case LaunchDirectionSource.BarrelForward: dir = transform.forward; break;
+            case LaunchDirectionSource.RadialFromBarrelCenter: dir = targetRigidbody.worldCenterOfMass - explosionOriginWorld; break;
+            case LaunchDirectionSource.CustomVector: dir = customLaunchDirection; break;
+            case LaunchDirectionSource.ReferenceTransformForward: dir = directionReferenceTransform ? directionReferenceTransform.forward : transform.forward; break;
+            case LaunchDirectionSource.ReferenceTransformUp: dir = directionReferenceTransform ? directionReferenceTransform.up : transform.up; break;
+            default: dir = Vector3.up; break;
+        }
 
         if (dir.sqrMagnitude < 1e-6f) dir = Vector3.up;
         return dir.normalized;
-#else
-        var dir = targetRigidbody.position - explosionOriginWorld;
-
-        return dir.normalized;
-#endif
     }
 
     private void TryDealScaledDamageOrNotify(GameObject targetObject, string label, Vector3 hitPosition, float scaledDamage)
@@ -350,50 +406,47 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private void ResolveControllerAndModel()
     {
-        _cachedController = GetComponentInParent<EntityController>();
-        if (!_cachedController) _cachedController = GetComponent<EntityController>();
+        cachedEntityController = GetComponentInParent<EntityController>();
+        if (!cachedEntityController) cachedEntityController = GetComponent<EntityController>();
+        cachedModel = cachedEntityController != null ? cachedEntityController.GetModel() : null;
     }
 
     private void EnsureHealthRegisteredImmediateOrDeferred()
     {
-        if (_healthComponent) return;
+        if (runtimeHealthComponent != null) return;
 
-        if (_cachedController.TryGetValue(out var controller))
+        if (cachedModel != null)
         {
-            var model = controller.GetModel();
-            if (model.TryGetComponent<HealthComponent>(out var component))
+            if (!cachedModel.TryGetComponent(out runtimeHealthComponent))
             {
-                _healthComponent = component;
+                if (healthComponentData != null)
+                {
+                    runtimeHealthComponent = new HealthComponent(healthComponentData);
+                    cachedModel.TryAddComponent(runtimeHealthComponent);
+                }
             }
-            else if (healthComponentData != null)
-            {
-                _healthComponent = new HealthComponent(healthComponentData);
-                model.TryAddComponent(_healthComponent.Get());
-            }
-            
             SyncPostActionFromDieBehaviour();
         }
         else
         {
-            _ensureRoutine ??= StartCoroutine(EnsureHealthRegisteredDeferred());
+            if (ensureRoutine == null) ensureRoutine = StartCoroutine(EnsureHealthRegisteredDeferred());
         }
     }
 
     private IEnumerator EnsureHealthRegisteredDeferred()
     {
         int safetyFrames = 16;
-        while (safetyFrames-- > 0 && _healthComponent)
+        while (safetyFrames-- > 0 && runtimeHealthComponent == null)
         {
             ResolveControllerAndModel();
-            
-            if (_cachedController)
+            if (cachedModel != null)
             {
                 EnsureHealthRegisteredImmediateOrDeferred();
-                if (_healthComponent) break;
+                if (runtimeHealthComponent != null) break;
             }
             yield return null;
         }
-        _ensureRoutine = null;
+        ensureRoutine = null;
     }
 
     private void SyncPostActionFromDieBehaviour()
@@ -409,49 +462,35 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private bool IsMedalConditionActive()
     {
-        return LevelManager.BarrelInvulnerabilityEnabled;
+        return overrideMedalConditionLocally ? localMedalConditionAchieved : LevelManager.BarrelInvulnerabilityEnabled;
     }
-    
-    private void OnDestroy()
+
+    private void LogDebug(string message)
     {
-        StopAllCoroutines();
-
-        if (Application.isPlaying)
-        {
-            if (explodeOnDestroy && !_explosionTriggered)
-            {
-                _explosionInitiatedByOnDestroy = true;
-                _explosionTriggered = true;
-                ExecuteExplosion();
-            }
-        }
-
-        healthComponentData = null;
-        directionReference = null;
-        _overlapBuffer = null;
-        _cachedController = null;
-        _healthComponent = null;
-        _ensureRoutine = null;
+        if (!isDebugLoggingEnabled) return;
+        Debug.Log($"[ExplosiveBarrel] {name}: {message}", this);
     }
 
     private void OnDrawGizmosSelected()
     {
-        var origin = transform.TransformPoint(explosionOffset);
-        Gizmos.color = new Color(1f, 0.4f, 0.1f, 0.85f);
-        Gizmos.DrawWireSphere(origin, Mathf.Max(0f, explosionRadius));
+        if (!drawGizmos) return;
 
-        var exampleDirection = Vector3.up;
+        Vector3 origin = transform.TransformPoint(explosionOriginLocalOffset);
+        Gizmos.color = new Color(1f, 0.4f, 0.1f, 0.85f);
+        Gizmos.DrawWireSphere(origin, Mathf.Max(0f, explosionRadiusMeters));
+
+        Vector3 exampleDirection = Vector3.up;
         switch (launchDirectionSource)
         {
             case LaunchDirectionSource.BarrelUp: exampleDirection = transform.up; break;
             case LaunchDirectionSource.BarrelForward: exampleDirection = transform.forward; break;
             case LaunchDirectionSource.RadialFromBarrelCenter: exampleDirection = Vector3.up; break;
-            case LaunchDirectionSource.CustomVector: exampleDirection = (customDirection.sqrMagnitude < 1e-6f) ? Vector3.up : customDirection.normalized; break;
-            case LaunchDirectionSource.ReferenceTransformForward: exampleDirection = directionReference ? directionReference.forward : transform.forward; break;
-            case LaunchDirectionSource.ReferenceTransformUp: exampleDirection = directionReference ? directionReference.up : transform.up; break;
+            case LaunchDirectionSource.CustomVector: exampleDirection = (customLaunchDirection.sqrMagnitude < 1e-6f) ? Vector3.up : customLaunchDirection.normalized; break;
+            case LaunchDirectionSource.ReferenceTransformForward: exampleDirection = directionReferenceTransform ? directionReferenceTransform.forward : transform.forward; break;
+            case LaunchDirectionSource.ReferenceTransformUp: exampleDirection = directionReferenceTransform ? directionReferenceTransform.up : transform.up; break;
         }
 
         Gizmos.color = IsMedalConditionActive() ? Color.cyan : Color.yellow;
-        Gizmos.DrawRay(origin, exampleDirection.normalized * Mathf.Min(1.0f, explosionRadius * 0.5f));
+        Gizmos.DrawRay(origin, exampleDirection.normalized * Mathf.Min(1.0f, explosionRadiusMeters * 0.5f));
     }
 }
