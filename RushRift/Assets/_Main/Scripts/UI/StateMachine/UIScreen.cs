@@ -9,5 +9,7 @@ namespace Game.UI.Screens
         Options,
         MainMenu,
         Credits,
+        GameModes,
+        Levels,
     }
 }

@@ -12,9 +12,32 @@ namespace Game.Entities.Components.MotionController
         public Transform Origin { get; private set; }
         public CapsuleCollider Collider { get; private set; }
 
-        public Vector3 Velocity { get => _rb.velocity; set => _rb.velocity = value; }
+        public Vector3 Velocity
+        {
+            get => _rb.velocity;
+            set
+            {
+                var isKinematic = IsKinematic;
+
+                if (isKinematic) IsKinematic = false;
+                _rb.velocity = value;
+                if (isKinematic) IsKinematic = true;
+            }
+        }
         public Vector3 Position { get => _rb.position; set => _rb.position = value; }
         public Subject<bool> OnGroundedChanged => _onGroundedChanged;
+
+        public bool IsKinematic
+        {
+            get => _rb && _rb.isKinematic;
+            set
+            {
+                if (_rb)
+                {
+                    _rb.isKinematic = value;
+                }
+            }
+        }
         
 
         #endregion

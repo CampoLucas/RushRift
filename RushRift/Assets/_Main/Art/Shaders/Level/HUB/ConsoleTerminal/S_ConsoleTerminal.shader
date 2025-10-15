@@ -4,15 +4,22 @@ Shader "S_ConsoleTerminal"
 {
 	Properties
 	{
-		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
 		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
+		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
 		_AlbedoTex("AlbedoTex", 2D) = "white" {}
-		_EmissionAnim("EmissionAnim", 2D) = "white" {}
+		_MetalTex("MetalTex", 2D) = "white" {}
 		[HDR]_LightColor("LightColor", Color) = (0,3.74555,3.849057,1)
-		_AnimSpeed("AnimSpeed", Float) = 12
-		_LightIntencity("LightIntencity", Float) = 0
 		_EmissionTex("EmissionTex", 2D) = "white" {}
 		_IsOn("IsOn", Float) = 0
+		_Lights1MaskRange("Lights1MaskRange", Float) = 0
+		_MetalShineFrequency("MetalShineFrequency", Float) = 0
+		_Color1("Color 1", Color) = (0.5471698,0.5471698,0.5471698,0)
+		_Color0("Color 0", Color) = (0.3962264,0.3962264,0.3962264,0)
+		_MetalShineAmplitude("MetalShineAmplitude", Float) = 0
+		_MetalShineAmplitude1("MetalShineAmplitude", Float) = 0
+		_MetalShineStep("MetalShineStep", Range( 0 , 1)) = 0
+		_MetalShineSpeed("MetalShineSpeed", Float) = 0
+		_MetalShineLineOffset("MetalShineLineOffset", Float) = 0
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
 
 
@@ -330,10 +337,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -366,7 +380,7 @@ Shader "S_ConsoleTerminal"
 			#endif
 
 			sampler2D _AlbedoTex;
-			sampler2D _EmissionAnim;
+			sampler2D _MetalTex;
 			sampler2D _EmissionTex;
 
 
@@ -572,44 +586,34 @@ Shader "S_ConsoleTerminal"
 					ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
 				#endif
 
-				float2 uv_AlbedoTex = input.ase_texcoord8.xy * _AlbedoTex_ST.xy + _AlbedoTex_ST.zw;
-				
 				float2 texCoord16 = input.ase_texcoord8.xy * float2( 1,1 ) + float2( 0,0 );
-				// *** BEGIN Flipbook UV Animation vars ***
-				// Total tiles of Flipbook Texture
-				float fbtotaltiles14 = 12.0 * 1;
-				// Offsets for cols and rows of Flipbook Texture
-				float fbcolsoffset14 = 1.0f / 12.0;
-				float fbrowsoffset14 = 1.0f / 1;
-				// Speed of animation
-				float fbspeed14 = _TimeParameters.x * _AnimSpeed;
-				// UV Tiling (col and row offset)
-				float2 fbtiling14 = float2(fbcolsoffset14, fbrowsoffset14);
-				// UV Offset - calculate current tile linear index, and convert it to (X * coloffset, Y * rowoffset)
-				// Calculate current tile linear index
-				float fbcurrenttileindex14 = floor( fmod( fbspeed14 + 2.0, fbtotaltiles14) );
-				fbcurrenttileindex14 += ( fbcurrenttileindex14 < 0) ? fbtotaltiles14 : 0;
-				// Obtain Offset X coordinate from current tile linear index
-				float fblinearindextox14 = round ( fmod ( fbcurrenttileindex14, 12.0 ) );
-				// Multiply Offset X by coloffset
-				float fboffsetx14 = fblinearindextox14 * fbcolsoffset14;
-				// Obtain Offset Y coordinate from current tile linear index
-				float fblinearindextoy14 = round( fmod( ( fbcurrenttileindex14 - fblinearindextox14 ) / 12.0, 1 ) );
-				// Reverse Y to get tiles from Top to Bottom
-				fblinearindextoy14 = (int)(1-1) - fblinearindextoy14;
-				// Multiply Offset Y by rowoffset
-				float fboffsety14 = fblinearindextoy14 * fbrowsoffset14;
-				// UV Offset
-				float2 fboffset14 = float2(fboffsetx14, fboffsety14);
-				// Flipbook UV
-				half2 fbuv14 = texCoord16 * fbtiling14 + fboffset14;
-				// *** END Flipbook UV Animation vars ***
-				int flipbookFrame14 = ( ( int )fbcurrenttileindex14);
-				float lerpResult23 = lerp( saturate( pow( tex2D( _EmissionAnim, fbuv14 ).r , _LightIntencity ) ) , tex2D( _EmissionTex, texCoord16 ).r , _IsOn);
-				float4 lerpResult11 = lerp( float4( 0,0,0,0 ) , _LightColor , lerpResult23);
+				float2 TexCoord29 = texCoord16;
+				float2 break18_g10 = TexCoord29;
+				float lerpResult17_g10 = lerp( break18_g10.x , break18_g10.y , 0.5);
+				float mulTime62 = _TimeParameters.x * _MetalShineSpeed;
+				float temp_output_4_0_g10 = sin( ( ( lerpResult17_g10 * _MetalShineFrequency ) + ( mulTime62 + _MetalShineLineOffset ) ) );
+				float temp_output_3_0_g10 = ( (0.0 + (temp_output_4_0_g10 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude1 );
+				float temp_output_15_0_g10 = _MetalShineStep;
+				float lerpResult13_g10 = lerp( temp_output_3_0_g10 , step( temp_output_3_0_g10 , temp_output_15_0_g10 ) , ceil( temp_output_15_0_g10 ));
+				float temp_output_73_0 = lerpResult13_g10;
+				float2 break18_g7 = TexCoord29;
+				float lerpResult17_g7 = lerp( break18_g7.x , break18_g7.y , 0.5);
+				float temp_output_4_0_g7 = sin( ( ( lerpResult17_g7 * _MetalShineFrequency ) + mulTime62 ) );
+				float temp_output_3_0_g7 = ( (0.0 + (temp_output_4_0_g7 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude );
+				float temp_output_15_0_g7 = _MetalShineStep;
+				float lerpResult13_g7 = lerp( temp_output_3_0_g7 , step( temp_output_3_0_g7 , temp_output_15_0_g7 ) , ceil( temp_output_15_0_g7 ));
+				float temp_output_58_0 = lerpResult13_g7;
+				float lerpResult79 = lerp( temp_output_73_0 , 1.0 , temp_output_58_0);
+				float4 lerpResult57 = lerp( ( tex2D( _AlbedoTex, TexCoord29 ) * _Color0 ) , _Color1 , lerpResult79);
+				float2 uv_MetalTex = input.ase_texcoord8.xy * _MetalTex_ST.xy + _MetalTex_ST.zw;
+				float4 lerpResult53 = lerp( tex2D( _AlbedoTex, TexCoord29 ) , lerpResult57 , tex2D( _MetalTex, uv_MetalTex ).r);
+				
+				float lerpResult38 = lerp( 0.0 , 0.0 , step( TexCoord29.y , _Lights1MaskRange ));
+				float lerpResult23 = lerp( lerpResult38 , tex2D( _EmissionTex, TexCoord29 ).r , _IsOn);
+				float4 lerpResult11 = lerp( float4( 0,0,0,0 ) , ( _LightColor * lerpResult23 ) , lerpResult23);
 				
 
-				float3 BaseColor = tex2D( _AlbedoTex, uv_AlbedoTex ).rgb;
+				float3 BaseColor = lerpResult53.rgb;
 				float3 Normal = float3(0, 0, 1);
 				float3 Emission = lerpResult11.rgb;
 				float3 Specular = 0.5;
@@ -955,10 +959,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -1280,10 +1291,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -1563,10 +1581,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -1599,7 +1624,7 @@ Shader "S_ConsoleTerminal"
 			#endif
 
 			sampler2D _AlbedoTex;
-			sampler2D _EmissionAnim;
+			sampler2D _MetalTex;
 			sampler2D _EmissionTex;
 
 
@@ -1765,44 +1790,34 @@ Shader "S_ConsoleTerminal"
 					#endif
 				#endif
 
-				float2 uv_AlbedoTex = input.ase_texcoord4.xy * _AlbedoTex_ST.xy + _AlbedoTex_ST.zw;
-				
 				float2 texCoord16 = input.ase_texcoord4.xy * float2( 1,1 ) + float2( 0,0 );
-				// *** BEGIN Flipbook UV Animation vars ***
-				// Total tiles of Flipbook Texture
-				float fbtotaltiles14 = 12.0 * 1;
-				// Offsets for cols and rows of Flipbook Texture
-				float fbcolsoffset14 = 1.0f / 12.0;
-				float fbrowsoffset14 = 1.0f / 1;
-				// Speed of animation
-				float fbspeed14 = _TimeParameters.x * _AnimSpeed;
-				// UV Tiling (col and row offset)
-				float2 fbtiling14 = float2(fbcolsoffset14, fbrowsoffset14);
-				// UV Offset - calculate current tile linear index, and convert it to (X * coloffset, Y * rowoffset)
-				// Calculate current tile linear index
-				float fbcurrenttileindex14 = floor( fmod( fbspeed14 + 2.0, fbtotaltiles14) );
-				fbcurrenttileindex14 += ( fbcurrenttileindex14 < 0) ? fbtotaltiles14 : 0;
-				// Obtain Offset X coordinate from current tile linear index
-				float fblinearindextox14 = round ( fmod ( fbcurrenttileindex14, 12.0 ) );
-				// Multiply Offset X by coloffset
-				float fboffsetx14 = fblinearindextox14 * fbcolsoffset14;
-				// Obtain Offset Y coordinate from current tile linear index
-				float fblinearindextoy14 = round( fmod( ( fbcurrenttileindex14 - fblinearindextox14 ) / 12.0, 1 ) );
-				// Reverse Y to get tiles from Top to Bottom
-				fblinearindextoy14 = (int)(1-1) - fblinearindextoy14;
-				// Multiply Offset Y by rowoffset
-				float fboffsety14 = fblinearindextoy14 * fbrowsoffset14;
-				// UV Offset
-				float2 fboffset14 = float2(fboffsetx14, fboffsety14);
-				// Flipbook UV
-				half2 fbuv14 = texCoord16 * fbtiling14 + fboffset14;
-				// *** END Flipbook UV Animation vars ***
-				int flipbookFrame14 = ( ( int )fbcurrenttileindex14);
-				float lerpResult23 = lerp( saturate( pow( tex2D( _EmissionAnim, fbuv14 ).r , _LightIntencity ) ) , tex2D( _EmissionTex, texCoord16 ).r , _IsOn);
-				float4 lerpResult11 = lerp( float4( 0,0,0,0 ) , _LightColor , lerpResult23);
+				float2 TexCoord29 = texCoord16;
+				float2 break18_g10 = TexCoord29;
+				float lerpResult17_g10 = lerp( break18_g10.x , break18_g10.y , 0.5);
+				float mulTime62 = _TimeParameters.x * _MetalShineSpeed;
+				float temp_output_4_0_g10 = sin( ( ( lerpResult17_g10 * _MetalShineFrequency ) + ( mulTime62 + _MetalShineLineOffset ) ) );
+				float temp_output_3_0_g10 = ( (0.0 + (temp_output_4_0_g10 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude1 );
+				float temp_output_15_0_g10 = _MetalShineStep;
+				float lerpResult13_g10 = lerp( temp_output_3_0_g10 , step( temp_output_3_0_g10 , temp_output_15_0_g10 ) , ceil( temp_output_15_0_g10 ));
+				float temp_output_73_0 = lerpResult13_g10;
+				float2 break18_g7 = TexCoord29;
+				float lerpResult17_g7 = lerp( break18_g7.x , break18_g7.y , 0.5);
+				float temp_output_4_0_g7 = sin( ( ( lerpResult17_g7 * _MetalShineFrequency ) + mulTime62 ) );
+				float temp_output_3_0_g7 = ( (0.0 + (temp_output_4_0_g7 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude );
+				float temp_output_15_0_g7 = _MetalShineStep;
+				float lerpResult13_g7 = lerp( temp_output_3_0_g7 , step( temp_output_3_0_g7 , temp_output_15_0_g7 ) , ceil( temp_output_15_0_g7 ));
+				float temp_output_58_0 = lerpResult13_g7;
+				float lerpResult79 = lerp( temp_output_73_0 , 1.0 , temp_output_58_0);
+				float4 lerpResult57 = lerp( ( tex2D( _AlbedoTex, TexCoord29 ) * _Color0 ) , _Color1 , lerpResult79);
+				float2 uv_MetalTex = input.ase_texcoord4.xy * _MetalTex_ST.xy + _MetalTex_ST.zw;
+				float4 lerpResult53 = lerp( tex2D( _AlbedoTex, TexCoord29 ) , lerpResult57 , tex2D( _MetalTex, uv_MetalTex ).r);
+				
+				float lerpResult38 = lerp( 0.0 , 0.0 , step( TexCoord29.y , _Lights1MaskRange ));
+				float lerpResult23 = lerp( lerpResult38 , tex2D( _EmissionTex, TexCoord29 ).r , _IsOn);
+				float4 lerpResult11 = lerp( float4( 0,0,0,0 ) , ( _LightColor * lerpResult23 ) , lerpResult23);
 				
 
-				float3 BaseColor = tex2D( _AlbedoTex, uv_AlbedoTex ).rgb;
+				float3 BaseColor = lerpResult53.rgb;
 				float3 Emission = lerpResult11.rgb;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
@@ -1901,10 +1916,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -1937,6 +1959,7 @@ Shader "S_ConsoleTerminal"
 			#endif
 
 			sampler2D _AlbedoTex;
+			sampler2D _MetalTex;
 
 
 			
@@ -2081,10 +2104,30 @@ Shader "S_ConsoleTerminal"
 					#endif
 				#endif
 
-				float2 uv_AlbedoTex = input.ase_texcoord2.xy * _AlbedoTex_ST.xy + _AlbedoTex_ST.zw;
+				float2 texCoord16 = input.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
+				float2 TexCoord29 = texCoord16;
+				float2 break18_g10 = TexCoord29;
+				float lerpResult17_g10 = lerp( break18_g10.x , break18_g10.y , 0.5);
+				float mulTime62 = _TimeParameters.x * _MetalShineSpeed;
+				float temp_output_4_0_g10 = sin( ( ( lerpResult17_g10 * _MetalShineFrequency ) + ( mulTime62 + _MetalShineLineOffset ) ) );
+				float temp_output_3_0_g10 = ( (0.0 + (temp_output_4_0_g10 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude1 );
+				float temp_output_15_0_g10 = _MetalShineStep;
+				float lerpResult13_g10 = lerp( temp_output_3_0_g10 , step( temp_output_3_0_g10 , temp_output_15_0_g10 ) , ceil( temp_output_15_0_g10 ));
+				float temp_output_73_0 = lerpResult13_g10;
+				float2 break18_g7 = TexCoord29;
+				float lerpResult17_g7 = lerp( break18_g7.x , break18_g7.y , 0.5);
+				float temp_output_4_0_g7 = sin( ( ( lerpResult17_g7 * _MetalShineFrequency ) + mulTime62 ) );
+				float temp_output_3_0_g7 = ( (0.0 + (temp_output_4_0_g7 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude );
+				float temp_output_15_0_g7 = _MetalShineStep;
+				float lerpResult13_g7 = lerp( temp_output_3_0_g7 , step( temp_output_3_0_g7 , temp_output_15_0_g7 ) , ceil( temp_output_15_0_g7 ));
+				float temp_output_58_0 = lerpResult13_g7;
+				float lerpResult79 = lerp( temp_output_73_0 , 1.0 , temp_output_58_0);
+				float4 lerpResult57 = lerp( ( tex2D( _AlbedoTex, TexCoord29 ) * _Color0 ) , _Color1 , lerpResult79);
+				float2 uv_MetalTex = input.ase_texcoord2.xy * _MetalTex_ST.xy + _MetalTex_ST.zw;
+				float4 lerpResult53 = lerp( tex2D( _AlbedoTex, TexCoord29 ) , lerpResult57 , tex2D( _MetalTex, uv_MetalTex ).r);
 				
 
-				float3 BaseColor = tex2D( _AlbedoTex, uv_AlbedoTex ).rgb;
+				float3 BaseColor = lerpResult53.rgb;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 
@@ -2212,10 +2255,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -2606,10 +2656,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -2642,7 +2699,7 @@ Shader "S_ConsoleTerminal"
 			#endif
 
 			sampler2D _AlbedoTex;
-			sampler2D _EmissionAnim;
+			sampler2D _MetalTex;
 			sampler2D _EmissionTex;
 
 
@@ -2852,44 +2909,34 @@ Shader "S_ConsoleTerminal"
 					ShadowCoords = float4(0, 0, 0, 0);
 				#endif
 
-				float2 uv_AlbedoTex = input.ase_texcoord8.xy * _AlbedoTex_ST.xy + _AlbedoTex_ST.zw;
-				
 				float2 texCoord16 = input.ase_texcoord8.xy * float2( 1,1 ) + float2( 0,0 );
-				// *** BEGIN Flipbook UV Animation vars ***
-				// Total tiles of Flipbook Texture
-				float fbtotaltiles14 = 12.0 * 1;
-				// Offsets for cols and rows of Flipbook Texture
-				float fbcolsoffset14 = 1.0f / 12.0;
-				float fbrowsoffset14 = 1.0f / 1;
-				// Speed of animation
-				float fbspeed14 = _TimeParameters.x * _AnimSpeed;
-				// UV Tiling (col and row offset)
-				float2 fbtiling14 = float2(fbcolsoffset14, fbrowsoffset14);
-				// UV Offset - calculate current tile linear index, and convert it to (X * coloffset, Y * rowoffset)
-				// Calculate current tile linear index
-				float fbcurrenttileindex14 = floor( fmod( fbspeed14 + 2.0, fbtotaltiles14) );
-				fbcurrenttileindex14 += ( fbcurrenttileindex14 < 0) ? fbtotaltiles14 : 0;
-				// Obtain Offset X coordinate from current tile linear index
-				float fblinearindextox14 = round ( fmod ( fbcurrenttileindex14, 12.0 ) );
-				// Multiply Offset X by coloffset
-				float fboffsetx14 = fblinearindextox14 * fbcolsoffset14;
-				// Obtain Offset Y coordinate from current tile linear index
-				float fblinearindextoy14 = round( fmod( ( fbcurrenttileindex14 - fblinearindextox14 ) / 12.0, 1 ) );
-				// Reverse Y to get tiles from Top to Bottom
-				fblinearindextoy14 = (int)(1-1) - fblinearindextoy14;
-				// Multiply Offset Y by rowoffset
-				float fboffsety14 = fblinearindextoy14 * fbrowsoffset14;
-				// UV Offset
-				float2 fboffset14 = float2(fboffsetx14, fboffsety14);
-				// Flipbook UV
-				half2 fbuv14 = texCoord16 * fbtiling14 + fboffset14;
-				// *** END Flipbook UV Animation vars ***
-				int flipbookFrame14 = ( ( int )fbcurrenttileindex14);
-				float lerpResult23 = lerp( saturate( pow( tex2D( _EmissionAnim, fbuv14 ).r , _LightIntencity ) ) , tex2D( _EmissionTex, texCoord16 ).r , _IsOn);
-				float4 lerpResult11 = lerp( float4( 0,0,0,0 ) , _LightColor , lerpResult23);
+				float2 TexCoord29 = texCoord16;
+				float2 break18_g10 = TexCoord29;
+				float lerpResult17_g10 = lerp( break18_g10.x , break18_g10.y , 0.5);
+				float mulTime62 = _TimeParameters.x * _MetalShineSpeed;
+				float temp_output_4_0_g10 = sin( ( ( lerpResult17_g10 * _MetalShineFrequency ) + ( mulTime62 + _MetalShineLineOffset ) ) );
+				float temp_output_3_0_g10 = ( (0.0 + (temp_output_4_0_g10 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude1 );
+				float temp_output_15_0_g10 = _MetalShineStep;
+				float lerpResult13_g10 = lerp( temp_output_3_0_g10 , step( temp_output_3_0_g10 , temp_output_15_0_g10 ) , ceil( temp_output_15_0_g10 ));
+				float temp_output_73_0 = lerpResult13_g10;
+				float2 break18_g7 = TexCoord29;
+				float lerpResult17_g7 = lerp( break18_g7.x , break18_g7.y , 0.5);
+				float temp_output_4_0_g7 = sin( ( ( lerpResult17_g7 * _MetalShineFrequency ) + mulTime62 ) );
+				float temp_output_3_0_g7 = ( (0.0 + (temp_output_4_0_g7 - -1.0) * (1.0 - 0.0) / (1.0 - -1.0)) * _MetalShineAmplitude );
+				float temp_output_15_0_g7 = _MetalShineStep;
+				float lerpResult13_g7 = lerp( temp_output_3_0_g7 , step( temp_output_3_0_g7 , temp_output_15_0_g7 ) , ceil( temp_output_15_0_g7 ));
+				float temp_output_58_0 = lerpResult13_g7;
+				float lerpResult79 = lerp( temp_output_73_0 , 1.0 , temp_output_58_0);
+				float4 lerpResult57 = lerp( ( tex2D( _AlbedoTex, TexCoord29 ) * _Color0 ) , _Color1 , lerpResult79);
+				float2 uv_MetalTex = input.ase_texcoord8.xy * _MetalTex_ST.xy + _MetalTex_ST.zw;
+				float4 lerpResult53 = lerp( tex2D( _AlbedoTex, TexCoord29 ) , lerpResult57 , tex2D( _MetalTex, uv_MetalTex ).r);
+				
+				float lerpResult38 = lerp( 0.0 , 0.0 , step( TexCoord29.y , _Lights1MaskRange ));
+				float lerpResult23 = lerp( lerpResult38 , tex2D( _EmissionTex, TexCoord29 ).r , _IsOn);
+				float4 lerpResult11 = lerp( float4( 0,0,0,0 ) , ( _LightColor * lerpResult23 ) , lerpResult23);
 				
 
-				float3 BaseColor = tex2D( _AlbedoTex, uv_AlbedoTex ).rgb;
+				float3 BaseColor = lerpResult53.rgb;
 				float3 Normal = float3(0, 0, 1);
 				float3 Emission = lerpResult11.rgb;
 				float3 Specular = 0.5;
@@ -3086,10 +3133,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -3355,10 +3409,17 @@ Shader "S_ConsoleTerminal"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _AlbedoTex_ST;
+			float4 _Color0;
+			float4 _Color1;
+			float4 _MetalTex_ST;
 			float4 _LightColor;
-			float _AnimSpeed;
-			float _LightIntencity;
+			float _MetalShineFrequency;
+			float _MetalShineSpeed;
+			float _MetalShineLineOffset;
+			float _MetalShineAmplitude1;
+			float _MetalShineStep;
+			float _MetalShineAmplitude;
+			float _Lights1MaskRange;
 			float _IsOn;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
@@ -3551,20 +3612,45 @@ Shader "S_ConsoleTerminal"
 }
 /*ASEBEGIN
 Version=19801
+Node;AmplifyShaderEditor.CommentaryNode;39;-1472,304;Inherit;False;580;275;Separate the Lights 1;4;34;35;36;37;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.LerpOp;11;-192,64;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;28;-323.2533,224.2994;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT;0;False;1;COLOR;0
 Node;AmplifyShaderEditor.ColorNode;12;-576,128;Inherit;False;Property;_LightColor;LightColor;2;1;[HDR];Create;True;0;0;0;False;0;False;0,3.74555,3.849057,1;0,14.9822,15.39623,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;10;-624,-96;Inherit;True;Property;_AlbedoTex;AlbedoTex;0;0;Create;True;0;0;0;False;0;False;-1;feace049a474eac41a1289b5d1ac909f;feace049a474eac41a1289b5d1ac909f;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;13;-1072,448;Inherit;True;Property;_EmissionAnim;EmissionAnim;1;0;Create;True;0;0;0;False;0;False;-1;182faa63f68161d46a0cb2a9e9c1a196;182faa63f68161d46a0cb2a9e9c1a196;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.TextureCoordinatesNode;16;-1616,480;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SimpleTimeNode;17;-1728,704;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;22;-944,656;Inherit;False;Property;_LightIntencity;LightIntencity;4;0;Create;True;0;0;0;False;0;False;0;1.54;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;19;-1728,624;Inherit;False;Property;_AnimSpeed;AnimSpeed;3;0;Create;True;0;0;0;False;0;False;12;6;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.TFHCFlipBookUVAnimation;14;-1360,480;Inherit;False;0;0;7;0;FLOAT2;0,0;False;1;FLOAT;12;False;2;FLOAT;0;False;3;FLOAT;1;False;4;FLOAT;2;False;5;FLOAT;0;False;6;FLOAT;-1;False;4;FLOAT2;0;FLOAT;1;FLOAT;2;INT;3
-Node;AmplifyShaderEditor.PowerNode;21;-656,448;Inherit;False;False;2;0;FLOAT;0;False;1;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;24;-1072,800;Inherit;True;Property;_EmissionTex;EmissionTex;5;0;Create;True;0;0;0;False;0;False;-1;None;19ec0c95cf07b144b95a0db9072cf57c;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.LerpOp;23;-224,480;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SaturateNode;27;-432,464;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;26;-602.9813,827.8675;Inherit;False;Property;_IsOn;IsOn;6;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.LerpOp;23;-656,432;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;24;-1024,640;Inherit;True;Property;_EmissionTex;EmissionTex;3;0;Create;True;0;0;0;False;0;False;-1;None;19ec0c95cf07b144b95a0db9072cf57c;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode;26;-896,848;Inherit;False;Property;_IsOn;IsOn;4;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;30;-1232,640;Inherit;False;29;TexCoord;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.GetLocalVarNode;34;-1424,352;Inherit;False;29;TexCoord;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.BreakToComponentsNode;35;-1184,352;Inherit;False;FLOAT2;1;0;FLOAT2;0,0;False;16;FLOAT;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT;5;FLOAT;6;FLOAT;7;FLOAT;8;FLOAT;9;FLOAT;10;FLOAT;11;FLOAT;12;FLOAT;13;FLOAT;14;FLOAT;15
+Node;AmplifyShaderEditor.StepOpNode;36;-1040,352;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;37;-1280,464;Inherit;False;Property;_Lights1MaskRange;Lights1MaskRange;5;0;Create;True;0;0;0;False;0;False;0;0.065;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;29;-1776,352;Inherit;False;TexCoord;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.TextureCoordinatesNode;16;-2032,352;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.LerpOp;38;-880,160;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.LerpOp;53;-240,-336;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.SamplerNode;54;-720,-320;Inherit;True;Property;_MetalTex;MetalTex;1;0;Create;True;0;0;0;False;0;False;-1;feace049a474eac41a1289b5d1ac909f;943c767e1f8dbb745a161a968d43586b;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode;10;-720,-96;Inherit;True;Property;_AlbedoTex;AlbedoTex;0;0;Create;True;0;0;0;False;0;False;-1;feace049a474eac41a1289b5d1ac909f;feace049a474eac41a1289b5d1ac909f;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.GetLocalVarNode;31;-928,-80;Inherit;False;29;TexCoord;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.SamplerNode;55;-1024,-576;Inherit;True;Property;_AlbedoTex1;AlbedoTex;0;0;Create;True;0;0;0;False;0;False;-1;feace049a474eac41a1289b5d1ac909f;feace049a474eac41a1289b5d1ac909f;True;0;False;white;Auto;False;Instance;10;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.GetLocalVarNode;56;-1216,-576;Inherit;False;29;TexCoord;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;60;-650.9921,-497.1781;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.FunctionNode;58;-1152,-1056;Inherit;False;F_SineMask;-1;;7;1defe6340f89a2142b7c5511d772d51f;0;6;6;FLOAT2;0,0;False;7;FLOAT;100;False;9;FLOAT;1;False;8;FLOAT;0.51;False;12;FLOAT;0.5;False;15;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;73;-1152,-848;Inherit;False;F_SineMask;-1;;10;1defe6340f89a2142b7c5511d772d51f;0;6;6;FLOAT2;0,0;False;7;FLOAT;100;False;9;FLOAT;1;False;8;FLOAT;0.51;False;12;FLOAT;0.5;False;15;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;64;-1712,-816;Inherit;False;Property;_MetalShineStep;MetalShineStep;11;0;Create;True;0;0;0;False;0;False;0;0.05652174;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleTimeNode;62;-1616,-736;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;76;-1353.992,-648.1781;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;65;-1840,-736;Inherit;False;Property;_MetalShineSpeed;MetalShineSpeed;12;0;Create;True;0;0;0;False;0;False;0;3.42;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;77;-1648,-624;Inherit;False;Property;_MetalShineLineOffset;MetalShineLineOffset;13;0;Create;True;0;0;0;False;0;False;0;0.5;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;78;-848.9922,-914.1781;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.LerpOp;79;-720,-976;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;1;False;2;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;63;-1696,-1088;Inherit;False;Property;_MetalShineFrequency;MetalShineFrequency;6;0;Create;True;0;0;0;False;0;False;0;11;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;67;-1696,-992;Inherit;False;Property;_MetalShineAmplitude;MetalShineAmplitude;9;0;Create;True;0;0;0;False;0;False;0;3.48;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;81;-1680,-896;Inherit;False;Property;_MetalShineAmplitude1;MetalShineAmplitude;10;0;Create;True;0;0;0;False;0;False;0;60;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;59;-1536,-1232;Inherit;False;29;TexCoord;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.TFHCPixelate;82;-1235.992,-1241.178;Inherit;False;3;0;FLOAT2;0,0;False;1;FLOAT;32;False;2;FLOAT;32;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.LerpOp;57;-384,-640;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;1,1,1,1;False;2;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.ColorNode;61;-960,-384;Inherit;False;Property;_Color0;Color 0;8;0;Create;True;0;0;0;False;0;False;0.3962264,0.3962264,0.3962264,0;0.3962264,0.3962264,0.3962264,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode;83;-720,-768;Inherit;False;Property;_Color1;Color 1;7;0;Create;True;0;0;0;False;0;False;0.5471698,0.5471698,0.5471698,0;0.4528302,0.4528302,0.4528302,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;0;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;12;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;0,0;Float;False;True;-1;3;UnityEditor.ShaderGraphLitGUI;0;12;S_ConsoleTerminal;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;43;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;1;0;  Use Shadow Threshold;0;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;Receive Shadows;1;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;10;False;True;True;True;True;True;True;True;True;True;False;;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;2;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;12;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
@@ -3575,20 +3661,48 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;6;0,0;Float;False;False;-1;
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;7;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;12;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalGBuffer;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;8;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;12;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;9;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;12;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
-WireConnection;11;1;12;0
+WireConnection;11;1;28;0
 WireConnection;11;2;23;0
-WireConnection;13;1;14;0
-WireConnection;14;0;16;0
-WireConnection;14;3;19;0
-WireConnection;14;5;17;0
-WireConnection;21;0;13;1
-WireConnection;21;1;22;0
-WireConnection;24;1;16;0
-WireConnection;23;0;27;0
+WireConnection;28;0;12;0
+WireConnection;28;1;23;0
+WireConnection;23;0;38;0
 WireConnection;23;1;24;1
 WireConnection;23;2;26;0
-WireConnection;27;0;21;0
-WireConnection;1;0;10;0
+WireConnection;24;1;30;0
+WireConnection;35;0;34;0
+WireConnection;36;0;35;1
+WireConnection;36;1;37;0
+WireConnection;29;0;16;0
+WireConnection;38;2;36;0
+WireConnection;53;0;10;0
+WireConnection;53;1;57;0
+WireConnection;53;2;54;1
+WireConnection;10;1;31;0
+WireConnection;55;1;56;0
+WireConnection;60;0;55;0
+WireConnection;60;1;61;0
+WireConnection;58;6;59;0
+WireConnection;58;7;63;0
+WireConnection;58;9;67;0
+WireConnection;58;8;62;0
+WireConnection;58;15;64;0
+WireConnection;73;6;59;0
+WireConnection;73;7;63;0
+WireConnection;73;9;81;0
+WireConnection;73;8;76;0
+WireConnection;73;15;64;0
+WireConnection;62;0;65;0
+WireConnection;76;0;62;0
+WireConnection;76;1;77;0
+WireConnection;78;0;58;0
+WireConnection;78;1;73;0
+WireConnection;79;0;73;0
+WireConnection;79;2;58;0
+WireConnection;82;0;59;0
+WireConnection;57;0;60;0
+WireConnection;57;1;83;0
+WireConnection;57;2;79;0
+WireConnection;1;0;53;0
 WireConnection;1;2;11;0
 ASEEND*/
-//CHKSM=8C1CCBA3D9562C374161A641DACBB4E6E6D27931
+//CHKSM=38E08273F11175D4CE74B5B72D6EE9D6FCF9E528

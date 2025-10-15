@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public sealed class MainMenuPresenter : MenuPresenter<MainMenuModel, MainMenuView>
+    public sealed class MainMenuPresenter : UIPresenter<MainMenuModel, MainMenuView>
     {
         [Header("Buttons")]
         [SerializeField] private Button newGameButton;
@@ -131,6 +131,12 @@ namespace Game.UI.Screens
             }
             
             base.Dispose();
+        }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            state = new MainMenuState(this);
+            return true;
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Game.Entities.Components.MotionController
                     if (!_hovering) // This stops all y velocity when falling, to do a bounce effect when falling, try decreasing the y velocity with a lerp
                     {
                         _hovering = true;
-
+                        
                         context.Velocity = context.Velocity.XOZ();
                     }
                     

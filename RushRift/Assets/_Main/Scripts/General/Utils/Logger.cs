@@ -24,6 +24,23 @@ namespace MyTools.Global
         }
         
         [Conditional("UNITY_EDITOR")]
+        public static void Log(string message, Object context = null, LogType logType = LogType.Log)
+        {
+            switch (logType)
+            {
+                case LogType.Warning:
+                    Debug.LogWarning($"WARNING: {message}", context);
+                    break;
+                case LogType.Error:
+                    Debug.LogError($"ERROR: {message}", context);
+                    break;
+                default:
+                    Debug.Log($"{message}", context);
+                    break;
+            }
+        }
+        
+        [Conditional("UNITY_EDITOR")]
         public static void Log(this Object obj, string message, LogType logType = LogType.Log)
         {
             Log(obj, message, obj, logType);

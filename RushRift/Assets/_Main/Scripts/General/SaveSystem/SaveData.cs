@@ -3,6 +3,7 @@ using Game.Entities;
 using System.Collections.Generic;
 using Game;
 using Game.General;
+using Game.Levels;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -129,6 +130,31 @@ namespace Game.Saves
             }
 
             MedalsSaveData[levelID] = medalSaveData;
+        }
+        
+        public int GetUnlockedMedalsCount(int currLevel)
+        {
+            var medalsUnlocked = 0;
+            if (!MedalsSaveData.TryGetValue(currLevel, out var saveData))
+            {
+                MedalsSaveData[currLevel] = saveData;
+            }
+
+            if (saveData.bronzeUnlocked)
+            {
+                medalsUnlocked++;
+            }
+            if (saveData.silverUnlocked)
+            {
+                medalsUnlocked++;
+            }
+            if (saveData.goldUnlocked)
+            {
+                medalsUnlocked++;
+            }
+            
+            Debug.Log($"Has {medalsUnlocked}");
+            return medalsUnlocked;
         }
 
         #endregion

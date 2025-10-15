@@ -10,7 +10,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
-public class TimesDisplays : MonoBehaviour
+public sealed class TimesDisplays : MonoBehaviour
 {
     [SerializeField] private LevelWonPresenter presenter;
     

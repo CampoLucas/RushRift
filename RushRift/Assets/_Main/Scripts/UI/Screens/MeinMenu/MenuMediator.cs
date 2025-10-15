@@ -1,15 +1,16 @@
+
 using System;
 using Game.DesignPatterns.Observers;
 using Game.Saves;
 using Game.Utils;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Game.UI.Screens
 {
     public enum MenuState
     {
-        NewGame, Continue, Options, Credits, Quit, Back, MainMenu, HUB, Restart
+        NewGame, Continue, Options, Credits, Quit, Back, MainMenu, HUB, Restart, GameModes, Levels
     }
 
     /// <summary>
@@ -24,6 +25,7 @@ namespace Game.UI.Screens
         
         [Header("Loading Screen")] // ToDo: make it a state so it fades in
         [SerializeField] private GameObject loadingScreen;
+        
 
         [Header("Screen Transitions")]
         [SerializeField] private float fadeOut;

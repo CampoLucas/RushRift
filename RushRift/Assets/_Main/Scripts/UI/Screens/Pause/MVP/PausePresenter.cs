@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Game.UI.Screens
 {
-    public class PausePresenter : MenuPresenter<PauseModel, PauseView>
+    public class PausePresenter : UIPresenter<PauseModel, PauseView>
     {
         public bool OnOptions { get; private set; }
 
@@ -123,6 +123,12 @@ namespace Game.UI.Screens
             optionsBackButton.onClick.RemoveAllListeners();
             mainMenuButton.onClick.RemoveAllListeners();
             hubButton.onClick.RemoveAllListeners();
+        }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            state = new PauseState(this);
+            return true;
         }
     }
 }
