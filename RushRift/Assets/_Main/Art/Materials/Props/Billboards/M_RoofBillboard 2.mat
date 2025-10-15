@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_FadeScreen
-  m_Shader: {fileID: -6465566751694194690, guid: d54fbd337806d314f95aae6c36a348e5, type: 3}
+  m_Name: M_RoofBillboard 2
+  m_Shader: {fileID: 4800000, guid: 12015d4134d9040479ca993c78c3624e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,21 +23,31 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - unity_Lightmaps:
-        m_Texture: {fileID: 0}
+    - _BaseTex:
+        m_Texture: {fileID: 2800000, guid: 223a9dd9d6717264784ca4ca7a275941, type: 3}
+        m_Scale: {x: 1, y: 0.99}
+        m_Offset: {x: 0, y: 0}
+    - _EmissTex:
+        m_Texture: {fileID: 2800000, guid: 223a9dd9d6717264784ca4ca7a275941, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - unity_LightmapsInd:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_ShadowMasks:
+    - _NormalTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _FadeAmount: 0.0059158206
-    - _FadeTime: 0
-    m_Colors: []
+    - _Alpha: 1
+    - _EmissionStrength: 1.5
+    - _FlickerAmount: 1
+    - _FlickerSpeed: 12.7
+    - _GlitchStrength: 0.0028
+    - _Metallic: 0
+    - _NormalStrength: 1
+    - _ScanlineDensity: 570
+    - _Smoothness: 0
+    m_Colors:
+    - _Color: {r: 0.6792453, g: 0.6792453, b: 0.6792453, a: 1}
+    - _EmissionColor: {r: 0.9622642, g: 0.049928807, b: 0.7759407, a: 1}
+    - _ScrollSpeed: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
