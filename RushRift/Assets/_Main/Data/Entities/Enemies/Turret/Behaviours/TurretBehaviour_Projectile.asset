@@ -1,5 +1,24 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7623025785700192753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74fc5b7c733b41779c59e0784e6418a9, type: 3}
+  m_Name: DebugLogData
+  m_EditorClassIdentifier: 
+  guid: 8c8e3697909d208449a08a6ba05aab64
+  children: []
+  position: {x: -472, y: 610.0001}
+  previousPosition: {x: -472.00003, y: 610.0001}
+  behaviourData: {fileID: 11400000}
+  message: Detecting
+  editorOnly: 1
 --- !u!114 &-6931800837735344402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,6 +34,7 @@ MonoBehaviour:
   guid: bad894dcfc9bc004ebffafe67807f189
   children:
   - {fileID: -6814332282639265595}
+  - {fileID: -7623025785700192753}
   - {fileID: 7870774838628615780}
   position: {x: -186.34555, y: 491.33334}
   previousPosition: {x: -186.34555, y: 489.56003}
@@ -33,19 +53,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 472e49d2a462a3b4da69100be84257d1
   children: []
-  position: {x: -428.6667, y: 610}
-  previousPosition: {x: -428.6667, y: 610}
+  position: {x: -651.66656, y: 608.6668}
+  previousPosition: {x: -649.40533, y: 610.0001}
   behaviourData: {fileID: 11400000}
   fov:
     FOVs:
     - checkAngle: 0
-      angle: 0
+      angle: 90
       checkRange: 1
       range: 75
       checkView: 1
       mask:
         serializedVersion: 2
-        m_Bits: 712
+        m_Bits: 200
   ifAny: 0
   originOffset: {x: 0, y: 1.5, z: 0}
   originRelative: 0
@@ -174,6 +194,7 @@ MonoBehaviour:
   - {fileID: 5824425285034466280}
   - {fileID: 6422692701173399565}
   - {fileID: 5918855332674748784}
+  - {fileID: -7623025785700192753}
 --- !u!114 &2527731681476120399
 MonoBehaviour:
   m_ObjectHideFlags: 0
