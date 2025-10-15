@@ -413,7 +413,7 @@ public class LockOnBlink : MonoBehaviour
 
         var controller = target.GetComponentInParent<EntityController>();
         var barrel = target.GetComponentInParent<ExplosiveBarrel>();
-        if (barrel) barrel.TriggerExplosionExternal(null, true, playerRigidbody);
+        if (barrel) barrel.TriggerExplosion(null, true, playerRigidbody);
 
         if (controller != null)
         {
