@@ -71,6 +71,15 @@ namespace Game.UI.Screens.Elements
             yield return data.popUp.OpenRoutine(title, medalInfo.UpgradeName, data.medalColor, data.backgroundColor, delay);
         }
 
+        private void OnApplicationFocus(bool focus)
+        {
+            if (focus)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
+        }
+
         private void OnDestroy()
         {
             StopAllCoroutines();
