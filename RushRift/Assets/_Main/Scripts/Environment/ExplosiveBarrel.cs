@@ -375,7 +375,7 @@ public class ExplosiveBarrel : MonoBehaviour
         {
             case LaunchDirectionSource.BarrelUp: dir = transform.up; break;
             case LaunchDirectionSource.BarrelForward: dir = transform.forward; break;
-            case LaunchDirectionSource.RadialFromBarrelCenter: dir = targetRigidbody.worldCenterOfMass - explosionOriginWorld; break;
+            case LaunchDirectionSource.RadialFromBarrelCenter: dir = targetRigidbody.position - explosionOriginWorld; break;
             case LaunchDirectionSource.CustomVector: dir = customLaunchDirection; break;
             case LaunchDirectionSource.ReferenceTransformForward: dir = directionReferenceTransform ? directionReferenceTransform.forward : transform.forward; break;
             case LaunchDirectionSource.ReferenceTransformUp: dir = directionReferenceTransform ? directionReferenceTransform.up : transform.up; break;

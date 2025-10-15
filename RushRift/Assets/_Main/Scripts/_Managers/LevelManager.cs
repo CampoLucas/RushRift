@@ -57,8 +57,7 @@ namespace Game
         [Header("References")]
         [SerializeField] private LevelConfigSO levelConfig;
         
-        [Header("Runtime Flags")]
-        [SerializeField] private bool _barrelInvulnerabilityEnabled;
+        private bool _barrelInvulnerabilityEnabled;
 
         private static LevelManager _instance;
         private TimerHandler _levelTimer = new();
@@ -69,7 +68,6 @@ namespace Game
         private IObserver _levelEnded;
 
         private Dictionary<UpgradeEnum, Entities.Effect> effectsReferencesDic = new();
-
         private bool _gameOver;
         private bool _gameOverNotified;
         private float _levelCompleteTime;
