@@ -9,7 +9,7 @@ namespace Game.Entities.Components.MotionController
 {
     public class MotionController : IEntityComponent
     {
-        private Rigidbody _rb;
+        private NullCheck<Rigidbody> _rb;
         private MotionContext _context;
         private List<BaseMotionHandler> _handlers = new();
         private Dictionary<Type, BaseMotionHandler> _handlersDict = new();
@@ -27,6 +27,11 @@ namespace Game.Entities.Components.MotionController
         public MotionController(Rigidbody rigidBody, CapsuleCollider collider, Transform orientation, Transform look, MotionConfig[] handlerConfigs)
         {
             _rb = rigidBody;
+
+            if (_rb.TryGet(out var rb))
+            {
+                _pauseConstrains = rb.constraints;
+            }
             // _orientationTransform = orientation;
             // _lookTransform = look;
 
@@ -125,22 +130,24 @@ namespace Game.Entities.Components.MotionController
 
         private void OnPauseHandler(bool paused)
         {
+            if (!_rb.TryGet(out var rb)) return;
+            
             if (paused)
             {
-                _pauseVelocity = _rb.velocity;
-                _pauseConstrains = _rb.constraints;
+                _pauseVelocity = rb.velocity;
+                _pauseConstrains = rb.constraints;
             
-                _rb.velocity = Vector3.zero;
-                _rb.constraints = RigidbodyConstraints.FreezeAll;
+                rb.velocity = Vector3.zero;
+                rb.constraints = RigidbodyConstraints.FreezeAll;
             
-                _rb.isKinematic = true;
+                rb.isKinematic = true;
             }
             else
             {
-                _rb.isKinematic = false;
+                rb.isKinematic = false;
             
-                _rb.constraints = _pauseConstrains;
-                _rb.velocity = _pauseVelocity;
+                rb.constraints = _pauseConstrains;
+                rb.velocity = _pauseVelocity;
             }
             
         }
@@ -190,9 +197,12 @@ namespace Game.Entities.Components.MotionController
             }
             
             Gizmos.color = Color.green;
-            Gizmos.DrawRay(origin.position, _rb.velocity.normalized * 5);
+            if (!_rb.TryGet(out var rb)) return;
+            
+            var velocity = rb.velocity;
+            Gizmos.DrawRay(origin.position, velocity.normalized * 5);
 #if UNITY_EDITOR
-            UnityEditor.Handles.Label(origin.position,$"V:{_rb.velocity.magnitude:0.00} X{_rb.velocity.x:0.00} Y{_rb.velocity.y:0.00} Z{_rb.velocity.z:0.00}");
+            UnityEditor.Handles.Label(origin.position,$"V:{velocity.magnitude:0.00} X{velocity.x:0.00} Y{velocity.y:0.00} Z{velocity.z:0.00}");
 #endif
         }
 
