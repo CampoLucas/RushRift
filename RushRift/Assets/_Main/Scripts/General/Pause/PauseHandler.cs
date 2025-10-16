@@ -49,7 +49,7 @@ namespace Game
             if (pause == IsPaused) return;
             IsPaused = pause;
 
-            if (_gamePaused.TryGetValue(out var subject))
+            if (_gamePaused.TryGet(out var subject))
             {
                 subject.NotifyAll(pause);
             }
@@ -62,7 +62,7 @@ namespace Game
 
         public static void Dispose()
         {
-            if (_gamePaused.TryGetValue(out var subject))
+            if (_gamePaused.TryGet(out var subject))
             {
                 subject.DetachAll();
             }

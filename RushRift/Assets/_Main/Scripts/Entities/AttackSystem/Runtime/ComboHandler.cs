@@ -164,7 +164,7 @@ namespace Game.Entities.AttackSystem
 
         public void ForceAttack()
         {
-            if (!_combo.TryGetValue(out var combo) || combo.StartTransitions == null || combo.StartTransitions.Count == 0) return;
+            if (!_combo.TryGet(out var combo) || combo.StartTransitions == null || combo.StartTransitions.Count == 0) return;
 
             var attackTransition = _combo.Get().StartTransitions.FirstOrDefault();
             

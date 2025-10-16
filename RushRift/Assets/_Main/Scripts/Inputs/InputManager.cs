@@ -29,8 +29,6 @@ namespace Game.Inputs
 
         private PlayerControls _playerControls;
 
-        [SerializeField] private bool _lockMouse = true;
-
         #region InputFlags
 
         private bool _heavyFlag;

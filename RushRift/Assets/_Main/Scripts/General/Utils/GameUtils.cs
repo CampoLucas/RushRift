@@ -1,9 +1,11 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Game.Utils
 {
     public static class GameUtils
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrMissingReference(this object obj)
         {
             if (ReferenceEquals(obj, null)) return true;

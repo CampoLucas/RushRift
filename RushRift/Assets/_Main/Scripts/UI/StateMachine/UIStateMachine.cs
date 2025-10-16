@@ -57,7 +57,7 @@ namespace Game.UI.Screens
 
         public void Update(float delta)
         {
-            if (_effectTransition.TryGetValue(out var effectTransition))
+            if (_effectTransition.TryGet(out var effectTransition))
             {
 
                 if (effectTransition.DoTransition(_timer))

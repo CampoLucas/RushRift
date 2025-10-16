@@ -11,17 +11,17 @@ namespace Game.UI.Screens.Interfaces
         
         public bool Attach(DesignPatterns.Observers.IObserver<MenuState> observer)
         {
-            return _subject.TryGetValue(out var subject) && subject.Attach(observer);
+            return _subject.TryGet(out var subject) && subject.Attach(observer);
         }
 
         public bool Detach(DesignPatterns.Observers.IObserver<MenuState> observer)
         {
-            return _subject.TryGetValue(out var subject) && subject.Detach(observer);
+            return _subject.TryGet(out var subject) && subject.Detach(observer);
         }
 
         public void DetachAll()
         {
-            if (_subject.TryGetValue(out var subject))
+            if (_subject.TryGet(out var subject))
             {
                 subject.DetachAll();
             }
@@ -29,7 +29,7 @@ namespace Game.UI.Screens.Interfaces
 
         public void NotifyAll(MenuState arg)
         {
-            if (_subject.TryGetValue(out var subject))
+            if (_subject.TryGet(out var subject))
             {
                 subject.NotifyAll(arg);
             }
@@ -37,7 +37,7 @@ namespace Game.UI.Screens.Interfaces
         
         public virtual void Dispose()
         {
-            if (_subject.TryGetValue(out var subject))
+            if (_subject.TryGet(out var subject))
             {
                 subject.DetachAll();
                 subject.Dispose();

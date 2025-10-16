@@ -57,7 +57,7 @@ namespace Game.Entities
 
         private void OnHandler()
         {
-            if (!_laserComp.TryGetValue(out var laserComp))
+            if (!_laserComp.TryGet(out var laserComp))
             {
                 if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
                 else return;
@@ -68,7 +68,7 @@ namespace Game.Entities
 
         private void OffHandler()
         {
-            if (!_laserComp.TryGetValue(out var laserComp))
+            if (!_laserComp.TryGet(out var laserComp))
             {
                 if (GetModel().TryGetComponent(out laserComp)) _laserComp.Set(laserComp);
                 else return;

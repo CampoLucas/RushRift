@@ -25,7 +25,7 @@ namespace Game.UI.Screens
             Data.OnValueChanged.Detach(this);
             Data.Dispose();
 
-            if (OnValueChanged.TryGetValue(out var subject))
+            if (OnValueChanged.TryGet(out var subject))
             {
                 subject.DetachAll();
                 subject.Dispose();

@@ -43,7 +43,7 @@ namespace Game.UI.Screens
         {
             base.Begin();
 
-            if (Model.SelectedMode.TryGetValue(out var gameMode))
+            if (Model.SelectedMode.TryGet(out var gameMode))
             {
                 PopulateLevels(gameMode.Levels);
             }
@@ -90,7 +90,7 @@ namespace Game.UI.Screens
                 
                 if (!unlocked) continue;
 
-                if (Model.SelectedLevel.TryGetValue(out var selectedLevelSO) && selectedLevelSO.LevelID == levelSO.LevelID)
+                if (Model.SelectedLevel.TryGet(out var selectedLevelSO) && selectedLevelSO.LevelID == levelSO.LevelID)
                 {
                     _prevSelectedButton = button;
                     button.Select();
@@ -123,7 +123,7 @@ namespace Game.UI.Screens
         {
             LevelSelectorMediator.LevelSelected.NotifyAll(level);
             
-            if (_prevSelectedButton.TryGetValue(out var prev))
+            if (_prevSelectedButton.TryGet(out var prev))
             {
                 prev.Unselect();
             }

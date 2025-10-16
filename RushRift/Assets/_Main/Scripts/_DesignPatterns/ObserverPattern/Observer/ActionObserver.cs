@@ -25,7 +25,7 @@ namespace Game.DesignPatterns.Observers
         
         public void OnNotify()
         {
-            if (Action.TryGetValue(out var action)) action();
+            if (Action.TryGet(out var action)) action();
         }
     }
     
@@ -37,7 +37,7 @@ namespace Game.DesignPatterns.Observers
         
         public void OnNotify(T arg)
         {
-            if (Action.TryGetValue(out var action)) action(arg);
+            if (Action.TryGet(out var action)) action(arg);
         }
     }
     
@@ -49,7 +49,7 @@ namespace Game.DesignPatterns.Observers
         
         public void OnNotify(T1 arg1, T2 arg2)
         {
-            if (Action.TryGetValue(out var action)) action(arg1, arg2);
+            if (Action.TryGet(out var action)) action(arg1, arg2);
         }
     }
     
@@ -61,7 +61,7 @@ namespace Game.DesignPatterns.Observers
         
         public void OnNotify(T1 arg1, T2 arg2, T3 arg3)
         {
-            if (Action.TryGetValue(out var action)) action(arg1, arg2, arg3);
+            if (Action.TryGet(out var action)) action(arg1, arg2, arg3);
         }
     }
     
