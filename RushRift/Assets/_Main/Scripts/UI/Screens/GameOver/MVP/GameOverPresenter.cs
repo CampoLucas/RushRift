@@ -9,8 +9,8 @@ namespace Game.UI.Screens
             base.Begin();
             
             // Set Cursor
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = true;
+            CursorHandler.lockState = CursorLockMode.Confined;
+            CursorHandler.visible = true;
         }
         
         public override bool TryGetState(out UIState state)

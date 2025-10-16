@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Game;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static GhostPlaybackUtils;
@@ -53,9 +55,6 @@ namespace _Main.Scripts.Ghost
         [SerializeField] private bool initialGhostVisible = true;
         [SerializeField] private KeyCode toggleVisibilityKey = KeyCode.G;
 
-        [Header("Pause Integration")]
-        [SerializeField] private bool obeyPauseEvents = true;
-
         [Header("Controls")]
         [SerializeField] private KeyCode togglePlayKey = KeyCode.None;
 
@@ -84,40 +83,55 @@ namespace _Main.Scripts.Ghost
         private readonly List<Frame> framesCache = new();
         private ProximityFader _fader;
         private bool _suppressBuildWarnings;
+        private NullCheck<ActionObserver<bool>> _onPause;
 
         private void Awake()
         {
             _suppressBuildWarnings |= drawGizmos && gizmoMaxSegments >= 0;
             if (enableProximityFade && proximityFadeMaterial)
                 _fader = new ProximityFader(proximityFadeMaterial, playerTagForFade, fadeMinDistance, fadeMaxDistance, alphaWhenClose, alphaWhenFar);
+
+            if (!_onPause)
+            {
+                _onPause = new ActionObserver<bool>(OnPauseChanged);
+            }
         }
 
         private void OnEnable()
         {
-            if (obeyPauseEvents) PauseEventBus.PauseChanged += OnPauseChanged;
+            if (!_onPause)
+            {
+                _onPause = new ActionObserver<bool>(OnPauseChanged);
+            }
+                
+            PauseHandler.Attach(_onPause.Get());
 
             if (autoLoadOnEnable) LoadBestGhost();
             EnsureGhostVisual();
             SetGhostVisible(initialGhostVisible);
 
-            if (beginPlaybackOnEnable && HasValidRun() && !PauseEventBus.IsPaused) Play();
+            if (beginPlaybackOnEnable && HasValidRun() && !PauseHandler.IsPaused) Play();
         }
 
         private void OnDisable()
         {
-            if (obeyPauseEvents) PauseEventBus.PauseChanged -= OnPauseChanged;
+            if (_onPause)
+            {
+                PauseHandler.Detach(_onPause.Get());
+            }
+            
             Pause();
         }
 
         private void Update()
         {
             if (togglePlayKey != KeyCode.None && Input.GetKeyDown(togglePlayKey))
-            { if (isPlaying) Pause(); else if (!PauseEventBus.IsPaused) Play(); }
+            { if (isPlaying) Pause(); else if (!PauseHandler.IsPaused) Play(); }
 
             if (toggleVisibilityKey != KeyCode.None && Input.GetKeyDown(toggleVisibilityKey))
                 ToggleGhostVisible();
 
-            if (PauseEventBus.IsPaused || !isPlaying || !HasValidRun() || !ghostTransform) return;
+            if (PauseHandler.IsPaused || !isPlaying || !HasValidRun() || !ghostTransform) return;
 
             float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
             float dur = Duration(framesCache, loadedRun.durationSeconds);
@@ -138,7 +152,6 @@ namespace _Main.Scripts.Ghost
 
         private void OnPauseChanged(bool paused)
         {
-            if (!obeyPauseEvents) return;
             if (paused) { wasPlayingBeforePause = isPlaying; if (isPlaying) Pause(); }
             else if (wasPlayingBeforePause && HasValidRun()) Play();
         }

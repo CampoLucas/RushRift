@@ -75,9 +75,15 @@ public class GhostRecorder : MonoBehaviour
 
     // Read gizmo fields once so they count as "used" in builds
     private bool _suppressBuildWarnings;
+    private NullCheck<ActionObserver<bool>> _onPause;
 
     private void Awake()
     {
+        if (!_onPause)
+        {
+            _onPause = new ActionObserver<bool>(OnPauseChanged);
+        }
+        
         _suppressBuildWarnings |= drawGizmos && gizmoSegments >= 0;
 
         levelIndex = SceneManager.GetActiveScene().buildIndex;
@@ -105,13 +111,23 @@ public class GhostRecorder : MonoBehaviour
 
     private void OnEnable()
     {
-        if (obeyPauseEvents) PauseEventBus.PauseChanged += OnPauseChanged;
+        if (!_onPause)
+        {
+            _onPause = new ActionObserver<bool>(OnPauseChanged);
+        }
+                
+        PauseHandler.Attach(_onPause.Get());
+
         if (startRecordingOnEnable && !isRecording) StartRecording();
     }
 
     private void OnDisable()
     {
-        if (obeyPauseEvents) PauseEventBus.PauseChanged -= OnPauseChanged;
+        if (_onPause)
+        {
+            PauseHandler.Detach(_onPause.Get());
+        }
+
         StopRecording();
     }
 
@@ -175,7 +191,7 @@ public class GhostRecorder : MonoBehaviour
     private void TickRecord(float dt)
     {
         if (!isRecording || !targetToRecord) return;
-        if (obeyPauseEvents && (pauseGate || PauseEventBus.IsPaused)) return;
+        if (obeyPauseEvents && (pauseGate || PauseHandler.IsPaused)) return;
 
         currentRun.durationSeconds += dt;
         float t = currentRun.durationSeconds;

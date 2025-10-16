@@ -1,3 +1,6 @@
+using System;
+using Game;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -38,11 +41,18 @@ namespace _Main.Scripts.Feedbacks
         [SerializeField, Tooltip("Enable debug logs.")]
         private bool isDebugLoggingEnabled = false;
 
+        private NullCheck<ActionObserver<bool>> _onPause;
+
         private void Awake()
         {
             if (!Application.isPlaying) return;
             MusicLowPassService.Configure(targetAudioMixer, exposedParameterName, unpausedCutoffHz, useUnscaledTime, resetOnSceneLoaded);
             MusicLowPassService.SetDebugLogging(isDebugLoggingEnabled);
+
+            _onPause = new ActionObserver<bool>(SetPaused);
+
+
+            PauseHandler.Attach(_onPause.Get());
         }
 
         private void Start()
@@ -99,6 +109,17 @@ namespace _Main.Scripts.Feedbacks
         {
             if (!Application.isPlaying) return;
             MusicLowPassService.SetPaused(isPaused, pausedCutoffHz, pauseRampSeconds, resumeRampSeconds);
+        }
+
+        private void OnDestroy()
+        {
+            if (_onPause.TryGetValue(out var observer))
+            {
+                PauseHandler.Detach(observer);
+                observer.Dispose();
+            }
+
+            _onPause = null;
         }
     }
 }

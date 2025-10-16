@@ -8,20 +8,19 @@ namespace Game.UI.Screens
 {
     public sealed class GameplayPresenter : UIPresenter<GameplayModel, GameplayView>
     {
-        [FormerlySerializedAs("healthBarPresenter")]
         [Header("Attributes")]
-        [SerializeField] private BarBaseUIPresenter healthBarBaseUIPresenter;
+        [FormerlySerializedAs("healthBarPresenter")] [SerializeField] private BarBaseUIPresenter healthBarBaseUIPresenter;
         [FormerlySerializedAs("energyBarPresenter")] [SerializeField] private BarBaseUIPresenter energyBarBaseUIPresenter;
 
         public override void Begin()
         {
             base.Begin();
             // Un Pause the game
-            UIManager.OnUnpaused.NotifyAll();
+            PauseHandler.Pause(false);
             
             // Set cursor
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            CursorHandler.lockState = CursorLockMode.Locked;
+            CursorHandler.visible = false;
             
             // other presenters
             healthBarBaseUIPresenter.Begin();
@@ -33,7 +32,7 @@ namespace Game.UI.Screens
         {
             base.End();
             // Pause the game
-            UIManager.OnPaused.NotifyAll();
+            PauseHandler.Pause(true);
             
             // other presenters
             healthBarBaseUIPresenter.End();

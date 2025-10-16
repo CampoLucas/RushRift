@@ -24,7 +24,7 @@ namespace Game.VFX
         
         private Func<float> _moveAmount;
         private bool _started;
-        private IObserver _onPaused;
+        private NullCheck<ActionObserver<bool>> _onPaused;
         private IObserver _onUnpause;
         private Rigidbody _rigidbody;
         private bool _dashing;
@@ -51,42 +51,17 @@ namespace Game.VFX
         
         private void OnEnable()
         {
-            if (_onPaused == null)
+            if (!_onPaused)
             {
-                _onPaused = new ActionObserver(OnPause);
+                _onPaused = new ActionObserver<bool>(OnPause);
             }
 
-            if (_onUnpause == null)
-            {
-                _onUnpause = new ActionObserver(OnUnpause);
-            }
-
-            var onPaused = UIManager.OnPaused;
-            var onUnpause = UIManager.OnUnpaused;
-            if (onPaused != null)
-            {
-                onPaused.Attach(_onPaused);
-            }
-
-            if (onUnpause != null)
-            {
-                onUnpause.Attach(_onUnpause);
-            }
+            PauseHandler.Attach(_onPaused.Get());
         }
 
         private void OnDisable()
         {
-            var onPaused = UIManager.OnPaused;
-            var onUnpause = UIManager.OnUnpaused;
-            if (onPaused != null)
-            {
-                onPaused.Detach(_onPaused);
-            }
-
-            if (onUnpause != null)
-            {
-                onUnpause.Detach(_onUnpause);
-            }
+            PauseHandler.Detach(_onPaused.Get());
         }
 
         private void Update()
@@ -127,14 +102,9 @@ namespace Game.VFX
             }
         }
 
-        private void OnPause()
+        private void OnPause(bool pause)
         {
-            effect.pause = true;
-        }
-
-        private void OnUnpause()
-        {
-            effect.pause = false;
+            effect.pause = pause;
         }
 
         private void OnDestroy()
@@ -143,7 +113,7 @@ namespace Game.VFX
             effect = null;
             targetEntity = null;
             _moveAmount = null;
-            _onPaused?.Dispose();
+            _onPaused.Dispose();
             _onPaused = null;
             _onUnpause?.Dispose();
             _onUnpause = null;

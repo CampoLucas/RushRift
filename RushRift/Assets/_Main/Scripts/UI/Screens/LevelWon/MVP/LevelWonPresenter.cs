@@ -35,12 +35,11 @@ namespace Game.UI.Screens
         {
             base.Begin();
             
-            EventSystem.current.SetSelectedGameObject(null);
-            
             // Set Cursor
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = true;
+            CursorHandler.lockState = CursorLockMode.None;
+            CursorHandler.visible = true;
             //OnWinLevel();
+            EventSystem.current.SetSelectedGameObject(null);
             
             SetModelValues(Model);
             UpdateSaveData(Model);
@@ -124,15 +123,6 @@ namespace Game.UI.Screens
             if (model.NewRecord)
             {
                 data.SetNewBestTime(CurrentLevel, model.BestTime);
-            }
-        }
-
-        private void OnApplicationFocus(bool focus)
-        {
-            if (focus)
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
             }
         }
 

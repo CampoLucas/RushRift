@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Game;
 using UnityEngine;
 using Game.DesignPatterns.Observers;
 using Game.UI;
@@ -9,16 +11,12 @@ public class DisableBehaviour : MonoBehaviour
 {
     [SerializeField] private Behaviour[] behavioursToDisable;
 
-    private IObserver _onDisableCall;
-    private IObserver _onEnableCall;
+    private NullCheck<ActionObserver<bool>> _onPause;
 
     private void Start()
     {
-        _onDisableCall = new ActionObserver(OnDisableHandler);
-        _onEnableCall = new ActionObserver(OnEnableHandler);
-
-        UIManager.OnPaused.Attach(_onDisableCall);
-        UIManager.OnUnpaused.Attach(_onEnableCall);
+        //_onPause = new ActionObserver<bool>(OnPauseHandler);
+        
     }
 
     public bool TrySetBehaviour(Behaviour[] behaviours)
@@ -40,7 +38,19 @@ public class DisableBehaviour : MonoBehaviour
         return behavioursAdded > 0;
     }
 
-    private void OnDisableHandler()
+    private void OnPauseHandler(bool pause)
+    {
+        if (pause)
+        {
+            Pause();
+        }
+        else
+        {
+            Unpause();
+        }
+    }
+
+    private void Pause()
     {
         for (int i = 0; i < behavioursToDisable.Length; i++)
         {
@@ -67,7 +77,7 @@ public class DisableBehaviour : MonoBehaviour
         }
     }
 
-    private void OnEnableHandler()
+    private void Unpause()
     {
         for (int i = 0; i < behavioursToDisable.Length; i++)
         {
@@ -96,14 +106,22 @@ public class DisableBehaviour : MonoBehaviour
 
     private void OnEnable()
     {
-        _onDisableCall = new ActionObserver(OnDisableHandler);
-        _onEnableCall = new ActionObserver(OnEnableHandler);
+        if (!_onPause)
+        {
+            _onPause = new ActionObserver<bool>(OnPauseHandler);
+        }
+        
+        PauseHandler.Attach(_onPause.Get());
     }
 
     private void OnDisable()
     {
-        _onDisableCall.Dispose();
-        _onEnableCall.Dispose();
+        PauseHandler.Detach(_onPause.Get());
     }
 
+    private void OnDestroy()
+    {
+        _onPause.Get()?.Dispose();
+        _onPause = null;
+    }
 }

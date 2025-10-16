@@ -1,4 +1,5 @@
 using System.Collections;
+using Game;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,10 +12,6 @@ namespace _Main.Scripts.Feedbacks
         private static FreezeFrame _instance;
 
         [Header("Settings")]
-
-        [SerializeField, Tooltip("If enabled, ignores freeze requests when the game is paused via PauseEventBus.")]
-        private bool respectGlobalPause = true;
-
         [SerializeField, Tooltip("Default duration of the freeze in seconds, measured in unscaled time.")]
         private float defaultFreezeDurationSeconds = 0.02f;
 
@@ -104,7 +101,7 @@ namespace _Main.Scripts.Feedbacks
 
         private bool InternalTrigger(float durationSeconds, float restoreSeconds)
         {
-            if (respectGlobalPause && typeof(PauseEventBus) != null && PauseEventBus.IsPaused)
+            if (PauseHandler.IsPaused)
             {
                 Log("Ignored: paused");
                 return false;

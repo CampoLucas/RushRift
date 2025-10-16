@@ -8,32 +8,31 @@ namespace Game.UI
     {
         protected bool Paused { get => _paused; private set => _paused = value; }
         
-        private ActionObserver _onPause;
-        private ActionObserver _onUnpause;
+        private ActionObserver<bool> _onPause;
         private bool _paused;
 
         protected virtual void Awake()
         {
-            _onPause = new ActionObserver(OnPauseHandler);
-            _onUnpause = new ActionObserver(OnUnpauseHandler);
+            _onPause = new ActionObserver<bool>(OnPauseHandler);
         }
 
         protected virtual void Start()
         {
-            UIManager.OnPaused.Attach(_onPause);
-            UIManager.OnUnpaused.Attach(_onUnpause);
+            PauseHandler.Attach(_onPause);
         }
 
-        private void OnPauseHandler()
+        private void OnPauseHandler(bool paused)
         {
-            _paused = true;
-            OnPause();
-        }
-        
-        private void OnUnpauseHandler()
-        {
-            _paused = false;
-            OnUnpause();
+            _paused = paused;
+
+            if (paused)
+            {
+                OnPause();
+            }
+            else
+            {
+                OnUnpause();
+            }
         }
         
         protected abstract void OnPause();
@@ -41,11 +40,8 @@ namespace Game.UI
 
         protected virtual void OnDestroy()
         {
-            UIManager.OnPaused.Detach(_onPause);
-            UIManager.OnUnpaused.Detach(_onUnpause);
-            
-            _onPause.Dispose();
-            _onUnpause.Dispose();
+            PauseHandler.Detach(_onPause);
+            _onPause?.Dispose();
         }
     }
 }

@@ -18,8 +18,7 @@ namespace Game.Entities.Components.MotionController
         private DesignPatterns.Observers.IObserver<float> _updateObserver;
         private DesignPatterns.Observers.IObserver<float> _lateUpdateObserver;
         private DesignPatterns.Observers.IObserver<float> _fixedUpdateObserver;
-        private IObserver _onPaused;
-        private IObserver _onUnPaused;
+        private ActionObserver<bool> _onPaused;
         
         // RigidBody values
         private Vector3 _pauseVelocity;
@@ -35,11 +34,9 @@ namespace Game.Entities.Components.MotionController
             BuildHandlers(handlerConfigs, false);
             RebuildHandlers();
             
-            _onPaused = new ActionObserver(PauseHandler);
-            _onUnPaused = new ActionObserver(UnPauseHandler);
-            
-            UIManager.OnPaused.Attach(_onPaused);
-            UIManager.OnUnpaused.Attach(_onUnPaused);
+            _onPaused = new ActionObserver<bool>(OnPauseHandler);
+
+            PauseHandler.Attach(_onPaused);
         }
 
         public bool TryAddHandler<THandler>(THandler newHandler, bool rebuildHandlers = true) where THandler : BaseMotionHandler
@@ -126,23 +123,26 @@ namespace Game.Entities.Components.MotionController
             }
         }
 
-        private void PauseHandler()
+        private void OnPauseHandler(bool paused)
         {
-            _pauseVelocity = _rb.velocity;
-            _pauseConstrains = _rb.constraints;
+            if (paused)
+            {
+                _pauseVelocity = _rb.velocity;
+                _pauseConstrains = _rb.constraints;
             
-            _rb.velocity = Vector3.zero;
-            _rb.constraints = RigidbodyConstraints.FreezeAll;
+                _rb.velocity = Vector3.zero;
+                _rb.constraints = RigidbodyConstraints.FreezeAll;
             
-            _rb.isKinematic = true;
-        }
-
-        private void UnPauseHandler()
-        {
-            _rb.isKinematic = false;
+                _rb.isKinematic = true;
+            }
+            else
+            {
+                _rb.isKinematic = false;
             
-            _rb.constraints = _pauseConstrains;
-            _rb.velocity = _pauseVelocity;
+                _rb.constraints = _pauseConstrains;
+                _rb.velocity = _pauseVelocity;
+            }
+            
         }
 
         private void BuildHandlers(MotionConfig[] configs, in bool rebuildHandlers)
@@ -206,14 +206,10 @@ namespace Game.Entities.Components.MotionController
         
         public void Dispose()
         {
-            UIManager.OnPaused.Detach(_onPaused);
-            UIManager.OnUnpaused.Detach(_onUnPaused);
+            PauseHandler.Detach(_onPaused);
             
             _onPaused?.Dispose();
-            _onUnPaused?.Dispose();
-
             _onPaused = null;
-            _onUnPaused = null;
             
             foreach (var t in _handlers)
             {

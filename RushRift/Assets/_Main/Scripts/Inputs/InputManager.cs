@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game.UI;
 using Game.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -65,71 +66,14 @@ namespace Game.Inputs
         {
             if (_playerControls == null) return;
             _playerControls.Disable();
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            CursorHandler.lockState = CursorLockMode.None;
+            CursorHandler.visible = true;
         }
 
         private void OnEnable()
         {
             if (_playerControls == null) _playerControls = new();
             _playerControls.Enable();
-
-            if (!Application.isFocused)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-                return;
-            }
-
-            if (PauseEventBus.IsPaused)
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
-            }
-            else
-            {
-                ApplyCursorState();
-            }
-        }
-
-        private void OnApplicationFocus(bool hasFocus)
-        {
-            if (!hasFocus)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-                return;
-            }
-
-            if (PauseEventBus.IsPaused)
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
-            }
-            else
-            {
-                ApplyCursorState();
-            }
-        }
-
-        private void OnApplicationPause(bool paused)
-        {
-            if (paused)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-                return;
-            }
-
-            if (PauseEventBus.IsPaused)
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
-            }
-            else
-            {
-                ApplyCursorState();
-            }
         }
 
         public static bool OnButton(HashedKey key)
@@ -207,20 +151,6 @@ namespace Game.Inputs
             
             AddButtonInput(PauseInput, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
             AddButtonInput(JumpInput, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
-        }
-
-        private void ApplyCursorState()
-        {
-            if (_lockMouse)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
         }
 
         #region Add Inputs Methods
