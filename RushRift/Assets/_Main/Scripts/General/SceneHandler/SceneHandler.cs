@@ -8,7 +8,7 @@ namespace Game.Utils
     public static class SceneHandler
     {
         public static readonly string MainMenuName = "Main Menu";
-        public static readonly string HubName = "Hub";
+        public static readonly string HubName = "HUB";
         public static readonly string FirstLevel = "Level01";
         public static readonly int MainMenuIndex = SceneUtility.GetBuildIndexByScenePath(MainMenuName);
         public static readonly int HubIndex = SceneUtility.GetBuildIndexByScenePath(HubName);
@@ -99,12 +99,12 @@ namespace Game.Utils
 
         public static void LoadMainMenu()
         {
-            LoadSceneAsync(MainMenuIndex);
+            LoadSceneAsync(MainMenuName);
         }
 
         public static void LoadHub()
         {
-            LoadSceneAsync(HubIndex);
+            LoadSceneAsync(HubName);
         }
         
         public static void LoadFirstLevel()
@@ -153,8 +153,7 @@ namespace Game.Utils
 
         private static bool IsSaveable(string sceneName)
         {
-            var buildIndex = SceneUtility.GetBuildIndexByScenePath(sceneName);
-            return buildIndex != MainMenuIndex;
+            return sceneName != MainMenuName;
         }
 
         private static void NotifySceneChange(Scene from, string toName, int toIndex, bool isAsync)

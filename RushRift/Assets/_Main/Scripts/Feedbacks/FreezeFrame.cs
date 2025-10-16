@@ -11,8 +11,6 @@ namespace _Main.Scripts.Feedbacks
         private static FreezeFrame _instance;
 
         [Header("Settings")]
-        [SerializeField, Tooltip("If enabled, the freeze frame system persists across scene loads.")]
-        private bool persistAcrossScenes = true;
 
         [SerializeField, Tooltip("If enabled, ignores freeze requests when the game is paused via PauseEventBus.")]
         private bool respectGlobalPause = true;
@@ -70,12 +68,7 @@ namespace _Main.Scripts.Feedbacks
             _originalTimeScale = Time.timeScale;
             _originalFixedDeltaTime = Time.fixedDeltaTime;
 
-            if (persistAcrossScenes)
-            {
-                if (transform.parent != null)
-                    transform.SetParent(null, worldPositionStays: true); // ensure root so DontDestroyOnLoad is honored
-                DontDestroyOnLoad(gameObject);
-            }
+            
             SceneManager.sceneLoaded += HandleSceneLoaded;
         }
 

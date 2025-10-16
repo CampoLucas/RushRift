@@ -1,5 +1,6 @@
 using System;
 using Game.DesignPatterns.Observers;
+using Game.Entities;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -7,9 +8,10 @@ namespace Game.UI.Screens
 {
     public sealed class GameplayPresenter : UIPresenter<GameplayModel, GameplayView>
     {
+        [FormerlySerializedAs("healthBarPresenter")]
         [Header("Attributes")]
-        [SerializeField] private BarPresenter healthBarPresenter;
-        [SerializeField] private BarPresenter energyBarPresenter;
+        [SerializeField] private BarBaseUIPresenter healthBarBaseUIPresenter;
+        [FormerlySerializedAs("energyBarPresenter")] [SerializeField] private BarBaseUIPresenter energyBarBaseUIPresenter;
 
         public override void Begin()
         {
@@ -22,8 +24,8 @@ namespace Game.UI.Screens
             Cursor.visible = false;
             
             // other presenters
-            healthBarPresenter.Begin();
-            energyBarPresenter.Begin();
+            healthBarBaseUIPresenter.Begin();
+            energyBarBaseUIPresenter.Begin();
             
         }
 
@@ -34,17 +36,23 @@ namespace Game.UI.Screens
             UIManager.OnPaused.NotifyAll();
             
             // other presenters
-            healthBarPresenter.End();
-            energyBarPresenter.End();
+            healthBarBaseUIPresenter.End();
+            energyBarBaseUIPresenter.End();
         }
 
         public override void Dispose()
         {
-            healthBarPresenter.Dispose();
-            healthBarPresenter = null;
-            
-            energyBarPresenter.Dispose();
-            energyBarPresenter = null;
+            if (healthBarBaseUIPresenter)
+            {
+                healthBarBaseUIPresenter.Dispose();
+                healthBarBaseUIPresenter = null;
+            }
+
+            if (energyBarBaseUIPresenter)
+            {
+                energyBarBaseUIPresenter.Dispose();
+                energyBarBaseUIPresenter = null;
+            }
             
             base.Dispose();
         }
@@ -52,8 +60,22 @@ namespace Game.UI.Screens
         protected override void OnInit()
         {
             base.OnInit();
-            healthBarPresenter.Init(Model.HealthBar);
-            energyBarPresenter.Init(Model.EnergyBar);
+            healthBarBaseUIPresenter.Init(Model.HealthBar);
+            energyBarBaseUIPresenter.Init(Model.EnergyBar);
+        }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            var playerController = FindObjectOfType<PlayerController>();
+
+            if (!playerController)
+            {
+                state = null;
+                return false;
+            }
+            
+            state = new GameplayState(playerController.GetModel(), this);
+            return true;
         }
     }
 }

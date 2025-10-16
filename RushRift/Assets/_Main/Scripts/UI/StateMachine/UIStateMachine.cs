@@ -11,6 +11,7 @@ namespace Game.UI.Screens
         private UIState _current;
         private UIScreen _currentScreen;
         private Dictionary<UIScreen, UIState> _states = new();
+        private List<UIScreen> _statesList = new();
         private NullCheck<UIEffectTransition> _effectTransition; // ToDo: Any transition
 
         private HashSet<UITransition> _fromAny = new();
@@ -22,10 +23,12 @@ namespace Game.UI.Screens
         {
             if (state != null && _states.TryAdd(screen, state))
             {
+                _statesList.Add(screen);
                 state.Disable();
                 return true;
             }
 
+            state?.Dispose();
             return false;
         }
 
@@ -69,7 +72,22 @@ namespace Game.UI.Screens
 
         public void Dispose()
         {
+            for (var i = 0; i < _statesList.Count; i++)
+            {
+                var key = _statesList[i];
+                if (_states.TryGetValue(key, out var state))
+                {
+                    state.Dispose();
+                }
+            }
             
+            _statesList.Clear();
+            _states.Clear();
+
+            foreach (var any in _fromAny)
+            {
+                any.Dispose();
+            }
         }
         
         public static bool TryGetTransition(HashSet<UITransition> transitions, out UITransition transition)

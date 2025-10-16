@@ -1,15 +1,17 @@
 using System;
 using Game.DesignPatterns.Observers;
+using Game.UI.Screens.Interfaces;
 using UnityEngine;
 
 namespace Game.UI.Screens
 {
-    public class UIPresenter<TModel, TView> : MonoBehaviour, IDisposable
+    public abstract class UIPresenter<TModel, TView> : BaseUIPresenter, IDisposable
         where TModel : UIModel 
         where TView : UIView
     {
         [SerializeField] protected TView View;
         protected TModel Model;
+        
 
         public void Init(TModel model)
         {
@@ -36,9 +38,16 @@ namespace Game.UI.Screens
         {
             View.FadeOut(t, startTime, duration, ref onStart, ref onEnd);
         }
-
-        public virtual void Dispose()
+        
+        public TModel GetModel()
         {
+            return Model;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            
             Model?.Dispose();
             Model = null;
             View = null;

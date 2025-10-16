@@ -12,5 +12,11 @@ namespace Game.UI.Screens
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
         }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            state = new GameOverState(this);
+            return true;
+        }
     }
 }

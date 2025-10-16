@@ -2,7 +2,7 @@ using System;
 
 namespace Game
 {
-    public struct NullCheck<T> : IDisposable
+    public struct NullCheck<T> : IDisposable where T : class
     {
         private bool _hasValue;
         private T _value;

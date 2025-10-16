@@ -1,5 +1,6 @@
 using System;
 using Game.General;
+using Game.Levels;
 using Game.Saves;
 using Game.Utils;
 using TMPro;
@@ -53,8 +54,6 @@ namespace Game.UI.Screens
             base.End();
             EventSystem.current.SetSelectedGameObject(null);
         }
-        
-        public LevelWonModel GetModel() => Model;
 
         private void HubHandler()
         {
@@ -128,6 +127,15 @@ namespace Game.UI.Screens
             }
         }
 
+        private void OnApplicationFocus(bool focus)
+        {
+            if (focus)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
+        }
+
         public override void Dispose()
         {
             continueButton.onClick.RemoveAllListeners();
@@ -136,6 +144,12 @@ namespace Game.UI.Screens
             onBegin.RemoveAllListeners();
             
             base.Dispose();
+        }
+        
+        public override bool TryGetState(out UIState state)
+        {
+            state = new LevelWonState(this);
+            return true;
         }
     }
 }

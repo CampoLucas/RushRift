@@ -1,8 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Game;
+using Game.DesignPatterns.Observers;
+using Game.Levels;
+using Game.UI.Screens;
 using Game.Utils;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -11,27 +13,36 @@ using UnityEngine.Rendering;
 /// </summary>
 public class PortalPrototype : MonoBehaviour
 {
-    [SerializeField] private int buildIndex;
+    [SerializeField] private VolumeProfile hubVolume;
+    [SerializeField] private VolumeProfile gameVolume;
 
-    [SerializeField] private VolumeProfile HubVolume;
-    [SerializeField] private VolumeProfile GameVolume;
-
-    private NullCheck<Volume> globalVolume;
+    [SerializeField] private BaseLevelSO defaultLevelToLoad;
+    private NullCheck<BaseLevelSO> _levelToLoad;
+    private NullCheck<Volume> _globalVolume;
+    private ActionObserver<BaseLevelSO> _levelSelected;
 
     private bool _enabled;
 
     private void Awake()
     {
         _enabled = true;
-        globalVolume = FindObjectOfType<Volume>();
+        _globalVolume = FindObjectOfType<Volume>();
+        _levelSelected = new ActionObserver<BaseLevelSO>(SetTargetLevel);
+        LevelSelectorMediator.LevelSelected.Attach(_levelSelected);
     }
 
     private void Start()
     {
-        if (globalVolume)
+        LevelSelectorMediator.LevelSelected.NotifyAll(defaultLevelToLoad);
+        if (_globalVolume)
         {
-            globalVolume.Get().profile = HubVolume;
+            _globalVolume.Get().profile = hubVolume;
         }
+    }
+
+    public void SetTargetLevel(BaseLevelSO level)
+    {
+        _levelToLoad = level;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -43,12 +54,31 @@ public class PortalPrototype : MonoBehaviour
         {
             _enabled = false;
             
-            if (globalVolume)
+            if (_globalVolume)
             {
-                globalVolume.Get().profile = GameVolume;
+                _globalVolume.Get().profile = gameVolume;
             }
-            
-            SceneHandler.LoadFirstLevel();
+
+            var targetLevel = _levelToLoad ? _levelToLoad.Get() : defaultLevelToLoad;
+
+            if (targetLevel)
+            {
+                targetLevel.LoadLevel();
+            }
+            else
+            {
+                this.Log("The portal script has no level to go to, automatically going to the first level.", LogType.Warning);
+                SceneHandler.LoadFirstLevel();
+            }
+            //SceneHandler.LoadFirstLevel();
         }
+    }
+
+    private void OnDestroy()
+    {
+        LevelSelectorMediator.LevelSelected.Detach(_levelSelected);
+        defaultLevelToLoad = null;
+        hubVolume = null;
+        gameVolume = null;
     }
 }

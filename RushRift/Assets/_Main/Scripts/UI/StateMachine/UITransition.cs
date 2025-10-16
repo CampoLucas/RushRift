@@ -87,6 +87,9 @@ namespace Game.UI.Screens
                 case SceneTransition.First:
                     SceneHandler.LoadScene(0);
                     break;
+                case SceneTransition.HUB:
+                    SceneHandler.LoadHub();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -95,6 +98,6 @@ namespace Game.UI.Screens
 
     public enum SceneTransition
     {
-        Current, Next, Previous, Name, First
+        Current, Next, Previous, Name, First, HUB
     }
 }

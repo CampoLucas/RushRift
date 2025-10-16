@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3643393572865844820}
   - component: {fileID: 4055652474077526744}
-  - component: {fileID: 2712907203918157798}
+  - component: {fileID: 3491533296338002269}
   m_Layer: 0
   m_Name: Medal Icon
   m_TagString: Untagged
@@ -46,7 +46,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1541197543044856028}
   m_CullTransparentMesh: 1
---- !u!114 &2712907203918157798
+--- !u!114 &3491533296338002269
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -55,10 +55,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1541197543044856028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: faeb2fad3b052834883ea43297e1a1d4, type: 2}
+  m_Material: {fileID: 2100000, guid: 4e73758554747734d9bf72d0ec85c2dd, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -66,16 +66,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5834672, guid: 94cdf75b95da6714c88d265227991e4e, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_Texture: {fileID: 2800000, guid: f586b733fa421c3479695eb579ce8efb, type: 3}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &1595554381535270014
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,10 +123,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 071dcdeb7ceb94a4082d66b080cc1c5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 2712907203918157798}
+  icon: {fileID: 3491533296338002269}
   text: {fileID: 472660974340385614}
   lockIcon: {fileID: 1929859050099939540}
-  lockedIntensity: 0.05
+  lockedMaterial: {fileID: 2100000, guid: 53fd830666e748a43b746d1e813293f5, type: 2}
 --- !u!1 &5838290794990760600
 GameObject:
   m_ObjectHideFlags: 0
