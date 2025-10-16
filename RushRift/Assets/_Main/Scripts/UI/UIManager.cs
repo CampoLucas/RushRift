@@ -46,6 +46,7 @@ namespace Game.UI
                 return;
             }
 
+
             _instance = this;
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver(OnGameOverHandler);
