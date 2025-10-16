@@ -49,7 +49,7 @@ namespace Game.Entities
             AddObserver(DESTROY, new ActionObserver(DestroyEntity));
             
             // Create the model proxy and initialize it
-            if (model.GetProxy().TryGetValue(out _model))
+            if (model.GetProxy().TryGet(out _model))
             {
                 _model.Init(this);
             }

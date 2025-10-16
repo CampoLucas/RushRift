@@ -113,7 +113,7 @@ namespace _Main.Scripts.Feedbacks
 
         private void OnDestroy()
         {
-            if (_onPause.TryGetValue(out var observer))
+            if (_onPause.TryGet(out var observer))
             {
                 PauseHandler.Detach(observer);
                 observer.Dispose();

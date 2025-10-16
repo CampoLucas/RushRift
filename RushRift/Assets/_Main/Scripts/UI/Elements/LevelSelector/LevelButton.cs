@@ -83,15 +83,15 @@ namespace Game.UI.Screens.Elements
             button.enabled = false;
             titleText.text = lockedTitle;
             
-            if (backgroundMat.TryGetValue(out var back))
+            if (backgroundMat.TryGet(out var back))
             {
                 background.material = back;
             }
 
-            if (!_medalContainer.TryGetValue(out var container)) return;
+            if (!_medalContainer.TryGet(out var container)) return;
             container.SetActive(showMedals);
             
-            if (!showMedals || !medalMat.TryGetValue(out var medal)) return;
+            if (!showMedals || !medalMat.TryGet(out var medal)) return;
             bronzeMedal.material = medal;
             silverMedal.material = medal;
             goldMedal.material = medal;
@@ -104,13 +104,13 @@ namespace Game.UI.Screens.Elements
             button.enabled = true;
             titleText.text = displayName;
             
-            if (backgroundMat.TryGetValue(out var back))
+            if (backgroundMat.TryGet(out var back))
             {
                 background.material = back;
             }
 
             medalsContainer.SetActive(showMedals);
-            if (!showMedals || !unlockedMedal.TryGetValue(out var unlocked) || !lockedMedal.TryGetValue(out var locked)) return;
+            if (!showMedals || !unlockedMedal.TryGet(out var unlocked) || !lockedMedal.TryGet(out var locked)) return;
 
             bronzeMedal.material = medalsUnlocked > 0 ? unlocked : locked;
             silverMedal.material = medalsUnlocked > 1 ? unlocked : locked;

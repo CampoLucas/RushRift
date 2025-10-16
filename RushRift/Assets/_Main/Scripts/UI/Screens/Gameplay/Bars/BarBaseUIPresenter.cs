@@ -9,7 +9,7 @@ namespace Game.UI.Screens
         public override void Begin()
         {
             base.Begin();
-            if (Model.OnValueChanged.TryGetValue(out var subject))
+            if (Model.OnValueChanged.TryGet(out var subject))
             {
                 subject.Attach(View);
             }
@@ -23,7 +23,7 @@ namespace Game.UI.Screens
         public override void End()
         {
             base.End();
-            if (Model.OnValueChanged.TryGetValue(out var subject))
+            if (Model.OnValueChanged.TryGet(out var subject))
             {
                 subject.Detach(View);
             }

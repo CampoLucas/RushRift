@@ -30,7 +30,7 @@ namespace Game.Entities
                 }
             }
 
-            if (_movement.TryGetValue(out var m))
+            if (_movement.TryGet(out var m))
             {
                 m.SetProfile(_moveType);
                 m.EnableGravity(false);
@@ -41,7 +41,7 @@ namespace Game.Entities
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
         {
-            if (!_movement.TryGetValue(out var movement)) return;
+            if (!_movement.TryGet(out var movement)) return;
 
             movement.AddMoveDir(args.Controller.MoveDirection());
             

@@ -57,17 +57,17 @@ namespace Game.UI.Screens.Elements
 
         public bool Attach(DesignPatterns.Observers.IObserver<ButtonSelectState> observer)
         {
-            return _transitionSubject.TryGetValue(out var subject) && subject.Attach(observer);
+            return _transitionSubject.TryGet(out var subject) && subject.Attach(observer);
         }
 
         public bool Detach(DesignPatterns.Observers.IObserver<ButtonSelectState> observer)
         {
-            return _transitionSubject.TryGetValue(out var subject) && subject.Detach(observer);
+            return _transitionSubject.TryGet(out var subject) && subject.Detach(observer);
         }
 
         public void DetachAll()
         {
-            if (_transitionSubject.TryGetValue(out var subject))
+            if (_transitionSubject.TryGet(out var subject))
             {
                 subject.DetachAll();
             }
@@ -93,7 +93,7 @@ namespace Game.UI.Screens.Elements
             if (_disposed) return;
             _disposed = true;
 
-            if (_transitionSubject.TryGetValue(out var subject))
+            if (_transitionSubject.TryGet(out var subject))
             {
                 subject.DetachAll();
                 subject.Dispose();
@@ -117,7 +117,7 @@ namespace Game.UI.Screens.Elements
         
         private void NotifyTransition(ButtonSelectState state)
         {
-            if (_transitionSubject.TryGetValue(out var subject))
+            if (_transitionSubject.TryGet(out var subject))
             {
                 subject.NotifyAll(state);
             }

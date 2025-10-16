@@ -46,17 +46,17 @@ namespace Game.UI.Screens
         public bool DoTransition(float delta)
         {
             _timer += delta;
-            if (_from.TryGetValue(out var fromState))
+            if (_from.TryGet(out var fromState))
             {
                 fromState.FadeOut(_timer, _fadeOutStartTime, _fadeOutTime);
             }
 
-            if (_effect.TryGetValue(out var trEffect))
+            if (_effect.TryGet(out var trEffect))
             {
                 
             }
 
-            if (_to.TryGetValue(out var toState))
+            if (_to.TryGet(out var toState))
             {
                 toState.FadeIn(_timer, _fadeInStartTime, _fadeInTime);
             }

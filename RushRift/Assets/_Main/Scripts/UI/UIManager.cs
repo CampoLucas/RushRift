@@ -46,6 +46,7 @@ namespace Game.UI
                 return;
             }
 
+
             _instance = this;
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver(OnGameOverHandler);
@@ -103,7 +104,7 @@ namespace Game.UI
         private void OnApplicationFocus(bool hasFocus)
         {
             if (!hasFocus) return;
-            if (!_stateMachine.TryGetValue(out var stateMachine)) return;
+            if (!_stateMachine.TryGet(out var stateMachine)) return;
             var isGameplay = stateMachine.Current == UIScreen.Gameplay;
             
             CursorHandler.lockState = isGameplay ? CursorLockMode.Locked : CursorLockMode.None;
@@ -127,7 +128,7 @@ namespace Game.UI
 
             _stateMachine = new UIStateMachine();
             
-            if (!_stateMachine.TryGetValue(out var stateMachine)) return;
+            if (!_stateMachine.TryGet(out var stateMachine)) return;
 
             var gameplay = new GameplayState(model, gameplayPresenter);
             var gameOver = new GameOverState(gameOverPresenter);
@@ -153,13 +154,13 @@ namespace Game.UI
         
         private void OnGameOverHandler()
         {
-            if (!_stateMachine.TryGetValue(out var stateMachine)) return;
+            if (!_stateMachine.TryGet(out var stateMachine)) return;
             stateMachine.TransitionTo(UIScreen.GameOver, 1, 2, .75f);
         }
         
         private void OnLevelWonHandler()
         {
-            if (!_stateMachine.TryGetValue(out var stateMachine)) return;
+            if (!_stateMachine.TryGet(out var stateMachine)) return;
             stateMachine.TransitionTo(UIScreen.LevelWon, 1, 2, .75f);
         }
 
@@ -210,7 +211,7 @@ namespace Game.UI
         {
             Time.timeScale = 1f;
             
-            if (!_stateMachine.TryGetValue(out var stateMachine)) return;
+            if (!_stateMachine.TryGet(out var stateMachine)) return;
             stateMachine.TransitionTo(UIScreen.Gameplay, .25f, 0, 0);
         }
 

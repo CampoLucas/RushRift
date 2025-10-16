@@ -89,7 +89,7 @@ namespace Game.UI.Screens.Elements
 
         public void OnNotify(ButtonSelectState state)
         {
-            if (_runningAnim.TryGetValue(out var anim))
+            if (_runningAnim.TryGet(out var anim))
             {
                 anim.Stop();
             }
@@ -103,7 +103,7 @@ namespace Game.UI.Screens.Elements
 
         public void Dispose()
         {
-            if (_onSelectSubject.TryGetValue(out var subject))
+            if (_onSelectSubject.TryGet(out var subject))
             {
                 subject.DetachAll();
                 subject.Dispose();
@@ -130,17 +130,17 @@ namespace Game.UI.Screens.Elements
 
         public bool Attach(IObserver observer)
         {
-            return _onSelectSubject.TryGetValue(out var subject) && subject.Attach(observer);
+            return _onSelectSubject.TryGet(out var subject) && subject.Attach(observer);
         }
 
         public bool Detach(IObserver observer)
         {
-            return _onSelectSubject.TryGetValue(out var subject) && subject.Detach(observer);
+            return _onSelectSubject.TryGet(out var subject) && subject.Detach(observer);
         }
 
         public void DetachAll()
         {
-            if (_onSelectSubject.TryGetValue(out var subject))
+            if (_onSelectSubject.TryGet(out var subject))
             {
                 subject.DetachAll();
             }
@@ -148,7 +148,7 @@ namespace Game.UI.Screens.Elements
 
         public void NotifyAll()
         {
-            if (_onSelectSubject.TryGetValue(out var subject))
+            if (_onSelectSubject.TryGet(out var subject))
             {
                 subject.NotifyAll();
             }
