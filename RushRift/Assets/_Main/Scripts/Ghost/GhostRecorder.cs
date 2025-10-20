@@ -10,10 +10,6 @@ using MyTools.Global;
 [DisallowMultipleComponent]
 public class GhostRecorder : MonoBehaviour
 {
-    [Header("Target")]
-    [SerializeField, Tooltip("Transform to record. If null, tries to find an object tagged Player.")]
-    private Transform targetToRecord;
-
     [Header("Recording")]
     [SerializeField, Tooltip("Begin recording automatically on OnEnable.")]
     private bool startRecordingOnEnable = true;
@@ -76,6 +72,7 @@ public class GhostRecorder : MonoBehaviour
     // Read gizmo fields once so they count as "used" in builds
     private bool _suppressBuildWarnings;
     private NullCheck<ActionObserver<bool>> _onPause;
+    private NullCheck<Transform> _target;
 
     private void Awake()
     {
@@ -88,10 +85,9 @@ public class GhostRecorder : MonoBehaviour
 
         levelIndex = SceneManager.GetActiveScene().buildIndex;
 
-        if (!targetToRecord)
+        if (PlayerSpawner.Player.TryGet(out var player))
         {
-            var tagged = GameObject.FindGameObjectWithTag("Player");
-            if (tagged) targetToRecord = tagged.transform;
+            _target = player.transform;
         }
 
         winObserver = new ActionObserver<bool>(OnGameOverHandler);
@@ -161,7 +157,7 @@ public class GhostRecorder : MonoBehaviour
 
     public void StartRecording()
     {
-        if (!targetToRecord) return;
+        if (!_target.TryGet(out var target)) return;
         currentRun = new GhostRunData
         {
             levelIndex = levelIndex,
@@ -171,8 +167,8 @@ public class GhostRecorder : MonoBehaviour
         };
         isRecording = true;
         lastFrameTime = 0f;
-        lastPos = targetToRecord.position;
-        lastRot = targetToRecord.rotation;
+        lastPos = target.position;
+        lastRot = target.rotation;
         PushFrame(0f, lastPos, lastRot);
         Log("Recording started");
     }
@@ -186,7 +182,7 @@ public class GhostRecorder : MonoBehaviour
 
     private void TickRecord(float dt)
     {
-        if (!isRecording || !targetToRecord) return;
+        if (!isRecording || !_target.TryGet(out var target)) return;
         if (obeyPauseEvents && (pauseGate || PauseHandler.IsPaused)) return;
 
         currentRun.durationSeconds += dt;
@@ -194,8 +190,8 @@ public class GhostRecorder : MonoBehaviour
 
         if (t - lastFrameTime < minFrameIntervalSeconds) return;
 
-        Vector3 p = targetToRecord.position;
-        Quaternion r = targetToRecord.rotation;
+        Vector3 p = target.position;
+        Quaternion r = target.rotation;
 
         if (Vector3.SqrMagnitude(p - lastPos) < minPositionDeltaMeters * minPositionDeltaMeters &&
             Quaternion.Angle(r, lastRot) < minRotationDeltaDegrees)

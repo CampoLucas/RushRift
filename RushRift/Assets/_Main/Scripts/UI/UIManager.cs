@@ -31,6 +31,9 @@ namespace Game.UI
         [SerializeField] private FadeScreen screenFade;
         [SerializeField] private ScreenDamageEffect screenDamage;
 
+        [Header("Hub")]
+        [SerializeField] private HubSO hubLevel;
+
         private NullCheck<UIStateMachine> _stateMachine;
         private IObserver<float, float, float> _onHealthChanged;
         private ActionObserver<bool> _onGameOver;
@@ -120,25 +123,6 @@ namespace Game.UI
             
             _stateMachine.Get().Update(Time.deltaTime);
         }
-        
-        private void OnSceneChangedHandler()
-        {
-            // if (_onSceneChanged != null)
-            // {
-            //     SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
-            //     _onSceneChanged.Dispose();
-            //     _onSceneChanged = null;
-            // }
-
-            if (loadingScreen) loadingScreen.SetActive(true);
-        }
-        
-        
-        private void OnLevelChangedHandler(BaseLevelSO level)
-        {
-            PauseHandler.Pause(false);
-            loadingScreen.SetActive(false);
-        }
 
         private void OnApplicationFocus(bool hasFocus)
         {
@@ -148,16 +132,6 @@ namespace Game.UI
             
             CursorHandler.lockState = isGameplay ? CursorLockMode.Locked : CursorLockMode.None;
             CursorHandler.visible = !isGameplay;
-        }
-
-        public static bool SetScreen(UIScreen screen, float fadeOutTime = 0, float fadeInTime = 0, float fadeInStartTime = 0)
-        {
-            if (_instance.TryGet(out var manager))
-            {
-                return manager._stateMachine.Get().TransitionTo(screen, fadeOutTime, fadeInTime, fadeInStartTime);
-            }
-
-            return false;
         }
 
         private void InitStateMachine()
@@ -249,7 +223,8 @@ namespace Game.UI
         private void LoadHUB()
         {
             Time.timeScale = 1f;
-            SceneHandler.LoadHub();
+            GameEntry.TryLoadLevelAsync(hubLevel);
+            //SceneHandler.LoadHub();
         }
 
         private void BackToGameplay()
@@ -263,7 +238,8 @@ namespace Game.UI
         private void Restart()
         {
             Time.timeScale = 1f;
-            SceneHandler.ReloadCurrent();
+            GameEntry.TryLoadLevelAsync(GlobalLevelManager.CurrentLevel);
+            //SceneHandler.ReloadCurrent();
         }
 
         protected override bool CreateIfNull() => false;
