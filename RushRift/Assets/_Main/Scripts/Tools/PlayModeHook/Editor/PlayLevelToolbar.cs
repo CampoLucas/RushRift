@@ -20,11 +20,12 @@ public class PlayLevelToolbar : VisualElement
     private EditorToolbarDropdown _levelDropdown;
     private EditorToolbarButton _playButton;
     private EditorToolbarButton _openSceneButton;
+    private EditorToolbarButton _selectButton;
     
     private static List<BaseLevelSO> _levels = new();
     private static BaseLevelSO _selected;
-    private static string _selectedScenePath; // NEW: for manual scene entries
-    private static bool _isSceneOnly;         // NEW: to handle "MainScene"/"MainMenu"
+    private static string _selectedScenePath;
+    private static bool _isSceneOnly;
 
     public PlayLevelToolbar()
     {
@@ -66,13 +67,32 @@ public class PlayLevelToolbar : VisualElement
             tooltip = "Open the scene directly"
         };
         _openSceneButton.style.height = 20;
-        _openSceneButton.style.minWidth = 50;
+        _openSceneButton.style.minWidth = 35;
         _openSceneButton.style.marginLeft = 4;
         Add(_openSceneButton);
+        
+        // Select button
+        _selectButton = new EditorToolbarButton(OnSelectClicked)
+        {
+            text = "Select",
+            tooltip = "Ping and select the level asset or scene in Project"
+        };
+        _selectButton.style.height = 20;
+        _selectButton.style.minWidth = 35;
+        _selectButton.style.marginLeft = 4;
+        Add(_selectButton);
 
         RefreshLevels();
         RestoreSelection();
         UpdateLevelButtonText();
+
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        UpdatePlayModeVisuals(EditorApplication.isPlaying);
+    }
+    
+    ~PlayLevelToolbar()
+    {
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
     }
 
     private void ShowLevelMenu()
@@ -183,6 +203,7 @@ public class PlayLevelToolbar : VisualElement
             
             _playButton.SetEnabled(true);
             _openSceneButton.SetEnabled(true);
+            _selectButton.SetEnabled(true);
             return;
         }
         else if (_selected)
@@ -193,16 +214,18 @@ public class PlayLevelToolbar : VisualElement
             _levelDropdown.text = $"{display}";
             
             _playButton.SetEnabled(true);
+
+            var multi = _selected is CompositeLevelSO;
+            _openSceneButton.SetEnabled(!multi);
+            _selectButton.SetEnabled(true);
         }
         else
         {
             _levelDropdown.text = "Select Level";
             _playButton.SetEnabled(false);
+            _openSceneButton.SetEnabled(false);
+            _selectButton.SetEnabled(false);
         }
-        
-        // Disable open button if multi-level (e.g., Rush)
-        var multi = _selected is not null && _selected.LevelCount() > 1;
-        _openSceneButton.SetEnabled(!_isSceneOnly && !multi && _selected != null);
     }
 
     private void SaveSelection()
@@ -280,6 +303,14 @@ public class PlayLevelToolbar : VisualElement
     {
         if (_isSceneOnly)
         {
+            var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(_selectedScenePath);
+            if (!sceneAsset)
+            {
+                EditorUtility.DisplayDialog("Cannot Open Scene",
+                    $"The Scene at the path: '{_selectedScenePath}' was not found", "OK");
+                
+                return;
+            }
             EditorSceneManager.OpenScene(_selectedScenePath);
             return;
         }
@@ -295,7 +326,68 @@ public class PlayLevelToolbar : VisualElement
         if (_selected is LevelSO level)
         {
             var path = $"Assets/_Main/Scenes/Levels/{level.SceneName}.unity";
+            
+            var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
+            if (!sceneAsset)
+            {
+                EditorUtility.DisplayDialog("Cannot Open Scene",
+                    $"The Scene at the path: '{path}' was not found", "OK");
+                
+                return;
+            }
+            
             EditorSceneManager.OpenScene(path);
+        }
+    }
+    
+    private void OnSelectClicked()
+    {
+        if (_isSceneOnly)
+        {
+            var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(_selectedScenePath);
+            if (sceneAsset)
+            {
+                Selection.activeObject = sceneAsset;
+                EditorGUIUtility.PingObject(sceneAsset);
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("Cannot Select Scene",
+                    $"The Scene at the path: '{_selectedScenePath}' was not found", "OK");
+            }
+            return;
+        }
+
+        if (_selected)
+        {
+            Selection.activeObject = _selected;
+            EditorGUIUtility.PingObject(_selected);
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Cannot Select Level", $"The Level was not found", "OK");
+        }
+    }
+    
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        // Call update when entering or exiting play mode
+        UpdatePlayModeVisuals(EditorApplication.isPlaying);
+    }
+
+    private void UpdatePlayModeVisuals(bool isPlaying)
+    {
+        if (isPlaying)
+        {
+            // Change Play button color while in play mode
+            _openSceneButton.SetEnabled(false);
+            //_selectButton.SetEnabled(false);
+        }
+        else
+        {
+            // Restore normal look
+            _openSceneButton.SetEnabled(true);
+            //_selectButton.SetEnabled(true);
         }
     }
 }

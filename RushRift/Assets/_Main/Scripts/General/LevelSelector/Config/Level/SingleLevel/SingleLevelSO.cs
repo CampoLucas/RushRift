@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Game.Utils;
+using MyTools.Global;
 using Tools.Scripts.PropertyAttributes;
 using UnityEngine;
 
@@ -17,7 +18,18 @@ namespace Game.Levels.SingleLevel
 #endif
         
         public sealed override int LevelCount() => 1;
-        
+
+        public override SingleLevelSO GetLevel(int index)
+        {
+            if (index < 0 && index >= LevelCount())
+            {
+                this.Log("Level Index out of exception", LogType.Error);
+                return null;
+            }
+
+            return this;
+        }
+
         private void OnValidate()
         {
 #if UNITY_EDITOR

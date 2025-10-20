@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Game.Levels.SingleLevel;
 using MyTools.Global;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace Game.Levels
         [SerializeField] private SerializedDictionary<MedalType, Medal> medals;
 
         public abstract int LevelCount();
+        public abstract SingleLevelSO GetLevel(int index);
         public abstract UniTask LoadAsync(GlobalLevelManager manager);
         public virtual UniTask LoadFirstAsync(GlobalLevelManager manager) => UniTask.CompletedTask;
         public virtual UniTask LoadNextAsync(GlobalLevelManager manager) => UniTask.CompletedTask;

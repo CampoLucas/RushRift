@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
+using Game.Levels.SingleLevel;
 using Game.Saves;
 using Game.UI.Screens;
 using Game.Utils;
@@ -19,7 +20,26 @@ namespace Game
     {
         #region Public Properties
 
-        public static NullCheck<BaseLevelSO> CurrentLevel { get; private set; }
+        public static NullCheck<BaseLevelSO> CurrentLevel
+        {
+            get => _currentLevel;
+            private set
+            {
+                if (_currentLevel == value)
+                {
+#if UNITY_EDITOR
+                    Debug.Log($"[{typeof(GlobalLevelManager)}] Setting the current level to the same value, resetting level");
+#endif
+                    LevelReset.NotifyAll(value);
+                }
+                else
+                {
+                    LevelChanged.NotifyAll(value);
+                }
+                
+                _currentLevel = value;
+            }
+        }
         public static bool GameOver { get; private set; }
         public static float CompleteTime { get; private set; }
         public int LevelIndex { get; set; } = -1;
@@ -31,11 +51,34 @@ namespace Game
         public static bool Blink => _instance && _instance.TryGet(out var instance) && instance.Flags.Blink;
         
         private LevelFlags Flags;
-        
-        
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        /// Event from when the level is changed. Not called when restarting a level.
+        /// </summary>
+        public static Subject<BaseLevelSO> LevelChanged { get; private set; } = new ();
+        
+        /// <summary>
+        /// Event for when the level is restarted.
+        /// </summary>
+        public static Subject<BaseLevelSO> LevelReset { get; private set; } = new ();
+        
+        /// <summary>
+        /// Event for when a scene gets added.
+        /// </summary>
+        public static Subject<SingleLevelSO> SectorAdded { get; private set; } = new ();
+        
+        /// <summary>
+        /// Event for when active scene the player is in changes
+        /// </summary>
+        public static Subject<SingleLevelSO> SectorChanged { get; private set; } = new ();
+
+        #endregion
+
+        private static NullCheck<BaseLevelSO> _currentLevel;
         private readonly List<string> _loadedLevels = new();
         private readonly Dictionary<string, Scene> _loadedLevelsDict = new();
         private TimerHandler _levelTimer = new();
