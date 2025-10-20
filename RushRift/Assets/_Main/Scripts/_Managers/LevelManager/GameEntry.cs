@@ -9,6 +9,7 @@ namespace Game
 {
     public static class GameEntry
     {
+        public static bool LoadingLevel { get; set; }
         public static BaseLevelSO PendingLevel;
         public const string MAIN_SCENE = "MainScene";
 
@@ -41,24 +42,26 @@ namespace Game
                 await LoadMainSceneAsync(mainSceneAdditive);
             }
             
-            await UnloadPrevSceneAsync();
             await LoadLevelAsync(level);
+            await PlayerSpawner.RespawnPlayerAsync();
+            
+            await UnloadPrevSceneAsync();
             StopLoadingLevel(level);
         }
 
 
         private static void StartLoadingLevel(BaseLevelSO level)
         {
-            LoadingLevelStart.NotifyAll(level);
             PauseHandler.Pause(true);
-            GlobalLevelManager.LoadingLevel = true;
+            LoadingLevelStart.NotifyAll(level);
+            LoadingLevel = true;
         }
 
         private static void StopLoadingLevel(BaseLevelSO level)
         {
-            GlobalLevelManager.LoadingLevel = false;
             PauseHandler.Pause(false);
             LoadingLevelEnd.NotifyAll(level);
+            LoadingLevel = false;
         }
 
         private static async UniTask UnloadPrevSceneAsync()
@@ -68,7 +71,10 @@ namespace Game
             if (active.name != MAIN_SCENE)
             {
                 var unloadPrev = SceneHandler.UnloadSceneAsync(active);
-                await unloadPrev.ToUniTask();
+                if (unloadPrev != null)
+                {
+                    await unloadPrev.ToUniTask();
+                }
             }
         }
 

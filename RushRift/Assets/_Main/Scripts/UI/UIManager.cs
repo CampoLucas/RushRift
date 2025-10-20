@@ -34,6 +34,8 @@ namespace Game.UI
         private NullCheck<UIStateMachine> _stateMachine;
         private IObserver<float, float, float> _onHealthChanged;
         private ActionObserver<bool> _onGameOver;
+
+        private bool _initialized;
         //private IObserver _onSceneChanged;
         
         private ActionObserver<BaseLevelSO> _onLevelLoadingStart;
@@ -55,11 +57,9 @@ namespace Game.UI
             
             _onLevelLoadingStart = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
             _onLevelLoadingEnd = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
-            _initStateMachine = new ActionObserver<BaseLevelSO>(Init);
             
             GameEntry.LoadingLevelStart.Attach(_onLevelLoadingStart);
             GameEntry.LoadingLevelEnd.Attach(_onLevelLoadingEnd);
-            GameEntry.LoadingLevelEnd.Attach(_initStateMachine);
         }
 
         private void OnLoadingStartHandler(BaseLevelSO level)
@@ -70,9 +70,16 @@ namespace Game.UI
         private void OnLoadingEndHandler(BaseLevelSO level)
         {
             loadingScreen.gameObject.SetActive(false);
+
+            
+
+            if (_stateMachine.TryGet(out var stateMachine))
+            {
+                stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
+            }
         }
         
-        private void Init(BaseLevelSO level)
+        private void Start()
         {
             GameEntry.LoadingLevelEnd.Detach(_initStateMachine);
             //SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
@@ -100,7 +107,7 @@ namespace Game.UI
 
         private void Update()
         {
-            if (GlobalLevelManager.LoadingLevel)
+            if (GameEntry.LoadingLevel)
             {
                 return;
             }
@@ -185,7 +192,7 @@ namespace Game.UI
             
             pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),.25f, 0, 0);
             
-            stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
+            //stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }
         
         private void OnGameOverHandler(bool playerWon)

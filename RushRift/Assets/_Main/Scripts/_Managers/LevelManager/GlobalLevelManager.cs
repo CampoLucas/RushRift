@@ -26,16 +26,6 @@ namespace Game
         public int LevelIndex { get; set; } = -1;
         public bool ReachedNextZone { get; set; }
 
-        public static bool LoadingLevel
-        {
-            get => _loadingLevel;
-            set
-            {
-                Debug.Log($"[SuperTest] LoadingLevel set to {value}");
-                _loadingLevel = value;
-            }
-        }
-
         private static bool _loadingLevel;
 
         public static bool DashDamage => _instance && _instance.TryGet(out var instance) && instance.Flags.DashDamage;
@@ -57,6 +47,8 @@ namespace Game
         
         protected override void OnAwake()
         {
+            GameEntry.LoadingLevel = true;
+            
             base.OnAwake();
             // Reset the global events
             GlobalEvents.Reset();
@@ -66,9 +58,6 @@ namespace Game
 
             // Attach observers
             GlobalEvents.GameOver.Attach(_gameOverObserver);
-            
-            // Set as loading
-            LoadingLevel = true;
         }
 
         private void Update()

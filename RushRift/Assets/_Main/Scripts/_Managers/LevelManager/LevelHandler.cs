@@ -50,7 +50,7 @@ namespace Game
 #endif
             if (spawn && PlayerSpawner.Instance.TryGet(out var spawner))
             {
-                spawner.Respawn(spawn);
+                spawner.SetSpawn(spawn);
             }
             
             _preloadedNext = false;
