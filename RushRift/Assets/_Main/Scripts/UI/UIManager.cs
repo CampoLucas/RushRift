@@ -4,6 +4,7 @@ using Game.Entities;
 using Game.Entities.Components;
 using Game.Input;
 using Game.Inputs;
+using Game.Levels;
 using Game.ScreenEffects;
 using Game.UI.Screens;
 using Game.Utils;
@@ -33,7 +34,11 @@ namespace Game.UI
         private NullCheck<UIStateMachine> _stateMachine;
         private IObserver<float, float, float> _onHealthChanged;
         private ActionObserver<bool> _onGameOver;
-        private IObserver _onSceneChanged;
+        //private IObserver _onSceneChanged;
+        
+        private ActionObserver<BaseLevelSO> _onLevelLoadingStart;
+        private ActionObserver<BaseLevelSO> _onLevelLoadingEnd;
+        private ActionObserver<BaseLevelSO> _initStateMachine;
 
         protected override void OnAwake()
         {
@@ -41,15 +46,36 @@ namespace Game.UI
             
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver<bool>(OnGameOverHandler);
-            _onSceneChanged = new ActionObserver(OnSceneChangedHandler);
-            
+            //_onSceneChanged = new ActionObserver(OnSceneChangedHandler);
+
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
+            
+            loadingScreen.SetActive(true);
+            
+            _onLevelLoadingStart = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
+            _onLevelLoadingEnd = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
+            _initStateMachine = new ActionObserver<BaseLevelSO>(Init);
+            
+            GameEntry.LoadingLevelStart.Attach(_onLevelLoadingStart);
+            GameEntry.LoadingLevelEnd.Attach(_onLevelLoadingEnd);
+            GameEntry.LoadingLevelEnd.Attach(_initStateMachine);
         }
 
-        private void Start()
+        private void OnLoadingStartHandler(BaseLevelSO level)
         {
-            SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
+            loadingScreen.gameObject.SetActive(true);
+        }
+    
+        private void OnLoadingEndHandler(BaseLevelSO level)
+        {
+            loadingScreen.gameObject.SetActive(false);
+        }
+        
+        private void Init(BaseLevelSO level)
+        {
+            GameEntry.LoadingLevelEnd.Detach(_initStateMachine);
+            //SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
             InitStateMachine();
 
             gameplayPresenter.Attach(this);
@@ -74,6 +100,11 @@ namespace Game.UI
 
         private void Update()
         {
+            if (GlobalLevelManager.LoadingLevel)
+            {
+                return;
+            }
+            
             if (!_stateMachine)
             {
                 this.Log("The state machine is null", LogType.Error);
@@ -85,14 +116,21 @@ namespace Game.UI
         
         private void OnSceneChangedHandler()
         {
-            if (_onSceneChanged != null)
-            {
-                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
-                _onSceneChanged.Dispose();
-                _onSceneChanged = null;
-            }
+            // if (_onSceneChanged != null)
+            // {
+            //     SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+            //     _onSceneChanged.Dispose();
+            //     _onSceneChanged = null;
+            // }
 
             if (loadingScreen) loadingScreen.SetActive(true);
+        }
+        
+        
+        private void OnLevelChangedHandler(BaseLevelSO level)
+        {
+            PauseHandler.Pause(false);
+            loadingScreen.SetActive(false);
         }
 
         private void OnApplicationFocus(bool hasFocus)
@@ -238,12 +276,14 @@ namespace Game.UI
 
         protected override void OnDisposeInstance()
         {
-            if (_onSceneChanged != null)
-            {
-                SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
-                _onSceneChanged.Dispose();
-                _onSceneChanged = null;
-            }
+            // if (_onSceneChanged != null)
+            // {
+            //     SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
+            //     _onSceneChanged.Dispose();
+            //     _onSceneChanged = null;
+            // }
+
+            
             
             GlobalEvents.GameOver.Detach(_onGameOver);
             

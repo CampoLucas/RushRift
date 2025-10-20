@@ -64,7 +64,7 @@ public class PortalPrototype : MonoBehaviour
 
             if (targetLevel)
             {
-                GameEntry.TryLoadLevelAsync(targetLevel);
+                GameEntry.TryLoadLevelAsync(targetLevel, false);
             }
             else
             {

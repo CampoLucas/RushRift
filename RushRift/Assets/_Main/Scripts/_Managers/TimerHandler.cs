@@ -11,7 +11,7 @@ public class TimerHandler : IDisposable
     public void DoUpdate(float delta)
     {
         CurrentTime += delta;
-        GlobalEvents.TimeUpdated.NotifyAll(delta);
+        GlobalEvents.TimeUpdated.NotifyAll(CurrentTime);
     }
 
     public void Dispose()

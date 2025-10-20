@@ -4,6 +4,7 @@ using Game.Entities;
 using Game.Entities.Components;
 using Game.Entities.Components.MotionController;
 using Game.UI;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -13,15 +14,14 @@ namespace Game.VFX
     {
         [Header("References")]
         [SerializeField] private VisualEffect effect;
-        [SerializeField] private EntityController targetEntity;
         
         [Header("Settings")]
         [SerializeField] private SpeedLinesData data;
 
         [SerializeField] private Gradient normalGradient;
         [SerializeField] private Gradient dashDamageGradient;
-        
-        
+
+        private NullCheck<PlayerController> _targetEntity;
         private Func<float> _moveAmount;
         private bool _started;
         private NullCheck<ActionObserver<bool>> _onPaused;
@@ -36,14 +36,23 @@ namespace Game.VFX
 
         private void Start()
         {
-            if (targetEntity.GetModel().TryGetComponent<IMovement>(out var movement))
+            _targetEntity = PlayerSpawner.Player;
+            
+            if (_targetEntity.TryGet(out var player))
             {
-                _moveAmount = movement.MoveAmount;
-            }
+                if (player.GetModel().TryGetComponent<IMovement>(out var movement))
+                {
+                    _moveAmount = movement.MoveAmount;
+                }
 
-            if (targetEntity && targetEntity.TryGetComponent<Rigidbody>(out var rb))
+                if (player.TryGetComponent<Rigidbody>(out var rb))
+                {
+                    _rigidbody = rb;
+                }
+            }
+            else
             {
-                _rigidbody = rb;
+                this.Log("Target Entity not found.", LogType.Error);
             }
             
             effect.SetGradient("ColorRadiant", normalGradient);
@@ -55,6 +64,8 @@ namespace Game.VFX
             {
                 _onPaused = new ActionObserver<bool>(OnPause);
             }
+
+            OnPause(PauseHandler.IsPaused);
 
             PauseHandler.Attach(_onPaused.Get());
         }
@@ -70,8 +81,8 @@ namespace Game.VFX
             if (effect.pause || !_rigidbody) return;
             var on = data.SetEffect(_rigidbody.velocity.magnitude, effect) > 0;
 
-            if (GlobalLevelManager.DashDamage && 
-                targetEntity.GetModel().TryGetComponent<MotionController>(out var controller) &&
+            if (GlobalLevelManager.DashDamage && _targetEntity.TryGet(out var player) &&
+                player.GetModel().TryGetComponent<MotionController>(out var controller) &&
                 controller.TryGetHandler<DashHandler>(out var handler))
             {
                 if (!_dashing && handler.IsDashing)
@@ -109,7 +120,7 @@ namespace Game.VFX
         {
             data = null;
             effect = null;
-            targetEntity = null;
+            _targetEntity = null;
             _moveAmount = null;
             _onPaused.Dispose();
             _onPaused = null;

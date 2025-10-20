@@ -42,7 +42,7 @@ public static class PlayLevelHandler
         }
 
         await UniTask.DelayFrame(5); // let managers init
-        GameEntry.LoadLevelAsync(_selected);
+        GameEntry.TryLoadLevelAsync(_selected, false);
     }
 
     public static void SetSelectedLevel(BaseLevelSO level)

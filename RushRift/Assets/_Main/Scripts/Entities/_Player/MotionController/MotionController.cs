@@ -42,6 +42,11 @@ namespace Game.Entities.Components.MotionController
             _onPaused = new ActionObserver<bool>(OnPauseHandler);
 
             PauseHandler.Attach(_onPaused);
+
+            if (PauseHandler.IsPaused)
+            {
+                OnPauseHandler(true);
+            }
         }
 
         public bool TryAddHandler<THandler>(THandler newHandler, bool rebuildHandlers = true) where THandler : BaseMotionHandler

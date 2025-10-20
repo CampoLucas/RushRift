@@ -49,6 +49,7 @@ namespace Game
             if (pause == IsPaused) return;
             IsPaused = pause;
 
+            Debug.Log($"[SuperTest] Game paused {pause}");
             if (_gamePaused.TryGet(out var subject))
             {
                 subject.NotifyAll(pause);

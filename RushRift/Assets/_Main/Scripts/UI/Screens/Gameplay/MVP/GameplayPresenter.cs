@@ -17,7 +17,11 @@ namespace Game.UI.Screens
         {
             base.Begin();
             // Un Pause the game
-            PauseHandler.Pause(false);
+            if (!GlobalLevelManager.LoadingLevel)
+            {
+                Debug.Log("[SuperTest] not loading");
+                PauseHandler.Pause(false);
+            }
             
             // Set cursor
             CursorHandler.lockState = CursorLockMode.Locked;

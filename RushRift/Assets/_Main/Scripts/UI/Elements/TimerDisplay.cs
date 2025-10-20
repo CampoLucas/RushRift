@@ -24,12 +24,12 @@ public class TimerDisplay : MonoBehaviour
     [SerializeField] private Color failureColor;
 
     [Header("Settings")]
-    [SerializeField, Tooltip("Makes the text have the same color as the medals.")]
-    private bool useSameColor;
-    [SerializeField, Tooltip("Use the next threshold color instead of the blinkColor when blinking.")]
-    private bool useNextThresholdColor = true;
-    [SerializeField, Tooltip("Makes the text use failure color when passing the failure threshold.")]
-    private bool useFailureTextColor = true;
+    [Tooltip("Makes the text have the same color as the medals.")] 
+    [SerializeField] private bool useSameColor;
+    [Tooltip("Use the next threshold color instead of the blinkColor when blinking.")]
+    [SerializeField] private bool useNextThresholdColor = true;
+    [Tooltip("Makes the text use failure color when passing the failure threshold.")]
+    [SerializeField] private bool useFailureTextColor = true;
     [SerializeField] private Color blinkColor;
     [SerializeField] private float blinkInterval = 0.5f;
     [SerializeField] private float timeToBlink = 5;
@@ -43,8 +43,8 @@ public class TimerDisplay : MonoBehaviour
     private Color _textStartColor;
     private Color _nextThresholdColor = Color.white; // for blinking
 
-    private ActionObserver<BaseLevelSO> _onLevelChanged;
-    private ActionObserver _onLevelRestarted;
+    private ActionObserver<BaseLevelSO> _onLevelLoadingStart;
+    private ActionObserver<BaseLevelSO> _onLevelLoadingEnd;
     
     private ActionObserver<float> _timerObserver;
 
@@ -52,25 +52,64 @@ public class TimerDisplay : MonoBehaviour
 
     private void Awake()
     {
-        _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+        if (_timerObserver == null)
+        {
+            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+        }
+
+        _onLevelLoadingStart = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
+        _onLevelLoadingEnd = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
+        
         _textStartColor = text.color;
+        
+
+        GameEntry.LoadingLevelStart.Attach(_onLevelLoadingStart);
+        GameEntry.LoadingLevelEnd.Attach(_onLevelLoadingEnd);
     }
 
-    private void Start()
+    private void OnLoadingStartHandler(BaseLevelSO level)
     {
+        StopAllCoroutines();
+        if (_timerObserver == null)
+        {
+            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+        }
+        GlobalEvents.TimeUpdated.Detach(_timerObserver);
+    }
+    
+    private void OnLoadingEndHandler(BaseLevelSO level)
+    {
+        StopAllCoroutines();
+        if (_timerObserver == null)
+        {
+            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+        }
         GlobalEvents.TimeUpdated.Attach(_timerObserver);
         
         _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
 
-        if (!GlobalLevelManager.CurrentLevel.TryGet(out var levelConfig) && !levelConfig)
+        if (!level)
         {
             this.Log("TimerDisplay couldn't find the level config", LogType.Error);
+            gameObject.SetActive(false);
             return;
         }
+
+        if (!level.UsesMedals)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        Debug.Log("[SuperTest] Found the level config");
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
         
-        _goldThreshold   = Mathf.Max(0f, levelConfig.GetMedal(MedalType.Bronze).requiredTime);
-        _silverThreshold = Mathf.Max(0f, levelConfig.GetMedal(MedalType.Silver).requiredTime);
-        _bronzeThreshold = Mathf.Max(0f, levelConfig.GetMedal(MedalType.Gold).requiredTime);
+        _goldThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Gold).requiredTime);
+        _silverThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Silver).requiredTime);
+        _bronzeThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Bronze).requiredTime);
     }
 
     private void OnTimeUpdated(float time)

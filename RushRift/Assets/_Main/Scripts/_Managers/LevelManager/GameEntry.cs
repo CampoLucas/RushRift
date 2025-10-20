@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Game.DesignPatterns.Observers;
 using Game.Levels;
 using Game.Utils;
 using UnityEngine;
@@ -11,6 +12,15 @@ namespace Game
         public static BaseLevelSO PendingLevel;
         public const string MAIN_SCENE = "MainScene";
 
+        #region Events
+
+        public static Subject<BaseLevelSO> LoadingLevelStart = new();
+        public static Subject<BaseLevelSO> LoadingLevelEnd = new();
+        public static Subject<BaseLevelSO> ResettingLevelStart = new();
+        public static Subject<BaseLevelSO> ResettingLevelEnd = new();
+
+        #endregion
+
         public static async UniTask OnMainSceneLoaded(GlobalLevelManager manager)
         {
             if (PendingLevel == null)
@@ -20,27 +30,39 @@ namespace Game
             PendingLevel = null;
         }
         
-        public static async void LoadLevelAsync(BaseLevelSO level)
+        public static async void TryLoadLevelAsync(BaseLevelSO level, bool mainSceneAdditive = false)
         {
-            var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
+            StartLoadingLevel(level);
             
-            // If the main scene is not loaded, load it additively.
+            var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
+
             if (!mainScene.isLoaded)
             {
-                SceneHandler.LoadScene(MAIN_SCENE);
+                await LoadMainSceneAsync(mainSceneAdditive);
             }
             
-            // Find the level manager in the MainScene
-            var managerCheck = await GlobalLevelManager.GetAsync();
-            if (!managerCheck.TryGet(out var manager))
-            {
-                Debug.LogError($"{typeof(GlobalLevelManager).Name} was not found.");
-                return;
-            }
+            await UnloadPrevSceneAsync();
+            await LoadLevelAsync(level);
+            StopLoadingLevel(level);
+        }
 
-            // Tell the manager which level to load
-            await manager.LoadLevelAsync(level);
-            
+
+        private static void StartLoadingLevel(BaseLevelSO level)
+        {
+            LoadingLevelStart.NotifyAll(level);
+            PauseHandler.Pause(true);
+            GlobalLevelManager.LoadingLevel = true;
+        }
+
+        private static void StopLoadingLevel(BaseLevelSO level)
+        {
+            GlobalLevelManager.LoadingLevel = false;
+            PauseHandler.Pause(false);
+            LoadingLevelEnd.NotifyAll(level);
+        }
+
+        private static async UniTask UnloadPrevSceneAsync()
+        {
             // Unload the previous scene (Hub, menu, etc.)
             var active = SceneHandler.GetActiveScene();
             if (active.name != MAIN_SCENE)
@@ -49,14 +71,26 @@ namespace Game
                 await unloadPrev.ToUniTask();
             }
         }
-        
-        public static async void TryLoadLevelAsync(BaseLevelSO level)
+
+        private static async UniTask LoadLevelAsync(BaseLevelSO level)
         {
-            var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
-            
-            // If the main scene is not loaded, load it additively.
-            if (!mainScene.isLoaded)
+            // Find the level manager in the MainScene
+            var managerCheck = await GlobalLevelManager.GetAsync();
+            if (!managerCheck.TryGet(out var manager))
             {
+                Debug.LogError($"{typeof(GlobalLevelManager).Name} was not found.");
+                return;
+            }
+            
+            // Tell the manager which level to load
+            await manager.LoadLevelAsync(level);
+        }
+
+        private static async UniTask LoadMainSceneAsync(bool additive)
+        {
+            if (additive)
+            {
+                // If the main scene is not loaded, load it additively.
                 var loadMain = SceneHandler.LoadSceneAsync(MAIN_SCENE, LoadSceneMode.Additive);
                 if (loadMain == null)
                 {
@@ -67,24 +101,9 @@ namespace Game
                 }
                 await loadMain.ToUniTask();
             }
-            
-            // Find the level manager in the MainScene
-            var managerCheck = await GlobalLevelManager.GetAsync();
-            if (!managerCheck.TryGet(out var manager))
+            else
             {
-                Debug.LogError($"{typeof(GlobalLevelManager).Name} was not found.");
-                return;
-            }
-
-            // Tell the manager which level to load
-            await manager.LoadLevelAsync(level);
-            
-            // Unload the previous scene (Hub, menu, etc.)
-            var active = SceneHandler.GetActiveScene();
-            if (active.name != MAIN_SCENE)
-            {
-                var unloadPrev = SceneHandler.UnloadSceneAsync(active);
-                await unloadPrev.ToUniTask();
+                SceneHandler.LoadScene(MAIN_SCENE);
             }
         }
     }

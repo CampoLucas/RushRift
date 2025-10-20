@@ -10,7 +10,7 @@ namespace Game.Levels
     {
         public int LevelID => levelID;
         public string LevelName => levelName;
-        public bool UsesMedals => medals != null && medals.Count > 0;
+        public bool UsesMedals => medals is { Count: > 0 };
         
         [Header("Settings")]
         [SerializeField] private int levelID;
@@ -30,7 +30,7 @@ namespace Game.Levels
         {
             if (!UsesMedals || !medals.TryGetValue(type, out var medal))
             {
-                this.Log("Returning default medal", LogType.Warning);
+                this.Log("[SuperTest] Returning default medal", LogType.Warning);
                 return default;
             }
 

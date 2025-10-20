@@ -114,6 +114,8 @@ public class GhostRecorder : MonoBehaviour
         }
                 
         PauseHandler.Attach(_onPause.Get());
+        
+        OnPauseChanged(PauseHandler.IsPaused);
 
         if (startRecordingOnEnable && !isRecording) StartRecording();
     }

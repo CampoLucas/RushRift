@@ -20,30 +20,23 @@ namespace Game
     {
         #region Public Properties
 
-        public static NullCheck<BaseLevelSO> CurrentLevel
-        {
-            get => _currentLevel;
-            private set
-            {
-                if (_currentLevel == value)
-                {
-#if UNITY_EDITOR
-                    Debug.Log($"[{typeof(GlobalLevelManager)}] Setting the current level to the same value, resetting level");
-#endif
-                    LevelReset.NotifyAll(value);
-                }
-                else
-                {
-                    LevelChanged.NotifyAll(value);
-                }
-                
-                _currentLevel = value;
-            }
-        }
+        public static NullCheck<BaseLevelSO> CurrentLevel { get; private set; }
         public static bool GameOver { get; private set; }
         public static float CompleteTime { get; private set; }
         public int LevelIndex { get; set; } = -1;
         public bool ReachedNextZone { get; set; }
+
+        public static bool LoadingLevel
+        {
+            get => _loadingLevel;
+            set
+            {
+                Debug.Log($"[SuperTest] LoadingLevel set to {value}");
+                _loadingLevel = value;
+            }
+        }
+
+        private static bool _loadingLevel;
 
         public static bool DashDamage => _instance && _instance.TryGet(out var instance) && instance.Flags.DashDamage;
         public static bool PowerSurge => _instance && _instance.TryGet(out var instance) && instance.Flags.PowerSurge;
@@ -51,30 +44,6 @@ namespace Game
         public static bool Blink => _instance && _instance.TryGet(out var instance) && instance.Flags.Blink;
         
         private LevelFlags Flags;
-
-        #endregion
-
-        #region Events
-
-        /// <summary>
-        /// Event from when the level is changed. Not called when restarting a level.
-        /// </summary>
-        public static Subject<BaseLevelSO> LevelChanged { get; private set; } = new ();
-        
-        /// <summary>
-        /// Event for when the level is restarted.
-        /// </summary>
-        public static Subject<BaseLevelSO> LevelReset { get; private set; } = new ();
-        
-        /// <summary>
-        /// Event for when a scene gets added.
-        /// </summary>
-        public static Subject<SingleLevelSO> SectorAdded { get; private set; } = new ();
-        
-        /// <summary>
-        /// Event for when active scene the player is in changes
-        /// </summary>
-        public static Subject<SingleLevelSO> SectorChanged { get; private set; } = new ();
 
         #endregion
 
@@ -89,11 +58,17 @@ namespace Game
         protected override void OnAwake()
         {
             base.OnAwake();
+            // Reset the global events
             GlobalEvents.Reset();
             
+            // Create observers
             _gameOverObserver = new ActionObserver<bool>(OnGameOverHandler);
 
+            // Attach observers
             GlobalEvents.GameOver.Attach(_gameOverObserver);
+            
+            // Set as loading
+            LoadingLevel = true;
         }
 
         private void Update()
@@ -116,8 +91,8 @@ namespace Game
             await UnloadAllLevelsAsync();
             
             // Load the new level additively
-            CurrentLevel = level;
             await level.LoadAsync(this);
+            CurrentLevel = level;
         }
 
         public async UniTask LoadLevelSceneAsync(string sceneName, bool preloaded = false)
