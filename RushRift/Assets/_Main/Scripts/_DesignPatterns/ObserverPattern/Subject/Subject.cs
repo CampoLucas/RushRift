@@ -8,22 +8,36 @@ namespace Game.DesignPatterns.Observers
         where TObserver : IDisposable
     {
         protected HashSet<TObserver> Subscribers = new();
-        protected readonly bool _detachOnNotify;
-        protected readonly bool _disposeOnDetach;
+        protected readonly bool DetachOnNotify;
+        protected readonly bool DisposeOnDetach;
+        private HashSet<TObserver> _toDispose = new();
         
         protected BaseSubject(bool detachOnNotify = false, bool disposeOnDetach = false)
         {
-            _detachOnNotify = detachOnNotify;
-            _disposeOnDetach = disposeOnDetach;
+            DetachOnNotify = detachOnNotify;
+            DisposeOnDetach = disposeOnDetach;
         }
-        
-        public bool Attach(TObserver observer) => observer != null && Subscribers != null && Subscribers.Add(observer);
+
+        public bool Attach(TObserver observer, bool disposeOnDetach = false)
+        {
+            if (observer != null && Subscribers != null && Subscribers.Add(observer))
+            {
+                if (disposeOnDetach)
+                {
+                    _toDispose.Add(observer);
+                }
+                return true;
+            }
+
+            return false;
+        }
+            
 
         public bool Detach(TObserver observer)
         {
             if (Subscribers != null && Subscribers.Remove(observer))
             {
-                if (_disposeOnDetach) observer.Dispose();
+                if (DisposeOnDetach || _toDispose.Contains(observer)) observer.Dispose();
                 return true;
             }
 
@@ -32,14 +46,17 @@ namespace Game.DesignPatterns.Observers
 
         public void DetachAll()
         {
-            if (_disposeOnDetach)
+            if (DisposeOnDetach || _toDispose.Count > 0)
             {
-                foreach (var subscriber in Subscribers)
+                var toDispose = DisposeOnDetach ? Subscribers : _toDispose;
+                
+                foreach (var subscriber in toDispose)
                 {
                     subscriber.Dispose();
                 }
             }
             
+            _toDispose.Clear();
             Subscribers.Clear();
         }
 
@@ -47,6 +64,7 @@ namespace Game.DesignPatterns.Observers
         {
             DetachAll();
             Subscribers = null;
+            _toDispose = null;
         }
     }
 
@@ -70,7 +88,7 @@ namespace Game.DesignPatterns.Observers
                 }
                 subscriber.OnNotify();
         
-                if (_detachOnNotify) Detach(subscriber);
+                if (DetachOnNotify) Detach(subscriber);
             }
         }
     }
@@ -95,7 +113,7 @@ namespace Game.DesignPatterns.Observers
                 }
                 subscriber.OnNotify(arg);
         
-                if (_detachOnNotify) Detach(subscriber);
+                if (DetachOnNotify) Detach(subscriber);
             }
         }
     }
@@ -120,7 +138,7 @@ namespace Game.DesignPatterns.Observers
                 }
                 subscriber.OnNotify(arg1, arg2);
         
-                if (_detachOnNotify) Detach(subscriber);
+                if (DetachOnNotify) Detach(subscriber);
             }
         }
     }
@@ -140,7 +158,7 @@ namespace Game.DesignPatterns.Observers
                 }
                 subscriber.OnNotify(arg1, arg2, arg3);
         
-                if (_detachOnNotify) Detach(subscriber);
+                if (DetachOnNotify) Detach(subscriber);
             }
         }
     }

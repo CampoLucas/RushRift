@@ -55,9 +55,9 @@ namespace Game.UI.Screens.Elements
         }
         
 
-        public bool Attach(DesignPatterns.Observers.IObserver<ButtonSelectState> observer)
+        public bool Attach(DesignPatterns.Observers.IObserver<ButtonSelectState> observer, bool disposeOnDetach = false)
         {
-            return _transitionSubject.TryGet(out var subject) && subject.Attach(observer);
+            return _transitionSubject.TryGet(out var subject) && subject.Attach(observer, disposeOnDetach);
         }
 
         public bool Detach(DesignPatterns.Observers.IObserver<ButtonSelectState> observer)

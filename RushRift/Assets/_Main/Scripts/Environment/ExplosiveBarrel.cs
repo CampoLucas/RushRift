@@ -98,13 +98,6 @@ public class ExplosiveBarrel : MonoBehaviour
     [Header("Enemy Targeting")]
     [SerializeField, Tooltip("Tag used to identify Enemy objects. Leave empty to affect any EntityController that is not the player.")]
     private string enemyTag = "Enemy";
-
-    [Header("Medal Condition")]
-    [SerializeField, Tooltip("If true, overrides the global upgrade gate, otherwise the barrel reads LevelManager.BarrelInvulnerabilityEnabled.")]
-    private bool overrideMedalConditionLocally = false;
-
-    [SerializeField, Tooltip("Local medal condition used only when Override is enabled.")]
-    private bool localMedalConditionAchieved = false;
     
     [Header("External Triggering")]
     [SerializeField, Tooltip("If enabled, external scripts can trigger the explosion explicitly.")]
@@ -462,7 +455,7 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private bool IsMedalConditionActive()
     {
-        return overrideMedalConditionLocally ? localMedalConditionAchieved : LevelManager.BarrelInvulnerabilityEnabled;
+        return GlobalLevelManager.BarrelInvulnerability;
     }
 
     private void LogDebug(string message)

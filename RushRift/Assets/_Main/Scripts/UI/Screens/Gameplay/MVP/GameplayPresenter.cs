@@ -3,6 +3,7 @@ using Game.DesignPatterns.Observers;
 using Game.Entities;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Logger = MyTools.Global.Logger;
 
 namespace Game.UI.Screens
 {
@@ -65,15 +66,14 @@ namespace Game.UI.Screens
         
         public override bool TryGetState(out UIState state)
         {
-            var playerController = FindObjectOfType<PlayerController>();
-
-            if (!playerController)
+            if (!PlayerSpawner.Player.TryGet(out var player))
             {
+                Logger.Log($"[{typeof(GameplayPresenter)}]: Player not found", logType: LogType.Error);
                 state = null;
                 return false;
             }
             
-            state = new GameplayState(playerController.GetModel(), this);
+            state = new GameplayState(player.GetModel(), this);
             return true;
         }
     }

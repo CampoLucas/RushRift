@@ -13,10 +13,9 @@ namespace MyTools.Global.Editor
 
         #endregion
         
-
-
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
+#if false
             var baseHeight  = base.GetPropertyHeight(property, label);
 
             var key = property.FindPropertyRelative("key");
@@ -26,25 +25,6 @@ namespace MyTools.Global.Editor
             
             if (property.isExpanded)
             {
-                // if (_key != null && _key.isExpanded)
-                // {
-                //     var h = EditorGUI.GetPropertyHeight(_key);
-                //
-                //     if (h > height)
-                //     {
-                //         height = h;
-                //     }
-                // }
-                // if (_value != null && _value.isExpanded)
-                // {
-                //     var h = EditorGUI.GetPropertyHeight(_value);
-                //
-                //     if (h > height)
-                //     {
-                //         height = h;
-                //     }
-                // }
-
                 var keyHeight = EditorGUI.GetPropertyHeight(key, true);;
                 var valueHeight = EditorGUI.GetPropertyHeight(value, true);
 
@@ -64,6 +44,25 @@ namespace MyTools.Global.Editor
             }
             
             return baseHeight ;
+#else
+            // Use the automatic line count system
+            base.GetPropertyHeight(property, label); // sets LineHeight etc.
+            var height = MarginTop();
+
+            if (property.isExpanded)
+            {
+                var keyHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("key"), true);
+                var valueHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("value"), true);
+                height += keyHeight + valueHeight + LineSpacing() * 3;
+            }
+            else
+            {
+                height += LineHeight + LineSpacing(); // single line
+            }
+
+            height += MarginBottom();
+            return height;
+#endif
         }
 
         protected override void OnGUIBegin(Rect position, SerializedProperty property, GUIContent label)
@@ -77,8 +76,24 @@ namespace MyTools.Global.Editor
 
         protected override void OnGUIDraw(Rect position, SerializedProperty property, GUIContent label)
         {
+#if false
             //DrawProperty(GetRect(position));
             DrawProperty(position, new [] { _key, _value}, GUIContent.none, 22);
+#else
+            if (!property.isExpanded)
+            {
+                // Compact mode: side by side
+                DrawProperty(position, new[] { _key, _value }, GUIContent.none, 20);
+            }
+            else
+            {
+                // Expanded mode: stacked vertically
+                EditorGUI.indentLevel++;
+                DrawProperty(position, _key, GUIContent.none);
+                DrawProperty(position, _value, GUIContent.none);
+                EditorGUI.indentLevel--;
+            }
+#endif
             
         }
 

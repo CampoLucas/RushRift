@@ -70,7 +70,7 @@ public class GhostRecorder : MonoBehaviour
     private float lastFrameTime;
     private Vector3 lastPos;
     private Quaternion lastRot;
-    private IObserver winObserver;
+    private ActionObserver<bool> winObserver;
     private int levelIndex;
 
     // Read gizmo fields once so they count as "used" in builds
@@ -94,7 +94,7 @@ public class GhostRecorder : MonoBehaviour
             if (tagged) targetToRecord = tagged.transform;
         }
 
-        winObserver = new ActionObserver(OnLevelWon);
+        winObserver = new ActionObserver<bool>(OnGameOverHandler);
         
 
         if (startRecordingOnEnable) StartRecording();
@@ -103,10 +103,7 @@ public class GhostRecorder : MonoBehaviour
 
     private void Start()
     {
-        if (LevelManager.TryGetLevelWon(out var subject))
-        {
-            subject.Attach(winObserver);
-        }
+        GlobalEvents.GameOver.Attach(winObserver);
     }
 
     private void OnEnable()
@@ -136,10 +133,7 @@ public class GhostRecorder : MonoBehaviour
         StopRecording();
         if (winObserver != null)
         {
-            if (LevelManager.TryGetLevelWon(out var subject))
-            {
-                subject.Attach(winObserver);
-            }
+            GlobalEvents.GameOver.Detach(winObserver);
             
             winObserver.Dispose();
             winObserver = null;
@@ -218,8 +212,10 @@ public class GhostRecorder : MonoBehaviour
             currentRun.frames.RemoveAt(0);
     }
 
-    private void OnLevelWon()
+    private void OnGameOverHandler(bool levelWon)
     {
+        if (!levelWon) return;
+        
         float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
         if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
         {

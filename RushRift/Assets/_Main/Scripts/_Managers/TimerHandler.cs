@@ -8,18 +8,14 @@ using TMPro;
 public class TimerHandler : IDisposable
 {
     public float CurrentTime { get; private set; }
-    public ISubject<float> OnTimeUpdated { get; private set; } = new Subject<float>();
-
     public void DoUpdate(float delta)
     {
         CurrentTime += delta;
-        OnTimeUpdated.NotifyAll(CurrentTime);
+        GlobalEvents.TimeUpdated.NotifyAll(delta);
     }
 
     public void Dispose()
     {
-        OnTimeUpdated.DetachAll();
-        OnTimeUpdated.Dispose();
-        OnTimeUpdated = null;
+        GlobalEvents.TimeUpdated.DetachAll();
     }
 }

@@ -164,7 +164,7 @@ public class VolumetricTrigger : MonoBehaviour, ISubject<string>
     private static GameObject GetRoot(Collider c) =>
         c.attachedRigidbody ? c.attachedRigidbody.gameObject : c.transform.root.gameObject;
 
-    public bool Attach(IObserver<string> observer) => subject.Attach(observer);
+    public bool Attach(IObserver<string> observer, bool disposeOnDetach = false) => subject.Attach(observer, disposeOnDetach);
     public bool Detach(IObserver<string> observer) => subject.Detach(observer);
     
     public void Dispose()

@@ -28,15 +28,15 @@ namespace Game.Entities
         private Vector3 _moveDir;
         private Transform _camera;
 
-        private IObserver<float, float, float> _onPlayerDamage;
+        private IObserver<float, float, float> _onDamage;
+        private IObserver _onDeath;
         
         protected override void Awake()
         {
             base.Awake();
             
-            
-            
-            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
+            _onDamage = new ActionObserver<float, float, float>(OnDamageHandler);
+            _onDeath = new ActionObserver(OnDeathHandler);
         }
 
         protected override void Start()
@@ -45,8 +45,8 @@ namespace Game.Entities
 
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
-                healthComponent.OnValueChanged.Attach(_onPlayerDamage);
-                LevelManager.GetPlayerReference(healthComponent.OnEmptyValue);
+                healthComponent.OnValueChanged.Attach(_onDamage);
+                healthComponent.OnEmptyValue.Attach(_onDeath);
             }
 
 
@@ -57,14 +57,9 @@ namespace Game.Entities
                 effect.ApplyEffect(this);
             }
             
-            // var data = SaveAndLoad.Load();
-            // if (data == null) return;
-            //
-            // var levelID = LevelManager.GetLevelID();
-            // if (levelID == 0) return;
-
+            // ToDo: handle with the player spawner.
             var data = SaveSystem.LoadGame();
-            var levelID = Game.LevelManager.GetLevelID();
+            var levelID = GlobalLevelManager.GetID();
         
             var effectsAmount = data.TryGetUnlockedEffects(levelID, out var effects);
 
@@ -177,12 +172,15 @@ namespace Game.Entities
             _moveDir;
         
         
-        public void OnPlayerDamage(float previousValue, float newValue, float delta)
+        private void OnDamageHandler(float previousValue, float newValue, float delta)
         {
-            Debug.Log("Taking damage");
-            
             AudioManager.Play("Grunt");
             //ScreenFlash.Instance.TriggerFlash("#FF0044", .1f, .1f);
+        }
+        
+        private void OnDeathHandler()
+        {
+            GlobalEvents.GameOver.NotifyAll(false);
         }
         
     }

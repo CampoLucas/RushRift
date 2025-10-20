@@ -18,7 +18,7 @@ namespace Game.DesignPatterns.Observers
                     newSubject.NotifyAll();
             });
 
-            source.Attach(newObserver);
+            source.Attach(newObserver, true);
 
             return new DisposableSubject(newSubject, () => DisposeObserver(newObserver, source));
         }
@@ -34,7 +34,7 @@ namespace Game.DesignPatterns.Observers
                     newSubject.NotifyAll();
             });
 
-            source.Attach(newObserver);
+            source.Attach(newObserver, true);
 
             return new DisposableSubject(newSubject, () => DisposeObserver(newObserver, source));
         }
@@ -47,7 +47,7 @@ namespace Game.DesignPatterns.Observers
                 newSubject.NotifyAll();
             });
 
-            source.Attach(newObserver);
+            source.Attach(newObserver, true);
             
             return new DisposableSubject(newSubject, () => DisposeObserver(newObserver, source));
         }
@@ -60,7 +60,7 @@ namespace Game.DesignPatterns.Observers
                 newSubject.NotifyAll();
             });
 
-            source.Attach(newObserver);
+            source.Attach(newObserver, true);
             
             return new DisposableSubject(newSubject, () => DisposeObserver(newObserver, source));
         }
@@ -73,7 +73,7 @@ namespace Game.DesignPatterns.Observers
                 newSubject.NotifyAll();
             });
 
-            source.Attach(newObserver);
+            source.Attach(newObserver, true);
             
             return new DisposableSubject(newSubject, () => DisposeObserver(newObserver, source));
         }

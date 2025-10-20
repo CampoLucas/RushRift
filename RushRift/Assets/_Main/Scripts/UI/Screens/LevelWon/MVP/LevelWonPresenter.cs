@@ -14,8 +14,6 @@ namespace Game.UI.Screens
 {
     public sealed class LevelWonPresenter : UIPresenter<LevelWonModel, LevelWonView>
     {
-        public int CurrentLevel => LevelManager.GetLevelID();
-        
         [Header("Buttons")]
         [SerializeField] private Button continueButton;
         [SerializeField] private Button retryButton;
@@ -89,12 +87,12 @@ namespace Game.UI.Screens
         private void SetModelValues(in LevelWonModel model)
         {
             var data = SaveSystem.LoadGame();
-            var endTime = LevelManager.LevelCompleteTime();
-            data.CheckBestTime(CurrentLevel, endTime, out var prevBest, out var currBest, out var newRecord);
+            var endTime = GlobalLevelManager.CompleteTime;
+            data.CheckBestTime(GlobalLevelManager.GetID(), endTime, out var prevBest, out var currBest, out var newRecord);
 
-            var bronze = LevelManager.GetMedalInfo(MedalType.Bronze);
-            var silver = LevelManager.GetMedalInfo(MedalType.Silver);
-            var gold = LevelManager.GetMedalInfo(MedalType.Gold);
+            var bronze = GlobalLevelManager.GetMedalInfo(MedalType.Bronze);
+            var silver = GlobalLevelManager.GetMedalInfo(MedalType.Silver);
+            var gold = GlobalLevelManager.GetMedalInfo(MedalType.Gold);
 
             model.Initialize(endTime, currBest, newRecord, bronze, silver, gold);
         }
@@ -111,7 +109,7 @@ namespace Game.UI.Screens
         
         private void SaveUnlockedMedals(in LevelWonModel model, ref SaveData data)
         {
-            var levelID = LevelManager.GetLevelID();
+            var levelID = GlobalLevelManager.GetID();
             
             if (model.IsMedalUnlocked(MedalType.Bronze)) data.UnlockMedal(levelID, MedalType.Bronze);
             if (model.IsMedalUnlocked(MedalType.Silver)) data.UnlockMedal(levelID, MedalType.Silver);
@@ -122,7 +120,7 @@ namespace Game.UI.Screens
         {
             if (model.NewRecord)
             {
-                data.SetNewBestTime(CurrentLevel, model.BestTime);
+                data.SetNewBestTime(GlobalLevelManager.GetID(), model.BestTime);
             }
         }
 

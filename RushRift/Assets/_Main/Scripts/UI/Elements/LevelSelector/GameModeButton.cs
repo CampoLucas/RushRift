@@ -128,9 +128,9 @@ namespace Game.UI.Screens.Elements
             Dispose();
         }
 
-        public bool Attach(IObserver observer)
+        public bool Attach(IObserver observer, bool disposeOnDetach = false)
         {
-            return _onSelectSubject.TryGet(out var subject) && subject.Attach(observer);
+            return _onSelectSubject.TryGet(out var subject) && subject.Attach(observer, disposeOnDetach);
         }
 
         public bool Detach(IObserver observer)

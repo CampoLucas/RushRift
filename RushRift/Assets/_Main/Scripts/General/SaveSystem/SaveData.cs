@@ -78,7 +78,7 @@ namespace Game.Saves
         public int TryGetUnlockedEffects(int levelID, out Effect[] unlockedEffects)
         {
             var unlocked = new List<Effect>();
-            if (!LevelManager.TryGetLevelConfig(out var config))
+            if (!GlobalLevelManager.CurrentLevel.TryGet(out var config))
             {
 #if UNITY_EDITOR
                 Debug.LogError("ERROR: Couldn't find the level config. returning.");
@@ -88,23 +88,35 @@ namespace Game.Saves
                 return 0;
             }
 
-            if (IsMedalUnlocked(levelID, MedalType.Bronze))
+            if (TryGetUpgrade(levelID, MedalType.Bronze, config, out var upgrade))
             {
-                unlocked.Add(config.Bronze.upgrade);
+                unlocked.Add(upgrade);
             }
-
-            if (IsMedalUnlocked(levelID, MedalType.Silver))
+            
+            if (TryGetUpgrade(levelID, MedalType.Silver, config, out upgrade))
             {
-                unlocked.Add(config.Silver.upgrade);
+                unlocked.Add(upgrade);
             }
-
-            if (IsMedalUnlocked(levelID, MedalType.Gold))
+            
+            if (TryGetUpgrade(levelID, MedalType.Gold, config, out upgrade))
             {
-                unlocked.Add(config.Gold.upgrade);
+                unlocked.Add(upgrade);
             }
 
             unlockedEffects = unlocked.ToArray();
             return unlocked.Count;
+        }
+
+        private bool TryGetUpgrade(int levelID, MedalType type, BaseLevelSO config, out Effect upgrade)
+        {
+            if (IsMedalUnlocked(levelID, MedalType.Bronze) && config.TryGetMedal(MedalType.Bronze, out var bronze))
+            {
+                upgrade = bronze.upgrade;
+                return true;
+            }
+
+            upgrade = default;
+            return false;
         }
 
         public void UnlockMedal(int levelID, MedalType type)

@@ -37,9 +37,10 @@ namespace Game
             }
         }
         
-        protected static bool Usable => _instance && !_disposed && !_quiting;
+        protected static bool Usable => _instance && !_disposedInstance && !_quiting;
         
-        private static NullCheck<TBehaviour> _instance;
+        protected static NullCheck<TBehaviour> _instance;
+        private static bool _disposedInstance;
         private static bool _disposed;
         private static bool _quiting;
 
@@ -53,6 +54,8 @@ namespace Game
             }
 
             _instance = this as TBehaviour;
+            _disposedInstance = false;
+            _quiting = false;
 
             if (_instance.TryGet(out var instance) && DontDestroy())
             {
@@ -92,7 +95,8 @@ namespace Game
         protected virtual void OnAwake() { }
         protected abstract bool CreateIfNull();
         protected abstract bool DontDestroy();
-        protected virtual void OnDispose() { }
+        protected virtual void OnDisposeInstance() { }
+        protected virtual void OnDisposeNotInstance() { }
         
         private static bool GetCreateFlag()
         {
@@ -107,18 +111,21 @@ namespace Game
         public void Dispose()
         {
             if (_disposed) return;
-            OnDispose();
-            
             _disposed = true;
-            _instance = null;
+            
+            if (_instance.Get() == this && !_disposedInstance)
+            {
+                OnDisposeInstance(); // dispose stuff that the instance only has.
+                _disposedInstance = true;
+                _instance = null;
+            }
+            OnDisposeNotInstance(); // dispose serialized references and stuff the class might have.
+            
         }
 
         private void OnDestroy()
         {
-            if (_instance.Get() == this)
-            {
-                Dispose();
-            }
+            Dispose();
         }
 
         private void OnApplicationQuit()

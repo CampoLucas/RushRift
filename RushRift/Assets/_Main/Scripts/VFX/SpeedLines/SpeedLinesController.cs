@@ -70,9 +70,7 @@ namespace Game.VFX
             if (effect.pause || !_rigidbody) return;
             var on = data.SetEffect(_rigidbody.velocity.magnitude, effect) > 0;
 
-            var hasDashDamage = LevelManager.HasDashDamage;
-            
-            if (hasDashDamage && 
+            if (GlobalLevelManager.DashDamage && 
                 targetEntity.GetModel().TryGetComponent<MotionController>(out var controller) &&
                 controller.TryGetHandler<DashHandler>(out var handler))
             {

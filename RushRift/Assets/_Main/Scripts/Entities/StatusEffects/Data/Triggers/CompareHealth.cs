@@ -16,7 +16,7 @@ namespace Game.Entities
             {
                 var subject = healthComponent.OnValueChanged.Where((a, b, c) => Compare(a));
                 
-                return new Trigger(subject, this);
+                return new Trigger(subject, this, true);
             }
 
             return null;

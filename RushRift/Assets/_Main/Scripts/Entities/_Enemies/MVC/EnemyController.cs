@@ -32,7 +32,7 @@ namespace Game.Entities
         protected override void Start()
         {
             base.Start();
-            LevelManager.OnEnemySpawnSubject.NotifyAll();
+            GlobalEvents.EnemySpawned.NotifyAll(this);
             if (target) Init(target);
         }
 
@@ -66,7 +66,7 @@ namespace Game.Entities
         {
             AudioManager.Play("TurretDestruction");
             
-            LevelManager.OnEnemyDeathSubject.NotifyAll();
+            GlobalEvents.EnemyDeath.NotifyAll(this);
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
         }

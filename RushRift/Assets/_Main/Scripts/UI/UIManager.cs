@@ -7,16 +7,15 @@ using Game.Inputs;
 using Game.ScreenEffects;
 using Game.UI.Screens;
 using Game.Utils;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 namespace Game.UI
 {
-    public class UIManager : MonoBehaviour, DesignPatterns.Observers.IObserver<MenuState>
+    public class UIManager : SingletonBehaviour<UIManager>, DesignPatterns.Observers.IObserver<MenuState>
     {
-        [SerializeField] private PlayerController player;
-        
         [Header("Presenters")]
         [SerializeField] private GameplayPresenter gameplayPresenter;
         [SerializeField] private GameOverPresenter gameOverPresenter;
@@ -31,26 +30,17 @@ namespace Game.UI
         [SerializeField] private FadeScreen screenFade;
         [SerializeField] private ScreenDamageEffect screenDamage;
 
-        private static UIManager _instance;
         private NullCheck<UIStateMachine> _stateMachine;
         private IObserver<float, float, float> _onHealthChanged;
-        private IObserver _onGameOver;
-        private IObserver _onLevelWon;
+        private ActionObserver<bool> _onGameOver;
         private IObserver _onSceneChanged;
-        
-        private void Awake()
+
+        protected override void OnAwake()
         {
-            if (_instance != null && _instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-
-            _instance = this;
+            base.OnAwake();
+            
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
-            _onGameOver = new ActionObserver(OnGameOverHandler);
-            _onLevelWon = new ActionObserver(OnLevelWonHandler);
+            _onGameOver = new ActionObserver<bool>(OnGameOverHandler);
             _onSceneChanged = new ActionObserver(OnSceneChangedHandler);
             
             CursorHandler.lockState = CursorLockMode.Locked;
@@ -67,18 +57,16 @@ namespace Game.UI
             //levelWonPresenter.Attach(this);
             pausePresenter.Attach(this);
             //optionsPresenter.Attach(this);
+
+            GlobalEvents.GameOver.Attach(_onGameOver);
+
+            if (!PlayerSpawner.Player.TryGet(out var player))
+            {
+                this.Log("Player not found", LogType.Error);
+                return;
+            }
             
-            if (LevelManager.TryGetGameOver(out var gameOverSubject))
-            {
-                gameOverSubject.Attach(_onGameOver);
-            }
-
-            if (LevelManager.TryGetLevelWon(out var levelWonSubject))
-            {
-                levelWonSubject.Attach(_onLevelWon);
-            }
-
-            if (player.GetModel().TryGetComponent<HealthComponent>(out var health))
+            if (player.GetModel() != null && player.GetModel().TryGetComponent<HealthComponent>(out var health))
             {
                 health.OnValueChanged.Attach(_onHealthChanged);
             }
@@ -86,6 +74,12 @@ namespace Game.UI
 
         private void Update()
         {
+            if (!_stateMachine)
+            {
+                this.Log("The state machine is null", LogType.Error);
+                return;
+            }
+            
             _stateMachine.Get().Update(Time.deltaTime);
         }
         
@@ -113,9 +107,9 @@ namespace Game.UI
 
         public static bool SetScreen(UIScreen screen, float fadeOutTime = 0, float fadeInTime = 0, float fadeInStartTime = 0)
         {
-            if (_instance)
+            if (_instance.TryGet(out var manager))
             {
-                return _instance._stateMachine.Get().TransitionTo(screen, fadeOutTime, fadeInTime, fadeInStartTime);
+                return manager._stateMachine.Get().TransitionTo(screen, fadeOutTime, fadeInTime, fadeInStartTime);
             }
 
             return false;
@@ -123,7 +117,11 @@ namespace Game.UI
 
         private void InitStateMachine()
         {
-            if (player == null) return;
+            if (!PlayerSpawner.Player.TryGet(out var player))
+            {
+                this.Log("Player not found", LogType.Error);
+                return;
+            }
             var model = player.GetModel();
 
             _stateMachine = new UIStateMachine();
@@ -152,16 +150,18 @@ namespace Game.UI
             stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }
         
-        private void OnGameOverHandler()
+        private void OnGameOverHandler(bool playerWon)
         {
             if (!_stateMachine.TryGet(out var stateMachine)) return;
-            stateMachine.TransitionTo(UIScreen.GameOver, 1, 2, .75f);
-        }
-        
-        private void OnLevelWonHandler()
-        {
-            if (!_stateMachine.TryGet(out var stateMachine)) return;
-            stateMachine.TransitionTo(UIScreen.LevelWon, 1, 2, .75f);
+
+            if (playerWon)
+            {
+                stateMachine.TransitionTo(UIScreen.LevelWon, 1, 2, .75f);
+            }
+            else
+            {
+                stateMachine.TransitionTo(UIScreen.GameOver, 1, 2, .75f);
+            }
         }
 
         private void OnHealthChangedHandler(float current, float previous, float max)
@@ -221,7 +221,22 @@ namespace Game.UI
             SceneHandler.ReloadCurrent();
         }
 
-        public void Dispose()
+        protected override bool CreateIfNull() => false;
+        protected override bool DontDestroy() => false;
+        
+        protected override void OnDisposeNotInstance()
+        {
+            gameplayPresenter = null;
+            gameOverPresenter = null;
+            pausePresenter = null;
+            levelWonPresenter = null;
+            optionsPresenter = null;
+            loadingScreen = null;
+            screenFade = null;
+            screenDamage = null;
+        }
+
+        protected override void OnDisposeInstance()
         {
             if (_onSceneChanged != null)
             {
@@ -230,36 +245,28 @@ namespace Game.UI
                 _onSceneChanged = null;
             }
             
-            if (LevelManager.TryGetGameOver(out var gameOverSubject))
+            GlobalEvents.GameOver.Detach(_onGameOver);
+            
+            if (PlayerSpawner.Player.TryGet(out var player))
             {
-                gameOverSubject.Detach(_onGameOver);
-            }
-
-            if (LevelManager.TryGetLevelWon(out var levelWonSubject))
-            {
-                levelWonSubject.Detach(_onLevelWon);
-            }
-
-            var model = player.GetModel();
-            if (model != null && model.TryGetComponent<HealthComponent>(out var health))
-            {
-                health.OnValueChanged.Detach(_onHealthChanged);
+                var model = player.GetModel();
+                if (model != null && model.TryGetComponent<HealthComponent>(out var health))
+                {
+                    health.OnValueChanged.Detach(_onHealthChanged);
+                }
             }
             
             pausePresenter.Detach(this);
             
-            gameplayPresenter = null;
-            gameOverPresenter = null;
-            pausePresenter = null;
-            player = null;
-            
             if (_stateMachine) _stateMachine.Dispose();
             _onGameOver.Dispose();
-            _onLevelWon.Dispose();
+            _onHealthChanged.Dispose();
+            
+            _stateMachine.Dispose();
+            _onGameOver.Dispose();
             _onHealthChanged.Dispose();
 
             _onGameOver = null;
-            _onLevelWon = null;
             _onHealthChanged = null;
             
             PauseHandler.Dispose();

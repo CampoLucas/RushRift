@@ -47,14 +47,14 @@ namespace Game.Utils
             SceneManager.LoadScene(name);
         }
         
-        public static AsyncOperation LoadSceneAsync(string name)
+        public static AsyncOperation LoadSceneAsync(string name, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
         {
             var current = SceneManager.GetActiveScene();
             var index = GetSceneIndexByName(name);
             
             SaveCurrentScene(current, name, index);
             NotifySceneChange(current, name, index, true);
-            return SceneManager.LoadSceneAsync(name);
+            return SceneManager.LoadSceneAsync(name, loadSceneMode);
         }
         
         public static AsyncOperation LoadSceneAsync(int index)
@@ -153,7 +153,7 @@ namespace Game.Utils
 
         private static bool IsSaveable(string sceneName)
         {
-            return sceneName != MainMenuName;
+            return sceneName != MainMenuName && sceneName != GameEntry.MAIN_SCENE;
         }
 
         private static void NotifySceneChange(Scene from, string toName, int toIndex, bool isAsync)
@@ -173,6 +173,21 @@ namespace Game.Utils
         private static int GetSceneIndexByName(string name)
         {
             return SceneUtility.GetBuildIndexByScenePath(name);
+        }
+
+        public static Scene GetSceneByName(string name)
+        {
+            return SceneManager.GetSceneByName(name);
+        }
+
+        public static AsyncOperation UnloadSceneAsync(Scene active)
+        {
+            return SceneManager.UnloadSceneAsync(active);
+        }
+
+        public static void SetActiveScene(Scene scene)
+        {
+            SceneManager.SetActiveScene(scene);
         }
     }
 }

@@ -20687,7 +20687,7 @@ MonoBehaviour:
       enumType: 0
   animator:
   - {fileID: 845745551770018515}
-  target: {fileID: 147045527014362442}
+  target: {fileID: 0}
   runner: {fileID: 3763211557846576010}
   damageIndex: 1
   deathIndex: 2
@@ -46281,6 +46281,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2859329786441014987}
+  - component: {fileID: 1829839332222868940}
   m_Layer: 0
   m_Name: P_Level02
   m_TagString: Untagged
@@ -46308,6 +46309,23 @@ Transform:
   - {fileID: 2779164737703313347}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1829839332222868940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5534842577777120972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49fc2991e38ef4a499db3172ca837e96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelConfig: {fileID: 11400000, guid: 0a35be0099a131344b284c4e42c60b85, type: 2}
+  startGate: {fileID: 0}
+  endGate: {fileID: 0}
+  goal: {fileID: 0}
+  spawn: {fileID: 7287992647374585153}
 --- !u!1 &5781123224680687742
 GameObject:
   m_ObjectHideFlags: 0
@@ -57710,8 +57728,6 @@ MonoBehaviour:
   directionReferenceTransform: {fileID: 0}
   shouldResetTangentialVelocity: 0
   enemyTag: Enemy
-  overrideMedalConditionLocally: 0
-  localMedalConditionAchieved: 0
   allowExternalExplosionTrigger: 1
   shouldPlayExplosionAudio: 1
   explosionAudioEventName: BarrelExplosion
@@ -62885,8 +62901,6 @@ MonoBehaviour:
   directionReferenceTransform: {fileID: 0}
   shouldResetTangentialVelocity: 0
   enemyTag: Enemy
-  overrideMedalConditionLocally: 0
-  localMedalConditionAchieved: 0
   allowExternalExplosionTrigger: 1
   shouldPlayExplosionAudio: 1
   explosionAudioEventName: BarrelExplosion
@@ -63669,14 +63683,14 @@ PrefabInstance:
       addedObject: {fileID: 3560079469304995321}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 546e6a7a1348b6e43bc61b41701964f8, type: 3}
---- !u!4 &147045527014362442 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2349108605585950876, guid: 546e6a7a1348b6e43bc61b41701964f8, type: 3}
-  m_PrefabInstance: {fileID: 2491577959752910294}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2819312236685527478 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 410928721345530976, guid: 546e6a7a1348b6e43bc61b41701964f8, type: 3}
+  m_PrefabInstance: {fileID: 2491577959752910294}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7287992647374585153 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5167874280769747095, guid: 546e6a7a1348b6e43bc61b41701964f8, type: 3}
   m_PrefabInstance: {fileID: 2491577959752910294}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &8250802154753119260 stripped

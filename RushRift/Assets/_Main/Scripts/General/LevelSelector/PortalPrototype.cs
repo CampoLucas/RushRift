@@ -59,16 +59,16 @@ public class PortalPrototype : MonoBehaviour
                 _globalVolume.Get().profile = gameVolume;
             }
 
-            var targetLevel = _levelToLoad ? _levelToLoad.Get() : defaultLevelToLoad;
+            var targetLevel = _levelToLoad ? _levelToLoad.Get() :
+                GlobalLevelManager.CurrentLevel.TryGet(out var prevLevel) ? prevLevel : defaultLevelToLoad;
 
             if (targetLevel)
             {
-                targetLevel.LoadLevel();
+                GameEntry.TryLoadLevelAsync(targetLevel);
             }
             else
             {
-                this.Log("The portal script has no level to go to, automatically going to the first level.", LogType.Warning);
-                SceneHandler.LoadFirstLevel();
+                this.Log("The portal script has no level to go to...", LogType.Error);
             }
             //SceneHandler.LoadFirstLevel();
         }

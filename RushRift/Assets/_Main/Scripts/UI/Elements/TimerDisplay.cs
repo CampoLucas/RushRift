@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Game;
 using Game.DesignPatterns.Observers;
+using Game.Levels;
 using MyTools.Global;
 using MyTools.Utils;
 using TMPro;
@@ -42,6 +43,9 @@ public class TimerDisplay : MonoBehaviour
     private Color _textStartColor;
     private Color _nextThresholdColor = Color.white; // for blinking
 
+    private ActionObserver<BaseLevelSO> _onLevelChanged;
+    private ActionObserver _onLevelRestarted;
+    
     private ActionObserver<float> _timerObserver;
 
     private bool _useBlinkColor;
@@ -54,21 +58,19 @@ public class TimerDisplay : MonoBehaviour
 
     private void Start()
     {
-        if (LevelManager.TryGetTimerSubject(out var subject))
-        {
-            subject.Attach(_timerObserver);
-        }
+        GlobalEvents.TimeUpdated.Attach(_timerObserver);
         
         _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
 
-        if (!LevelManager.TryGetLevelConfig(out var levelConfig) && levelConfig)
+        if (!GlobalLevelManager.CurrentLevel.TryGet(out var levelConfig) && !levelConfig)
         {
             this.Log("TimerDisplay couldn't find the level config", LogType.Error);
+            return;
         }
         
-        _goldThreshold   = Mathf.Max(0f, levelConfig.Gold.requiredTime);
-        _silverThreshold = Mathf.Max(0f, levelConfig.Silver.requiredTime);
-        _bronzeThreshold = Mathf.Max(0f, levelConfig.Bronze.requiredTime);
+        _goldThreshold   = Mathf.Max(0f, levelConfig.GetMedal(MedalType.Bronze).requiredTime);
+        _silverThreshold = Mathf.Max(0f, levelConfig.GetMedal(MedalType.Silver).requiredTime);
+        _bronzeThreshold = Mathf.Max(0f, levelConfig.GetMedal(MedalType.Gold).requiredTime);
     }
 
     private void OnTimeUpdated(float time)
@@ -163,10 +165,7 @@ public class TimerDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (LevelManager.TryGetTimerSubject(out var subject))
-        {
-            subject.Detach(_timerObserver);
-        }
+        GlobalEvents.TimeUpdated.Detach(_timerObserver);
         StopAllCoroutines();
         
         _timerObserver.Dispose();
