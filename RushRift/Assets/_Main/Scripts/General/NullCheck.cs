@@ -67,6 +67,18 @@ namespace Game
             value = _value;
             return true;
         }
+        
+        /// <summary>
+        /// Attempts to get the stored value, if it doesn't it attemtps to get one.
+        /// </summary>
+        /// <param name="value">Output value if available; otherwise <c>default</c>.</param>
+        /// <returns>True if the value exists; otherwise false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGet(out T value, Func<T> fallback)
+        {
+            value = GetOrDefault(fallback);
+            return HasValue;
+        }
 
         /// <summary>
         /// Gets the stored value directly.

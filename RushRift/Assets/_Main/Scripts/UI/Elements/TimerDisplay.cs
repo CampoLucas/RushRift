@@ -43,8 +43,8 @@ public class TimerDisplay : MonoBehaviour
     private Color _textStartColor;
     private Color _nextThresholdColor = Color.white; // for blinking
 
-    private ActionObserver<BaseLevelSO> _onLevelLoadingStart;
-    private ActionObserver<BaseLevelSO> _onLevelLoadingEnd;
+    private ActionObserver<BaseLevelSO> _onPreload;
+    private ActionObserver<BaseLevelSO> _onLoad;
     
     private ActionObserver<float> _timerObserver;
 
@@ -57,14 +57,13 @@ public class TimerDisplay : MonoBehaviour
             _timerObserver = new ActionObserver<float>(OnTimeUpdated);
         }
 
-        _onLevelLoadingStart = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
-        _onLevelLoadingEnd = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
+        _onPreload = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
+        _onLoad = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
         
         _textStartColor = text.color;
-        
 
-        GameEntry.LoadingLevelStart.Attach(_onLevelLoadingStart);
-        GameEntry.LoadingLevelEnd.Attach(_onLevelLoadingEnd);
+        GameEntry.LoadingState.AttachOnPreload(_onPreload);
+        GameEntry.LoadingState.AttachOnLoad(_onLoad);
     }
 
     private void OnLoadingStartHandler(BaseLevelSO level)
@@ -204,6 +203,9 @@ public class TimerDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
+        GameEntry.LoadingState.DetachOnPreload(_onPreload);
+        GameEntry.LoadingState.DetachOnLoad(_onLoad);
+        
         GlobalEvents.TimeUpdated.Detach(_timerObserver);
         StopAllCoroutines();
         

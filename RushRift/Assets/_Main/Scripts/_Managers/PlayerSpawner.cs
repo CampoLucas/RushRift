@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using Cysharp.Threading.Tasks;
 using Game;
+using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.Utils;
 using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -11,6 +14,20 @@ using UnityEngine.Serialization;
 public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 {
     public static NullCheck<PlayerController> Player => _instance.TryGet(out var spawner) ? spawner._player : default;
+    public static Subject<Vector3, Vector3, Quaternion> PlayerSpawned = new();
+    
+    /// <summary>
+    /// For when the player reference in the spawner is set.
+    /// </summary>
+    public static Subject<PlayerController> PlayerSet = new();
+    /// <summary>
+    /// For when it doesn't have a already made reference or finds a player in the scene.
+    /// </summary>
+    public static Subject<PlayerController> PlayerCreated = new();
+    /// <summary>
+    /// For when the player it didn't had a player reference before hand and finds one in the scene.
+    /// </summary>
+    public static Subject<PlayerController> PlayerFound = new();
     
     [Header("Reference")]
     [SerializeField] private PlayerController instantiatedRef;
@@ -20,29 +37,47 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     [SerializeField] private Transform spawn;
     [SerializeField] private float minDistance = 0.1f;
 
-    private NullCheck<Transform> _camera;
+    //private NullCheck<Transform> _camera;
     private NullCheck<PlayerController> _player;
     private NullCheck<Rigidbody> _body;
     protected override void OnAwake()
     {
         base.OnAwake();
 
-        _camera = Camera.main.transform;
-        
-        if (instantiatedRef)
+        if (!_player.TryGet(out var player, SetPlayer))
         {
-            _player = instantiatedRef;
+            return;
         }
-        else if (!_player.Set(FindObjectOfType<PlayerController>()))
+        PlayerSet.NotifyAll(player);
+        
+        if (!player.TryGetComponent<Rigidbody>(out var body))
         {
-            _player = Instantiate(prefab);
+            return;
+        }
+        _body = body;
+    }
+
+    private PlayerController SetPlayer()
+    {
+        return instantiatedRef ? instantiatedRef : FindPlayer();
+    }
+
+    private PlayerController FindPlayer()
+    {
+        var player = FindObjectOfType<PlayerController>();
+        if (player)
+        {
+            PlayerFound.NotifyAll(player);
         }
 
-        if (_player.TryGet(out var player) && player.TryGetComponent<Rigidbody>(out var body))
-        {
-            Debug.Log("[SuperTest] has rigidbody");
-            _body = body;
-        }
+        return CreatePlayer();
+    }
+    
+    private PlayerController CreatePlayer()
+    {
+        var player = Instantiate(prefab);
+        PlayerCreated.NotifyAll(player);
+        return player;
     }
 
     private void Update()
@@ -53,66 +88,81 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         }
     }
 
-    public void Respawn(Vector3 position, Quaternion rotation)
+    public async UniTask Respawn(Vector3 position, Quaternion rotation)
     {
         Debug.Log("[SuperTest] Respawn player");
-        
-        if (_player.TryGet(out var player))
+        if (!_player.TryGet(out var player))
         {
-            var tr = player.transform;
-            
-            if (_body.TryGet(out var body))
-            {
-                // save the previous kinematic state
-                var prevKinematic = body.isKinematic;
-
-                // Set velocity to 0
-                body.isKinematic = false;
-                body.velocity = Vector3.zero;
-                
-                // Set as kinematic
-                body.isKinematic = true;
-                
-                // Move the player
-                tr.position = position;
-                tr.rotation = rotation;
-                
-                // Set velocity to 0
-                body.isKinematic = false;
-                body.velocity = Vector3.zero;
-                
-                // Set the kinematic to starting state
-                body.isKinematic = prevKinematic;
-            }
-            else
-            {
-                tr.position = position;
-                tr.rotation = rotation;
-            }
-
-            if (_camera.TryGet(out var camTr)) // Needs to have an offset, because the camera is not at the player's feet.
-            {
-                camTr.position = position;
-                camTr.rotation = rotation;
-            }
-            //player.transform.SetPositionAndRotation(position, rotation);
+            this.Log("Trying to respawn the player when it doesn't exist.", LogType.Error);
+            return;
+        }
+        
+        var tr = player.transform;
+        if (_body.TryGet(out var body))
+        {
+            await RigidbodyRespawn(position, rotation, body, tr, minDistance);
         }
         else
         {
-            this.Log("Trying to respawn the player when it doesn't exist.", LogType.Error);
+            await TransformRespawnAsync(position, rotation, tr, minDistance);
         }
+        
+        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+            
+        var diff = tr.position - position;
+        PlayerSpawned.NotifyAll(position, diff, rotation);
     }
 
-    public void Respawn(Transform tr) => Respawn(tr.position, tr.rotation);
+    private async UniTask RigidbodyRespawn(Vector3 position, Quaternion rotation, Rigidbody body, Transform tr, float minDist = .1f)
+    {
+        // save the previous kinematic state
+        var prevKinematic = body.isKinematic;
 
-    public bool Respawn(NullCheck<Transform> trCheck)
+        // Set velocity to 0
+        if (body.isKinematic)
+        {
+            body.isKinematic = false;
+            body.velocity = Vector3.zero;
+            // Set as kinematic
+            body.isKinematic = true;
+        }
+        
+        // Move the player
+        tr.position = position;
+        tr.rotation = rotation;
+        // tr.position = position;
+        // tr.rotation = rotation;
+
+        await UniTask.Yield(PlayerLoopTiming.LastFixedUpdate);
+        
+        // Set velocity to 0
+        body.isKinematic = false;
+        body.velocity = Vector3.zero;
+                
+        // Set the kinematic to starting state
+        body.isKinematic = prevKinematic;
+    }
+
+    private async UniTask TransformRespawnAsync(Vector3 position, Quaternion rotation, Transform tr, float minDist = .1f)
+    {
+        tr.SetPositionAndRotation(position, rotation);
+        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+
+        await UniTask.WaitUntil(() => 
+            tr.IsNullOrMissingReference() || // Use cancelation tokes instead of this
+            Vector3.Distance(tr.position, position) <= minDist);
+    }
+
+    public async UniTask Respawn(Transform tr) => await Respawn(tr.position, tr.rotation);
+
+    public async UniTask<bool> Respawn(NullCheck<Transform> trCheck)
     {
         if (!trCheck.TryGet(out var tr))
         {
             return false;
         }
 
-        Respawn(tr);
+        await Respawn(tr);
         return true;
     }
 
@@ -123,10 +173,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 
         if (playerSpawner.TryGet(out var spawner) && spawner._player.TryGet(out var player))
         {
-            spawner.Respawn(spawner.spawn);
-
-            await UniTask.WaitUntil(() =>
-                Vector3.Distance(player.transform.position, spawner.spawn.position) <= spawner.minDistance);
+            await spawner.Respawn(spawner.spawn);
         }
     }
 

@@ -43,13 +43,12 @@ namespace Game
         private TimerHandler _levelTimer = new();
         private DesignPatterns.Observers.IObserver<bool> _gameOverObserver;
         
-        
-        
         protected override void OnAwake()
         {
-            GameEntry.LoadingLevel = true;
-            
             base.OnAwake();
+            GameEntry.LoadingState.SetLoading(true);
+            GameEntry.LoadingState.AttachOnReady(_levelTimer);
+            
             // Reset the global events
             GlobalEvents.Reset();
             
@@ -152,6 +151,7 @@ namespace Game
         protected override void OnDisposeInstance()
         {
             GlobalEvents.GameOver.Detach(_gameOverObserver);
+            GameEntry.LoadingState.DetachOnReady(_levelTimer);
             _gameOverObserver.Dispose();
             
             GlobalEvents.Reset();

@@ -38,11 +38,11 @@ namespace Game.UI
         private IObserver<float, float, float> _onHealthChanged;
         private ActionObserver<bool> _onGameOver;
 
-        private bool _initialized;
+        private bool _active;
         //private IObserver _onSceneChanged;
         
-        private ActionObserver<BaseLevelSO> _onLevelLoadingStart;
-        private ActionObserver<BaseLevelSO> _onLevelLoadingEnd;
+        private ActionObserver<BaseLevelSO> _onPreload;
+        private ActionObserver<BaseLevelSO> _onReady;
         private ActionObserver<BaseLevelSO> _initStateMachine;
 
         protected override void OnAwake()
@@ -56,36 +56,41 @@ namespace Game.UI
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
             
+            Debug.Log("Set Loading screen update");
             loadingScreen.SetActive(true);
-            
-            _onLevelLoadingStart = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
-            _onLevelLoadingEnd = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
-            
-            GameEntry.LoadingLevelStart.Attach(_onLevelLoadingStart);
-            GameEntry.LoadingLevelEnd.Attach(_onLevelLoadingEnd);
+
+            _active = false;
+            _onPreload = new ActionObserver<BaseLevelSO>(OnPreloadHandler);
+            _onReady = new ActionObserver<BaseLevelSO>(OnReadyHandler);
+
+            GameEntry.LoadingState.AttachOnPreload(_onPreload);
+            GameEntry.LoadingState.AttachOnReady(_onReady);
         }
 
-        private void OnLoadingStartHandler(BaseLevelSO level)
+        private void OnPreloadHandler(BaseLevelSO level)
         {
-            loadingScreen.gameObject.SetActive(true);
+            _active = false;
+            Debug.Log("Add Loading screen");
+            loadingScreen.SetActive(true);
         }
     
-        private void OnLoadingEndHandler(BaseLevelSO level)
+        private void OnReadyHandler(BaseLevelSO level)
         {
-            loadingScreen.gameObject.SetActive(false);
-
-            
+            Debug.Log("Remove Loading screen");
+            loadingScreen.SetActive(false);
 
             if (_stateMachine.TryGet(out var stateMachine))
             {
                 stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
             }
+
+            _active = true;
         }
         
         private void Start()
         {
-            GameEntry.LoadingLevelEnd.Detach(_initStateMachine);
             //SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
+            
             InitStateMachine();
 
             gameplayPresenter.Attach(this);
@@ -110,7 +115,7 @@ namespace Game.UI
 
         private void Update()
         {
-            if (GameEntry.LoadingLevel)
+            if (!_active)
             {
                 return;
             }
@@ -220,7 +225,7 @@ namespace Game.UI
             SceneHandler.LoadMainMenu();
         }
 
-        private void LoadHUB()
+        public void LoadHUB()
         {
             Time.timeScale = 1f;
             GameEntry.TryLoadLevelAsync(hubLevel);
@@ -235,7 +240,7 @@ namespace Game.UI
             stateMachine.TransitionTo(UIScreen.Gameplay, .25f, 0, 0);
         }
 
-        private void Restart()
+        public void Restart()
         {
             Time.timeScale = 1f;
             GameEntry.TryLoadLevelAsync(GlobalLevelManager.CurrentLevel);
@@ -259,15 +264,8 @@ namespace Game.UI
 
         protected override void OnDisposeInstance()
         {
-            // if (_onSceneChanged != null)
-            // {
-            //     SceneHandler.OnSceneChanged.Detach(_onSceneChanged);
-            //     _onSceneChanged.Dispose();
-            //     _onSceneChanged = null;
-            // }
-
-            
-            
+            GameEntry.LoadingState.DetachOnPreload(_onPreload);
+            GameEntry.LoadingState.DetachOnReady(_onReady);
             GlobalEvents.GameOver.Detach(_onGameOver);
             
             if (PlayerSpawner.Player.TryGet(out var player))
