@@ -13,7 +13,8 @@ public class PlayLevelToolbar : VisualElement
     public const string ID = "CustomToolbar/PlayLevel";
     public static readonly string DisabledFlag = "__NONE__";
 
-    private static readonly string PrefKey = "PlayLevel.SelectedLevel";
+    private static readonly string LevelPrefKey = "PlayLevel.SelectedLevel";
+    private static readonly string ModePrefKey = "PlayLevel.SelectedMode";
     private static readonly string MainScenePath = "Assets/_Main/Scenes/MainScene.unity";
     private static readonly string MainMenuPath = "Assets/_Main/Scenes/Main Menu.unity";
 
@@ -22,8 +23,10 @@ public class PlayLevelToolbar : VisualElement
     private EditorToolbarButton _openSceneButton;
     private EditorToolbarButton _selectButton;
     
+    private static List<GameModeSO> _gameModes = new();
     private static List<BaseLevelSO> _levels = new();
-    private static BaseLevelSO _selected;
+    private static BaseLevelSO _selectedLevel;
+    private static GameModeSO _selectedMode;
     private static string _selectedScenePath;
     private static bool _isSceneOnly;
 
@@ -82,7 +85,7 @@ public class PlayLevelToolbar : VisualElement
         _selectButton.style.marginLeft = 4;
         Add(_selectButton);
 
-        RefreshLevels();
+        RefreshAssets();
         RestoreSelection();
         UpdateLevelButtonText();
 
@@ -97,17 +100,17 @@ public class PlayLevelToolbar : VisualElement
 
     private void ShowLevelMenu()
     {
-        RefreshLevels();
+        RefreshAssets();
         var menu = new GenericMenu();
         
         // None option (disables tool)
-        menu.AddItem(new GUIContent("Nothing"), !_isSceneOnly && _selected == null, () =>
+        menu.AddItem(new GUIContent("Nothing"), !_isSceneOnly && _selectedLevel == null, () =>
         {
-            _selected = null;
+            _selectedLevel = null;
             _isSceneOnly = false;
             
             // Save persistent flag that means "disabled"
-            EditorPrefs.SetString(PrefKey, DisabledFlag);
+            EditorPrefs.SetString(LevelPrefKey, DisabledFlag);
 
             // Clear playModeStartScene so regular play uses active scene
             EditorSceneManager.playModeStartScene = null;
@@ -118,7 +121,44 @@ public class PlayLevelToolbar : VisualElement
         
         menu.AddSeparator("");
         
+        // Game modes
+        if (_gameModes.Count > 0)
+        {
+            foreach (var mode in _gameModes)
+            {
+                // Try to get levels for mode
+                var modeLevels = mode.Levels;
+                if (modeLevels == null || modeLevels.Count == 0)
+                {
+                    menu.AddDisabledItem(new GUIContent($"{mode.DisplayName}/Empty"));
+                    continue;
+                }
+
+                foreach (var lvl in modeLevels)
+                {
+                    var label = $"{mode.DisplayName}/{lvl.LevelID:D2}: {lvl.LevelName} ({lvl.GetType().Name})";
+                    var selected = !_isSceneOnly && (_selectedMode == mode && _selectedLevel == lvl);
+                    
+                    menu.AddItem(new GUIContent(label), selected, () =>
+                    {
+                        _selectedMode = mode;
+                        _selectedLevel = lvl;
+                        _isSceneOnly = false;
+                        SaveSelection();
+                        UpdateLevelButtonText();
+                    });
+                }
+            }
+        }
+        else
+        {
+            menu.AddDisabledItem(new GUIContent("No GameModes found"));
+        }
         
+        // All Levels
+        menu.AddSeparator("");
+
+#if false
         if (_levels.Count == 0)
         {
             menu.AddDisabledItem(new GUIContent("No levels found"));
@@ -135,24 +175,48 @@ public class PlayLevelToolbar : VisualElement
                 };
 
                 var label = $"{category}/{level.LevelID:D2}: {level.LevelName} ({level.GetType().Name})";
-                var selected = !_isSceneOnly && _selected == level;
+                var selected = !_isSceneOnly && _selectedMode == null && _selectedLevel == level;
                 
                 menu.AddItem(new GUIContent(label), selected, () =>
                 {
-                    _selected = level;
+                    _selectedMode = null;
+                    _selectedLevel = level;
                     _isSceneOnly = false;
                     SaveSelection();
                     UpdateLevelButtonText();
                 });
             }
         }
+#else
+        if (_levels.Count == 0)
+        {
+            menu.AddDisabledItem(new GUIContent("No levels found"));
+        }
+        else
+        {
+            foreach (var lvl in _levels)
+            {
+                var label = $"All Levels/{lvl.LevelID:D2}: {lvl.LevelName} ({lvl.GetType().Name})";
+                var isSel = !_isSceneOnly && _selectedMode == null && _selectedLevel == lvl;
+                menu.AddItem(new GUIContent(label), isSel, () =>
+                {
+                    _selectedMode = null;
+                    _selectedLevel = lvl;
+                    _isSceneOnly = false;
+                    SaveSelection();
+                    UpdateLevelButtonText();
+                });
+            }
+        }
+#endif
         
+        // Scenes
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Scenes/Main Scene"), _isSceneOnly && _selectedScenePath == MainScenePath, () =>
         {
             _isSceneOnly = true;
             _selectedScenePath = MainScenePath;
-            _selected = null;
+            _selectedLevel = null;
             SaveSelection();
             UpdateLevelButtonText();
         });
@@ -161,7 +225,7 @@ public class PlayLevelToolbar : VisualElement
         {
             _isSceneOnly = true;
             _selectedScenePath = MainMenuPath;
-            _selected = null;
+            _selectedLevel = null;
             SaveSelection();
             UpdateLevelButtonText();
         });
@@ -171,29 +235,32 @@ public class PlayLevelToolbar : VisualElement
         menu.DropDown(new Rect(world.xMin, world.yMax, 0, 0));
     }
 
-    private void RefreshLevels()
+    private void RefreshAssets()
     {
-#if false
-        var guids = AssetDatabase.FindAssets("t:ScriptableObject");
-        _levels = guids
-            .Select(g => AssetDatabase.LoadAssetAtPath<ScriptableObject>(AssetDatabase.GUIDToAssetPath(g)))
-            .OfType<BaseLevelSO>()
-            .OrderBy(l => l.name)
+        // Load all game modes
+        var modeGuids = AssetDatabase.FindAssets($"t:{typeof(GameModeSO)}");
+        _gameModes = modeGuids
+            .Select(g => AssetDatabase.LoadAssetAtPath<GameModeSO>(AssetDatabase.GUIDToAssetPath(g)))
+            .Where(m => m != null)
+            .OrderBy(m => m.name)
             .ToList();
-#else
-        var guids = AssetDatabase.FindAssets($"t:{typeof(BaseLevelSO)}");
-        _levels = guids
+    
+        // Load all levels
+        var levelGuids = AssetDatabase.FindAssets($"t:{typeof(BaseLevelSO)}");
+        _levels = levelGuids
             .Select(g => AssetDatabase.LoadAssetAtPath<BaseLevelSO>(AssetDatabase.GUIDToAssetPath(g)))
             .Where(l => l != null)
             .OrderBy(l => l.LevelID)
             .ToList();
-#endif
+
     }
 
     private void UpdateLevelButtonText()
     {
         if (_isSceneOnly)
         {
+            _levelDropdown.tooltip = "Select Level or Scene to play";
+            
             if (_selectedScenePath == MainScenePath)
                 _levelDropdown.text = "Main Scene";
             else if (_selectedScenePath == MainMenuPath)
@@ -206,21 +273,25 @@ public class PlayLevelToolbar : VisualElement
             _selectButton.SetEnabled(true);
             return;
         }
-        else if (_selected)
+        if (_selectedLevel)
         {
-            var typeName = _selected.GetType().Name;
-            var name = _selected.name;
-            var display = name.Length > 22 ? name.Substring(0, 22) + "…" : name;
-            _levelDropdown.text = $"{display}";
+            var n = _selectedLevel.name;
+            var fullDisplay = _selectedMode ? $"{_selectedMode.DisplayName}/{n}" : n;
+            
+            _levelDropdown.tooltip = $"{fullDisplay}. Select Level or Scene to play";
+            
+            var display = fullDisplay.Length > 10 ? fullDisplay.Substring(0, 9) + "…" : fullDisplay;
+            _levelDropdown.text = display;
             
             _playButton.SetEnabled(true);
 
-            var multi = _selected is CompositeLevelSO;
+            var multi = _selectedLevel is CompositeLevelSO;
             _openSceneButton.SetEnabled(!multi);
             _selectButton.SetEnabled(true);
         }
         else
         {
+            _levelDropdown.tooltip = "Tool disabled. Select Level or Scene to play";
             _levelDropdown.text = "Select Level";
             _playButton.SetEnabled(false);
             _openSceneButton.SetEnabled(false);
@@ -232,39 +303,61 @@ public class PlayLevelToolbar : VisualElement
     {
         if (_isSceneOnly)
         {
-            EditorPrefs.SetString(PrefKey, _selectedScenePath);
+            EditorPrefs.SetString(LevelPrefKey, _selectedScenePath);
             return;
         }
         
-        if (_selected == null)
+        if (_selectedLevel == null)
         {
-            EditorPrefs.SetString(PrefKey, DisabledFlag);
+            EditorPrefs.SetString(LevelPrefKey, DisabledFlag);
             return;
         }
 
-        var path = AssetDatabase.GetAssetPath(_selected);
-        EditorPrefs.SetString(PrefKey, path);
+        if (_selectedMode == null)
+        {
+            EditorPrefs.SetString(ModePrefKey, DisabledFlag);
+        }
+        else
+        {
+            var modePath = AssetDatabase.GetAssetPath(_selectedMode);
+            EditorPrefs.SetString(ModePrefKey, modePath);
+        }
+
+        var path = AssetDatabase.GetAssetPath(_selectedLevel);
+        EditorPrefs.SetString(LevelPrefKey, path);
     }
 
     private void RestoreSelection()
     {
-        var path = EditorPrefs.GetString(PrefKey, "");
-        if (string.IsNullOrEmpty(path) || path == DisabledFlag)
+        var levelPath = EditorPrefs.GetString(LevelPrefKey, "");
+
+        if (string.IsNullOrEmpty(levelPath) || levelPath == DisabledFlag)
         {
-            _selected = null;
+            _selectedMode = null;
+            _selectedLevel = null;
             _isSceneOnly = false;
             return;
         }
         
-        if (path == MainScenePath || path == MainMenuPath)
+        if (levelPath == MainScenePath || levelPath == MainMenuPath)
         {
-            _selected = null;
+            _selectedLevel = null;
             _isSceneOnly = true;
-            _selectedScenePath = path;
+            _selectedScenePath = levelPath;
             return;
         }
         
-        _selected = AssetDatabase.LoadAssetAtPath<BaseLevelSO>(path);
+        var modePath = EditorPrefs.GetString(ModePrefKey, "");
+        if (string.IsNullOrEmpty(modePath) || modePath == DisabledFlag)
+        {
+            _selectedMode = null;
+        }
+        else
+        {
+            _selectedMode = AssetDatabase.LoadAssetAtPath<GameModeSO>(modePath);
+        }
+        
+        _selectedLevel = AssetDatabase.LoadAssetAtPath<BaseLevelSO>(levelPath);
     }
 
     private void OnPlayClicked()
@@ -283,19 +376,21 @@ public class PlayLevelToolbar : VisualElement
             return;
         }
 
-        if (_selected == null)
+        if (_selectedLevel == null)
         {
-            PlayLevelHandler.SetSelectedLevel(_selected);
+            PlayLevelHandler.SetSelectedLevel(_selectedLevel);
             EditorUtility.DisplayDialog("No Level Selected", "Please select a BaseLevelSO first.", "OK");
             return;
         }
+        
         
         // Always start from MainScene
         var mainScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(MainScenePath);
         if (mainScene) EditorSceneManager.playModeStartScene = mainScene;
         
         // handoff to runtime bridge
-        PlayLevelHandler.SetSelectedLevel(_selected);
+        PlayLevelHandler.SetSelectedLevel(_selectedLevel);
+        PlayLevelHandler.SetSelectedMode(_selectedMode);
         EditorApplication.isPlaying = true;
     }
     
@@ -315,15 +410,15 @@ public class PlayLevelToolbar : VisualElement
             return;
         }
 
-        if (_selected == null) return;
+        if (_selectedLevel == null) return;
 
-        if (_selected.LevelCount() > 1)
+        if (_selectedLevel.LevelCount() > 1)
         {
             EditorUtility.DisplayDialog("Cannot Open", "This LevelSO contains multiple scenes and cannot be opened directly.", "OK");
             return;
         }
 
-        if (_selected is LevelSO level)
+        if (_selectedLevel is LevelSO level)
         {
             var path = $"Assets/_Main/Scenes/Levels/{level.SceneName}.unity";
             
@@ -358,10 +453,10 @@ public class PlayLevelToolbar : VisualElement
             return;
         }
 
-        if (_selected)
+        if (_selectedLevel)
         {
-            Selection.activeObject = _selected;
-            EditorGUIUtility.PingObject(_selected);
+            Selection.activeObject = _selectedLevel;
+            EditorGUIUtility.PingObject(_selectedLevel);
         }
         else
         {

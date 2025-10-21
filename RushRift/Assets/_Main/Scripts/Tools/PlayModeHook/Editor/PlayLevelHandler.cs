@@ -9,8 +9,10 @@ using UnityEngine;
 [InitializeOnLoad]
 public static class PlayLevelHandler
 {
-    private const string PrefKey = "PlayLevel.SelectedLevel";
-    private static BaseLevelSO _selected;
+    private const string LevelPrefKey = "PlayLevel.SelectedLevel";
+    private const string ModePrefKey = "PlayLevel.SelectedMode";
+    private static BaseLevelSO _selectedLevel;
+    private static GameModeSO _selectedMode;
 
     static PlayLevelHandler()
     {
@@ -21,9 +23,10 @@ public static class PlayLevelHandler
     {
         if (state != UnityEditor.PlayModeStateChange.EnteredPlayMode) return;
 
+        // Level
         // Reset if disabled
-        var path = EditorPrefs.GetString(PrefKey, "");
-        if (string.IsNullOrEmpty(path) || path == PlayLevelToolbar.DisabledFlag)
+        var levelPath  = EditorPrefs.GetString(LevelPrefKey, "");
+        if (string.IsNullOrEmpty(levelPath ) || levelPath  == PlayLevelToolbar.DisabledFlag)
         {
             // Ensure playModeStartScene is cleared
             EditorSceneManager.playModeStartScene = null;
@@ -32,32 +35,67 @@ public static class PlayLevelHandler
         }
 
         // Try load level asset
-        _selected = AssetDatabase.LoadAssetAtPath<BaseLevelSO>(path);
-        if (_selected == null)
+        _selectedLevel = AssetDatabase.LoadAssetAtPath<BaseLevelSO>(levelPath );
+        if (_selectedLevel == null)
         {
             // Ensure playModeStartScene is cleared
             EditorSceneManager.playModeStartScene = null;
             Debug.Log($"[{typeof(PlayLevelHandler)}] Selected level asset missing or invalid — skipping.");
             return;
         }
+        
+        // Game Mode
+        var modePath = EditorPrefs.GetString(ModePrefKey, "");
+        if (!string.IsNullOrEmpty(modePath) && modePath != PlayLevelToolbar.DisabledFlag)
+        {
+            _selectedMode = AssetDatabase.LoadAssetAtPath<GameModeSO>(modePath);
+        }
+        else
+        {
+            _selectedMode = null;
+        }
+
 
         await UniTask.DelayFrame(5); // let managers init
-        GameEntry.LoadLevelAsync(_selected, false);
+        if (!_selectedMode)
+        {
+            GameEntry.LoadLevelAsync(_selectedLevel, false);
+        }
+        else
+        {
+            GameEntry.LoadSessionAsync(_selectedMode, _selectedLevel, false);
+        }
     }
 
     public static void SetSelectedLevel(BaseLevelSO level)
     {
-        _selected = level;
+        _selectedLevel = level;
 
         if (level == null)
         {
             // Disable the feature entirely
-            EditorPrefs.SetString(PrefKey, PlayLevelToolbar.DisabledFlag);
+            EditorPrefs.SetString(LevelPrefKey, PlayLevelToolbar.DisabledFlag);
             Debug.Log($"[{typeof(PlayLevelHandler)}] Level selection cleared — tool disabled.");
             return;
         }
         
         var path = AssetDatabase.GetAssetPath(level);
-        EditorPrefs.SetString(PrefKey, path);
+        EditorPrefs.SetString(LevelPrefKey, path);
+    }
+    
+    public static void SetSelectedMode(GameModeSO mode)
+    {
+        _selectedMode = mode;
+
+        if (mode == null)
+        {
+            // Disable the feature entirely
+            EditorPrefs.SetString(ModePrefKey, PlayLevelToolbar.DisabledFlag);
+            Debug.Log($"[{typeof(PlayLevelHandler)}] Mode selection cleared — tool disabled.");
+            return;
+        }
+        
+        var path = AssetDatabase.GetAssetPath(mode);
+        EditorPrefs.SetString(ModePrefKey, path);
     }
 }

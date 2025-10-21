@@ -7,6 +7,7 @@ namespace Game.Levels
     [CreateAssetMenu(menuName = "Game/GameMode", fileName = "New GameModeConfig")]
     public class GameModeSO : SerializableSO
     {
+        public string DisplayName => displayName;
         public List<BaseLevelSO> Levels => levels;
         
         [Header("Settings")]

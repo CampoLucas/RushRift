@@ -18,6 +18,14 @@ namespace Game
         {
             await TryAwaitLoadSessionAsync(session, mainSceneAdditive);
         }
+        
+        public static async void LoadSessionAsync(GameModeSO gameMode, BaseLevelSO level, bool mainSceneAdditive = false)
+        {
+            var session = ScriptableObject.CreateInstance<GameSessionSO>();
+            session.Initialize(gameMode, level);
+            
+            await TryAwaitLoadSessionAsync(session, mainSceneAdditive);
+        }
 
         public static async void LoadLevelAsync(BaseLevelSO level, bool mainSceneAdditive = false)
         {
