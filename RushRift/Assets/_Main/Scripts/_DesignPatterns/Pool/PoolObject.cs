@@ -13,7 +13,7 @@ namespace Game.DesignPatterns.Pool
         protected List<TPoolable> Available = new();
         protected TFactory Factory;
         protected bool Disposed = false;
-        protected bool DisposeFactory;
+        private bool DisposeFactory;
 
         protected Pool(TFactory factory, bool disposeFactory)
         {
@@ -24,7 +24,19 @@ namespace Game.DesignPatterns.Pool
         public virtual void Recycle(TPoolable poolable)
         {
             if (Disposed || !InUse.Remove(poolable)) return;
+            
             Available.Add(poolable);
+        }
+
+        public virtual void RecycleAll()
+        {
+            for (var i = 0; i < InUse.Count; i++)
+            {
+                var element = InUse[i];
+                
+                if (element == null) continue;
+                Recycle(element);
+            }
         }
 
         public virtual void Remove(TPoolable poolable)
