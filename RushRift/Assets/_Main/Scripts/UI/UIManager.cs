@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
@@ -228,7 +229,9 @@ namespace Game.UI
         public void LoadHUB()
         {
             Time.timeScale = 1f;
-            GameEntry.TryLoadLevelAsync(hubLevel);
+            
+            // ToDo: Make the GlobalLevelManager have the hub reference and method to load it.
+            GameEntry.LoadLevelAsync(hubLevel);
             //SceneHandler.LoadHub();
         }
 
@@ -243,7 +246,8 @@ namespace Game.UI
         public void Restart()
         {
             Time.timeScale = 1f;
-            GameEntry.TryLoadLevelAsync(GlobalLevelManager.CurrentLevel);
+            // ToDo: Make the GlobalLevelManager have the method to restart.
+            GameEntry.LoadSessionAsync(GlobalLevelManager.CurrentSession);
             //SceneHandler.ReloadCurrent();
         }
 

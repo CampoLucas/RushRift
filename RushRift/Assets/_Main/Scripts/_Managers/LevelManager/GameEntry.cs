@@ -12,9 +12,19 @@ namespace Game
         public static LoadingState LoadingState { get; private set; } = LoadingState.Create();
         public static BaseLevelSO PendingLevel;
         public const string MAIN_SCENE = "MainScene";
-        
 
-        public static async UniTask OnMainSceneLoaded(GlobalLevelManager manager)
+
+        public static async void LoadSessionAsync(GameSessionSO session, bool mainSceneAdditive = false)
+        {
+            await TryAwaitLoadSessionAsync(session, mainSceneAdditive);
+        }
+
+        public static async void LoadLevelAsync(BaseLevelSO level, bool mainSceneAdditive = false)
+        {
+            await TryAwaitLoadLevelAsync(level, mainSceneAdditive);
+        }
+        
+        public static async UniTask AwaitOnMainSceneLoaded(GlobalLevelManager manager)
         {
             if (PendingLevel == null)
                 return;
@@ -23,31 +33,75 @@ namespace Game
             PendingLevel = null;
         }
         
-        public static async void TryLoadLevelAsync(BaseLevelSO level, bool mainSceneAdditive = false)
+        public static async UniTask<bool> TryAwaitLoadSessionAsync(GameSessionSO session, bool mainSceneAdditive = false)
+        {
+            if (!session)
+            {
+                Debug.LogError("ERROR: Couldn't load the session. Reason: session is null.");
+                return false;
+            }
+
+            if (!session.Level)
+            {
+                Debug.LogError("ERROR: Couldn't load the session. Reason: level is null.");
+                return false;
+            }
+            
+            if (!await TryAwaitLoad(session, session.Level, mainSceneAdditive))
+            {
+                Debug.LogError("ERROR: Couldn't load the session.");
+                return false;
+            }
+
+            return true;
+        }
+        
+        public static async UniTask<bool> TryAwaitLoadLevelAsync(BaseLevelSO level, bool mainSceneAdditive = false)
+        {
+            var session = GameSessionSO.GetOrCreate(GlobalLevelManager.CurrentSession, null, level);
+            
+            if (!await TryAwaitLoadSessionAsync(session, mainSceneAdditive))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static async UniTask<bool> TryAwaitLoad(GameSessionSO session, BaseLevelSO level, bool mainSceneAdditive = false)
         {
             LoadingState.SetLoading(true);
             LoadingState.NotifyPreload(level);
             
             var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
 
+            // Load the main scene if it isn't loaded.
             if (!mainScene.isLoaded)
             {
                 await LoadMainSceneAsync(mainSceneAdditive);
             }
+
+            // If it is a session, load it
+            if (!await TryAwaitLoadSession(session))
+            {
+                return false;
+            }
             
-            await LoadLevelAsync(level);
+            // Call the event when the level is loaded.
             LoadingState.NotifyLoaded(level);
             
+            // Respawn the player
             await PlayerSpawner.RespawnPlayerAsync();
-            Debug.Log("Respawn Finished");
-            await UnloadPrevSceneAsync();
+            // Unload any previous scenes
+            await AwaitUnloadPrevScene();
             
-            Debug.Log("Unload Previous finished");
             LoadingState.SetLoading(false);
             LoadingState.NotifyReady(level);
+
+            return true;
         }
 
-        private static async UniTask UnloadPrevSceneAsync()
+        private static async UniTask AwaitUnloadPrevScene()
         {
             // Unload the previous scene (Hub, menu, etc.)
             var active = SceneHandler.GetActiveScene();
@@ -61,18 +115,46 @@ namespace Game
             }
         }
 
-        private static async UniTask LoadLevelAsync(BaseLevelSO level)
+        private static async UniTask<bool> TryAwaitLoadLevel(BaseLevelSO level)
+        {
+            var managerValue = await TryAwaitForManager();
+            if (!managerValue.TryGet(out var manager))
+            {
+                return false;
+            }
+            
+            // Tell the manager which level to load
+            await manager.WaitLoadLevel(level);
+            return true;
+        }
+
+        private static async UniTask<bool> TryAwaitLoadSession(GameSessionSO session)
+        {
+            var managerValue = await TryAwaitForManager();
+            if (!managerValue.TryGet(out var manager))
+            {
+                return false;
+            }
+
+            manager.SetSession(session);
+            
+            // Tell the manager which level to load
+            await manager.WaitLoadLevel(session.Level);
+            return true;
+        }
+
+        private static async UniTask<NullCheck<GlobalLevelManager>> TryAwaitForManager()
         {
             // Find the level manager in the MainScene
             var managerCheck = await GlobalLevelManager.GetAsync();
             if (!managerCheck.TryGet(out var manager))
             {
-                Debug.LogError($"{typeof(GlobalLevelManager).Name} was not found.");
-                return;
+                Debug.LogError($"{typeof(GlobalLevelManager)} was not found.");
+
+                return new NullCheck<GlobalLevelManager>();
             }
-            
-            // Tell the manager which level to load
-            await manager.LoadLevelAsync(level);
+
+            return manager;
         }
 
         private static async UniTask LoadMainSceneAsync(bool additive)

@@ -15,7 +15,7 @@ namespace Game.UI.Screens
     public sealed class LevelSelectorMediator : UIMediator
     {
         public static ISubject<GameModeSO> GameModeSelected { get; private set; } = new Subject<GameModeSO>();
-        public static ISubject<BaseLevelSO> LevelSelected { get; private set; } = new Subject<BaseLevelSO>();
+        public static ISubject<GameModeSO, BaseLevelSO> LevelSelected { get; private set; } = new Subject<GameModeSO, BaseLevelSO>();
 
         
 

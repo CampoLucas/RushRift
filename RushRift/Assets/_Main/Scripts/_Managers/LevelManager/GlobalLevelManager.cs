@@ -20,7 +20,14 @@ namespace Game
     {
         #region Public Properties
 
-        public static NullCheck<BaseLevelSO> CurrentLevel { get; private set; }
+        public static NullCheck<GameSessionSO> CurrentSession { get; private set; }
+
+        public static NullCheck<GameModeSO> CurrentMode =>
+            CurrentSession.TryGet(out var s) && s.GameMode ? s.GameMode : default;
+
+        public static NullCheck<BaseLevelSO> CurrentLevel =>
+            CurrentSession.TryGet(out var s) && s.Level ? s.Level : default;
+        
         public static bool GameOver { get; private set; }
         public static float CompleteTime { get; private set; }
         public int LevelIndex { get; set; } = -1;
@@ -37,7 +44,6 @@ namespace Game
 
         #endregion
 
-        private static NullCheck<BaseLevelSO> _currentLevel;
         private readonly List<string> _loadedLevels = new();
         private readonly Dictionary<string, Scene> _loadedLevelsDict = new();
         private TimerHandler _levelTimer = new();
@@ -67,23 +73,68 @@ namespace Game
             }
         }
 
-        public async UniTask LoadLevelAsync(BaseLevelSO level)
+        public async UniTask<bool> WaitLoadLevel(BaseLevelSO level)
         {
             if (level == null)
             {
                 this.Log("LevelSO is null");
-                return;
+                return false;
             }
 
             // Unload previously loaded levels
-            await UnloadAllLevelsAsync();
+            await WaitUnloadAllLevels();
             
             // Load the new level additively
             await level.LoadAsync(this);
-            CurrentLevel = level;
+            return true;
         }
 
-        public async UniTask LoadLevelSceneAsync(string sceneName, bool preloaded = false)
+        public void SetSession(GameSessionSO session)
+        {
+            CurrentSession = session;
+            LevelIndex = session.CurrIndex;
+        }
+
+        public static async void LoadNextLevelAsync()
+        {
+            var managerCheck = await GetAsync();
+
+            if (!managerCheck.TryGet(out var manager))
+            {
+                Debug.LogError("[LoadNextLevelAsync] Manager not found");
+                return;
+            }
+
+            await manager.TryAwaitNextLevel();
+        }
+
+        public async UniTask<bool> TryAwaitNextLevel()
+        {
+            if (!CurrentSession.TryGet(out var session))
+            {
+                this.Log("No session found", LogType.Error);
+                return false;
+            }
+
+            if (!session.GameMode || !session.Level)
+            {
+                this.Log("No GameMode or Level found", LogType.Error);
+                return false;
+            }
+
+            var nextLevel = session.GameMode.GetNextLevel(session.Level);
+            if (nextLevel != null)
+            {
+                session.SetLevel(nextLevel);
+                await GameEntry.TryAwaitLoadSessionAsync(session);
+                return true;
+            }
+            
+            this.Log("There is no next level", LogType.Error);
+            return false;
+        }
+
+        public async UniTask AwaitLoadLevelScene(string sceneName, bool preloaded = false)
         {
             if (string.IsNullOrEmpty(sceneName))
             {
@@ -112,7 +163,7 @@ namespace Game
             }
         }
 
-        public async UniTask UnloadSceneAsync(string sceneName)
+        public async UniTask WaitUnloadScene(string sceneName)
         {
             if (!_loadedLevelsDict.TryGetValue(sceneName, out var scene))
             {
@@ -124,7 +175,7 @@ namespace Game
             _loadedLevels.Remove(sceneName);
         }
         
-        public async UniTask UnloadAllLevelsAsync()
+        public async UniTask WaitUnloadAllLevels()
         {
             for (var i = 0; i < _loadedLevels.Count; i++)
             {
@@ -134,7 +185,6 @@ namespace Game
 
             _loadedLevels.Clear();
             _loadedLevelsDict.Clear();
-            CurrentLevel = null;
             LevelIndex = -1;
         }
         

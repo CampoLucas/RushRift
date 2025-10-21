@@ -2,17 +2,20 @@ using System.Collections.Generic;
 using Game.Levels;
 using UnityEngine;
 
-namespace Game.General
+namespace Game.Levels
 {
     [CreateAssetMenu(menuName = "Game/GameMode", fileName = "New GameModeConfig")]
     public class GameModeSO : SerializableSO
     {
         public List<BaseLevelSO> Levels => levels;
         
+        [Header("Settings")]
         [SerializeField] private string displayName;
-        [SerializeField] private List<BaseLevelSO> levels;
         [SerializeField] private bool forceLock;
         [SerializeField] private bool specialUnlock;
+        
+        [Header("Levels")]
+        [SerializeField] private List<BaseLevelSO> levels;
         
         
         public bool IsUnlocked()
@@ -36,6 +39,17 @@ namespace Game.General
             
             // ToDo: Make it use predicates, unlocked all levels, etc.
             return false;
+        }
+
+        public virtual BaseLevelSO GetNextLevel(BaseLevelSO current)
+        {
+            var i = levels.IndexOf(current);
+            if (i >= 0 && i < levels.Count - 1)
+            {
+                return levels[i + 1];
+            }
+
+            return null;
         }
     }
 }

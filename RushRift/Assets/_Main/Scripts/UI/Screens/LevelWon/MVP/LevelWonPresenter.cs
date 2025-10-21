@@ -54,27 +54,18 @@ namespace Game.UI.Screens
 
         private void HubHandler()
         {
-            SceneHandler.LoadHub();
+            UIManager.Instance.Get().LoadHUB();
         }
 
         private void RetryLevelHandler()
         {
-            SceneHandler.ReloadCurrent();
+            UIManager.Instance.Get().Restart();
         }
 
         private void OnLoadNextHandler()
         {
-            var sceneCount = SceneHandler.GetSceneCount();
-            var currentIndex = SceneHandler.GetCurrentSceneIndex();
-
-            var sceneToLoad = SceneHandler.HubIndex;
-            
-            if (currentIndex < sceneCount - 1)
-            {
-                sceneToLoad = currentIndex + 1;
-            }
-
-            SceneHandler.LoadSceneAsync(sceneToLoad);
+            // ToDo: make a LevelWon variant screen for when finishing all levels
+            GlobalLevelManager.LoadNextLevelAsync();
         }
 
         private void CheckTime(in LevelWonModel model)

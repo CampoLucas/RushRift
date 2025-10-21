@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
-using Game.General;
+using Game.Levels;
 using Game.UI.Screens.Elements;
 using MyTools.Global;
 using UnityEngine;

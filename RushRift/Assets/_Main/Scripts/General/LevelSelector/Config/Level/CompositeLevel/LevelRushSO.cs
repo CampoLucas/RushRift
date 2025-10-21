@@ -21,7 +21,7 @@ namespace Game.Levels
             }
 
             var first = Levels[0];
-            await manager.LoadLevelSceneAsync(first.SceneName);
+            await manager.AwaitLoadLevelScene(first.SceneName);
             manager.LevelIndex = 0;
         }
         
@@ -40,13 +40,13 @@ namespace Game.Levels
             var next = Levels[nextIndex];
             
             // Preload next scene when triggered
-            await manager.LoadLevelSceneAsync(next.SceneName, preloaded: true);
+            await manager.AwaitLoadLevelScene(next.SceneName, preloaded: true);
 
             // Wait until current level signals “end gate reached”
             await UniTask.WaitUntil(() => manager.ReachedNextZone);
 
             // Unload current, promote next
-            await manager.UnloadSceneAsync(current.SceneName);
+            await manager.WaitUnloadScene(current.SceneName);
             manager.LevelIndex = nextIndex;
 
             // Reset trigger

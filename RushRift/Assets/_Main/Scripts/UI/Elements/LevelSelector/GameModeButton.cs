@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
-using Game.General;
+using Game.Levels;
 using MyTools.Global;
 using TMPro;
 using UnityEngine;

@@ -18,7 +18,7 @@ namespace Game.Levels
         
         public sealed override async UniTask LoadAsync(GlobalLevelManager manager)
         {
-            await manager.LoadLevelSceneAsync(SceneName);
+            await manager.AwaitLoadLevelScene(SceneName);
             manager.LevelIndex = 0; // normal levels always at index 0
         }
 

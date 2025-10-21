@@ -6,12 +6,21 @@ using Game.Levels;
 using UnityEngine.UI;
 using TMPro;
 
-public class TimerHandler : IDisposable, Game.DesignPatterns.Observers.IObserver<BaseLevelSO>
+public class TimerHandler : IDisposable, Game.DesignPatterns.Observers.IObserver<BaseLevelSO>, Game.DesignPatterns.Observers.IObserver<bool>
 {
     public float CurrentTime { get; private set; }
-    
+    private bool _paused;
+
+    public TimerHandler()
+    {
+        PauseHandler.Attach(this);
+        _paused = PauseHandler.IsPaused;
+    }
+
     public void DoUpdate(float delta)
     {
+        if (_paused) return;
+        
         CurrentTime += delta;
         GlobalEvents.TimeUpdated.NotifyAll(CurrentTime);
     }
@@ -20,9 +29,15 @@ public class TimerHandler : IDisposable, Game.DesignPatterns.Observers.IObserver
     {
         CurrentTime = 0;
     }
+    
+    public void OnNotify(bool paused)
+    {
+        _paused = paused;
+    }
 
     public void Dispose()
     {
+        PauseHandler.Detach(this);
         GlobalEvents.TimeUpdated.DetachAll();
     }
 }

@@ -16,10 +16,12 @@ public class PortalPrototype : MonoBehaviour
     [SerializeField] private VolumeProfile hubVolume;
     [SerializeField] private VolumeProfile gameVolume;
 
+    [SerializeField] private GameModeSO defaultModeToLoad;
     [SerializeField] private BaseLevelSO defaultLevelToLoad;
     private NullCheck<BaseLevelSO> _levelToLoad;
+    private NullCheck<GameModeSO> _modeToLoad;
     private NullCheck<Volume> _globalVolume;
-    private ActionObserver<BaseLevelSO> _levelSelected;
+    private ActionObserver<GameModeSO, BaseLevelSO> _levelSelected;
 
     private bool _enabled;
 
@@ -27,22 +29,23 @@ public class PortalPrototype : MonoBehaviour
     {
         _enabled = true;
         _globalVolume = FindObjectOfType<Volume>();
-        _levelSelected = new ActionObserver<BaseLevelSO>(SetTargetLevel);
+        _levelSelected = new ActionObserver<GameModeSO, BaseLevelSO>(SetTargetSession);
         LevelSelectorMediator.LevelSelected.Attach(_levelSelected);
     }
 
     private void Start()
     {
-        LevelSelectorMediator.LevelSelected.NotifyAll(defaultLevelToLoad);
+        LevelSelectorMediator.LevelSelected.NotifyAll(defaultModeToLoad, defaultLevelToLoad);
         if (_globalVolume)
         {
             _globalVolume.Get().profile = hubVolume;
         }
     }
 
-    public void SetTargetLevel(BaseLevelSO level)
+    public void SetTargetSession(GameModeSO mode, BaseLevelSO level)
     {
         _levelToLoad = level;
+        _modeToLoad = mode;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -59,12 +62,10 @@ public class PortalPrototype : MonoBehaviour
                 _globalVolume.Get().profile = gameVolume;
             }
 
-            var targetLevel = _levelToLoad ? _levelToLoad.Get() :
-                GlobalLevelManager.CurrentLevel.TryGet(out var prevLevel) ? prevLevel : defaultLevelToLoad;
-
-            if (targetLevel)
+            if (_levelToLoad.TryGet(out var selectedLevel) && _modeToLoad.TryGet(out var selectedMode))
             {
-                GameEntry.TryLoadLevelAsync(targetLevel, false);
+                var session = GameSessionSO.GetOrCreate(GlobalLevelManager.CurrentSession, selectedMode, selectedLevel);
+                GameEntry.LoadSessionAsync(session, false);
             }
             else
             {
