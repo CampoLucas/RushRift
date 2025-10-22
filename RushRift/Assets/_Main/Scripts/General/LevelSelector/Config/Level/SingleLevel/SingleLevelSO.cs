@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using Game.Utils;
 using MyTools.Global;
 using Tools.Scripts.PropertyAttributes;
+using UnityEditor;
 using UnityEngine;
 
 namespace Game.Levels.SingleLevel
@@ -10,6 +11,17 @@ namespace Game.Levels.SingleLevel
     public abstract class SingleLevelSO : BaseLevelSO
     {
         public string SceneName => sceneName;
+        public string ScenePath
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return AssetDatabase.GetAssetPath(scene);
+#else
+                return "";
+#endif
+            }
+        }
         
         [Header("Scene")]
         [ReadOnly, SerializeField] private string sceneName;

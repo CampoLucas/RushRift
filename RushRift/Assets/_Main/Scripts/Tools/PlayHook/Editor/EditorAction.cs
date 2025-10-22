@@ -6,17 +6,14 @@ namespace Tools.PlayHook
 {
     public class EditorAction
     {
-        public string Label => _label != null ? _label() : "Empty";
-        public string Tooltip => _tooltip != null ? _tooltip() : "Empty";
+        public string Label { get; }
+        public string Tooltip { get; }
         public GenericMenu.MenuFunction Execute { get; }
-        
-        private Func<string> _label;
-        private Func<string> _tooltip;
 
-        public EditorAction(Func<string> label, Func<string> tooltip, GenericMenu.MenuFunction execute)
+        public EditorAction(string label, string tooltip, GenericMenu.MenuFunction execute)
         {
-            _label = label;
-            _tooltip = tooltip;
+            Label = label;
+            Tooltip = tooltip;
             Execute = execute;
         }
     }

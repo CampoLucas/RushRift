@@ -1,0 +1,36 @@
+.options-button {
+    padding: 0;
+    flex-grow: 0;
+    align-items: center;
+}
+
+.options-button__inner {
+    flex-grow: 1;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+.options-button--toolbar {
+    
+}
+
+.options-button--toolbar .options-button__inner {
+    background-color: var(--unity-colors-toolbar-background);
+    color: var(--unity-colors-toolbar-text);
+}
+
+.options-button--window .options-button__inner {
+    background-color: var(--unity-colors-background);
+    color: var(--unity-colors-text);
+}
+
+.options-button > EditorToolbarButton {
+    min-width: 18px;
+}
+
+.options-button > Button {
+    min-width: 14px;
+    border-radius: 1px;
+    padding: 3px;
+    margin: 0;
+}
