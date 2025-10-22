@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Game.Levels;
+using Game.Levels.SingleLevel;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.Toolbars;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,7 +26,7 @@ namespace Tools.PlayHook
         private EditorToolbarDropdown _levelDropdown;
         private EditorToolbarButton _playButton;
         private EditorToolbarButton _openSceneButton;
-        private EditorToolbarButton _selectButton;
+        private EditorToolbarDropdown _selectDropdown;
 
         private static List<GameModeSO> _gameModes = new();
         private static List<BaseLevelSO> _levels = new();
@@ -78,15 +80,15 @@ namespace Tools.PlayHook
             Add(_openSceneButton);
 
             // Select button
-            _selectButton = new EditorToolbarButton(OnSelectClicked)
+            _selectDropdown = new EditorToolbarDropdown(ShowSelectMenu)
             {
                 text = "Select",
-                tooltip = "Ping and select the level asset or scene in Project"
+                tooltip = "Select assets related to the current item"
             };
-            _selectButton.style.height = 20;
-            _selectButton.style.minWidth = 35;
-            _selectButton.style.marginLeft = 4;
-            Add(_selectButton);
+            _selectDropdown.style.height = 20;
+            _selectDropdown.style.minWidth = 35;
+            _selectDropdown.style.marginLeft = 4;
+            Add(_selectDropdown);
 
             RefreshAssets();
             RestoreSelection();
@@ -273,7 +275,7 @@ namespace Tools.PlayHook
 
                 _playButton.SetEnabled(true);
                 _openSceneButton.SetEnabled(true);
-                _selectButton.SetEnabled(true);
+                _selectDropdown.SetEnabled(true);
                 return;
             }
 
@@ -291,7 +293,7 @@ namespace Tools.PlayHook
 
                 var multi = _selectedLevel is CompositeLevelSO;
                 _openSceneButton.SetEnabled(!multi);
-                _selectButton.SetEnabled(true);
+                _selectDropdown.SetEnabled(true);
             }
             else
             {
@@ -299,8 +301,140 @@ namespace Tools.PlayHook
                 _levelDropdown.text = "Select Level";
                 _playButton.SetEnabled(false);
                 _openSceneButton.SetEnabled(false);
-                _selectButton.SetEnabled(false);
+                _selectDropdown.SetEnabled(false);
             }
+
+            UpdateSelectButton();
+        }
+
+        private void UpdateSelectButton()
+        {
+            var actions = BuildSelectActions();
+        
+            _selectDropdown.tooltip = actions.Count switch
+            {
+                0 => "No selectable assets for this item",
+                1 => actions[0].Tooltip,
+                _ => "Select an asset"
+            };
+        
+            _selectDropdown.SetEnabled(actions.Count > 0);
+        
+            _selectDropdown.text = "Select";
+            
+        
+            SetButtonVisual(_selectDropdown, true);
+            
+            // if (actions.Count == 1)
+            // {
+            //     // Single action → invoke directly on click
+            //     _selectDropdown.clicked += actions[0].Execute;
+            // }
+            // else if (actions.Count > 1)
+            // {
+            //     // Multiple actions → open dropdown
+            //     _selectDropdown.clicked += () => ShowSelectMenu(actions);
+            // }
+        }
+        
+        private void SetButtonVisual(EditorToolbarDropdown dropdown, bool asButton)
+        {
+            // Reset any overrides
+            dropdown.style.backgroundImage = null;
+            dropdown.style.unityBackgroundImageTintColor = Color.clear;
+
+            if (asButton)
+            {
+                // Hide the ▼ arrow
+                var element = dropdown.Q<VisualElement>("unity-toolbar-menu-arrow");
+                if (element != null) element.style.display = DisplayStyle.None;
+
+                // Make it look like a regular button
+                dropdown.style.unityBackgroundImageTintColor = new Color(0.2f, 0.6f, 1f, 0.4f);
+                dropdown.style.borderTopLeftRadius = 4;
+                dropdown.style.borderTopRightRadius = 4;
+                dropdown.style.borderBottomLeftRadius = 4;
+                dropdown.style.borderBottomRightRadius = 4;
+            }
+            else
+            {
+                // Show arrow again for dropdown mode
+                var element = dropdown.Q<VisualElement>("unity-toolbar-menu-arrow");
+                if (element != null) element.style.display = DisplayStyle.Flex;
+                dropdown.style.unityBackgroundImageTintColor = Color.clear;
+            }
+        }
+        
+        private List<EditorAction> BuildSelectActions()
+        {
+            var list = new List<EditorAction>();
+
+            if (_isSceneOnly)
+            {
+                var scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(_selectedScenePath);
+                if (scene != null)
+                    list.Add(new(() => "Select Scene Asset", () => "Ping scene asset in Project", () => PingAsset(scene)));
+                return list;
+            }
+
+            if (_selectedLevel == null)
+                return list;
+
+            // Try add scene (if it exists)
+            if (_selectedLevel is SingleLevelSO lvl)
+            {
+                var scenePath = $"Assets/_Main/Scenes/Levels/{lvl.SceneName}.unity";
+                var scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+                if (scene != null)
+                    list.Add(new(() => "Select Level Scene", () => "Ping scene asset in Project", () => PingAsset(scene)));
+            }
+
+            // Add GameMode (if it exists)
+            if (_selectedMode != null)
+            {
+                list.Add(new(() => "Select Game Mode Asset", () => "Ping GameMode ScriptableObject", () => PingAsset(_selectedMode)));
+            }
+            
+            // Always add Level asset
+            list.Add(new(() => "Select Level Asset", () =>  "Ping level ScriptableObject in Project", () => PingAsset(_selectedLevel)));
+
+            return list;
+        }
+
+        private void ShowSelectMenu()
+        {
+            var actions = BuildSelectActions();
+
+            if (actions.Count == 1)
+            {
+                actions[0].Execute();
+            }
+            else
+            {
+                ShowSelectMenu(BuildSelectActions());
+            }
+            
+        }
+        
+        private void ShowSelectMenu(List<EditorAction> actions)
+        {
+            var menu = new GenericMenu();
+            foreach (var action in actions)
+                menu.AddItem(new GUIContent(action.Label), false, action.Execute);
+
+            var world = _selectDropdown.worldBound;
+            menu.DropDown(new Rect(world.xMin, world.yMax, 0, 0));
+        }
+
+        private void PingAsset(Object asset)
+        {
+            if (!asset)
+            {
+                EditorUtility.DisplayDialog("Cannot Select", "The asset was not found.", "OK");
+                return;
+            }
+            Selection.activeObject = asset;
+            EditorGUIUtility.PingObject(asset);
         }
 
         private void SaveSelection()
