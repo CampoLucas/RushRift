@@ -6,6 +6,7 @@ using Game.Levels.SingleLevel;
 using Game.Utils;
 using Tools.PlayHook.Elements;
 using Tools.PlayHook.Elements.Menu;
+using Tools.PlayHook.Utils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.Toolbars;
@@ -136,6 +137,7 @@ namespace Tools.PlayHook
             RegularOptions(ref entries);
             SceneOptions(ref entries);
             SelectOptions(ref entries);
+            ToggleMainSceneOption(ref entries);
             
             return entries;
         }
@@ -160,17 +162,20 @@ namespace Tools.PlayHook
             {
                 if (_isSceneOnly)
                 {
-                    entries.Add(new MenuItem("Open Scene", () => OpenScene(_selectedScenePath), false, EnabledEntry));
+                    entries.Add(new MenuItem("Open Scene", () => OpenScene(_selectedScenePath), false, () => CanOpenScene(_selectedScenePath)));
                 }
                 else
                 {
-                    entries.Add(new MenuItem($"Open {_selectedLevel.LevelName} Scene", () => OpenLevelScene(_selectedLevel.GetLevel(0)), false, EnabledEntry));
+                    var lvl = _selectedLevel.GetLevel(0);
+                    entries.Add(new MenuItem($"Open {_selectedLevel.LevelName} Scene", () => OpenLevelScene(lvl), false, 
+                        () => CanOpenScene(lvl.ScenePath)));
                 }
                 return true;
             }
 
             var count = _selectedLevel.LevelCount();
             var scenes = new List<MenuEntry>();
+            var collapsed = count > maxScenesToCollapse;
             
             for (var i = 0; i < count; i++)
             {
@@ -182,7 +187,8 @@ namespace Tools.PlayHook
                     continue;
                 }
                 
-                scenes.Add(new MenuItem($"Open {level.LevelName} scene", () => OpenLevelScene(level), false, EnabledEntry));
+                scenes.Add(new MenuItem(collapsed ? $"Open {level.LevelName}" : $"Open {level.LevelName} scene", () => OpenLevelScene(level), false,
+                    () => CanOpenScene(level.ScenePath)));
             }
 
             if (count > maxScenesToCollapse)
@@ -227,6 +233,67 @@ namespace Tools.PlayHook
 
             entries.Add(group);
             return true;
+        }
+
+        private bool ToggleMainSceneOption(ref List<MenuEntry> entries)
+        {
+            if (!_selectedLevel) return false;
+            entries.Add(new MenuSeparator());
+            entries.Add(new MenuItem("Add Main Scene [DEBUG]", OnAddMainSceneClicked, IsMainSceneLoaded, EnabledEntry));
+            return true;
+        }
+
+        private bool CanOpenScene(string path)
+        {
+            var scene = EditorSceneManager.GetSceneByPath(path);
+            return scene.isLoaded;
+        }
+
+        private bool IsMainSceneLoaded()
+        {
+            return CanOpenScene(MainScenePath);
+        }
+        
+        private void OnAddMainSceneClicked()
+        {
+            // Only works for LevelSO (single-level scenes)
+            var path = PlayLevelSelectionBridge.GetLevelPath();
+            if (string.IsNullOrEmpty(path))
+            {
+                EditorUtility.DisplayDialog("No Level Selected", "Please select a LevelSO first.", "OK");
+                return;
+            }
+
+            var levelAsset = AssetDatabase.LoadAssetAtPath<BaseLevelSO>(path);
+            if (levelAsset is not LevelSO level)
+            {
+                EditorUtility.DisplayDialog("Unsupported Type", 
+                    "You can only use 'Add Main Scene' with a LevelSO that represents a single scene.", "OK");
+                return;
+            }
+
+            var levelScenePath = $"Assets/_Main/Scenes/Levels/{level.SceneName}.unity";
+            var mainSceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(MainScenePath);
+
+            if (mainSceneAsset == null)
+            {
+                EditorUtility.DisplayDialog("Main Scene Missing", 
+                    $"The main scene at '{MainScenePath}' could not be found.", "OK");
+                return;
+            }
+
+            // Check if main scene already open
+            var mainScene = EditorSceneManager.GetSceneByPath(MainScenePath);
+            if (mainScene.isLoaded)
+            {
+                EditorUtility.DisplayDialog("Main Scene Already Open",
+                    "The MainScene is already loaded.", "OK");
+                return;
+            }
+
+            // Open additively
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(MainScenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            Debug.Log($"[PlayLevelToolbar] Main Scene loaded additively into editor for preview with '{level.SceneName}'.");
         }
 
         private void PingSceneAtPath(string path)
@@ -339,37 +406,6 @@ namespace Tools.PlayHook
 
             // All Levels
             menu.AddSeparator("");
-
-#if false
-        if (_levels.Count == 0)
-        {
-            menu.AddDisabledItem(new GUIContent("No levels found"));
-        }
-        else
-        {
-            foreach (var level in _levels)
-            {
-                var category = level switch
-                {
-                    LevelSO => "Sectors",
-                    LevelRushSO => "Rushes",
-                    _ => "Other"
-                };
-
-                var label = $"{category}/{level.LevelID:D2}: {level.LevelName} ({level.GetType().Name})";
-                var selected = !_isSceneOnly && _selectedMode == null && _selectedLevel == level;
-                
-                menu.AddItem(new GUIContent(label), selected, () =>
-                {
-                    _selectedMode = null;
-                    _selectedLevel = level;
-                    _isSceneOnly = false;
-                    SaveSelection();
-                    UpdateLevelButtonText();
-                });
-            }
-        }
-#else
             if (_levels.Count == 0)
             {
                 menu.AddDisabledItem(new GUIContent("No levels found"));
@@ -390,7 +426,6 @@ namespace Tools.PlayHook
                     });
                 }
             }
-#endif
 
             // Scenes
             menu.AddSeparator("");
@@ -451,8 +486,6 @@ namespace Tools.PlayHook
                     _levelDropdown.text = "(Unknown Scene)";
 
                 _playButton.SetEnabled(true);
-                //_openSceneButton.SetEnabled(true);
-                //_selectDropdown.SetEnabled(true);
             }
             else if (_selectedLevel)
             {
@@ -468,100 +501,13 @@ namespace Tools.PlayHook
                 _levelDropdown.text = display;
 
                 _playButton.SetEnabled(true);
-
-                var multi = _selectedLevel is CompositeLevelSO;
-                //_openSceneButton.SetEnabled(!multi);
-                //_selectDropdown.SetEnabled(true);
             }
             else
             {
                 _levelDropdown.tooltip = "Tool disabled. Select Level or Scene to play";
                 _levelDropdown.text = "Select Level";
                 _playButton.SetEnabled(false);
-                //_openSceneButton.SetEnabled(false);
-                //_selectDropdown.SetEnabled(false);
             }
-
-            UpdateSelectButton();
-        }
-
-        private void UpdateSelectButton()
-        {
-            //var actions = BuildSelectActions();
-        
-            // _selectDropdown.tooltip = actions.Count switch
-            // {
-            //     0 => "No selectable assets for this item",
-            //     1 => actions[0].Tooltip,
-            //     _ => "Select an asset"
-            // };
-            //
-            // _selectDropdown.SetEnabled(actions.Count > 0);
-            // SetButtonVisual(_selectDropdown, actions.Count == 1);
-        }
-        
-        private void SetButtonVisual(EditorButtonDropdown dropdown, bool asButton)
-        {
-            // Reset any overrides
-            dropdown.style.backgroundImage = null;
-            dropdown.style.unityBackgroundImageTintColor = Color.clear;
-
-            if (asButton)
-            {
-                // Hide the ▼ arrow
-                var element = dropdown.Arrow;
-                if (element != null) element.style.display = DisplayStyle.None;
-
-                // Make it look like a regular button
-                dropdown.style.unityBackgroundImageTintColor = new Color(0.2f, 0.6f, 1f, 0.4f);
-                dropdown.style.borderTopLeftRadius = 4;
-                dropdown.style.borderTopRightRadius = 4;
-                dropdown.style.borderBottomLeftRadius = 4;
-                dropdown.style.borderBottomRightRadius = 4;
-            }
-            else
-            {
-                // Show arrow again for dropdown mode
-                var element = dropdown.Arrow;
-                if (element != null) element.style.display = DisplayStyle.Flex;
-                dropdown.style.unityBackgroundImageTintColor = Color.clear;
-            }
-        }
-        
-        private List<EditorAction> BuildSelectActions()
-        {
-            var list = new List<EditorAction>();
-
-            if (_isSceneOnly)
-            {
-                var scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(_selectedScenePath);
-                if (scene != null)
-                    list.Add(new("Select Scene Asset", "Ping scene asset in Project", () => PingAsset(scene)));
-                return list;
-            }
-
-            if (_selectedLevel == null)
-                return list;
-
-            // Try add scene (if it exists)
-            if (_selectedLevel is SingleLevelSO lvl)
-            {
-                var scenePath = $"Assets/_Main/Scenes/Levels/{lvl.SceneName}.unity";
-                var scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
-                if (scene != null)
-                    list.Add(new("Select Level Scene", "Ping scene asset in Project", () => PingAsset(scene)));
-            }
-
-            // Add GameMode (if it exists)
-            if (_selectedMode != null)
-            {
-                list.Add(new("Select Game Mode Asset", "Ping GameMode ScriptableObject", () => PingAsset(_selectedMode)));
-            }
-            
-            // Always add Level asset
-            list.Add(new("Select Level Asset", "Ping level ScriptableObject in Project", () => PingAsset(_selectedLevel)));
-
-            return list;
         }
 
         private void PingAsset(Object asset)
