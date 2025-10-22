@@ -1,14 +1,6 @@
-using System;
 using Game.DesignPatterns.Observers;
-using Game.VFX;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
-using System.Collections.Generic;
-using Game.General;
 using Game.Levels;
-using Game.Saves;
-using Game.UI.Screens;
 using MyTools.Global;
 
 namespace Game
@@ -38,6 +30,10 @@ namespace Game
 
         private void Awake()
         {
+#if UNITY_EDITOR && LEVEL_CLEAR_OCCLUSION
+            this.Log("Occlusion cleared, to disable this remove LEVEL_CLEAR_OCCLUSION defined symbol.");
+            UnityEditor.StaticOcclusionCulling.Clear();
+#endif
             _levelConfig = levelConfig;
             
 #if false
