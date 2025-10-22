@@ -102,7 +102,7 @@ namespace Tools.PlayHook
             _playButton.style.flexShrink = 0;
             _playButton.style.height = 20;
             _playButton.style.minWidth = 1;
-            _playButton.style.marginRight = 5;
+            _playButton.style.marginRight = 6;
             Add(_playButton);
             
             // More options button
@@ -580,12 +580,14 @@ namespace Tools.PlayHook
             if (_isSceneOnly)
             {
                 EditorPrefs.SetString(LevelPrefKey, _selectedScenePath);
+                PlayLevelSelectionBridge.NotifyChanged();
                 return;
             }
 
             if (_selectedLevel == null)
             {
                 EditorPrefs.SetString(LevelPrefKey, DisabledFlag);
+                PlayLevelSelectionBridge.NotifyChanged();
                 return;
             }
 
