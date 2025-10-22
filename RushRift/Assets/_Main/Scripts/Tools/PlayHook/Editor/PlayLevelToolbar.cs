@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Levels;
@@ -8,6 +9,7 @@ using UnityEditor.Toolbars;
 using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Tools.PlayHook
 {
@@ -23,11 +25,30 @@ namespace Tools.PlayHook
         private static readonly string MainScenePath = "Assets/_Main/Scenes/MainScene.unity";
         private static readonly string MainMenuPath = "Assets/_Main/Scenes/Main Menu.unity";
 
-        private EditorToolbarDropdown _levelDropdown;
-        private EditorToolbarButton _playButton;
-        private EditorToolbarButton _openSceneButton;
-        private EditorToolbarDropdown _selectDropdown;
+        public readonly EditorToolbarDropdown _levelDropdown;
+        public readonly EditorToolbarButton _playButton;
+        public readonly EditorToolbarButton _openSceneButton;
+        public readonly EditorButtonDropdown _selectDropdown;
 
+        public class EditorButtonDropdown : EditorToolbarDropdown
+        {
+            public VisualElement Arrow { get; private set; }
+            
+            public EditorButtonDropdown(Action select) : base(select)
+            {
+                var children = Children();
+
+                foreach (var child in children)
+                {
+                    if (child is Image or TextElement) continue;
+
+                    Arrow = child;
+                    Arrow.name = "arrow";
+                }
+            }
+        }
+        
+        
         private static List<GameModeSO> _gameModes = new();
         private static List<BaseLevelSO> _levels = new();
         private static BaseLevelSO _selectedLevel;
@@ -37,6 +58,7 @@ namespace Tools.PlayHook
 
         public PlayLevelToolbar()
         {
+            PlayLevelSelectionBridge.OnSelectionChanged += RestoreSelectorHandler;
             style.flexDirection = FlexDirection.Row;
             style.alignItems = Align.Center;
             style.paddingLeft = 2;
@@ -51,7 +73,7 @@ namespace Tools.PlayHook
             _levelDropdown.clicked += ShowLevelMenu;
             _levelDropdown.style.flexGrow = 0;
             _levelDropdown.style.flexShrink = 0;
-            _levelDropdown.style.width = 100;
+            _levelDropdown.style.width = 125;
             _levelDropdown.style.height = 20;
             _levelDropdown.style.marginRight = 6;
             Add(_levelDropdown);
@@ -80,7 +102,7 @@ namespace Tools.PlayHook
             Add(_openSceneButton);
 
             // Select button
-            _selectDropdown = new EditorToolbarDropdown(ShowSelectMenu)
+            _selectDropdown = new EditorButtonDropdown(ShowSelectMenu)
             {
                 text = "Select",
                 tooltip = "Select assets related to the current item"
@@ -98,9 +120,17 @@ namespace Tools.PlayHook
             UpdatePlayModeVisuals(EditorApplication.isPlaying);
         }
 
+        public void RestoreSelectorHandler()
+        {
+            //RefreshAssets();
+            RestoreSelection();
+            UpdateLevelButtonText();
+        }
+
         ~PlayLevelToolbar()
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            PlayLevelSelectionBridge.OnSelectionChanged -= RestoreSelectorHandler;
         }
 
         private void ShowLevelMenu()
@@ -260,7 +290,7 @@ namespace Tools.PlayHook
 
         }
 
-        private void UpdateLevelButtonText()
+        public void UpdateLevelButtonText()
         {
             if (_isSceneOnly)
             {
@@ -276,17 +306,18 @@ namespace Tools.PlayHook
                 _playButton.SetEnabled(true);
                 _openSceneButton.SetEnabled(true);
                 _selectDropdown.SetEnabled(true);
-                return;
             }
-
-            if (_selectedLevel)
+            else if (_selectedLevel)
             {
-                var n = _selectedLevel.name;
-                var fullDisplay = _selectedMode ? $"{_selectedMode.DisplayName}/{n}" : n;
+                var levelName = _selectedLevel.name;
+                var modeName = _selectedMode ? _selectedMode.DisplayName : "";
+                var modeNameShorten = modeName.Length > 3 ? modeName.Substring(0, 3) + "…" : modeName;
+                var fullDisplay = _selectedMode ? $"{modeName}/{levelName}" : levelName;
+                var shortDisplay = _selectedMode ? $"{modeNameShorten}/{levelName}" : levelName;
 
                 _levelDropdown.tooltip = $"{fullDisplay}. Select Level or Scene to play";
 
-                var display = fullDisplay.Length > 10 ? fullDisplay.Substring(0, 9) + "…" : fullDisplay;
+                var display = shortDisplay.Length > 15 ? shortDisplay.Substring(0, 14) + "…" : shortDisplay;
                 _levelDropdown.text = display;
 
                 _playButton.SetEnabled(true);
@@ -319,25 +350,10 @@ namespace Tools.PlayHook
             };
         
             _selectDropdown.SetEnabled(actions.Count > 0);
-        
-            _selectDropdown.text = "Select";
-            
-        
-            SetButtonVisual(_selectDropdown, true);
-            
-            // if (actions.Count == 1)
-            // {
-            //     // Single action → invoke directly on click
-            //     _selectDropdown.clicked += actions[0].Execute;
-            // }
-            // else if (actions.Count > 1)
-            // {
-            //     // Multiple actions → open dropdown
-            //     _selectDropdown.clicked += () => ShowSelectMenu(actions);
-            // }
+            SetButtonVisual(_selectDropdown, actions.Count == 1);
         }
         
-        private void SetButtonVisual(EditorToolbarDropdown dropdown, bool asButton)
+        private void SetButtonVisual(EditorButtonDropdown dropdown, bool asButton)
         {
             // Reset any overrides
             dropdown.style.backgroundImage = null;
@@ -346,7 +362,7 @@ namespace Tools.PlayHook
             if (asButton)
             {
                 // Hide the ▼ arrow
-                var element = dropdown.Q<VisualElement>("unity-toolbar-menu-arrow");
+                var element = dropdown.Arrow;
                 if (element != null) element.style.display = DisplayStyle.None;
 
                 // Make it look like a regular button
@@ -359,7 +375,7 @@ namespace Tools.PlayHook
             else
             {
                 // Show arrow again for dropdown mode
-                var element = dropdown.Q<VisualElement>("unity-toolbar-menu-arrow");
+                var element = dropdown.Arrow;
                 if (element != null) element.style.display = DisplayStyle.Flex;
                 dropdown.style.unityBackgroundImageTintColor = Color.clear;
             }
@@ -463,9 +479,10 @@ namespace Tools.PlayHook
 
             var path = AssetDatabase.GetAssetPath(_selectedLevel);
             EditorPrefs.SetString(LevelPrefKey, path);
+            PlayLevelSelectionBridge.NotifyChanged();
         }
 
-        private void RestoreSelection()
+        public void RestoreSelection()
         {
             var levelPath = EditorPrefs.GetString(LevelPrefKey, "");
 
