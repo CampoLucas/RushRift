@@ -414,8 +414,7 @@ public class ExplosiveBarrel : MonoBehaviour
             {
                 if (healthComponentData != null)
                 {
-                    runtimeHealthComponent = new HealthComponent(healthComponentData);
-                    cachedModel.TryAddComponent(runtimeHealthComponent);
+                    cachedModel.TryAddComponent(HealthComponentFactory);
                 }
             }
             SyncPostActionFromDieBehaviour();
@@ -424,6 +423,11 @@ public class ExplosiveBarrel : MonoBehaviour
         {
             if (ensureRoutine == null) ensureRoutine = StartCoroutine(EnsureHealthRegisteredDeferred());
         }
+    }
+
+    private HealthComponent HealthComponentFactory()
+    {
+        return new HealthComponent(healthComponentData);
     }
 
     private IEnumerator EnsureHealthRegisteredDeferred()

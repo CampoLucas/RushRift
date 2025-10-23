@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using MyTools.Global;
 using UnityEngine;
+using Logger = MyTools.Global.Logger;
 
 namespace Game.Entities
 {
@@ -69,10 +71,10 @@ namespace Game.Entities
                 return;
             }
 
-            if (!_controller.GetModel().TryGetComponent<StatusEffectRunner>(out var statusEffectRunner))
+            if (!_controller.GetModel().TryAddOrGetComponent(StatusEffectRunnerFactory, out var statusEffectRunner))
             {
-                statusEffectRunner = new StatusEffectRunner();
-                _controller.GetModel().TryAddComponent(statusEffectRunner);
+                Logger.Log("[EffectInstance] Couldn't add the component", null, LogType.Error);
+                return;
             }
 
             statusEffectRunner.AddEffect(this);
@@ -100,6 +102,11 @@ namespace Game.Entities
             {
                 OnStart();
             }
+        }
+
+        private StatusEffectRunner StatusEffectRunnerFactory()
+        {
+            return new StatusEffectRunner();
         }
 
         public bool TryGetUpdate(out IObserver<float> observer)

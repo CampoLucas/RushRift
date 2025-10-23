@@ -191,10 +191,10 @@ namespace Game
     {
         public bool Loading { get; private set; }
         
-        private readonly ISubject<bool> _onLoading;
-        private readonly ISubject<BaseLevelSO> _onLevelPreload;
-        private readonly ISubject<BaseLevelSO> _onLevelLoaded;
-        private readonly ISubject<BaseLevelSO> _onLevelReady;
+        public readonly ISubject<bool> _onLoading;
+        public readonly ISubject<BaseLevelSO> _onLevelPreload;
+        public readonly ISubject<BaseLevelSO> _onLevelLoaded;
+        public readonly ISubject<BaseLevelSO> _onLevelReady;
         
         public LoadingState(ISubject<bool> onLoading, ISubject<BaseLevelSO> onLevelPreloaded, ISubject<BaseLevelSO> onLevelLoaded, ISubject<BaseLevelSO> onLevelReady)
         {

@@ -78,15 +78,18 @@ namespace Game.Entities
         public override void Init(in IController controller, in IModel model)
         {
             var playerObject = controller.Origin.gameObject;
+            var c = controller;
             if (playerObject.TryGetComponent<Rigidbody>(out var rigidBody) && playerObject.TryGetComponent<CapsuleCollider>(out var collider))
             {
-                var movement = GetMotionController(rigidBody, collider, controller.Origin, controller.Joints.GetJoint(EntityJoint.Eyes));
-                model.TryAddComponent(movement);
+                model.TryAddComponent(() => GetMotionController(rigidBody, collider, c.Origin, c.Joints.GetJoint(EntityJoint.Eyes)));
             }
 
-            model.TryAddComponent(GetComboComponent(controller));
-            model.TryAddComponent(Health.GetComponent()); 
-            model.TryAddComponent(Energy.GetComponent());
+            model.TryAddComponent(() => GetComboComponent(c));
+            model.TryAddComponent(HealthComponentFactory); 
+            model.TryAddComponent(EnergyComponentFactory);
         }
+
+        private HealthComponent HealthComponentFactory() => Health.GetComponent();
+        private EnergyComponent EnergyComponentFactory() => Energy.GetComponent();
     }
 }

@@ -32,17 +32,18 @@ namespace Game.Entities
 
         public override void Init(in IController controller, in IModel model)
         {
-            model.TryAddComponent(new EnemyComponent());
+            model.TryAddComponent(EnemyComponentFactory);
             
             if (controller.Origin.gameObject.TryGetComponent<CharacterController>(out var characterController))
             {
-                model.TryAddComponent(movement.GetMovement(characterController));
+                model.TryAddComponent(() => movement.GetMovement(characterController));
             }
-            
-            model.TryAddComponent(GetComboComponent(controller));
-            model.TryAddComponent(Health.GetComponent()); 
-            model.TryAddComponent(energy.GetComponent());
-            model.TryAddComponent(mana.GetComponent());
+
+            var c = controller;
+            model.TryAddComponent(() => GetComboComponent(c));
+            model.TryAddComponent(HealthComponentFactory); 
+            //model.TryAddComponent(energy.GetComponent());
+            //model.TryAddComponent(mana.GetComponent());
         }
 
         public ComboHandler GetComboComponent(IController controller)
@@ -55,5 +56,7 @@ namespace Game.Entities
         }
 
         private bool NoAttack() => false;
+        private EnemyComponent EnemyComponentFactory() => new EnemyComponent();
+        private HealthComponent HealthComponentFactory() => Health.GetComponent();
     }
 }

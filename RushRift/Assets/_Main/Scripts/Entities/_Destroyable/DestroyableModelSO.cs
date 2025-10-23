@@ -15,7 +15,7 @@ namespace Game.Entities
         {
             if (controller.TryGetObserver(EntityController.DESTROY, out var observer))
             {
-                model.TryAddComponent(new DestroyableComponent(observer));
+                model.TryAddComponent(() => new DestroyableComponent(observer));
             }
         }
     }

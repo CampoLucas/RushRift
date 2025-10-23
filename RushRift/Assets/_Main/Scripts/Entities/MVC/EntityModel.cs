@@ -19,6 +19,7 @@ namespace Game.Entities
         private ISubject<float> _updateSubject = new Subject<float>();
         private ISubject<float> _lateUpdateSubject = new Subject<float>();
         private ISubject<float> _fixedUpdateSubject = new Subject<float>();
+        private NullCheck<SubjectObserver<bool>> _onLoading;
 
         public EntityModel(TData data)
         {
@@ -32,6 +33,17 @@ namespace Game.Entities
         public virtual void Init(IController controller)
         {
             _data.Init(controller, this);
+
+            if (_onLoading.TryGet(out var observer))
+            {
+                var subject = GameEntry.LoadingState._onLoading;
+                subject.Attach(observer);
+
+                observer.OnDispose += () =>
+                {
+                    subject.Detach(observer);
+                };
+            }
         }
 
         #region UpdateMethods
@@ -91,37 +103,61 @@ namespace Game.Entities
         /// <param name="newComponent">The new component to add</param>
         /// <typeparam name="TComponent">Component's type</typeparam>
         /// <returns>Returns true if the component was added</returns>
-        public bool TryAddComponent<TComponent>(TComponent newComponent) where TComponent : IEntityComponent
+        public bool TryAddComponent<TComponent>(Func<TComponent> factory, out TComponent newComponent) where TComponent : IEntityComponent
         {
+            var type = typeof(TComponent);
+            if (factory == null || _componentsDict.ContainsKey(type))
+            {
+                newComponent = default;
+                return false;
+            }
+
+            newComponent = factory();
             if (newComponent == null)
             {
                 return false;
             }
             
-            var type = typeof(TComponent);
-
             if (!_componentsDict.TryAdd(type, newComponent))
             {
                 newComponent.Dispose();
                 return false;
             }
             
-            if (newComponent.TryGetUpdate(out var update)) // If it uses an update, it subscribes it's observer.
+            AddObservers(newComponent);
+            return true;
+        }
+
+        public bool TryAddComponent<TComponent>(Func<TComponent> factory) where TComponent : IEntityComponent
+        {
+            return TryAddComponent(factory, out var comp);
+        }
+
+        public bool TryAddOrGetComponent<TComponent>(Func<TComponent> factory, out TComponent component) where TComponent : IEntityComponent
+        {
+            var type = typeof(TComponent);
+
+            if (!_componentsDict.TryGetValue(type, out var savedComp) || savedComp is not TComponent castedComp) return TryAddComponent(factory, out component);
+            component = castedComp;
+            return true;
+        }
+
+        private void AddObservers(in IEntityComponent component)
+        {
+            if (component.TryGetUpdate(out var update)) // If it uses an update, it subscribes it's observer.
             {
                 _updateSubject.Attach(update);
             }
 
-            if (newComponent.TryGetLateUpdate(out var lateUpdate)) // If it uses a late update, it subscribes it's observer.
+            if (component.TryGetLateUpdate(out var lateUpdate)) // If it uses a late update, it subscribes it's observer.
             {
                 _lateUpdateSubject.Attach(lateUpdate);
             }
 
-            if (newComponent.TryGetFixedUpdate(out var fixedUpdate)) // If it uses a fixed update, it subscribes it's observer.
+            if (component.TryGetFixedUpdate(out var fixedUpdate)) // If it uses a fixed update, it subscribes it's observer.
             {
                 _fixedUpdateSubject.Attach(fixedUpdate);
             }
-
-            return true;
         }
         
         /// <summary>
