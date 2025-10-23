@@ -35,7 +35,7 @@ namespace Tools.PlayHook
         {
             // keep alive through domain reloads
             rootVisualElement.Clear();
-            _toolbar = new PlayLevelToolbar(false);
+            _toolbar = new PlayLevelToolbar(ElementVariant.Window);
             rootVisualElement.Add(_toolbar);
             rootVisualElement.style.flexDirection = FlexDirection.Column;
             rootVisualElement.style.paddingLeft = 6;

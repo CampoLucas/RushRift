@@ -9,55 +9,36 @@ using MenuItem = Tools.PlayHook.Elements.Menu.MenuItem;
 
 namespace Tools.PlayHook.Elements
 {
-    public class OptionsButton : VisualElement
+    public class VariantDropdownButton : VisualElement
     {
-        public static readonly string UxmlPath = "OptionsUxml";
-        public static readonly string UssPath = "OptionsUss";
+        public static readonly string UxmlPath = "VariantElementUxml";
+        public static readonly string UssPath = "VariantElementUss";
 
         #region Uss Classes
         
-        private const string ButtonClass = "options-button";
-        private const string ContainerClass = "options-container";
-        private string ToolbarVariant(string className) => className + "--toolbar";
-        private string WindowVariant(string className) => className + "--window";
+        private const string ButtonClass = "variant-element-button";
+        private const string ContainerClass = "variant-element-container";
+        private string Variant(string className, ElementVariant variant) => $"{className}--{variant.ToString().ToLower()}";
         #endregion
         private const string Name = "options-button";
         
         private Button _rootElement;
-        private bool _isToolbar;
 
-        private Action<OptionsButton> _onOpenMenu;
+        private Action<VariantDropdownButton> _onOpenMenu;
         private Func<List<MenuEntry>> _getEntries;
         private Menu.Menu _menu = new();
+        private ElementVariant _variant;
         
-        public new class UxmlFactory : UxmlFactory<OptionsButton, UxmlTraits> { }
-
-        public new class UxmlTraits : VisualElement.UxmlTraits
-        {
-            private UxmlBoolAttributeDescription m_IsToolbar = new() { name = "is-toolbar", defaultValue = false };
-            private UxmlStringAttributeDescription m_Text = new() { name = "text", defaultValue = "Options" };
-
-            public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-            {
-                base.Init(ve, bag, cc);
-                var element = (OptionsButton)ve;
-                element.Setup(
-                    m_Text.GetValueFromBag(bag, cc),
-                    m_IsToolbar.GetValueFromBag(bag, cc)
-                );
-            }
-        }
-
-        public OptionsButton() : this("Empty")
+        public VariantDropdownButton() : this("Empty")
         {
         }
 
-        public OptionsButton(string text, bool isToolbar = false)
+        public VariantDropdownButton(string text, ElementVariant variant = ElementVariant.Overlay)
         {
-            Setup(text, isToolbar);
+            Setup(text, variant);
         }
 
-        public OptionsButton(string text, string[] classes, bool isToolbar) : this(text, isToolbar)
+        public VariantDropdownButton(string text, string[] classes, ElementVariant variant) : this(text, variant)
         {
             for (var i = 0; i < classes.Length; i++)
             {
@@ -66,44 +47,38 @@ namespace Tools.PlayHook.Elements
             }
         }
         
-        public OptionsButton(string text, string className, bool isToolbar) : this(text, new string[] {className}, isToolbar)
+        public VariantDropdownButton(string text, string className, ElementVariant variant) : this(text, new string[] {className}, variant)
         {
             
         }
 
-        private void Setup(string text, bool isToolbar = false)
+        private void Setup(string text, ElementVariant variant = ElementVariant.Overlay)
         { 
             // Setup
-            _isToolbar = isToolbar;
             name = $"{Name}-container";
 
-            _rootElement = GetButton(isToolbar, OpenMenu);
+            _rootElement = GetButton(variant, OpenMenu);
             _rootElement.name = Name;
             _rootElement.text = text;
             
-            SetStyle(isToolbar);
+            SetStyle(variant);
             
             Add(_rootElement);
         }
 
-        private void SetStyle(bool isToolbar)
+        private void SetStyle(ElementVariant variant)
         {
             // Add classes to container
             AddToClassList(ContainerClass);
-            if (isToolbar)
-                AddToClassList(ToolbarVariant(ContainerClass));
-            else
-                AddToClassList(WindowVariant(ContainerClass));
+            AddToClassList(Variant(ContainerClass, variant));
             
             // Add classes to button
             _rootElement.RemoveFromClassList("unity-text-element");
             _rootElement.RemoveFromClassList("unity-button");
+        
+            // _rootElement.AddToClassList(ButtonClass);
+            _rootElement.AddToClassList(Variant(ButtonClass, variant));
             
-            _rootElement.AddToClassList(ButtonClass);
-            if (isToolbar)
-                _rootElement.AddToClassList(ToolbarVariant(ButtonClass));
-            else
-                _rootElement.AddToClassList(WindowVariant(ButtonClass));
 
             // Setup Uxml
             var uiFile = AssetDatabase.GetAssetPath(Resources.Load(UxmlPath));
@@ -117,7 +92,7 @@ namespace Tools.PlayHook.Elements
                 Debug.LogWarning("Missing stylesheet: OptionsButton");
         }
 
-        public void RegisterCallback(Action<OptionsButton> onOpenMenu, Func<List<MenuEntry>> getEntries)
+        public void RegisterCallback(Action<VariantDropdownButton> onOpenMenu, Func<List<MenuEntry>> getEntries)
         {
             _onOpenMenu = onOpenMenu;
             _getEntries = getEntries;
@@ -158,17 +133,20 @@ namespace Tools.PlayHook.Elements
             _menu.GetMenu(this);
         }
         
-        private Button GetButton(bool isToolbar, Action action)
+        private Button GetButton(ElementVariant variant, Action action)
         {
-            return isToolbar ? new EditorToolbarButton(action) : new Button(action);
+            return variant == ElementVariant.Overlay ? new EditorToolbarButton(action) : new Button(action);
         }
         
         private Button GetButton(bool isToolbar)
         {
             return isToolbar ? new EditorToolbarButton() : new Button();
         }
-        
-        public void SetText(string text) => _rootElement.text = text;
+
+        public void SetText(string text)
+        {
+            _rootElement.text = text;
+        }
 
         
     }

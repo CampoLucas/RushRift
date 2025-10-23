@@ -1,0 +1,91 @@
+.variant-element-button {
+    -unity-text-align: middle-center;
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.variant-element-button--overlay.level-selector {
+    -unity-text-align: middle-left;
+    width: 115px;
+}
+
+.variant-element-button--overlay.options-menu {
+    width: 2px;
+    max-width: 15px;
+    min-width: 18px;
+    -unity-text-align: upper-center;
+}
+
+.variant-element-button--window {
+    background-color: rgb(88, 88, 88);
+    padding: 3px;
+}
+
+.variant-element-button--window:hover {
+    background-color: var(--unity-colors-highlight-background);
+}
+
+.variant-element-button--window:active {
+    background-color: rgb(70, 96, 124);
+}
+
+.variant-element-button--window.level-selector {
+    -unity-text-align: middle-left;
+    width: 115px;
+}
+
+.variant-element-button--window.options-menu {
+    -unity-text-align: lower-left;
+}
+
+.variant-element-button--maintoolbar {
+    background-color: var(--unity-colors-app_toolbar_button-background);
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.variant-element-button--maintoolbar:checked {
+    background-color: var(--unity-colors-default-background-checked);
+}
+
+.variant-element-button--maintoolbar:hover {
+    background-color: var(--unity-colors-app_toolbar_button-background-hover);
+}
+
+.variant-element-button--maintoolbar:focus {
+    background-color: var(--unity-colors-button-background-focus);
+}
+
+.variant-element-button--maintoolbar.level-selector {
+    -unity-text-align: middle-left;
+    width: 115px;
+}
+
+.variant-element-button--maintoolbar.options-menu {
+    -unity-text-align: lower-left;
+    width: 2px;
+    max-width: 15px;
+    min-width: 18px;
+}
+
+.variant-element-container--overlay.level-selector {
+    align-items: flex-start;
+}
+
+.variant-element-container--window {
+    border-left-color: rgb(36, 36, 36);
+    border-right-color: rgb(36, 36, 36);
+    border-top-color: rgb(36, 36, 36);
+    border-bottom-color: rgb(36, 36, 36);
+    border-width: 1px;
+    border-radius: 2px;
+}
+
+.variant-element-container--maintoolbar {
+    border-left-color: rgb(36, 36, 36);
+    border-right-color: rgb(36, 36, 36);
+    border-top-color: rgb(36, 36, 36);
+    border-bottom-color: rgb(36, 36, 36);
+    border-width: 1px;
+    border-radius: 2px;
+}

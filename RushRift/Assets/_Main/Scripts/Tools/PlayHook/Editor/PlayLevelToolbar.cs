@@ -4,6 +4,7 @@ using System.Linq;
 using Game.Levels;
 using Game.Levels.SingleLevel;
 using Game.Utils;
+using Tools.EditorToolbar;
 using Tools.PlayHook.Elements;
 using Tools.PlayHook.Elements.Menu;
 using Tools.PlayHook.Utils;
@@ -18,6 +19,14 @@ using Object = UnityEngine.Object;
 
 namespace Tools.PlayHook
 {
+    public enum ElementVariant
+    {
+        MainToolbar,
+        Overlay,
+        Window
+    }
+    
+    
     [EditorToolbarElement(ID, typeof(SceneView))]
 
     public class PlayLevelToolbar : VisualElement
@@ -30,28 +39,9 @@ namespace Tools.PlayHook
         private static readonly string MainScenePath = "Assets/_Main/Scenes/MainScene.unity";
         private static readonly string MainMenuPath = "Assets/_Main/Scenes/Main Menu.unity";
 
-        public readonly OptionsButton _levelDropdown;
+        public readonly VariantDropdownButton _levelDropdown;
         public readonly EditorToolbarButton _playButton;
-        public readonly OptionsButton _moreOptions;
-
-        public class EditorButtonDropdown : EditorToolbarDropdown
-        {
-            public VisualElement Arrow { get; private set; }
-            
-            public EditorButtonDropdown(Action select) : base(select)
-            {
-                var children = Children();
-
-                foreach (var child in children)
-                {
-                    if (child is Image or TextElement) continue;
-
-                    Arrow = child;
-                    Arrow.name = "arrow";
-                }
-            }
-        }
-        
+        public readonly VariantDropdownButton MoreVariantDropdown;
         
         private static List<GameModeSO> _gameModes = new();
         private static List<BaseLevelSO> _levels = new();
@@ -60,23 +50,26 @@ namespace Tools.PlayHook
         private static string _selectedScenePath;
         private static bool _isSceneOnly;
 
-        public PlayLevelToolbar() : this(true)
+        public PlayLevelToolbar() : this(ElementVariant.Overlay)
         {
             
         }
         
-        public PlayLevelToolbar(bool isToolbar)
+        public PlayLevelToolbar(ElementVariant variant)
         {
             PlayLevelSelectionBridge.OnSelectionChanged += RestoreSelectorHandler;
+            
             style.flexDirection = FlexDirection.Row;
             style.alignItems = Align.Center;
             style.paddingLeft = 2;
             style.paddingRight = 2;
             style.height = 22;
             style.flexGrow = 0;
+            
+            
 
             // Compact dropdown
-            _levelDropdown = new OptionsButton("Select Level", "level-selector", isToolbar)
+            _levelDropdown = new VariantDropdownButton("Select Level", "level-selector", variant)
             {
                 name = "level-dropdown"
             };
@@ -98,13 +91,13 @@ namespace Tools.PlayHook
             Add(_playButton);
             
             // More options button
-            _moreOptions = new OptionsButton("…", "options-menu", isToolbar)
+            MoreVariantDropdown = new VariantDropdownButton("…", "options-menu", variant)
             {
                 tooltip = "More options menu"
             };
-            _moreOptions.RegisterCallback(OnOpenMenuHandler, GetOptionsHandler);
+            MoreVariantDropdown.RegisterCallback(OnOpenMenuHandler, GetOptionsHandler);
             
-            Add(_moreOptions);
+            Add(MoreVariantDropdown);
 
             RefreshAssets();
             RestoreSelection();
@@ -114,9 +107,16 @@ namespace Tools.PlayHook
             UpdatePlayModeVisuals(EditorApplication.isPlaying);
         }
 
+        [MainToolbarElement(ToolbarPosition.Left)]
+        public static VisualElement CreateInMainToolbar()
+        {
+            var toolbar = new PlayLevelToolbar(ElementVariant.MainToolbar);
+            return toolbar;
+        }
+        
         #region Level Selector
 
-        private void OnLevelSelectorHandler(OptionsButton button)
+        private void OnLevelSelectorHandler(VariantDropdownButton button)
         {
             RefreshAssets();
             ShowLevelMenu();
@@ -247,7 +247,7 @@ namespace Tools.PlayHook
         
         #region Options
 
-        private void OnOpenMenuHandler(OptionsButton button)
+        private void OnOpenMenuHandler(VariantDropdownButton button)
         {
             RefreshAssets();
         }
