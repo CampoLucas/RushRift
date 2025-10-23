@@ -12,19 +12,9 @@ namespace Game.DesignPatterns.Observers
 
     public class SubjectObserver<T> : Subject<T>, IObserver<T>
     {
-        public Action OnDispose { get; set; }
-        
         public void OnNotify(T arg)
         {
             NotifyAll(arg);
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            OnDispose?.Invoke();
-            OnDispose = null;
         }
     }
 

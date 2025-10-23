@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class Movement : IMovement
+    public sealed class Movement : EntityComponent, IMovement
     {
         public Vector3 Velocity { get; private set; }
         public bool Grounded => _isGrounded;
@@ -181,7 +181,7 @@ namespace Game.Entities.Components
         }
 
 
-        public void Dispose()
+        protected override void OnDispose()
         {
             _data = null;
             _transform = null;
@@ -194,32 +194,15 @@ namespace Game.Entities.Components
             _updateObserver = null;
         }
 
-        public bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out IObserver<float> observer)
         {
             observer = _updateObserver;
             return observer != null;
         }
 
-        public bool TryGetLateUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public void OnDraw(Transform origin)
+        public override void OnDraw(Transform origin)
         {
             _groundDetect.Draw(origin, _isGrounded ? Color.green : Color.red);
-        }
-
-        public void OnDrawSelected(Transform origin)
-        {
-            
         }
     }
 }

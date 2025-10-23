@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class DashComponent : IEntityComponent
+    public sealed class DashComponent : EntityComponent
     {
         public ISubject OnStartDash { get; private set; } = new Subject();
         public ISubject OnStopDash { get; private set; } = new Subject();
@@ -117,35 +117,13 @@ namespace Game.Entities.Components
             _updateStrategy = updateStrategy;
         }
         
-        public bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out IObserver<float> observer)
         {
             observer = _updateObserver;
             return true;
         }
-
-        public bool TryGetLateUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public void OnDraw(Transform origin)
-        {
-            
-        }
-
-        public void OnDrawSelected(Transform origin)
-        {
-            
-        }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
             OnStartDash.DetachAll();
             OnStartDash.Dispose();

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class Attribute<TData, TDataReturn> : IAttribute where TData : AttributeData<TDataReturn> where TDataReturn : IAttribute
+    public class Attribute<TData, TDataReturn> : EntityComponent, IAttribute where TData : AttributeData<TDataReturn> where TDataReturn : IAttribute
     {
         public float Value { get; private set; }
         public float MaxValue => Data.MaxValue + _maxModifier;
@@ -31,60 +31,16 @@ namespace Game.Entities.Components
             
             _updateObserver = new ActionObserver<float>(Update);
             _regenStrategy = new RegenStrategy<TData, TDataReturn>();
+            OnLoading = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
             
             InitAttribute();
         }
         
         protected virtual void Update(float delta)
         {
-            if (Disposed/* || !_data.HasRegen*/) return;
+            if (Disposed) return;
 
             _regenStrategy.Tick(delta, this, Data);
-            
-            /*
-            if (!_regenerating && !_startRegenDelay && _prevValue != Value)
-            {
-                _startRegenDelay = true;
-                _regenDelayTimer = _data.RegenDelay;
-            }
-
-            if (_startRegenDelay)
-            {
-                _regenDelayTimer -= delta;
-
-                if (_regenDelayTimer <= 0)
-                {
-                    _startRegenDelay = false;
-                    _regenerating = true;
-                }
-            }
-
-            if (_regenerating)
-            {
-                if (_data.RegenRate > 0)
-                {
-                    if (Value < MaxValue)
-                    {
-                        Increase(delta * RegenRate);
-                    }
-                    else
-                    {
-                        _regenerating = false;
-                    }
-                }
-                else
-                {
-                    if (Value > 0)
-                    {
-                        Decrease(delta * Mathf.Abs(RegenRate));
-                    }
-                    else
-                    {
-                        _regenerating = false;
-                    }
-                }
-            }
-            */
         }
 
         public bool IsEmpty() => Value <= 0;
@@ -147,9 +103,8 @@ namespace Game.Entities.Components
             _regenModifier += amount;
         }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
-            OnDispose();
             Data = null;
 
             Disposed = true;
@@ -158,32 +113,22 @@ namespace Game.Entities.Components
             _updateObserver = null;
         }
 
-        public bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out IObserver<float> observer)
         {
             observer = _updateObserver;
             return _updateObserver != null;
         }
 
-        public bool TryGetLateUpdate(out IObserver<float> observer)
+        public override bool TryGetLateUpdate(out IObserver<float> observer)
         {
             observer = LateUpdateObserver;
             return LateUpdateObserver != null;
         }
 
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public virtual void OnDraw(Transform origin) { }
-        public virtual void OnDrawSelected(Transform origin) { }
-
         #region Protected Methods
         
         protected virtual void OnDecrease(float previousValue) { }
         protected virtual void OnIncrease(float previousValue) { }
-        protected virtual void OnDispose() { }
         protected virtual void OnEmpty() { }
         protected virtual void OnFull() { }
 
@@ -213,6 +158,21 @@ namespace Game.Entities.Components
             
             OnFull();
             // It doesn't have a subject.
+        }
+
+        private void OnLoadingHandler(bool isLoading)
+        {
+            Debug.Log($"SuperTest: Attribute is loading {isLoading}");
+            Reset();
+        }
+
+        protected virtual void Reset()
+        {
+            var startValue = Data.StartValue;
+            
+            Value = startValue > MaxValue ? MaxValue : startValue;
+            OnValueChanged.NotifyAll(Value, startValue, MaxValue);
+            _regenStrategy.NotifyValueChanged(Value, startValue, Data);
         }
     }
 }

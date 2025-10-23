@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.Entities.Components;
 using UnityEngine;
 
-public class DestroyableComponent : IEntityComponent
+public sealed class DestroyableComponent : EntityComponent
 {
     private IObserver _destroyObserver;
 
@@ -18,29 +19,9 @@ public class DestroyableComponent : IEntityComponent
         if (_destroyObserver != null) _destroyObserver.OnNotify();
     }
     
-    public bool TryGetUpdate(out IObserver<float> observer)
+    protected override void OnDispose()
     {
-        observer = null;
-        return false;
+        _destroyObserver.Dispose();
+        _destroyObserver = null;
     }
-
-    public bool TryGetLateUpdate(out IObserver<float> observer)
-    {
-        observer = null;
-        return false;
-    }
-
-    public bool TryGetFixedUpdate(out IObserver<float> observer)
-    {
-        observer = null;
-        return false;
-    }
-    
-    public void Dispose()
-    {
-        
-    }
-
-    public void OnDraw(Transform origin) { }
-    public void OnDrawSelected(Transform origin) { }
 }

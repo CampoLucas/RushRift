@@ -19,7 +19,7 @@ namespace Game.Entities
         private ISubject<float> _updateSubject = new Subject<float>();
         private ISubject<float> _lateUpdateSubject = new Subject<float>();
         private ISubject<float> _fixedUpdateSubject = new Subject<float>();
-        private NullCheck<SubjectObserver<bool>> _onLoading;
+        public NullCheck<SubjectObserver<bool>> _onLoading;
 
         public EntityModel(TData data)
         {
@@ -36,13 +36,7 @@ namespace Game.Entities
 
             if (_onLoading.TryGet(out var observer))
             {
-                var subject = GameEntry.LoadingState._onLoading;
-                subject.Attach(observer);
-
-                observer.OnDispose += () =>
-                {
-                    subject.Detach(observer);
-                };
+                GameEntry.LoadingState.AttachOnLoading(observer);
             }
         }
 
@@ -158,7 +152,15 @@ namespace Game.Entities
             {
                 _fixedUpdateSubject.Attach(fixedUpdate);
             }
+
+            if (component.OnLoading.TryGet(out var observer) // If it has a OnLoading observer
+                && _onLoading.TryGet(out var subject, CreateBoolSubject)) // Get the OnLoadingSubject from the entity, create one if it doesn't have one
+            {
+                subject.Attach(observer);
+            }
         }
+
+        private SubjectObserver<bool> CreateBoolSubject() => new SubjectObserver<bool>();
         
         /// <summary>
         /// Removes a component and optionally disposes it
@@ -186,6 +188,12 @@ namespace Game.Entities
                 _fixedUpdateSubject.Detach(fixedUpdate);
             }
             
+            if (component.OnLoading.TryGet(out var observer) // If it has a OnLoading observer
+                && _onLoading.TryGet(out var subject)) // Get the OnLoadingSubject from the entity and unsubscribe
+            {
+                subject.Detach(observer);
+            }
+            
             if (disposeComponent) component.Dispose();
 
             return true;
@@ -209,6 +217,7 @@ namespace Game.Entities
             _updateSubject.DetachAll();
             _lateUpdateSubject.DetachAll();
             _fixedUpdateSubject.DetachAll();
+            if (_onLoading) _onLoading.Get().DetachAll();
 
             var keys = _componentsDict.Keys;
 
@@ -257,9 +266,15 @@ namespace Game.Entities
         {
             RemoveAllComponents();
             
+            if (_onLoading.TryGet(out var observer))
+            {
+                GameEntry.LoadingState.DetachOnLoading(observer);
+            }
+            
             _updateSubject.Dispose();
             _lateUpdateSubject.Dispose();
             _fixedUpdateSubject.Dispose();
+            _onLoading.Dispose();
             
             _updateSubject = null;
             _lateUpdateSubject = null;

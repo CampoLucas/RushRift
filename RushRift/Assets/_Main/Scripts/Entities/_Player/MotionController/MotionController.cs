@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Game.Entities.Components.MotionController
 {
-    public class MotionController : IEntityComponent
+    public sealed class MotionController : EntityComponent
     {
         private NullCheck<Rigidbody> _rb;
         private MotionContext _context;
@@ -47,6 +47,8 @@ namespace Game.Entities.Components.MotionController
             {
                 OnPauseHandler(true);
             }
+            
+            OnLoading = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
         }
 
         public bool TryAddHandler<THandler>(THandler newHandler, bool rebuildHandlers = true) where THandler : BaseMotionHandler
@@ -173,28 +175,28 @@ namespace Game.Entities.Components.MotionController
             _handlers.Sort((a, b) => a.Order().CompareTo(b.Order()));
         }
         
-        public bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
+        public override bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             _updateObserver ??= new ActionObserver<float>(Update);
             observer = _updateObserver;
             return true;
         }
 
-        public bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
+        public override bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             _lateUpdateObserver ??= new ActionObserver<float>(LateUpdate);
             observer = _lateUpdateObserver;
             return true;
         }
 
-        public bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer)
+        public override bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             _fixedUpdateObserver ??= new ActionObserver<float>(FixedUpdate);
             observer = _fixedUpdateObserver;
             return true;
         }
 
-        public void OnDraw(Transform origin)
+        public override void OnDraw(Transform origin)
         {
             foreach (var t in _handlers)
             {
@@ -211,7 +213,7 @@ namespace Game.Entities.Components.MotionController
 #endif
         }
 
-        public void OnDrawSelected(Transform origin)
+        public override void OnDrawSelected(Transform origin)
         {
             foreach (var t in _handlers)
             {
@@ -219,7 +221,18 @@ namespace Game.Entities.Components.MotionController
             }
         }
         
-        public void Dispose()
+        private void OnLoadingHandler(bool isLoading)
+        {
+            Debug.Log($"SuperTest: MotionController is loading {isLoading}");
+            Reset();
+        }
+
+        private void Reset()
+        {
+            _pauseVelocity = Vector3.zero;
+        }
+        
+        protected override void OnDispose()
         {
             PauseHandler.Detach(_onPaused);
             

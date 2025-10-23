@@ -174,6 +174,7 @@ namespace Game.Entities
         
         private void OnDamageHandler(float previousValue, float newValue, float delta)
         {
+            if (newValue >= previousValue) return;
             AudioManager.Play("Grunt");
             //ScreenFlash.Instance.TriggerFlash("#FF0044", .1f, .1f);
         }

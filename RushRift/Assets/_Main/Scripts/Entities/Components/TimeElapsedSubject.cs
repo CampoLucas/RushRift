@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class TimeElapsedSubject : IEntityComponent, ISubject
+    public sealed class TimeElapsedSubject : EntityComponent, ISubject
     {
         private ISubject _subscribers = new Subject();
         private float _elapsedTime;
@@ -56,41 +56,19 @@ namespace Game.Entities.Components
             _subscribers.NotifyAll();
         }
         
-        public bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
+        public override bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             observer = _updateObserver;
             return _updateObserver != null;
         }
-
-        public bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
             _updateObserver.Dispose();
             _updateObserver = null;
             
             _subscribers.Dispose();
             _subscribers = null;
-        }
-
-        public void OnDraw(Transform origin)
-        {
-            
-        }
-
-        public void OnDrawSelected(Transform origin)
-        {
-            
         }
     }
 }
