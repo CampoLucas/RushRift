@@ -8,8 +8,8 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 040b01a4a79778b429b772045289f3f8
-  m_OcclusionCullingData: {fileID: 36300000, guid: aeab1562a3c5c2544b81433bbc03d22a, type: 2}
+  m_SceneGUID: 00000000000000000000000000000000
+  m_OcclusionCullingData: {fileID: 0}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -9925,7 +9925,7 @@ Camera:
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!4 &961739753
@@ -16095,6 +16095,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4815800927990245867, guid: 32cfb8921bb88cb499732fb0ba5748a4, type: 3}
+      propertyPath: m_OcclusionCulling
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5046683725613794037, guid: 32cfb8921bb88cb499732fb0ba5748a4, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -16321,7 +16325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8295772818717476546, guid: 32cfb8921bb88cb499732fb0ba5748a4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.05992786
+      value: -0.053832624
       objectReference: {fileID: 0}
     - target: {fileID: 8434255277889164576, guid: 32cfb8921bb88cb499732fb0ba5748a4, type: 3}
       propertyPath: m_Name
