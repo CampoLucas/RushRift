@@ -1,0 +1,70 @@
+.options-button {
+    -unity-text-align: middle-center;
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.options-button--toolbar {
+}
+
+.options-button--toolbar.level-selector {
+    -unity-text-align: middle-left;
+    width: 115px;
+}
+
+.options-button--toolbar.options-menu {
+    width: 2px;
+    max-width: 15px;
+    min-width: 18px;
+    -unity-text-align: upper-center;
+}
+
+.options-button--window {
+    background-color: rgb(88, 88, 88);
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+}
+
+.options-button--window:hover {
+    background-color: rgb(132, 132, 132);
+}
+
+.options-button--window:active {
+    background-color: rgb(70, 96, 124);
+}
+
+.options-button--window.level-selector {
+    -unity-text-align: middle-left;
+    width: 115px;
+}
+
+.options-button--window.options-menu {
+    -unity-text-align: lower-left;
+}
+
+.options-container {
+}
+
+.options-container--toolbar {
+}
+
+.options-container--toolbar.level-selector {
+    align-items: flex-start;
+}
+
+.options-container--window {
+    border-left-color: rgb(36, 36, 36);
+    border-right-color: rgb(36, 36, 36);
+    border-top-color: rgb(36, 36, 36);
+    border-bottom-color: rgb(36, 36, 36);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+}

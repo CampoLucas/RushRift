@@ -30,7 +30,7 @@ namespace Tools.PlayHook
         private static readonly string MainScenePath = "Assets/_Main/Scenes/MainScene.unity";
         private static readonly string MainMenuPath = "Assets/_Main/Scenes/Main Menu.unity";
 
-        public readonly EditorToolbarDropdown _levelDropdown;
+        public readonly OptionsButton _levelDropdown;
         public readonly EditorToolbarButton _playButton;
         public readonly OptionsButton _moreOptions;
 
@@ -60,8 +60,6 @@ namespace Tools.PlayHook
         private static string _selectedScenePath;
         private static bool _isSceneOnly;
 
-        private static List<EditorAction> _optionsActions = new();
-
         public PlayLevelToolbar() : this(true)
         {
             
@@ -78,18 +76,12 @@ namespace Tools.PlayHook
             style.flexGrow = 0;
 
             // Compact dropdown
-            _levelDropdown = new EditorToolbarDropdown()
+            _levelDropdown = new OptionsButton("Select Level", "level-selector", isToolbar)
             {
                 name = "level-dropdown"
             };
-            _levelDropdown.text = "(None)";
             _levelDropdown.tooltip = "Select Level or Scene to play";
-            _levelDropdown.clicked += ShowLevelMenu;
-            _levelDropdown.style.flexGrow = 0;
-            _levelDropdown.style.flexShrink = 0;
-            _levelDropdown.style.width = 125;
-            _levelDropdown.style.height = 20;
-            _levelDropdown.style.marginRight = 6;
+            _levelDropdown.RegisterCallback(OnLevelSelectorHandler, GetLevelsHandler);
             Add(_levelDropdown);
 
             // Play button
@@ -103,11 +95,10 @@ namespace Tools.PlayHook
             _playButton.style.flexShrink = 0;
             _playButton.style.height = 20;
             _playButton.style.minWidth = 1;
-            _playButton.style.marginRight = 6;
             Add(_playButton);
             
             // More options button
-            _moreOptions = new OptionsButton("…", isToolbar)
+            _moreOptions = new OptionsButton("…", "options-menu", isToolbar)
             {
                 tooltip = "More options menu"
             };
@@ -123,6 +114,137 @@ namespace Tools.PlayHook
             UpdatePlayModeVisuals(EditorApplication.isPlaying);
         }
 
+        #region Level Selector
+
+        private void OnLevelSelectorHandler(OptionsButton button)
+        {
+            RefreshAssets();
+            ShowLevelMenu();
+        }
+        
+        private List<MenuEntry> GetLevelsHandler()
+        {
+            var entries = new List<MenuEntry>();
+            
+            // None option (disables tool)
+            entries.Add(new MenuItem("Nothing", SelectNothing, IsNothingOn, EnabledEntry));
+            
+            // Game modes
+            entries.Add(new MenuSeparator());
+            if (_gameModes.Count > 0)
+            {
+                foreach (var mode in _gameModes)
+                {
+                    var group = new MenuGroup(mode.DisplayName);
+                    
+                    // Try to get levels for mode
+                    var modeLevels = mode.Levels;
+                    if (modeLevels == null || modeLevels.Count == 0)
+                    {
+                        group.Add(new MenuItem("Empty", null, false, DisabledEntry));
+                        entries.Add(group);
+                        continue;
+                    }
+
+                    foreach (var lvl in modeLevels)
+                    {
+                        var label = $"{lvl.LevelID:D2}: {lvl.LevelName} ({lvl.GetType().Name})";
+                        var selected = !_isSceneOnly && (_selectedMode == mode && _selectedLevel == lvl);
+                        
+                        group.Add(new MenuItem(label, () =>
+                        {
+                            _selectedMode = mode;
+                            _selectedLevel = lvl;
+                            _isSceneOnly = false;
+                            SaveSelection();
+                            UpdateLevelButtonText();
+                        }, selected, EnabledEntry));
+                    }
+                    
+                    entries.Add(group);
+                }
+            }
+            else
+            {
+                entries.Add(new MenuItem("No GameModes found", null, false, DisabledEntry));
+            }
+            
+            // all levels
+            entries.Add(new MenuSeparator());
+            if (_levels.Count == 0)
+            {
+                entries.Add(new MenuItem("No levels found", null, false, DisabledEntry));
+            }
+            else
+            {
+                var levels = new MenuGroup("All Levels");
+                
+                foreach (var lvl in _levels)
+                {
+                    var label = $"{lvl.LevelID:D2}: {lvl.LevelName} ({lvl.GetType().Name})";
+                    var isSel = !_isSceneOnly && _selectedMode == null && _selectedLevel == lvl;
+                    
+                    levels.Add(new MenuItem(label, () =>
+                    {
+                        _selectedMode = null;
+                        _selectedLevel = lvl;
+                        _isSceneOnly = false;
+                        SaveSelection();
+                        UpdateLevelButtonText();
+                    }, isSel, EnabledEntry));
+                }
+                
+                entries.Add(levels);
+            }
+            
+            // Scenes
+            entries.Add(new MenuSeparator());
+            var scenes = new MenuGroup("Scenes");
+            
+            scenes.Add(new MenuItem("Main Scene", () =>
+            {
+                _isSceneOnly = true;
+                _selectedScenePath = MainScenePath;
+                _selectedLevel = null;
+                SaveSelection();
+                UpdateLevelButtonText();
+            },_isSceneOnly && _selectedScenePath == MainScenePath, EnabledEntry));
+            
+            scenes.Add(new MenuItem("Main Menu", () =>
+            {
+                _isSceneOnly = true;
+                _selectedScenePath = MainMenuPath;
+                _selectedLevel = null;
+                SaveSelection();
+                UpdateLevelButtonText();
+            },_isSceneOnly && _selectedScenePath == MainMenuPath, EnabledEntry));
+            
+            entries.Add(scenes);
+            return entries;
+        }
+
+        private bool IsNothingOn()
+        {
+            return !_isSceneOnly && !_selectedLevel;
+        }
+
+        private void SelectNothing()
+        {
+            _selectedLevel = null;
+            _isSceneOnly = false;
+
+            // Save persistent flag that means "disabled"
+            EditorPrefs.SetString(LevelPrefKey, DisabledFlag);
+
+            // Clear playModeStartScene so regular play uses active scene
+            EditorSceneManager.playModeStartScene = null;
+
+            SaveSelection();
+            UpdateLevelButtonText();
+        }
+
+        #endregion
+        
         #region Options
 
         private void OnOpenMenuHandler(OptionsButton button)
@@ -162,13 +284,13 @@ namespace Tools.PlayHook
             {
                 if (_isSceneOnly)
                 {
-                    entries.Add(new MenuItem("Open Scene", () => OpenScene(_selectedScenePath), false, () => CanOpenScene(_selectedScenePath)));
+                    entries.Add(new MenuItem("Open Scene", () => OpenScene(_selectedScenePath), false, () => OpenSceneDisabled(_selectedScenePath)));
                 }
                 else
                 {
                     var lvl = _selectedLevel.GetLevel(0);
                     entries.Add(new MenuItem($"Open {_selectedLevel.LevelName} Scene", () => OpenLevelScene(lvl), false, 
-                        () => CanOpenScene(lvl.ScenePath)));
+                        () => OpenSceneDisabled(lvl.ScenePath)));
                 }
                 return true;
             }
@@ -188,7 +310,7 @@ namespace Tools.PlayHook
                 }
                 
                 scenes.Add(new MenuItem(collapsed ? $"Open {level.LevelName}" : $"Open {level.LevelName} scene", () => OpenLevelScene(level), false,
-                    () => CanOpenScene(level.ScenePath)));
+                    () => OpenSceneDisabled(level.ScenePath)));
             }
 
             if (count > maxScenesToCollapse)
@@ -239,19 +361,26 @@ namespace Tools.PlayHook
         {
             if (!_selectedLevel) return false;
             entries.Add(new MenuSeparator());
-            entries.Add(new MenuItem("Add Main Scene [DEBUG]", OnAddMainSceneClicked, IsMainSceneLoaded, EnabledEntry));
+            entries.Add(new MenuItem("Add Main Scene [DEBUG]", OnAddMainSceneClicked, IsMainSceneLoaded, OpenMainSceneDisabled));
             return true;
         }
 
-        private bool CanOpenScene(string path)
+        private bool OpenSceneDisabled(string path)
         {
+            if (Application.isPlaying) return true;
+            
             var scene = EditorSceneManager.GetSceneByPath(path);
             return scene.isLoaded;
         }
 
         private bool IsMainSceneLoaded()
         {
-            return CanOpenScene(MainScenePath);
+            return OpenSceneDisabled(MainScenePath);
+        }
+
+        private bool OpenMainSceneDisabled()
+        {
+            return Application.isPlaying;
         }
         
         private void OnAddMainSceneClicked()
@@ -479,11 +608,17 @@ namespace Tools.PlayHook
                 _levelDropdown.tooltip = "Select Level or Scene to play";
 
                 if (_selectedScenePath == MainScenePath)
-                    _levelDropdown.text = "Main Scene";
+                {
+                    _levelDropdown.SetText("Main Scene");
+                }
                 else if (_selectedScenePath == MainMenuPath)
-                    _levelDropdown.text = "Main Menu";
+                {
+                    _levelDropdown.SetText("Main Menu");
+                }
                 else
-                    _levelDropdown.text = "(Unknown Scene)";
+                {
+                    _levelDropdown.SetText("(Unknown Scene)");
+                }
 
                 _playButton.SetEnabled(true);
             }
@@ -498,14 +633,14 @@ namespace Tools.PlayHook
                 _levelDropdown.tooltip = $"{fullDisplay}. Select Level or Scene to play";
 
                 var display = shortDisplay.Length > 15 ? shortDisplay.Substring(0, 14) + "…" : shortDisplay;
-                _levelDropdown.text = display;
+                _levelDropdown.SetText(display);
 
                 _playButton.SetEnabled(true);
             }
             else
             {
                 _levelDropdown.tooltip = "Tool disabled. Select Level or Scene to play";
-                _levelDropdown.text = "Select Level";
+                _levelDropdown.SetText("Select Level");
                 _playButton.SetEnabled(false);
             }
         }
