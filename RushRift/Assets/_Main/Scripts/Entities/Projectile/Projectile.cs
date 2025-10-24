@@ -167,7 +167,6 @@ namespace Game.Entities
 
         public void DestroyProjectile()
         {
-            Debug.Log("SuperTest: DestroyProjectile");
             GlobalEvents.ProjectileDestroyed.NotifyAll(this);
             ExplodeCollision(Vector3.up);
         }

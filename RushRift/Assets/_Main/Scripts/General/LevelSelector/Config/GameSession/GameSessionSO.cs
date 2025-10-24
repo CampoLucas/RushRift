@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Tools.Scripts.PropertyAttributes;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ namespace Game.Levels
         [Header("Definition")]
         [SerializeField] private GameModeSO gameMode;
         [SerializeField] private BaseLevelSO level;
+        [SerializeField] private SessionArgs args;
 
         [Header("Runtime Data")]
         [SerializeField, ReadOnly] private int currentIndex;
@@ -53,5 +55,10 @@ namespace Game.Levels
         {
             level = newLevel;
         }
+    }
+
+    public struct SessionArgs
+    {
+        
     }
 }

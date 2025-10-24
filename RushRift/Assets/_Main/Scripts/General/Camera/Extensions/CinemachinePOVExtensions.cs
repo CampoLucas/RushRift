@@ -162,11 +162,6 @@ namespace Game
             _active = true;
         }
 
-        private async void ForceCameraPos()
-        {
-            // maybe await have logic to await depending on the cinemachine brain diferent update settings
-        }
-
         private Camera GetCamera()
         {
             return Camera.main;

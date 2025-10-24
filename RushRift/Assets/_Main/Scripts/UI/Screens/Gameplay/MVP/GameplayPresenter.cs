@@ -19,7 +19,6 @@ namespace Game.UI.Screens
             // Un Pause the game
             if (!GameEntry.LoadingState.Loading)
             {
-                Debug.Log("[SuperTest] not loading");
                 PauseHandler.Pause(false);
             }
             

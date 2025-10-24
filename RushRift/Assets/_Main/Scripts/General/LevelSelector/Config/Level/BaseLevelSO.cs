@@ -30,7 +30,6 @@ namespace Game.Levels
         {
             if (!UsesMedals || !medals.TryGetValue(type, out var medal))
             {
-                this.Log("[SuperTest] Returning default medal", LogType.Warning);
                 return default;
             }
 

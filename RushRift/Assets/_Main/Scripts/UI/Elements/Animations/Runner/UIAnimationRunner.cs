@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game.DesignPatterns.Observers;
 using Game.UI.Animations;
 using MyTools.Global;
 using TMPro;
@@ -35,9 +36,13 @@ namespace Game.UI
         [SerializeField] private UnityEvent onAllSequencesComplete = new UnityEvent();
 
         private Coroutine _runnerCoroutine;
+        private ActionObserver<bool> _onLoadingObserver;
 
         private void Awake()
         {
+            _onLoadingObserver = new ActionObserver<bool>(OnLoadingHandler);
+            GameEntry.LoadingState.AttachOnLoading(_onLoadingObserver);
+            
             Reset();
         }
 
@@ -107,6 +112,16 @@ namespace Game.UI
         public override IEnumerator PlayRoutine(float delay)
         {
             yield return DoAnim(playPosition, playRotation, playScale, playColor, delay);
+        }
+
+        private void OnLoadingHandler(bool isLoading)
+        {
+            if (isLoading)
+            {
+                StopAllCoroutines();
+                Stop();
+                Reset();
+            }
         }
 
         private IEnumerator DoAnim(Vector2 startPos, float startRot, float startScale, Color startColor, float delay)
@@ -328,6 +343,13 @@ namespace Game.UI
             }
             
             SetColor(end);
+        }
+
+        private void OnDestroy()
+        {
+            if (_onLoadingObserver != null) GameEntry.LoadingState.DetachOnLoading(_onLoadingObserver);
+            StopAllCoroutines();
+            
         }
     }
 }

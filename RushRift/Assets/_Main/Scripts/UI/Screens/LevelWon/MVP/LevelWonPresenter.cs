@@ -1,4 +1,5 @@
 using System;
+using Game.DesignPatterns.Observers;
 using Game.General;
 using Game.Levels;
 using Game.Saves;
@@ -21,23 +22,33 @@ namespace Game.UI.Screens
 
         [Header("Events")]
         [SerializeField] private UnityEvent onBegin = new UnityEvent();
+
+        private bool _begun;
+        private ActionObserver<bool> _loadingObserver;
         
         private void Awake()
         {
             continueButton.onClick.AddListener(OnLoadNextHandler);
             retryButton.onClick.AddListener(RetryLevelHandler);
             hubButton.onClick.AddListener(HubHandler);
+
+            _loadingObserver = new ActionObserver<bool>((a) => { _begun = false; });
+
+            GameEntry.LoadingState.AttachOnLoading(_loadingObserver);
         }
         
         public override void Begin()
         {
+            if (_begun) return;
+            _begun = true;
             base.Begin();
             
             // Set Cursor
             CursorHandler.lockState = CursorLockMode.None;
             CursorHandler.visible = true;
-            //OnWinLevel();
-            EventSystem.current.SetSelectedGameObject(null);
+            
+
+            //Model.Reset();
             
             SetModelValues(Model);
             UpdateSaveData(Model);
@@ -70,16 +81,20 @@ namespace Game.UI.Screens
 
         private void CheckTime(in LevelWonModel model)
         {
-            if (model.LevelWon) return;
+            continueButton.interactable = model.LevelWon;
             
-            continueButton.interactable = false;
+            EventSystem.current.SetSelectedGameObject(null);
+            // ToDo: Check if the player is playing with a game pad.
+            //EventSystem.current.SetSelectedGameObject(model.LevelWon ? continueButton.gameObject : retryButton.gameObject);
         }
         
         private void SetModelValues(in LevelWonModel model)
         {
             var data = SaveSystem.LoadGame();
             var endTime = GlobalLevelManager.CompleteTime;
-            data.CheckBestTime(GlobalLevelManager.GetID(), endTime, out var prevBest, out var currBest, out var newRecord);
+            var id = GlobalLevelManager.GetID();
+            
+            data.CheckBestTime(id, endTime, out var prevBest, out var currBest, out var newRecord);
 
             var bronze = GlobalLevelManager.GetMedalInfo(MedalType.Bronze);
             var silver = GlobalLevelManager.GetMedalInfo(MedalType.Silver);
@@ -117,6 +132,13 @@ namespace Game.UI.Screens
 
         public override void Dispose()
         {
+            if (_loadingObserver != null)
+            {
+                _loadingObserver.Dispose();
+                GameEntry.LoadingState.DetachOnLoading(_loadingObserver);
+            }
+            
+            
             continueButton.onClick.RemoveAllListeners();
             retryButton.onClick.RemoveAllListeners();
             hubButton.onClick.RemoveAllListeners();

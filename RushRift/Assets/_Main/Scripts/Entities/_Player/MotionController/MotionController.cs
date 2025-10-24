@@ -223,7 +223,6 @@ namespace Game.Entities.Components.MotionController
         
         private void OnLoadingHandler(bool isLoading)
         {
-            Debug.Log($"SuperTest: MotionController is loading {isLoading}");
             Reset();
         }
 

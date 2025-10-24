@@ -162,7 +162,6 @@ namespace Game.Entities.Components
 
         private void OnLoadingHandler(bool isLoading)
         {
-            Debug.Log($"SuperTest: Attribute is loading {isLoading}");
             Reset();
         }
 

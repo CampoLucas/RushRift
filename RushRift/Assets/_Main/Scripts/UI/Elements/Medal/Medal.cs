@@ -12,7 +12,10 @@ public class Medal : MonoBehaviour
     [SerializeField] private Graphic icon;
     [SerializeField] private TMP_Text text;
     [SerializeField] private Graphic lockIcon;
+    
+    [Header("Materials")]
     [SerializeField] private Material lockedMaterial;
+    [SerializeField] private Material unlockedMaterial;
 
     //private static readonly int UseLines = Shader.PropertyToID("_UseLines");
 
@@ -30,6 +33,7 @@ public class Medal : MonoBehaviour
         }
         else
         {
+            icon.material = unlockedMaterial;
             lockIcon.gameObject.SetActive(false);
             //_material.SetFloat(UseLines, 1);
         }

@@ -27,9 +27,16 @@ public sealed class TimesDisplays : MonoBehaviour
 
     private Coroutine _coroutine;
 
+    public void Init()
+    {
+        currentTimeText.text = "00:00:000";
+        bestTimeText.text = "00:00:000";
+    }
+
     public void Play()
     {
         var model = presenter.GetModel();
+        
         Play(model.EndTime, model.BestTime);
     }
     

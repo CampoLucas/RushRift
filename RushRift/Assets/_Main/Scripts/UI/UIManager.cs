@@ -1,18 +1,14 @@
 using System;
-using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
-using Game.Entities;
 using Game.Entities.Components;
-using Game.Input;
 using Game.Inputs;
 using Game.Levels;
+using Game.Predicates;
 using Game.ScreenEffects;
 using Game.UI.Screens;
 using Game.Utils;
 using MyTools.Global;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace Game.UI
 {
@@ -29,7 +25,6 @@ namespace Game.UI
         [SerializeField] private GameObject loadingScreen;
         
         [Header("Effects")]
-        [SerializeField] private FadeScreen screenFade;
         [SerializeField] private ScreenDamageEffect screenDamage;
 
         [Header("Hub")]
@@ -78,6 +73,7 @@ namespace Game.UI
         private void OnReadyHandler(BaseLevelSO level)
         {
             Debug.Log("Remove Loading screen");
+            GlobalEvents.GameOver.Attach(_onGameOver);
             loadingScreen.SetActive(false);
 
             if (_stateMachine.TryGet(out var stateMachine))
@@ -99,8 +95,6 @@ namespace Game.UI
             //levelWonPresenter.Attach(this);
             pausePresenter.Attach(this);
             //optionsPresenter.Attach(this);
-
-            GlobalEvents.GameOver.Attach(_onGameOver);
 
             if (!PlayerSpawner.Player.TryGet(out var player))
             {
@@ -153,6 +147,8 @@ namespace Game.UI
             
             if (!_stateMachine.TryGet(out var stateMachine)) return;
 
+
+#if false
             var gameplay = new GameplayState(model, gameplayPresenter);
             var gameOver = new GameOverState(gameOverPresenter);
             var pause = new PauseState(pausePresenter);
@@ -171,12 +167,37 @@ namespace Game.UI
             gameOver.AddTransition(SceneTransition.HUB, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.Escape)));
             
             pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),.25f, 0, 0);
-            
+#else
+            if (stateMachine.TryAddState(UIScreen.GameOver, gameOverPresenter, out var gameOver))
+            {
+                gameOver.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.ResetInput));
+                gameOver.AddTransition(SceneTransition.HUB, new OnButtonPredicate(InputManager.PauseInput));
+            }
+                
+            if (stateMachine.TryAddState(UIScreen.Gameplay, gameplayPresenter, out var gameplay))
+            {
+                gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.PauseInput), 0, .25f, 0);
+                gameplay.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.ResetInput));
+            }
+
+            if (stateMachine.TryAddState(UIScreen.Pause, pausePresenter, out var pause))
+            {
+                pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),.25f, 0, 0);
+            }
+
+            stateMachine.TryAddState(UIScreen.LevelWon, levelWonPresenter, out var levelWon);
+
+#endif
+
+
+
+
             //stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
         }
         
         private void OnGameOverHandler(bool playerWon)
         {
+            GlobalEvents.GameOver.Detach(_onGameOver);
             if (!_stateMachine.TryGet(out var stateMachine)) return;
 
             if (playerWon)
@@ -262,7 +283,6 @@ namespace Game.UI
             levelWonPresenter = null;
             optionsPresenter = null;
             loadingScreen = null;
-            screenFade = null;
             screenDamage = null;
         }
 

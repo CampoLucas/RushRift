@@ -47,22 +47,30 @@ namespace Game
         private readonly List<string> _loadedLevels = new();
         private readonly Dictionary<string, Scene> _loadedLevelsDict = new();
         private TimerHandler _levelTimer = new();
-        private DesignPatterns.Observers.IObserver<bool> _gameOverObserver;
+        private ActionObserver<bool> _gameOverObserver;
+        private ActionObserver<bool> _loadingObserver;
         
         protected override void OnAwake()
         {
             base.OnAwake();
-            GameEntry.LoadingState.SetLoading(true);
-            GameEntry.LoadingState.AttachOnReady(_levelTimer);
             
             // Reset the global events
             GlobalEvents.Reset();
             
             // Create observers
             _gameOverObserver = new ActionObserver<bool>(OnGameOverHandler);
+            _loadingObserver = new ActionObserver<bool>(OnLoadingHandler);
 
             // Attach observers
-            GlobalEvents.GameOver.Attach(_gameOverObserver);
+            GameEntry.LoadingState.AttachOnLoading(_loadingObserver);
+            GameEntry.LoadingState.AttachOnReady(_levelTimer);
+            
+            // Set loading if it is the first time
+            //GameEntry.LoadingState.SetLoading(true);
+            // if (!GameEntry.LoadingState.Loading)
+            // {
+            //     AttachGameOverObserver();
+            // }
         }
 
         private void Update()
@@ -243,6 +251,19 @@ namespace Game
             GlobalEvents.GameOver.Detach(_gameOverObserver);
             CompleteTime = _levelTimer.CurrentTime;
         }
+
+        private void OnLoadingHandler(bool isLoading)
+        {
+            if (!isLoading)
+            {
+                GlobalEvents.GameOver.Attach(_gameOverObserver);
+            }
+            else
+            {
+                CompleteTime = 0;
+                GlobalEvents.GameOver.Detach(_gameOverObserver);
+            }
+        }
         
         private void OnPlayerDeath()
         {
@@ -289,11 +310,11 @@ namespace Game
             var medal = config.GetMedal(type);
             var endTime = CompleteTime;
 
+            var isUnlocked = data.IsMedalUnlocked(currLevel, type);
 #if UNITY_EDITOR
-            Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.requiredTime}]");
+            Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.requiredTime} | IsUnlocked: {isUnlocked}]");
 #endif
 
-            var isUnlocked = data.IsMedalUnlocked(currLevel, type);
             return new MedalInfo(type.ToString(), medal.upgrade.EffectName, isUnlocked || endTime <= medal.requiredTime, isUnlocked, medal.requiredTime);
         }
 

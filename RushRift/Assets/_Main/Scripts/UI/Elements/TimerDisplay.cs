@@ -100,7 +100,6 @@ public class TimerDisplay : MonoBehaviour
             return;
         }
 
-        Debug.Log("[SuperTest] Found the level config");
         if (!gameObject.activeSelf)
         {
             gameObject.SetActive(true);

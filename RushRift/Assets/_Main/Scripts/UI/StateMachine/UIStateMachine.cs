@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using Game.UI.Screens.Interfaces;
 using UnityEngine;
 
 namespace Game.UI.Screens
@@ -23,6 +24,7 @@ namespace Game.UI.Screens
             if (state != null && _states.TryAdd(screen, state))
             {
                 _statesList.Add(screen);
+                state.Init();
                 state.Disable();
                 return true;
             }
@@ -31,15 +33,35 @@ namespace Game.UI.Screens
             return false;
         }
 
-        public bool TryChangeState(UIScreen screen)
+        public bool TryAddState(UIScreen screen, Func<UIState> state)
         {
-            if (!_states.TryGetValue(screen, out var state) || _current == state) return false;
-            
-            if (_current != null) _current.Disable();
+            if (_states.ContainsKey(screen))
+            {
+                return false;
+            }
 
-            Current = screen;
-            _current = state;
-            _current.Enable();
+            var s = state();
+
+            if (s == null || !_states.TryAdd(screen, s)) return false;
+            
+            _statesList.Add(screen);
+            s.Init();
+            s.Disable();
+            return true;
+
+        }
+
+        public bool TryAddState(UIScreen screen, BaseUIPresenter presenter, out UIState state)
+        {
+            if (_states.ContainsKey(screen) || !presenter.TryGetState(out state) || state == null || !_states.TryAdd(screen, state))
+            {
+                state = null;
+                return false;
+            }
+            
+            _statesList.Add(screen);
+            state.Init();
+            state.Disable();
             return true;
         }
 
