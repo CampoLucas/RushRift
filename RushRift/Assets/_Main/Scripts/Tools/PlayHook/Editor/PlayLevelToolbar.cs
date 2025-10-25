@@ -128,12 +128,24 @@ namespace Tools.PlayHook
         private void OnLevelSelectorHandler(VariantDropdownButton button)
         {
             RefreshAssets();
-            ShowLevelMenu();
+            //ShowLevelMenu();
         }
         
         private List<MenuEntry> GetLevelsHandler()
         {
             var entries = new List<MenuEntry>();
+            
+            if (EditorApplication.isCompiling)
+            {
+                entries.Add(new MenuItem("It is compiling...", null, false, DisabledEntry));
+                return entries;
+            }
+
+            if (EditorApplication.isUpdating)
+            {
+                entries.Add(new MenuItem("It is updating...", null, false, DisabledEntry));
+                return entries;
+            }
             
             // None option (disables tool)
             entries.Add(new MenuItem("Nothing", SelectNothing, IsNothingOn, EnabledEntry));
@@ -264,6 +276,18 @@ namespace Tools.PlayHook
         private List<MenuEntry> GetOptionsHandler()
         {
             var entries = new List<MenuEntry>();
+
+            if (EditorApplication.isCompiling)
+            {
+                entries.Add(new MenuItem("It is compiling...", null, false, DisabledEntry));
+                return entries;
+            }
+
+            if (EditorApplication.isUpdating)
+            {
+                entries.Add(new MenuItem("It is updating...", null, false, DisabledEntry));
+                return entries;
+            }
             
             RegularOptions(ref entries);
             SceneOptions(ref entries);
@@ -385,8 +409,9 @@ namespace Tools.PlayHook
             // Get current defines
             var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
 
-            var debugSpawnState = DefineSymbolUtility.HasDefine(DebugSpawnSymbol) ? "Disable" : "Enable";
-            group.Add(new MenuItem($"{debugSpawnState} debug spawn [EDITOR ONLY]", 
+            group.Add(new MenuItem(DefineSymbolUtility.HasDefine(DebugSpawnSymbol) ?
+                    "Disable debug spawn" 
+                    : "Enable debug spawn [EDITOR ONLY]", 
                 () => DefineSymbolUtility.ToggleDefine(DebugSpawnSymbol), 
                 false, 
                 DisableEntryOnPlay));
@@ -394,7 +419,9 @@ namespace Tools.PlayHook
             
             if (!_selectedLevel) return false;
             group.Add(new MenuItem("Change Spawn Pos", null, false, DisabledEntry));
+#if DEBUG_SPAWN
             group.Add(new MenuItem("Change Debug Spawn Pos", null, false, DisabledEntry));
+#endif
 
             return true;
         }
@@ -751,6 +778,11 @@ namespace Tools.PlayHook
 
         private void OnPlayClicked()
         {
+            if (EditorApplication.isCompiling || EditorApplication.isCompiling)
+            {
+                return;
+            }
+            
             if (EditorApplication.isPlaying)
             {
                 EditorApplication.isPlaying = false;
