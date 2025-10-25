@@ -22,16 +22,16 @@ namespace Game.Entities
         [SerializeField] private SerializableSOCollection<EffectTrigger> stopTriggers;
         [SerializeField] private SerializableSOCollection<EffectTrigger> removeTriggers;
 
-        public void ApplyEffect(IController controller)
+        public EffectInstance ApplyEffect(IController controller)
         {
 #if UNITY_EDITOR
             Debug.Log($"SuperTest: Applied effect {name}");
 #endif
             
-            ApplyEffect(controller, duration);
+            return ApplyEffect(controller, duration);
         }
         
-        public void ApplyEffect(IController controller, float dur)
+        public EffectInstance ApplyEffect(IController controller, float dur)
         {
             var startTr = startTriggers.Select(a => a.GetTrigger(controller)).ToArray();
             var stopTr = stopTriggers.Select(a => a.GetTrigger(controller)).ToArray();
@@ -42,6 +42,8 @@ namespace Game.Entities
                 new EffectInstance(strategies, startTr, stopTr, removeTr, removeWhenApplied, detachWhenApplied, dur) :
                 new EffectInstance(strategies, startTr, stopTr, removeTr, removeWhenApplied, detachWhenApplied);
             effectInstance.Initialize(controller);
+
+            return effectInstance;
         }
 
         

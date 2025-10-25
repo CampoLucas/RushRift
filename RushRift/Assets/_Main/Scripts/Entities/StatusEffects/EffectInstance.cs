@@ -104,6 +104,19 @@ namespace Game.Entities
             }
         }
 
+        public void Remove()
+        {
+            this.Log($"Removed effect");
+            
+            if (!_controller.GetModel().TryAddOrGetComponent(StatusEffectRunnerFactory, out var statusEffectRunner))
+            {
+                Logger.Log("[EffectInstance] Couldn't add the component", null, LogType.Error);
+                return;
+            }
+            
+            statusEffectRunner.RemoveEffect(this);
+        }
+
         private StatusEffectRunner StatusEffectRunnerFactory()
         {
             return new StatusEffectRunner();
