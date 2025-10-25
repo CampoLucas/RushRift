@@ -1,5 +1,5 @@
 using System;
-using Game.Inputs;
+using Game.InputSystem;
 
 namespace Game
 {

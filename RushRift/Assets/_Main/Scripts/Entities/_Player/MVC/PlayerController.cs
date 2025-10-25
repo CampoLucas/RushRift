@@ -1,6 +1,6 @@
 using Game.Entities.AttackSystem;
 using Game.Entities.Components;
-using Game.Inputs;
+using Game.InputSystem;
 using Game.Predicates;
 using Game.Utils;
 using System.Collections.Generic;

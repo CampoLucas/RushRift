@@ -48,7 +48,7 @@ namespace Game
         /// <param name="value">Reference to store. If null, <paramref name="defaultValue"/> is used.</param>
         /// <param name="defaultValue">Fallback value if <paramref name="value"/> is null.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NullCheck(T value, T defaultValue) : this()
+        public NullCheck(T value, Func<T> defaultValue) : this()
         {
             Set(value, defaultValue);
         }
@@ -144,9 +144,9 @@ namespace Game
         /// <param name="defaultValue">Fallback value if <paramref name="value"/> is null.</param>
         /// <returns>True if a valid value was assigned; otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Set(T value, T defaultValue)
+        public bool Set(T value, Func<T> defaultValue)
         {
-            return Set(value ?? defaultValue);
+            return Set(value ?? defaultValue());
         }
 
         #region Operators

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Game.Entities.AttackSystem;
 using Game.Entities.Components;
 using Game.Entities.Components.MotionController;
-using Game.Inputs;
+using Game.InputSystem;
 using UnityEngine;
 using UnityEngine.Serialization;
 
