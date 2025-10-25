@@ -4,6 +4,7 @@ using System.Linq;
 using Game.Levels;
 using Game.Levels.SingleLevel;
 using Game.Utils;
+using NUnit.Framework;
 using Tools.EditorToolbar;
 using Tools.PlayHook.Elements;
 using Tools.PlayHook.Elements.Menu;
@@ -31,6 +32,8 @@ namespace Tools.PlayHook
 
     public class PlayLevelToolbar : VisualElement
     {
+        public const string DebugSpawnSymbol = "DEBUG_SPAWN";
+        public const string CheatsEnabledSymbol = "CHEATS_ENABLED";
         public const string ID = "CustomToolbar/PlayLevel";
         public static readonly string DisabledFlag = "__NONE__";
 
@@ -107,6 +110,12 @@ namespace Tools.PlayHook
             UpdatePlayModeVisuals(EditorApplication.isPlaying);
         }
 
+        ~PlayLevelToolbar()
+        {
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            PlayLevelSelectionBridge.OnSelectionChanged -= RestoreSelectorHandler;
+        }
+        
         [MainToolbarElement(ToolbarPosition.Left)]
         public static VisualElement CreateInMainToolbar()
         {
@@ -259,9 +268,11 @@ namespace Tools.PlayHook
             RegularOptions(ref entries);
             SceneOptions(ref entries);
             SelectOptions(ref entries);
-            ToggleMainSceneOption(ref entries);
+            ToggleMainSceneOptions(ref entries);
+            ToggleSpawnOptions(ref entries);
             
             return entries;
+            
         }
 
         private bool RegularOptions(ref List<MenuEntry> entries)
@@ -357,11 +368,34 @@ namespace Tools.PlayHook
             return true;
         }
 
-        private bool ToggleMainSceneOption(ref List<MenuEntry> entries)
+        private bool ToggleMainSceneOptions(ref List<MenuEntry> entries)
         {
             if (!_selectedLevel) return false;
             entries.Add(new MenuSeparator());
             entries.Add(new MenuItem("Add Main Scene [DEBUG]", OnAddMainSceneClicked, IsMainSceneLoaded, OpenMainSceneDisabled));
+            return true;
+        }
+
+        private bool ToggleSpawnOptions(ref List<MenuEntry> entries)
+        {
+            entries.Add(new MenuSeparator());
+            var group = new MenuGroup("Spawn");
+            
+            var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+            // Get current defines
+            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+
+            var debugSpawnState = DefineSymbolUtility.HasDefine(DebugSpawnSymbol) ? "Disable" : "Enable";
+            group.Add(new MenuItem($"{debugSpawnState} debug spawn [EDITOR ONLY]", 
+                () => DefineSymbolUtility.ToggleDefine(DebugSpawnSymbol), 
+                false, 
+                EnabledEntry));
+            entries.Add(group);
+            
+            if (!_selectedLevel) return false;
+            group.Add(new MenuItem("Change Spawn Pos", null, false, DisabledEntry));
+            group.Add(new MenuItem("Change Debug Spawn Pos", null, false, DisabledEntry));
+
             return true;
         }
 
@@ -468,12 +502,6 @@ namespace Tools.PlayHook
             //RefreshAssets();
             RestoreSelection();
             UpdateLevelButtonText();
-        }
-
-        ~PlayLevelToolbar()
-        {
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            PlayLevelSelectionBridge.OnSelectionChanged -= RestoreSelectorHandler;
         }
 
         private void ShowLevelMenu()
