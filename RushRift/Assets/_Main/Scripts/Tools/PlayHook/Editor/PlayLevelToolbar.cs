@@ -389,7 +389,7 @@ namespace Tools.PlayHook
             group.Add(new MenuItem($"{debugSpawnState} debug spawn [EDITOR ONLY]", 
                 () => DefineSymbolUtility.ToggleDefine(DebugSpawnSymbol), 
                 false, 
-                EnabledEntry));
+                DisableEntryOnPlay));
             entries.Add(group);
             
             if (!_selectedLevel) return false;
@@ -474,6 +474,7 @@ namespace Tools.PlayHook
         
         private bool DisabledEntry() => true;
         private bool EnabledEntry() => false;
+        private bool DisableEntryOnPlay() => Application.isPlaying;
 
         private void OpenScene(string path)
         {
