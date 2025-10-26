@@ -1,6 +1,6 @@
 using Game.Entities.AttackSystem;
 using Game.Entities.Components;
-using Game.Inputs;
+using Game.InputSystem;
 using Game.Predicates;
 using Game.Utils;
 using System.Collections.Generic;
@@ -55,17 +55,6 @@ namespace Game.Entities
                 var effect = startEffects[i];
                 if (effect.IsNullOrMissingReference()) continue;
                 effect.ApplyEffect(this);
-            }
-            
-            // ToDo: handle with the player spawner.
-            var data = SaveSystem.LoadGame();
-            var levelID = GlobalLevelManager.GetID();
-        
-            var effectsAmount = data.TryGetUnlockedEffects(levelID, out var effects);
-
-            for (var i = 0; i < effectsAmount; i++)
-            {
-                effects[i].ApplyEffect(this);
             }
         }
 

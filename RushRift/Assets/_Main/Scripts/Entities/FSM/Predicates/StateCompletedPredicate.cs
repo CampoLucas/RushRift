@@ -1,5 +1,5 @@
 using Game.Entities;
-using Game.Inputs;
+using Game.InputSystem;
 
 namespace Game.Predicates
 {

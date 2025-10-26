@@ -1,7 +1,7 @@
 using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities.Components;
-using Game.Inputs;
+using Game.InputSystem;
 using Game.Levels;
 using Game.Predicates;
 using Game.ScreenEffects;

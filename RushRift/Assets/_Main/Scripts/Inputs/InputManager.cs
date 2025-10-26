@@ -5,7 +5,7 @@ using Game.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Game.Inputs
+namespace Game.InputSystem
 {
     public class InputManager : MonoBehaviour
     {

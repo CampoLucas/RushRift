@@ -7,6 +7,8 @@ using Cysharp.Threading.Tasks;
 using Game;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.Levels;
+using Game.Saves;
 using Game.Utils;
 using MyTools.Global;
 using UnityEngine;
@@ -49,6 +51,9 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     private NullCheck<PlayerController> _player;
     private NullCheck<Rigidbody> _body;
     private CancellationTokenSource _cts;
+    private List<EffectInstance> _playerEffects = new();
+    private NullCheck<BaseLevelSO> _prevLevel;
+    private ActionObserver<BaseLevelSO> _onLevelReady;
     
     protected override void OnAwake()
     {
@@ -60,6 +65,42 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         PlayerSet.NotifyAll(player);
         
         if (player.TryGetComponent<Rigidbody>(out var body)) _body = body;
+        _onLevelReady = new ActionObserver<BaseLevelSO>(OnLevelReadyHandler);
+        GameEntry.LoadingState.AttachOnReady(_onLevelReady);
+    }
+
+    private void OnLevelReadyHandler(BaseLevelSO levelSo)
+    {
+        if (!_player.TryGet(out var player))
+        {
+            this.Log("[OnLevelReadyHandler] Doesn't have the player's reference", LogType.Error);
+            return;
+        }
+
+        var levelId = levelSo.LevelID;
+        // Remove previous upgrades if it is a different level
+        if (_prevLevel.TryGet(out var prev) && prev.LevelID != levelId && _playerEffects.Count > 0)
+        {
+            for (var i = 0; i < _playerEffects.Count; i++)
+            {
+                _playerEffects[i].Remove();
+            }
+            
+            _playerEffects.Clear();
+        }
+
+        if (!_prevLevel.TryGet(out prev) || prev.LevelID != levelId)
+        {
+            var data = SaveSystem.LoadGame();
+            var effectsAmount = data.TryGetUnlockedEffects(levelId, out var effects);
+        
+            for (var i = 0; i < effectsAmount; i++)
+            {
+                _playerEffects.Add(effects[i].ApplyEffect(player));
+            }
+        }
+
+        _prevLevel = levelSo;
     }
 
     private PlayerController SetPlayer()

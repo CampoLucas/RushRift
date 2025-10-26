@@ -109,7 +109,7 @@ namespace Game.Saves
 
         private bool TryGetUpgrade(int levelID, MedalType type, BaseLevelSO config, out Effect upgrade)
         {
-            if (IsMedalUnlocked(levelID, MedalType.Bronze) && config.TryGetMedal(MedalType.Bronze, out var bronze))
+            if (IsMedalUnlocked(levelID, type) && config.TryGetMedal(type, out var bronze))
             {
                 upgrade = bronze.upgrade;
                 return true;

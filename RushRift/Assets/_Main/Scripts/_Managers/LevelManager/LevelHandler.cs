@@ -8,6 +8,21 @@ namespace Game
     [AddComponentMenu("Game/Level")]
     public class LevelHandler : MonoBehaviour
     {
+        private Transform Spawn
+        {
+            get
+            {
+#if UNITY_EDITOR && DEBUG_SPAWN
+                if (debugSpawn)
+                {
+                    this.Log("Using the debug spawn, remove the reference or remove the DEBUG_SPAWN symbol");
+                    return debugSpawn;
+                }
+#endif
+                return spawn;
+            }
+        }
+        
         [Header("Level Data")]
         [SerializeField] private LevelSO levelConfig; // optional reference, useful for analytics or debugging.
         
@@ -18,6 +33,10 @@ namespace Game
 
         [Header("Spawn")]
         [SerializeField] private Transform spawn;
+#if UNITY_EDITOR
+        [Tooltip("A spawn that only works on editor, while it has a reference, it will ignore the regular spawn")]
+        [SerializeField] private Transform debugSpawn;
+#endif
 
         private NullCheck<LevelSO> _levelConfig;
         private ActionObserver _startTrigger;
@@ -46,7 +65,7 @@ namespace Game
 #endif
             if (spawn && PlayerSpawner.Instance.TryGet(out var spawner))
             {
-                spawner.SetSpawn(spawn);
+                spawner.SetSpawn(Spawn);
             }
             
             _preloadedNext = false;

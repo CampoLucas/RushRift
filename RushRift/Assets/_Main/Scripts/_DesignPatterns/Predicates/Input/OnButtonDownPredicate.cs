@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Inputs
+namespace Game.InputSystem
 {
     public class OnButtonPredicate : IPredicate
     {

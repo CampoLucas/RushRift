@@ -4,7 +4,7 @@ using System.Linq;
 using Game.DesignPatterns.Observers;
 using Game.Entities.AttackSystem;
 using Game.Entities.Components;
-using Game.Inputs;
+using Game.InputSystem;
 using UnityEngine;
 
 namespace Game.Entities.AttackSystem

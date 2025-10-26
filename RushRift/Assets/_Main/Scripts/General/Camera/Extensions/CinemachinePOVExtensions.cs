@@ -4,7 +4,7 @@ using UnityEngine;
 using Cinemachine;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
-using Game.Inputs;
+using Game.InputSystem;
 using Game.Levels;
 using Game.Saves;
 using Game.UI;
