@@ -75,6 +75,12 @@ namespace Game
             await UniTask.WaitUntil(() => Usable);
             return _instance;
         }
+        
+        public static async UniTask<NullCheck<TBehaviour>> GetAsync(CancellationToken ct)
+        {
+            await UniTask.WaitUntil(() => Usable, cancellationToken: ct);
+            return _instance;
+        }
 
         public static void GetAsync(out CancellationTokenSource cts, out UniTask<NullCheck<TBehaviour>> task)
         {

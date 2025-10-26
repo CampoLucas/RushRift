@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
@@ -80,7 +81,7 @@ namespace Game
                 _levelTimer.DoUpdate(Time.deltaTime);
             }
         }
-
+        
         public async UniTask<bool> WaitLoadLevel(BaseLevelSO level)
         {
             if (level == null)
@@ -90,6 +91,7 @@ namespace Game
             }
 
             // Unload previously loaded levels
+            
             await WaitUnloadAllLevels();
             
             // Load the new level additively

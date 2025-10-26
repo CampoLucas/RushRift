@@ -50,7 +50,6 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     //private NullCheck<Transform> _camera;
     private NullCheck<PlayerController> _player;
     private NullCheck<Rigidbody> _body;
-    private CancellationTokenSource _cts;
     private List<EffectInstance> _playerEffects = new();
     private NullCheck<BaseLevelSO> _prevLevel;
     private ActionObserver<BaseLevelSO> _onLevelReady;
@@ -58,7 +57,6 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     protected override void OnAwake()
     {
         base.OnAwake();
-        _cts = new CancellationTokenSource();
 
         if (!_player.TryGet(out var player, SetPlayer)) return;
         
@@ -133,7 +131,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         return player;
     }
 
-    public async UniTask Respawn(Vector3 position, Quaternion rotation)
+    public async UniTask Respawn(Vector3 position, Quaternion rotation, CancellationToken ct)
     {
         if (!_player.TryGet(out var player))
         {
@@ -141,14 +139,16 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
             return;
         }
         
+        
+        
         var tr = player.transform;
         if (_body.TryGet(out var body))
-            await RigidbodyRespawn(position, rotation, body, tr, _cts.Token);
+            await RigidbodyRespawn(position, rotation, body, tr, ct);
         else
-            await TransformRespawnAsync(position, rotation, tr, _cts.Token);
+            await TransformRespawnAsync(position, rotation, tr, ct);
         
         // Wait for transform sync after physics update
-        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, _cts.Token);
+        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, ct);
             
         var diff = tr.position - position;
         PlayerSpawned.NotifyAll(position, diff, rotation);
@@ -192,7 +192,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, token);
     }
 
-    public async UniTask Respawn(Transform tr) => await Respawn(tr.position, tr.rotation);
+    public async UniTask Respawn(Transform tr, CancellationToken ct) => await Respawn(tr.position, tr.rotation, ct);
 
     public async UniTask<bool> Respawn(NullCheck<Transform> trCheck)
     {
@@ -205,14 +205,14 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         return true;
     }
 
-    public static async UniTask RespawnPlayerAsync()
+    public static async UniTask RespawnPlayerAsync(CancellationToken ct)
     {
         var playerSpawner = await GetAsync();
-        await UniTask.WaitUntil(() => _instance.Get().spawn != null);
+        await UniTask.WaitUntil(() => _instance.Get().spawn != null, cancellationToken: ct);
 
         if (playerSpawner.TryGet(out var spawner) && spawner._player.TryGet(out var player))
         {
-            await spawner.Respawn(spawner.spawn);
+            await spawner.Respawn(spawner.spawn, ct);
         }
     }
 
@@ -227,13 +227,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     protected override void OnDisposeNotInstance()
     {
         base.OnDisposeNotInstance();
-        if (_cts != null)
-        {
-            _cts.Cancel();
-            _cts.Dispose();
-            _cts = null;
-        }
-
+        
         instantiatedRef = null;
         prefab = null;
         spawn = null;

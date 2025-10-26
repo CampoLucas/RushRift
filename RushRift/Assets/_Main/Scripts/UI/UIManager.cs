@@ -67,14 +67,20 @@ namespace Game.UI
         {
             _active = false;
             Debug.Log("Add Loading screen");
-            loadingScreen.SetActive(true);
+            if (loadingScreen) loadingScreen.SetActive(true);
         }
     
         private void OnReadyHandler(BaseLevelSO level)
         {
             Debug.Log("Remove Loading screen");
+
+            if (_onGameOver != null)
+            {
+                _onGameOver = new ActionObserver<bool>(OnGameOverHandler);
+            }
+            
             GlobalEvents.GameOver.Attach(_onGameOver);
-            loadingScreen.SetActive(false);
+            if (loadingScreen) loadingScreen.SetActive(false);
 
             if (_stateMachine.TryGet(out var stateMachine))
             {
