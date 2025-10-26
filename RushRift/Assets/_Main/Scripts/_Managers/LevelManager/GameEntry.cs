@@ -75,6 +75,8 @@ namespace Game
             try
             {
                 SetLoading(true);
+                // Only after mangers are ready, notify about preload 
+                NotifyPreload(level);
 
                 // Ensure MainScene is loaded and managers are alive
                 var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
@@ -88,8 +90,6 @@ namespace Game
                 var readyManagers = await EnsureManagersReadyAsync(linked.Token);
                 if (!readyManagers) return Fail(LoadResult.ManagersNotFound, "Managers not ready.");
 
-                // Only after mangers are ready, notify about preload 
-                NotifyPreload(level);
 
                 // Bind session & Load
                 var sessionRes = await TryAwaitLoadSession(session, linked.Token);
@@ -207,8 +207,11 @@ namespace Game
         private static async UniTask<bool> EnsureManagersReadyAsync(CancellationToken ct)
         {
             // Await GlobalLevelManager
-            var managerCheck = await GlobalLevelManager.GetAsync();
+            var managerCheck = await GlobalLevelManager.GetAsync(ct);
             if (!managerCheck) return false;
+
+            var spawner = await PlayerSpawner.GetAsync(ct);
+            if (!spawner) return false;
             
             return true;
         }

@@ -58,6 +58,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     {
         base.OnAwake();
 
+        this.Log("[OnAwake] Awake");
         if (!_player.TryGet(out var player, SetPlayer)) return;
         
         PlayerSet.NotifyAll(player);
@@ -238,9 +239,13 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     protected override void OnDisposeInstance()
     {
         base.OnDisposeInstance();
+        GameEntry.LoadingState.DetachOnReady(_onLevelReady);
+        
         PlayerSpawned.DetachAll();
         PlayerSet.DetachAll();
         PlayerCreated.DetachAll();
         PlayerFound.DetachAll();
+
+        Player.Set(null);
     }
 }

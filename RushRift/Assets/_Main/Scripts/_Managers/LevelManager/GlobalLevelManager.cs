@@ -214,6 +214,7 @@ namespace Game
             GameEntry.LoadingState.DetachOnReady(_levelTimer);
             _gameOverObserver.Dispose();
             
+            GameEntry.LoadingState.DetachAll();
             GlobalEvents.Reset();
         }
 
