@@ -59,6 +59,16 @@ namespace Game.Saves
 
         #region Medal Methods
 
+        public MedalSaveData GetMedalSaveData(int levelId)
+        {
+            if (!MedalsSaveData.TryGetValue(levelId, out var saveData))
+            {
+                MedalsSaveData[levelId] = saveData;
+            }
+
+            return saveData;
+        }
+        
         public bool IsMedalUnlocked(int currLevel, MedalType type)
         {
             if (!MedalsSaveData.TryGetValue(currLevel, out var saveData))

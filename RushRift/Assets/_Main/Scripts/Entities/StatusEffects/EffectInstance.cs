@@ -114,6 +114,8 @@ namespace Game.Entities
                 return;
             }
             
+            Stop();
+            
             statusEffectRunner.RemoveEffect(this);
         }
 

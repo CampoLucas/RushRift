@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Game;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.General;
 using Game.Levels;
 using Game.Saves;
 using Game.Utils;
@@ -51,8 +52,9 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     private NullCheck<PlayerController> _player;
     private NullCheck<Rigidbody> _body;
     private List<EffectInstance> _playerEffects = new();
-    private NullCheck<BaseLevelSO> _prevLevel;
     private ActionObserver<BaseLevelSO> _onLevelReady;
+    private NullCheck<BaseLevelSO> _prevLevel;
+    private MedalSaveData _prevMedals;
     
     protected override void OnAwake()
     {
@@ -77,27 +79,42 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 
         var levelId = levelSo.LevelID;
         // Remove previous upgrades if it is a different level
-        if (_prevLevel.TryGet(out var prev) && prev.LevelID != levelId && _playerEffects.Count > 0)
+        var isTheSameLevel = _prevLevel.TryGet(out var prev) && prev.LevelID == levelId;
+        var data = SaveSystem.LoadGame();
+        var medals = data.GetMedalSaveData(levelId);
+        var hasNewUpgrades = _prevMedals != medals;
+        
+        // if ((isTheSameLevel)) this.Log("Is the same level", LogType.Error);
+        // if ((isTheSameLevel && hasNewUpgrades)) this.Log("Is the same level, but has new upgrades", LogType.Error);
+        //
+        if ((isTheSameLevel && hasNewUpgrades) || !isTheSameLevel)
         {
-            for (var i = 0; i < _playerEffects.Count; i++)
+            if (_playerEffects.Count > 0)
             {
-                _playerEffects[i].Remove();
+                for (var i = 0; i < _playerEffects.Count; i++)
+                {
+                    _playerEffects[i].Remove();
+                }
+            
+                _playerEffects.Clear();
             }
             
-            _playerEffects.Clear();
-        }
-
-        if (!_prevLevel.TryGet(out prev) || prev.LevelID != levelId)
-        {
-            var data = SaveSystem.LoadGame();
             var effectsAmount = data.TryGetUnlockedEffects(levelId, out var effects);
         
             for (var i = 0; i < effectsAmount; i++)
             {
                 _playerEffects.Add(effects[i].ApplyEffect(player));
             }
+            
+            
         }
 
+        if (!_prevLevel.TryGet(out prev) || prev.LevelID != levelId)
+        {
+            
+        }
+
+        _prevMedals = medals;
         _prevLevel = levelSo;
     }
 
