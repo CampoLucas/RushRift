@@ -18,7 +18,7 @@ namespace Game.Entities.Upgrades
 
         public override void StopEffect(IController controller)
         {
-            GlobalLevelManager.SetBlink(true);
+            GlobalLevelManager.SetBlink(false);
             if (isDebugLoggingEnabled) Debug.Log("[EnableLockOnBlink] StopEffect", this);
         }
     }

@@ -23,108 +23,32 @@ namespace Game.Tools.DebugCommands
         private InputManager _inputManager;
         private PlayerControls _playerControls;
         private bool _showConsole;
-        private bool _showHelp;
-        private bool _dashHack;
         private string _input;
         private List<string> _usedInputs = new();
         private CursorLockMode _mode;
         private bool _isVisible;
         private int _index = -1;
 
-        public static DebugCommand Help;
-        public static DebugCommand KillAll;
-        public static DebugCommand UnlimitedDashes; // Unlimited health, unlimited stamina
-        public static DebugCommand<string> SetMedalString;
-        public static DebugCommand<int> SetMedalInt;
-        public static DebugCommand<int, string> AddMedalUpgrade;
+        private static HelpCmd _help;
+        private static DebugCommand _killAll;
+        private static DebugCommand _unlimitedDashes; // Unlimited health, unlimited stamina
+        private static DebugCommand<string> _setMedalString;
+        private static DebugCommand<int> _setMedalInt;
+        private static DebugCommand<int, string> _addMedalUpgrade;
 
         private List<object> _commandList;
 
         private void Awake()
         {
-            Help = new DebugCommand("help", "Shows all the commands and their descriptions", "help", () =>
-            {
-                _showHelp = !_showHelp;
-
-                return true;
-            });
-
-            UnlimitedDashes = new DebugCommand("dash_hack", 
-                "Unlimited dashes", "dash_hack", () =>
-            {
-                _dashHack = !_dashHack;
-                GlobalLevelManager.SetDashHack(_dashHack);
-                return true;
-            });
-            
-            KillAll = new ("kill_all", 
-                "Removes all the enemies from the scene.", 
-                "kill_all", () =>
-            {
-                var controllers = new List<IController>();
-                controllers.AddRange(FindObjectsOfType<EnemyController>());
-                controllers.AddRange(FindObjectsOfType<LaserController>());
-
-                for (var i = 0; i < controllers.Count; i++)
-                {
-                    var e = controllers[i];
-                    
-                    if (e == null) continue;
-                    var model = e.GetModel();
-                    
-                    if (model == null) continue;
-                    if (model.TryGetComponent<DestroyableComponent>(out var destroyableComponent))
-                    {
-                        destroyableComponent.DestroyEntity();
-                    }
-                    else if (model.TryGetComponent<HealthComponent>(out var healthComponent))
-                    {
-                        healthComponent.Intakill(Vector3.zero);
-                    }
-                    else
-                    {
-                        this.Log($"Couldn't remove enemy {e.GetType()}", LogType.Warning);
-                    }
-                }
-
-                return true;
-            });
-
-            SetMedalString = new ("set_medal", 
-                "Toggles a medal upgrade from the level. It is removed when changing level or restarting.", 
-                "set_medal <medal> (options: 'bronze' 'silver' 'gold')", 
-                (i) =>
-            {
-                if (PlayerSpawner.Instance.TryGet(out var spwManager) && 
-                    GlobalLevelManager.CurrentLevel.TryGet(out var lvl))
-                {
-                    return spwManager.SetUpgrade(lvl, i);
-                }
-
-                return false;
-            });
-            
-            SetMedalInt = new ("set_medal",
-                "Toggles a medal upgrade from the level. It is removed when changing level or restarting.", 
-                "set_medal <medal_number> (options: 1, 2, 3)",
-                (i) =>
-            {
-                if (PlayerSpawner.Instance.TryGet(out var spwManager) && 
-                    GlobalLevelManager.CurrentLevel.TryGet(out var lvl))
-                {
-                    return spwManager.SetUpgrade(lvl, i);
-                }
-
-                return false;
-            });
+            _help = new HelpCmd();
 
             _commandList = new List<object>
             {
-                Help,
-                KillAll,
-                SetMedalString,
-                SetMedalInt,
-                UnlimitedDashes,
+                _help,
+                new DashHackCmd(),
+                new KillAllCmd(),
+                new SetMedalString(),
+                new SetMedalInt(),
             };
 
             _inputManager = GetComponent<InputManager>();
@@ -167,7 +91,8 @@ namespace Game.Tools.DebugCommands
         private void EnableDebug()
         {
             _index = -1;
-            _showHelp = false;
+            _help.ShowHelp = false;
+            //_showHelp = false;
             _mode = CursorHandler.lockState;
             _isVisible = CursorHandler.visible;
                 
@@ -263,7 +188,7 @@ namespace Game.Tools.DebugCommands
             y -= spacing;
             _input = GUI.TextField(new Rect(10f, y, width -= 20f, height), _input);
 
-            if (_showHelp)
+            if (_help.ShowHelp)
             {
                 
                 for (var i = 0; i < _commandList.Count; i++)
