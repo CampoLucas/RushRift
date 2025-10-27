@@ -325,6 +325,7 @@ namespace Game
     public class LoadingState
     {
         public bool Loading { get; private set; }
+        public ISubject LevelChanged => _onLevelReady.ConvertToSimple();
         
         private readonly ISubject<bool> _onLoading;
         private readonly ISubject<BaseLevelSO> _onLevelPreload;

@@ -23,17 +23,24 @@ namespace Game.Tools.DebugCommands
         private PlayerControls _playerControls;
         private bool _showConsole;
         private string _input;
+        private List<string> _usedInputs = new();
         private CursorLockMode _mode;
         private bool _isVisible;
+        private int _index = -1;
 
-        public static DebugCommand KILL_ALL;
-        public static DebugCommand GOD_MODE; // Unlimited health, unlimited stamina
+        public static DebugCommand KillAll;
+        public static DebugCommand GodMode; // Unlimited health, unlimited stamina
+        public static DebugCommand<string> SetMedalString;
+        public static DebugCommand<int> SetMedalInt;
+        public static DebugCommand<int, string> AddMedalUpgrade;
 
         public List<object> commandList;
 
         private void Awake()
         {
-            KILL_ALL = new DebugCommand("kill_all", "Removes all the enemies from the scene.", "kill_all", () =>
+            KillAll = new ("kill_all", 
+                "Removes all the enemies from the scene.", 
+                "kill_all", () =>
             {
                 var controllers = new List<IController>();
                 controllers.AddRange(FindObjectsOfType<EnemyController>());
@@ -60,11 +67,43 @@ namespace Game.Tools.DebugCommands
                         this.Log($"Couldn't remove enemy {e.GetType()}", LogType.Warning);
                     }
                 }
+
+                return true;
+            });
+
+            SetMedalString = new ("set_medal", 
+                "Toggles a medal upgrade from the level. It is removed when changing level or restarting.", 
+                "set_medal <medal> (options: 'bronze' 'silver' 'gold')", 
+                (i) =>
+            {
+                if (PlayerSpawner.Instance.TryGet(out var spwManager) && 
+                    GlobalLevelManager.CurrentLevel.TryGet(out var lvl))
+                {
+                    return spwManager.SetUpgrade(lvl, i);
+                }
+
+                return false;
+            });
+            
+            SetMedalInt = new ("set_medal",
+                "Toggles a medal upgrade from the level. It is removed when changing level or restarting.", 
+                "set_medal <medal_number> (options: 1, 2, 3)",
+                (i) =>
+            {
+                if (PlayerSpawner.Instance.TryGet(out var spwManager) && 
+                    GlobalLevelManager.CurrentLevel.TryGet(out var lvl))
+                {
+                    return spwManager.SetUpgrade(lvl, i);
+                }
+
+                return false;
             });
 
             commandList = new List<object>
             {
-                KILL_ALL
+                KillAll,
+                SetMedalString,
+                SetMedalInt,
             };
 
             _inputManager = GetComponent<InputManager>();
@@ -77,15 +116,16 @@ namespace Game.Tools.DebugCommands
 
             _playerControls.Console.ToggleDebug.performed += OnToggleDebug;
         }
-
         
-
         private void OnDisable()
         {
             if (_playerControls == null) return;
 
             _playerControls.Console.ToggleDebug.performed -= OnToggleDebug;
             _playerControls.Console.Return.performed -= OnReturn;
+            _playerControls.Console.Close.performed -= OnClose;
+            _playerControls.Console.Up.performed -= OnUp;
+            _playerControls.Console.Up.performed -= OnDown;
             _playerControls.Disable();
         }
 
@@ -105,6 +145,7 @@ namespace Game.Tools.DebugCommands
 
         private void EnableDebug()
         {
+            _index = -1;
             _mode = CursorHandler.lockState;
             _isVisible = CursorHandler.visible;
                 
@@ -118,6 +159,8 @@ namespace Game.Tools.DebugCommands
             
             _playerControls.Console.Return.performed += OnReturn;
             _playerControls.Console.Close.performed += OnClose;
+            _playerControls.Console.Up.performed += OnUp;
+            _playerControls.Console.Up.performed += OnDown;
         }
 
         private void DisableDebug()
@@ -127,17 +170,23 @@ namespace Game.Tools.DebugCommands
                 _inputManager.enabled = true;
             }
 
+            _input = "";
+
             CursorHandler.lockState = _mode;
             CursorHandler.visible = _isVisible;
             
             _playerControls.Console.Return.performed -= OnReturn;
             _playerControls.Console.Close.performed -= OnClose;
+            _playerControls.Console.Up.performed -= OnUp;
+            _playerControls.Console.Up.performed -= OnDown;
         }
 
         private void OnReturn(InputAction.CallbackContext obj)
         {
             HandleInput();
             this.Log($"[{_input}]");
+            
+            _usedInputs.Add(_input);
             _input = "";
         }
         
@@ -145,6 +194,35 @@ namespace Game.Tools.DebugCommands
         {
             _showConsole = false;
             DisableDebug();
+            
+        }
+        
+        private void OnUp(InputAction.CallbackContext obj)
+        {
+            if (_index <= -1)
+            {
+                _index = _usedInputs.Count - 1;
+            }
+            else
+            {
+                _index--;
+            }
+
+            _input = _index >= 0 ? _usedInputs[_index] : "";
+        }
+        
+        private void OnDown(InputAction.CallbackContext obj)
+        {
+            if (_index >= _usedInputs.Count - 1)
+            {
+                _index = -1;
+            }
+            else
+            {
+                _index++;
+            }
+            
+            _input = _index >= 0 ? _usedInputs[_index] : "";
         }
 
         private void OnGUI()
@@ -156,19 +234,50 @@ namespace Game.Tools.DebugCommands
 
             var y = Screen.height - ConsoleHeight;
             var width = (float)Screen.width / 2;
+            var height = 20f;
+            var spacing = 5f;
             GUI.Box(new Rect(0, y, width, ConsoleHeight), "");
-            _input = GUI.TextField(new Rect(10f, y - 5f, width - 20f, 20f), _input);
+            
+            y -= spacing;
+            _input = GUI.TextField(new Rect(10f, y, width -= 20f, height), _input);
+
+            if (_usedInputs.Count > 0)
+            {
+                for (var i = _usedInputs.Count - 1; i >= 0; i--)
+                {
+                    y -= (1 + height);
+                    GUI.Label(new Rect(10f, y, width -= 20f, 20f), _usedInputs[i]);
+                }
+                
+            }
         }
 
         private void HandleInput()
         {
+            var properties = _input.Split(' ');
+            
             for (var i = 0; i < commandList.Count; i++)
             {
+                var args = properties.Length;
+                
                 if (commandList[i] is not DebugCommandBase command || !_input.Contains(command.ID)) continue;
 
-                if (command is DebugCommand c)
+                if (properties.Length == 1 && command is DebugCommand c)
                 {
                     c.Do();
+                    return;
+                }
+
+                if (args <= 1) continue;
+                var property1 = properties[1];
+                if (int.TryParse(property1, out var parsedInt) && command is DebugCommand<int> cInt && cInt.Do(parsedInt))
+                {
+                    return;
+                }
+
+                if (command is DebugCommand<string> cString && cString.Do(property1))
+                {
+                    return;
                 }
             }
         }

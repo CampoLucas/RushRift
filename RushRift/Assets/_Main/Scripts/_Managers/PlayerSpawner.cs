@@ -47,6 +47,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 
     [Header("Respawn")]
     [SerializeField] private Transform spawn;
+    
 
     //private NullCheck<Transform> _camera;
     private NullCheck<PlayerController> _player;
@@ -67,6 +68,88 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         if (player.TryGetComponent<Rigidbody>(out var body)) _body = body;
         _onLevelReady = new ActionObserver<BaseLevelSO>(OnLevelReadyHandler);
         GameEntry.LoadingState.AttachOnReady(_onLevelReady);
+    }
+
+    public bool SetUpgrade(BaseLevelSO levelSo, string medal)
+    {
+        Effect upgrade;
+        
+        switch (medal)
+        {
+            case "bronze":
+                if (_prevMedals.bronzeUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Bronze).upgrade;
+                _prevMedals.bronzeUnlocked = true;
+                break;
+            case "silver":
+                if (_prevMedals.silverUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Silver).upgrade;
+                _prevMedals.silverUnlocked = true;
+                break;
+            case "gold":
+                if (_prevMedals.goldUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Gold).upgrade;
+                _prevMedals.goldUnlocked = true;
+                break;
+            default:
+                return false;
+        }
+
+        if (upgrade == null || !_player.TryGet(out var player)) return false;
+        upgrade.ApplyEffect(player, remove: new []{ OnLevelChanged.Trigger(player, new OnLevelChanged.IsLoadingPredicate()) });
+
+        return true;
+
+    }
+
+    public bool SetUpgrade(BaseLevelSO levelSo, int medal)
+    {
+        Effect upgrade;
+        
+        switch (medal)
+        {
+            case 1:
+                if (_prevMedals.bronzeUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Bronze).upgrade;
+                _prevMedals.bronzeUnlocked = true;
+                break;
+            case 2:
+                if (_prevMedals.silverUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Silver).upgrade;
+                _prevMedals.silverUnlocked = true;
+                break;
+            case 3:
+                if (_prevMedals.goldUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Gold).upgrade;
+                _prevMedals.goldUnlocked = true;
+                break;
+            default:
+                return false;
+        }
+
+        if (upgrade == null || !_player.TryGet(out var player)) return false;
+        upgrade.ApplyEffect(player, remove: new []{ OnLevelChanged.Trigger(player, new OnLevelChanged.IsLoadingPredicate()) });
+
+        return true;
+
     }
 
     private void OnLevelReadyHandler(BaseLevelSO levelSo)
