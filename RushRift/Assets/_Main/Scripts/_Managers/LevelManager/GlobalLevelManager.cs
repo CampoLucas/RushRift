@@ -175,6 +175,21 @@ namespace Game
 
         public async UniTask WaitUnloadScene(string sceneName)
         {
+#if true
+            if (!_loadedLevelsDict.TryGetValue(sceneName, out var scene))
+                return;
+
+            if (!scene.IsValid() || !scene.isLoaded)
+            {
+                _loadedLevelsDict.Remove(sceneName);
+                _loadedLevels.Remove(sceneName);
+                return;
+            }
+
+            await SceneHandler.UnloadSceneAsync(scene);
+            _loadedLevelsDict.Remove(sceneName);
+            _loadedLevels.Remove(sceneName);
+#else
             if (!_loadedLevelsDict.TryGetValue(sceneName, out var scene))
             {
                 return;
@@ -183,16 +198,56 @@ namespace Game
             await SceneHandler.UnloadSceneAsync(scene);
             _loadedLevelsDict.Remove(sceneName);
             _loadedLevels.Remove(sceneName);
+#endif
         }
         
         public async UniTask WaitUnloadAllLevels()
         {
+#if true
+            for (var i = _loadedLevels.Count - 1; i >= 0; i--)
+            {
+                var n = _loadedLevels[i];
+
+                if (!_loadedLevelsDict.TryGetValue(n, out var scene))
+                    continue;
+
+                // Skip invalid or already unloaded scenes
+                if (!scene.IsValid() || !scene.isLoaded)
+                {
+                    _loadedLevelsDict.Remove(n);
+                    _loadedLevels.RemoveAt(i);
+                    continue;
+                }
+
+                try
+                {
+                    await SceneHandler.UnloadSceneAsync(scene);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[GlobalLevelManager] Failed to unload scene '{n}': {ex.Message}");
+                }
+
+                _loadedLevelsDict.Remove(n);
+                _loadedLevels.RemoveAt(i);
+            }
+
+            LevelIndex = -1;
+#else
             for (var i = 0; i < _loadedLevels.Count; i++)
             {
                 var loadedScenes = _loadedLevelsDict[_loadedLevels[i]];
                 await SceneHandler.UnloadSceneAsync(loadedScenes);
             }
 
+            _loadedLevels.Clear();
+            _loadedLevelsDict.Clear();
+            LevelIndex = -1;
+#endif
+        }
+        
+        public void ClearLoadedLevelTracking()
+        {
             _loadedLevels.Clear();
             _loadedLevelsDict.Clear();
             LevelIndex = -1;
@@ -210,6 +265,15 @@ namespace Game
 
         protected override void OnDisposeInstance()
         {
+            Destroy(CurrentSession);
+            
+            
+            CurrentSession = null;
+            GameOver = false;
+            CompleteTime = 0;
+            LevelIndex = 0;
+            ReachedNextZone = false;
+            
             GlobalEvents.GameOver.Detach(_gameOverObserver);
             GameEntry.LoadingState.DetachOnReady(_levelTimer);
             _gameOverObserver.Dispose();

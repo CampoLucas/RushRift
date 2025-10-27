@@ -57,8 +57,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     protected override void OnAwake()
     {
         base.OnAwake();
-
-        this.Log("[OnAwake] Awake");
+        
         if (!_player.TryGet(out var player, SetPlayer)) return;
         
         PlayerSet.NotifyAll(player);
@@ -127,7 +126,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
             return null;
         }
         
-        var player = Instantiate(prefab);
+        var player = Instantiate(prefab, transform);
         PlayerCreated.NotifyAll(player);
         return player;
     }
@@ -208,7 +207,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 
     public static async UniTask RespawnPlayerAsync(CancellationToken ct)
     {
-        var playerSpawner = await GetAsync();
+        var playerSpawner = await GetAsync(ct);
         await UniTask.WaitUntil(() => _instance.Get().spawn != null, cancellationToken: ct);
 
         if (playerSpawner.TryGet(out var spawner) && spawner._player.TryGet(out var player))
@@ -232,12 +231,13 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         instantiatedRef = null;
         prefab = null;
         spawn = null;
-        _player = null;
+        //_player = null;
         _body = null;
     }
 
     protected override void OnDisposeInstance()
     {
+        Debug.LogError("Dispose player spawner");
         base.OnDisposeInstance();
         GameEntry.LoadingState.DetachOnReady(_onLevelReady);
         
@@ -245,7 +245,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         PlayerSet.DetachAll();
         PlayerCreated.DetachAll();
         PlayerFound.DetachAll();
-
-        Player.Set(null);
+        
+        _player.Reset();
     }
 }

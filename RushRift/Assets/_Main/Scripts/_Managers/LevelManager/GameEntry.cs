@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
@@ -71,12 +72,14 @@ namespace Game
             // Set up a linked CTS so we can cancel it
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct);
             _cts = linked;
+            
+            Debug.Log($"[GameEntry] Scene list before load: " +
+                      string.Join(", ", Enumerable.Range(0, SceneManager.sceneCount)
+                          .Select(i => SceneManager.GetSceneAt(i).name)));
 
             try
             {
                 SetLoading(true);
-                // Only after mangers are ready, notify about preload 
-                NotifyPreload(level);
 
                 // Ensure MainScene is loaded and managers are alive
                 var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
@@ -85,11 +88,17 @@ namespace Game
                     var lr = await LoadMainSceneAsync(mainSceneAdditive, linked.Token);
                     if (lr != LoadResult.Ok) return Fail(lr, "Failed to load MainScene.");
                 }
+                
+                Debug.Log($"[GameEntry] Scene list after main scene load: " +
+                          string.Join(", ", Enumerable.Range(0, SceneManager.sceneCount)
+                              .Select(i => SceneManager.GetSceneAt(i).name)));
 
                 // Wait until critical managers are ready
                 var readyManagers = await EnsureManagersReadyAsync(linked.Token);
                 if (!readyManagers) return Fail(LoadResult.ManagersNotFound, "Managers not ready.");
 
+                // Only after mangers are ready, notify about preload 
+                NotifyPreload(level);
 
                 // Bind session & Load
                 var sessionRes = await TryAwaitLoadSession(session, linked.Token);
@@ -260,15 +269,53 @@ namespace Game
             return LoadResult.Ok;
         }
 
-        private static void ForceReturnToMainMenu(LoadResult code, string reason)
+        private static async void ForceReturnToMainMenu(LoadResult code, string reason)
         {
             Debug.LogError($"[GameEntry] Load fail ({(int)code}): {reason}");
+            LoadingState.DetachAll();
             
-            // Ensure we are on Main Menu
-            var main = SceneHandler.GetSceneByName(SceneHandler.MainMenuName);
-            if (!main.isLoaded)
+            // Cancel anything still running
+            try { _cts?.Cancel(); } catch { /* ignore */ }
+            
+            // Ensure we’re on main thread
+            await UniTask.SwitchToMainThread();
+            
+            // Best effort: close loading UI
+            try { LoadingState.SetLoading(false); } catch { /* ignore */ }
+            
+            // Unload any additive gameplay scenes (keep it simple/safe)
+            try
+            {
+                // If you have a central place that knows loaded scenes, use that.
+                // Otherwise, unload everything except the menu we’re about to load.
+                // (If your SceneHandler can list LoadedScenes, iterate and unload.)
+            }
+            catch (Exception ex) { Debug.LogWarning($"[GameEntry] Unload before menu: {ex}"); }
+
+            try
+            {
+                if (GlobalLevelManager.Instance.TryGet(out var manager) && !manager.IsNullOrMissingReference())
+                {
+                    manager.ClearLoadedLevelTracking();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[GameEntry] Could not clear level tracking: {ex}");
+            }
+            
+            // Load menu, then set it active
+            try
             {
                 SceneHandler.LoadScene(SceneHandler.MainMenuName);
+                var menuScene = SceneHandler.GetSceneByName(SceneHandler.MainMenuName);
+                if (menuScene.IsValid() && menuScene.isLoaded)
+                    SceneManager.SetActiveScene(menuScene);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GameEntry] Failed to load main menu: {ex}");
+                return;
             }
             
             // ToDo: show pop up.

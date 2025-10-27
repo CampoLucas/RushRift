@@ -5,6 +5,7 @@ using Game;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Game.DesignPatterns.Observers;
+using Game.Entities;
 using MyTools.Global;
 
 [DisallowMultipleComponent]
@@ -35,8 +36,6 @@ public class GhostRecorder : MonoBehaviour
     private string fileNamePattern = "level_{LEVEL}.ghost.json";
 
     [Header("Debug")]
-    [SerializeField, Tooltip("If enabled, prints detailed logs.")]
-    private bool isDebugLoggingEnabled = false;
     [SerializeField, Tooltip("Draw gizmos for a portion of the recorded path.")]
     private bool drawGizmos = true;
     [SerializeField, Tooltip("How many recent segments to draw with gizmos.")]
@@ -84,22 +83,24 @@ public class GhostRecorder : MonoBehaviour
         _suppressBuildWarnings |= drawGizmos && gizmoSegments >= 0;
 
         levelIndex = SceneManager.GetActiveScene().buildIndex;
-
-        if (PlayerSpawner.Player.TryGet(out var player))
-        {
-            _target = player.transform;
-        }
-
-        winObserver = new ActionObserver<bool>(OnGameOverHandler);
         
-
-        if (startRecordingOnEnable) StartRecording();
-        Log("Recorder Awake");
+        winObserver = new ActionObserver<bool>(OnGameOverHandler);
+        GlobalEvents.GameOver.Attach(winObserver);
     }
 
     private void Start()
     {
-        GlobalEvents.GameOver.Attach(winObserver);
+        if (PlayerSpawner.Player.TryGet(out var player))
+        {
+            _target = player.transform;
+        }
+        
+        if (startRecordingOnEnable) StartRecording();
+    }
+    
+    private void OnPlayerSetHandler(PlayerController player)
+    {
+        _target = player.transform;
     }
 
     private void OnEnable()
@@ -152,7 +153,7 @@ public class GhostRecorder : MonoBehaviour
     {
         if (!obeyPauseEvents) return;
         pauseGate = paused;
-        Log(paused ? "Recording paused" : "Recording resumed");
+        //Log(paused ? "Recording paused" : "Recording resumed");
     }
 
     public void StartRecording()
@@ -170,14 +171,14 @@ public class GhostRecorder : MonoBehaviour
         lastPos = target.position;
         lastRot = target.rotation;
         PushFrame(0f, lastPos, lastRot);
-        Log("Recording started");
+        //Log("Recording started");
     }
 
     public void StopRecording()
     {
         if (!isRecording) return;
         isRecording = false;
-        Log("Recording stopped");
+        //Log("Recording stopped");
     }
 
     private void TickRecord(float dt)
@@ -217,7 +218,7 @@ public class GhostRecorder : MonoBehaviour
         float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
         if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
         {
-            Log($"Skip save: invalid run (t={measuredDuration:0.###}s, frames={currentRun?.frames?.Count ?? 0})");
+            //Log($"Skip save: invalid run (t={measuredDuration:0.###}s, frames={currentRun?.frames?.Count ?? 0})");
             StopRecording();
             return;
         }
@@ -232,23 +233,23 @@ public class GhostRecorder : MonoBehaviour
                 if (measuredDuration + Epsilon < existing.durationSeconds)
                 {
                     AtomicSave(currentRun, path);
-                    Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev {existing.durationSeconds:0.###}s)");
+                    //Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev {existing.durationSeconds:0.###}s)");
                 }
                 else
                 {
-                    Log($"Kept previous BEST ({existing.durationSeconds:0.###}s) → {path}");
+                    //Log($"Kept previous BEST ({existing.durationSeconds:0.###}s) → {path}");
                 }
             }
             else
             {
                 AtomicSave(currentRun, path);
-                Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev invalid)");
+                //Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev invalid)");
             }
         }
         else
         {
             AtomicSave(currentRun, path);
-            Log($"Saved FIRST BEST ({measuredDuration:0.###}s) → {path}");
+            //Log($"Saved FIRST BEST ({measuredDuration:0.###}s) → {path}");
         }
 
         StopRecording();
@@ -308,12 +309,7 @@ public class GhostRecorder : MonoBehaviour
         data = null;
         return false;
     }
-
-    private void Log(string msg)
-    {
-        if (!isDebugLoggingEnabled) return;
-        this.Log($"{name}: {msg}", LogType.Log);
-    }
+    
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
