@@ -26,16 +26,12 @@ public class Medal : MonoBehaviour
         if (!unlocked)
         {
             icon.material = lockedMaterial;
-            icon.color = Color.white;
-
             lockIcon.gameObject.SetActive(true);
-            //_material.SetFloat(UseLines, 0);
         }
         else
         {
             icon.material = unlockedMaterial;
             lockIcon.gameObject.SetActive(false);
-            //_material.SetFloat(UseLines, 1);
         }
     }
 }
