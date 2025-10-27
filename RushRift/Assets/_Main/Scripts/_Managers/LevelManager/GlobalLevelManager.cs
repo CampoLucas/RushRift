@@ -386,5 +386,13 @@ namespace Game
         }
 
         #endregion
+
+        public bool DashHack { get; private set; }
+        
+        public static void SetDashHack(bool godmode)
+        {
+            if (Instance.TryGet(out var manager))
+                manager.DashHack = godmode;
+        }
     }
 }

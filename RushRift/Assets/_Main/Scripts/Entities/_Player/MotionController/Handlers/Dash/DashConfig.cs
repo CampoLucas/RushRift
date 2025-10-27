@@ -11,7 +11,7 @@ namespace Game.Entities.Components.MotionController
         public float Duration => duration;
         public float MomentumMult => momentumMultiplier;
         public float Cooldown => cooldown;
-        public float Cost => cost;
+        public float Cost => GlobalLevelManager.Instance.TryGet(out var manager) && manager.DashHack ? 0 : cost;
         public float ShakeDur => shakeDuration;
         public float Blur => shakeDuration;
         public float ShakeMag => shakeMagnitude;

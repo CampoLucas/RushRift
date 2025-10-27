@@ -8,6 +8,7 @@ using Game.UI;
 using MyTools.Global;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using InputAction = UnityEngine.InputSystem.InputAction;
 
 namespace Game.Tools.DebugCommands
@@ -22,22 +23,40 @@ namespace Game.Tools.DebugCommands
         private InputManager _inputManager;
         private PlayerControls _playerControls;
         private bool _showConsole;
+        private bool _showHelp;
+        private bool _dashHack;
         private string _input;
         private List<string> _usedInputs = new();
         private CursorLockMode _mode;
         private bool _isVisible;
         private int _index = -1;
 
+        public static DebugCommand Help;
         public static DebugCommand KillAll;
-        public static DebugCommand GodMode; // Unlimited health, unlimited stamina
+        public static DebugCommand UnlimitedDashes; // Unlimited health, unlimited stamina
         public static DebugCommand<string> SetMedalString;
         public static DebugCommand<int> SetMedalInt;
         public static DebugCommand<int, string> AddMedalUpgrade;
 
-        public List<object> commandList;
+        private List<object> _commandList;
 
         private void Awake()
         {
+            Help = new DebugCommand("help", "Shows all the commands and their descriptions", "help", () =>
+            {
+                _showHelp = !_showHelp;
+
+                return true;
+            });
+
+            UnlimitedDashes = new DebugCommand("dash_hack", 
+                "Unlimited dashes", "dash_hack", () =>
+            {
+                _dashHack = !_dashHack;
+                GlobalLevelManager.SetDashHack(_dashHack);
+                return true;
+            });
+            
             KillAll = new ("kill_all", 
                 "Removes all the enemies from the scene.", 
                 "kill_all", () =>
@@ -99,11 +118,13 @@ namespace Game.Tools.DebugCommands
                 return false;
             });
 
-            commandList = new List<object>
+            _commandList = new List<object>
             {
+                Help,
                 KillAll,
                 SetMedalString,
                 SetMedalInt,
+                UnlimitedDashes,
             };
 
             _inputManager = GetComponent<InputManager>();
@@ -125,7 +146,7 @@ namespace Game.Tools.DebugCommands
             _playerControls.Console.Return.performed -= OnReturn;
             _playerControls.Console.Close.performed -= OnClose;
             _playerControls.Console.Up.performed -= OnUp;
-            _playerControls.Console.Up.performed -= OnDown;
+            _playerControls.Console.Down.performed -= OnDown;
             _playerControls.Disable();
         }
 
@@ -146,6 +167,7 @@ namespace Game.Tools.DebugCommands
         private void EnableDebug()
         {
             _index = -1;
+            _showHelp = false;
             _mode = CursorHandler.lockState;
             _isVisible = CursorHandler.visible;
                 
@@ -160,7 +182,7 @@ namespace Game.Tools.DebugCommands
             _playerControls.Console.Return.performed += OnReturn;
             _playerControls.Console.Close.performed += OnClose;
             _playerControls.Console.Up.performed += OnUp;
-            _playerControls.Console.Up.performed += OnDown;
+            _playerControls.Console.Down.performed += OnDown;
         }
 
         private void DisableDebug()
@@ -178,7 +200,7 @@ namespace Game.Tools.DebugCommands
             _playerControls.Console.Return.performed -= OnReturn;
             _playerControls.Console.Close.performed -= OnClose;
             _playerControls.Console.Up.performed -= OnUp;
-            _playerControls.Console.Up.performed -= OnDown;
+            _playerControls.Console.Down.performed -= OnDown;
         }
 
         private void OnReturn(InputAction.CallbackContext obj)
@@ -241,6 +263,18 @@ namespace Game.Tools.DebugCommands
             y -= spacing;
             _input = GUI.TextField(new Rect(10f, y, width -= 20f, height), _input);
 
+            if (_showHelp)
+            {
+                
+                for (var i = 0; i < _commandList.Count; i++)
+                {
+                    y -= (1 + height);
+                    var cmd = _commandList[i] as DebugCommandBase;
+                    if (cmd == null) continue;
+                    GUI.Label(new Rect(10f, y, width -= 20f, 20f), $"{cmd.Format} - {cmd.Description}");
+                }
+            }
+            
             if (_usedInputs.Count > 0)
             {
                 for (var i = _usedInputs.Count - 1; i >= 0; i--)
@@ -256,11 +290,11 @@ namespace Game.Tools.DebugCommands
         {
             var properties = _input.Split(' ');
             
-            for (var i = 0; i < commandList.Count; i++)
+            for (var i = 0; i < _commandList.Count; i++)
             {
                 var args = properties.Length;
                 
-                if (commandList[i] is not DebugCommandBase command || !_input.Contains(command.ID)) continue;
+                if (_commandList[i] is not DebugCommandBase command || !_input.Contains(command.ID)) continue;
 
                 if (properties.Length == 1 && command is DebugCommand c)
                 {
