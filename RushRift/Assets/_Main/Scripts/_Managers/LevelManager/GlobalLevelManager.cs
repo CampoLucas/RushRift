@@ -258,7 +258,7 @@ namespace Game
 
         protected override void OnDisposeNotInstance()
         {
-            _levelTimer.Dispose();
+            _levelTimer?.Dispose();
             _levelTimer = null;
 
         }

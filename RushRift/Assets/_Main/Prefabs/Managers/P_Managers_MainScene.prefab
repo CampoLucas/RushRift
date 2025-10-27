@@ -127,7 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiatedRef: {fileID: 0}
   prefab: {fileID: 5050218275519897064, guid: 50c0be4072f72d04b862cba7d3ec4697, type: 3}
-  respawnPos: {fileID: 0}
+  spawn: {fileID: 0}
 --- !u!1 &3286392142751998700
 GameObject:
   m_ObjectHideFlags: 0
@@ -173,7 +173,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bf3ed4bf33380d4eb2c4992ae42a8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetToRecord: {fileID: 0}
   startRecordingOnEnable: 1
   recordAtFixedUpdate: 1
   minFrameIntervalSeconds: 0.02
@@ -183,7 +182,6 @@ MonoBehaviour:
   obeyPauseEvents: 1
   ghostsFolderName: ghosts
   fileNamePattern: level_{LEVEL}.ghost.json
-  isDebugLoggingEnabled: 1
   drawGizmos: 1
   gizmoSegments: 64
   gizmoColor: {r: 0, g: 1, b: 0.6, a: 0.9}
