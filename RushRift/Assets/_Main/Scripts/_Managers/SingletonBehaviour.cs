@@ -41,7 +41,6 @@ namespace Game
         
         protected static NullCheck<TBehaviour> _instance;
         private static bool _disposedInstance;
-        private static bool _disposed;
         private static bool _quiting;
 
         private void Awake()
@@ -73,6 +72,12 @@ namespace Game
         public static async UniTask<NullCheck<TBehaviour>> GetAsync()
         {
             await UniTask.WaitUntil(() => Usable);
+            return _instance;
+        }
+        
+        public static async UniTask<NullCheck<TBehaviour>> GetAsync(CancellationToken ct)
+        {
+            await UniTask.WaitUntil(() => Usable, cancellationToken: ct);
             return _instance;
         }
 
@@ -110,17 +115,13 @@ namespace Game
 
         public void Dispose()
         {
-            if (_disposed) return;
-            _disposed = true;
-            
             if (_instance.Get() == this && !_disposedInstance)
             {
-                OnDisposeInstance(); // dispose stuff that the instance only has.
                 _disposedInstance = true;
+                OnDisposeInstance(); // dispose stuff that the instance only has.
                 _instance = null;
             }
             OnDisposeNotInstance(); // dispose serialized references and stuff the class might have.
-            
         }
 
         private void OnDestroy()

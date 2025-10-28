@@ -65,8 +65,8 @@ namespace Game.InputSystem
         {
             if (_playerControls == null) return;
             _playerControls.Disable();
-            CursorHandler.lockState = CursorLockMode.None;
-            CursorHandler.visible = true;
+            // CursorHandler.lockState = CursorLockMode.None;
+            // CursorHandler.visible = true;
         }
 
         private void OnEnable()

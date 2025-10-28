@@ -65,9 +65,9 @@ namespace Game.VFX
                 _onPaused = new ActionObserver<bool>(OnPause);
             }
 
+            PauseHandler.Attach(_onPaused.Get());
             OnPause(PauseHandler.IsPaused);
 
-            PauseHandler.Attach(_onPaused.Get());
         }
 
         private void OnDisable()
@@ -78,7 +78,10 @@ namespace Game.VFX
         private void Update()
         {
             //if (effect.pause || _moveAmount == null) return;
-            if (effect.pause || !_rigidbody) return;
+            if (effect.pause || !_rigidbody)
+            {
+                return;
+            }
             var on = data.SetEffect(_rigidbody.velocity.magnitude, effect) > 0;
 
             if (GlobalLevelManager.DashDamage && _targetEntity.TryGet(out var player) &&

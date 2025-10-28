@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Game;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.General;
 using Game.Levels;
 using Game.Saves;
 using Game.Utils;
@@ -46,20 +47,20 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 
     [Header("Respawn")]
     [SerializeField] private Transform spawn;
+    
 
     //private NullCheck<Transform> _camera;
     private NullCheck<PlayerController> _player;
     private NullCheck<Rigidbody> _body;
-    private CancellationTokenSource _cts;
     private List<EffectInstance> _playerEffects = new();
-    private NullCheck<BaseLevelSO> _prevLevel;
     private ActionObserver<BaseLevelSO> _onLevelReady;
+    private NullCheck<BaseLevelSO> _prevLevel;
+    private MedalSaveData _prevMedals;
     
     protected override void OnAwake()
     {
         base.OnAwake();
-        _cts = new CancellationTokenSource();
-
+        
         if (!_player.TryGet(out var player, SetPlayer)) return;
         
         PlayerSet.NotifyAll(player);
@@ -67,6 +68,88 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         if (player.TryGetComponent<Rigidbody>(out var body)) _body = body;
         _onLevelReady = new ActionObserver<BaseLevelSO>(OnLevelReadyHandler);
         GameEntry.LoadingState.AttachOnReady(_onLevelReady);
+    }
+
+    public bool SetUpgrade(BaseLevelSO levelSo, string medal)
+    {
+        Effect upgrade;
+        
+        switch (medal)
+        {
+            case "bronze":
+                if (_prevMedals.bronzeUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Bronze).upgrade;
+                _prevMedals.bronzeUnlocked = true;
+                break;
+            case "silver":
+                if (_prevMedals.silverUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Silver).upgrade;
+                _prevMedals.silverUnlocked = true;
+                break;
+            case "gold":
+                if (_prevMedals.goldUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Gold).upgrade;
+                _prevMedals.goldUnlocked = true;
+                break;
+            default:
+                return false;
+        }
+
+        if (upgrade == null || !_player.TryGet(out var player)) return false;
+        upgrade.ApplyEffect(player, remove: new []{ OnLevelChanged.Trigger(player, new OnLevelChanged.IsLoadingPredicate()) });
+
+        return true;
+
+    }
+
+    public bool SetUpgrade(BaseLevelSO levelSo, int medal)
+    {
+        Effect upgrade;
+        
+        switch (medal)
+        {
+            case 1:
+                if (_prevMedals.bronzeUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Bronze).upgrade;
+                _prevMedals.bronzeUnlocked = true;
+                break;
+            case 2:
+                if (_prevMedals.silverUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Silver).upgrade;
+                _prevMedals.silverUnlocked = true;
+                break;
+            case 3:
+                if (_prevMedals.goldUnlocked)
+                {
+                    return false;
+                }
+                upgrade = levelSo.GetMedal(MedalType.Gold).upgrade;
+                _prevMedals.goldUnlocked = true;
+                break;
+            default:
+                return false;
+        }
+
+        if (upgrade == null || !_player.TryGet(out var player)) return false;
+        upgrade.ApplyEffect(player, remove: new []{ OnLevelChanged.Trigger(player, new OnLevelChanged.IsLoadingPredicate()) });
+
+        return true;
+
     }
 
     private void OnLevelReadyHandler(BaseLevelSO levelSo)
@@ -79,27 +162,42 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 
         var levelId = levelSo.LevelID;
         // Remove previous upgrades if it is a different level
-        if (_prevLevel.TryGet(out var prev) && prev.LevelID != levelId && _playerEffects.Count > 0)
+        var isTheSameLevel = _prevLevel.TryGet(out var prev) && prev.LevelID == levelId;
+        var data = SaveSystem.LoadGame();
+        var medals = data.GetMedalSaveData(levelId);
+        var hasNewUpgrades = _prevMedals != medals;
+        
+        // if ((isTheSameLevel)) this.Log("Is the same level", LogType.Error);
+        // if ((isTheSameLevel && hasNewUpgrades)) this.Log("Is the same level, but has new upgrades", LogType.Error);
+        //
+        if ((isTheSameLevel && hasNewUpgrades) || !isTheSameLevel)
         {
-            for (var i = 0; i < _playerEffects.Count; i++)
+            if (_playerEffects.Count > 0)
             {
-                _playerEffects[i].Remove();
+                for (var i = 0; i < _playerEffects.Count; i++)
+                {
+                    _playerEffects[i].Remove();
+                }
+            
+                _playerEffects.Clear();
             }
             
-            _playerEffects.Clear();
-        }
-
-        if (!_prevLevel.TryGet(out prev) || prev.LevelID != levelId)
-        {
-            var data = SaveSystem.LoadGame();
             var effectsAmount = data.TryGetUnlockedEffects(levelId, out var effects);
         
             for (var i = 0; i < effectsAmount; i++)
             {
                 _playerEffects.Add(effects[i].ApplyEffect(player));
             }
+            
+            
         }
 
+        if (!_prevLevel.TryGet(out prev) || prev.LevelID != levelId)
+        {
+            
+        }
+
+        _prevMedals = medals;
         _prevLevel = levelSo;
     }
 
@@ -128,12 +226,12 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
             return null;
         }
         
-        var player = Instantiate(prefab);
+        var player = Instantiate(prefab, transform);
         PlayerCreated.NotifyAll(player);
         return player;
     }
 
-    public async UniTask Respawn(Vector3 position, Quaternion rotation)
+    public async UniTask Respawn(Vector3 position, Quaternion rotation, CancellationToken ct)
     {
         if (!_player.TryGet(out var player))
         {
@@ -141,14 +239,16 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
             return;
         }
         
+        
+        
         var tr = player.transform;
         if (_body.TryGet(out var body))
-            await RigidbodyRespawn(position, rotation, body, tr, _cts.Token);
+            await RigidbodyRespawn(position, rotation, body, tr, ct);
         else
-            await TransformRespawnAsync(position, rotation, tr, _cts.Token);
+            await TransformRespawnAsync(position, rotation, tr, ct);
         
         // Wait for transform sync after physics update
-        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, _cts.Token);
+        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, ct);
             
         var diff = tr.position - position;
         PlayerSpawned.NotifyAll(position, diff, rotation);
@@ -192,7 +292,7 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, token);
     }
 
-    public async UniTask Respawn(Transform tr) => await Respawn(tr.position, tr.rotation);
+    public async UniTask Respawn(Transform tr, CancellationToken ct) => await Respawn(tr.position, tr.rotation, ct);
 
     public async UniTask<bool> Respawn(NullCheck<Transform> trCheck)
     {
@@ -205,14 +305,14 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         return true;
     }
 
-    public static async UniTask RespawnPlayerAsync()
+    public static async UniTask RespawnPlayerAsync(CancellationToken ct)
     {
-        var playerSpawner = await GetAsync();
-        await UniTask.WaitUntil(() => _instance.Get().spawn != null);
+        var playerSpawner = await GetAsync(ct);
+        await UniTask.WaitUntil(() => _instance.Get().spawn != null, cancellationToken: ct);
 
         if (playerSpawner.TryGet(out var spawner) && spawner._player.TryGet(out var player))
         {
-            await spawner.Respawn(spawner.spawn);
+            await spawner.Respawn(spawner.spawn, ct);
         }
     }
 
@@ -227,26 +327,25 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
     protected override void OnDisposeNotInstance()
     {
         base.OnDisposeNotInstance();
-        if (_cts != null)
-        {
-            _cts.Cancel();
-            _cts.Dispose();
-            _cts = null;
-        }
-
+        
         instantiatedRef = null;
         prefab = null;
         spawn = null;
-        _player = null;
+        //_player = null;
         _body = null;
     }
 
     protected override void OnDisposeInstance()
     {
+        Debug.LogError("Dispose player spawner");
         base.OnDisposeInstance();
+        GameEntry.LoadingState.DetachOnReady(_onLevelReady);
+        
         PlayerSpawned.DetachAll();
         PlayerSet.DetachAll();
         PlayerCreated.DetachAll();
         PlayerFound.DetachAll();
+        
+        _player.Reset();
     }
 }
