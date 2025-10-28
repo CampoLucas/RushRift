@@ -43,5 +43,9 @@ public class LevelWonTitle : MonoBehaviour
             tauntText.gameObject.SetActive(true);
             tauntAnim.Play();
         }
+        else
+        {
+            tauntText.gameObject.SetActive(false);
+        }
     }
 }

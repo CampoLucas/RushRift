@@ -105,6 +105,8 @@ namespace _Main.Scripts.Ghost
             }
                 
             PauseHandler.Attach(_onPause.Get());
+            
+            OnPauseChanged(PauseHandler.IsPaused);
 
             if (autoLoadOnEnable) LoadBestGhost();
             EnsureGhostVisual();

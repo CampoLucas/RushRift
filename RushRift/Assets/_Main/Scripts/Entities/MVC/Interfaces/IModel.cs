@@ -42,7 +42,11 @@ namespace Game.Entities
         /// <param name="newComponent">The new component to add</param>
         /// <typeparam name="TComponent">Component's type</typeparam>
         /// <returns>Returns true if the component was added</returns>
-        bool TryAddComponent<TComponent>(TComponent newComponent) where TComponent : IEntityComponent;
+        bool TryAddComponent<TComponent>(Func<TComponent> factory) where TComponent : IEntityComponent;
+        bool TryAddComponent<TComponent>(Func<TComponent> factory, out TComponent component) where TComponent : IEntityComponent;
+
+        bool TryAddOrGetComponent<TComponent>(Func<TComponent> factory, out TComponent component)
+            where TComponent : IEntityComponent;
         /// <summary>
         /// Removes a component and optionally disposes it
         /// </summary>

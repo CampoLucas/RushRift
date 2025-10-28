@@ -9,14 +9,12 @@ namespace Game.Entities
 {
     public class EnemyController : EntityController
     {
-        [Header("Target")]
-        [SerializeField] private Transform target;
-
         [Header("BehaviourTree")]
         [SerializeField] private BehaviourTreeRunner runner;
         [SerializeField] private int damageIndex;
         [SerializeField] private int deathIndex;
-        
+
+        private NullCheck<Transform> target;
         private IObserver<float, float, float> _onDamageObserver;
         private IObserver _onDeathObserver;
         private EnemyComponent _enemyComp;
@@ -32,7 +30,12 @@ namespace Game.Entities
         protected override void Start()
         {
             base.Start();
-            LevelManager.OnEnemySpawnSubject.NotifyAll();
+            if (PlayerSpawner.Player.TryGet(out var player))
+            {
+                target = player.transform;
+            }
+            
+            GlobalEvents.EnemySpawned.NotifyAll(this);
             if (target) Init(target);
         }
 
@@ -66,7 +69,7 @@ namespace Game.Entities
         {
             AudioManager.Play("TurretDestruction");
             
-            LevelManager.OnEnemyDeathSubject.NotifyAll();
+            GlobalEvents.EnemyDeath.NotifyAll(this);
             runner.DisableAllRunners();
             runner.SetRunnerActive(deathIndex);
         }

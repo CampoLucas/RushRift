@@ -112,6 +112,8 @@ public class DisableBehaviour : MonoBehaviour
         }
         
         PauseHandler.Attach(_onPause.Get());
+        
+        OnPauseHandler(PauseHandler.IsPaused);
     }
 
     private void OnDisable()

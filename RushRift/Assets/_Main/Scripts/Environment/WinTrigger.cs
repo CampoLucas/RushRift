@@ -26,10 +26,8 @@ public class WinTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag(triggerTag)) return;
-        if (LevelManager.TryGetLevelWon(out var levelWonSubject))
-        {
-            levelWonSubject.NotifyAll();
-        }
+        
+        GlobalEvents.GameOver.NotifyAll(true);
     }
     
 }

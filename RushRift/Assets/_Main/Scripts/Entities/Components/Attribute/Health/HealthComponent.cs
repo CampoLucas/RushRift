@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace Game.Entities.Components
 {
-    public class HealthComponent : Attribute<HealthComponentData, HealthComponent>
+    public sealed class HealthComponent : Attribute<HealthComponentData, HealthComponent>
     {
         public Vector3 DamagePosition { get; private set; }
         //public ISubject OnHealthChanged { get; private set; } = new Subject();

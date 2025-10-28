@@ -8,38 +8,34 @@ using Logger = MyTools.Global.Logger;
 
 namespace Game
 {
-    public class EffectManager : MonoBehaviour, IDisposable
+    public sealed class EffectManager : SingletonBehaviour<EffectManager>, IDisposable
     {
         [Header("VFX Pool")]
         [SerializeField] private EffectPool effectPool;
         
-        public static bool IsAlive => _instance && !_disposed;
-        private static EffectManager _instance;
-        private static bool _disposed;
+        //public static bool IsAlive => _instance && !_disposed;
+        //private static bool _disposed;
         private ISubject<float, float> _shakeSubject;
         private ISubject<float, float> _screenBlurSubject;
-        private IObserver _sceneChangedObserver;
+        private ActionObserver<bool> _onLoading;
         
-        private void Awake()
+        protected override void OnAwake()
         {
-            if (IsAlive && _instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            _disposed = false;
-            _instance = this;
-
             _shakeSubject = new Subject<float, float>(false, true);
             _screenBlurSubject = new Subject<float, float>(false, true);
-            _sceneChangedObserver = new ActionObserver(OnSceneChangedHandler);
+            _onLoading = new ActionObserver<bool>(OnLoadingHandler);
 
+            GameEntry.LoadingState.AttachOnLoading(_onLoading);
         }
 
-        private void Start()
+        protected override bool CreateIfNull()
         {
-            SceneHandler.OnSceneChanged.Attach(_sceneChangedObserver);
+            return false;
+        }
+
+        protected override bool DontDestroy()
+        {
+            return true;
         }
 
         #region Screen Effects
@@ -51,8 +47,8 @@ namespace Game
         /// <param name="observer"></param>
         public static void AttachShake(IObserver<float, float> observer)
         {
-            if (!_instance || _disposed) return;
-            _instance._shakeSubject.Attach(observer);
+            if (!Usable || !_instance.TryGet(out var manager)) return;
+            manager._shakeSubject.Attach(observer);
         }
         
         /// <summary>
@@ -61,8 +57,8 @@ namespace Game
         /// <param name="observer"></param>
         public static void DetachShake(IObserver<float, float> observer)
         {
-            if (!_instance || _disposed) return;
-            _instance._shakeSubject.Detach(observer);
+            if (!Usable || !_instance.TryGet(out var manager)) return;
+            manager._shakeSubject.Detach(observer);
         }
         
         /// <summary>
@@ -72,8 +68,8 @@ namespace Game
         /// <param name="observer"></param>
         public static void AttachBlur(IObserver<float, float> observer)
         {
-            if (!_instance || _disposed) return;
-            _instance._screenBlurSubject.Attach(observer);
+            if (!Usable || !_instance.TryGet(out var manager)) return;
+            manager._screenBlurSubject.Attach(observer);
         }
         
         /// <summary>
@@ -82,20 +78,20 @@ namespace Game
         /// <param name="observer"></param>
         public static void DetachBlur(IObserver<float, float> observer)
         {
-            if (!_instance || _disposed) return;
-            _instance._screenBlurSubject.Detach(observer);
+            if (!Usable || !_instance.TryGet(out var manager)) return;
+            manager._screenBlurSubject.Detach(observer);
         }
         
         public static void CameraShake(float duration, float magnitude)
         {
-            if (!_instance || _disposed) return;
-            _instance._shakeSubject.NotifyAll(duration, magnitude);
+            if (!Usable || !_instance.TryGet(out var manager)) return;
+            manager._shakeSubject.NotifyAll(duration, magnitude);
         }
 
         public static void ScreenBlur(float duration, float magnitude)
         {
-            if (!_instance || _disposed) return;
-            _instance._screenBlurSubject.NotifyAll(duration, magnitude);
+            if (!Usable || !_instance.TryGet(out var manager)) return;
+            manager._screenBlurSubject.NotifyAll(duration, magnitude);
         }
 
         #endregion
@@ -104,47 +100,43 @@ namespace Game
 
         public static bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
         {
-            if (!_instance || _disposed || _instance.effectPool == null)
+            if (!Usable || !_instance.TryGet(out var manager) || manager.effectPool == null)
             {
                 emitter = null; 
                 return false;
             }
 
-            if (_instance.effectPool.TryGetVFX(id, vfxParams, out emitter))
+            if (manager.effectPool.TryGetVFX(id, vfxParams, out emitter))
             {
+                emitter.transform.parent = manager.transform;
                 Logger.Log($"LOG: TryGetVFX: Success || VFX: {emitter.gameObject.name}");
                 return true;
             }
-            else
-            {
-                Logger.Log("WARNING: TryGetVFX: Failure", logType: LogType.Warning);
-                return false;
-            }
+            
+            Logger.Log("WARNING: TryGetVFX: Failure", logType: LogType.Warning);
+            return false;
         }
 
         #endregion
 
-        private void OnSceneChangedHandler()
+        private void OnLoadingHandler(bool loading)
         {
-            Dispose();
+            if (loading)
+            {
+                effectPool.PoolDisableAll();
+            }
         }
 
-        public void Dispose()
+        protected override void OnDisposeInstance()
         {
-            if (_sceneChangedObserver != null)
+            base.OnDisposeInstance();
+            if (_onLoading != null)
             {
-                SceneHandler.OnSceneChanged.Detach(_sceneChangedObserver);
-                _sceneChangedObserver.Dispose();
-                _sceneChangedObserver = null;
+                GameEntry.LoadingState.DetachOnLoading(_onLoading);
+                _onLoading.Dispose();
+                _onLoading = null;
             }
             
-            if (_disposed) return;
-            
-            if (_instance == this)
-            {
-                _disposed = true;
-                _instance = null;
-            }
             _shakeSubject.DetachAll();
             _shakeSubject = null;
             effectPool.Dispose();
@@ -153,9 +145,10 @@ namespace Game
             _screenBlurSubject = null;
         }
 
-        private void OnDestroy()
+        protected override void OnDisposeNotInstance()
         {
-            Dispose();
+            base.OnDisposeNotInstance();
+            effectPool = null;
         }
     }
 }

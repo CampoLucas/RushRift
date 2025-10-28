@@ -1,6 +1,7 @@
 
 using System;
 using Game.DesignPatterns.Observers;
+using Game.Levels;
 using Game.Saves;
 using Game.Utils;
 using UnityEngine;
@@ -31,10 +32,15 @@ namespace Game.UI.Screens
         [SerializeField] private float fadeOut;
         [SerializeField] private float fadeIn;
         [SerializeField] private float fadeInStart;
+
+        [Header("Levels")]
+        [SerializeField] private HubSO hub;
+        [SerializeField] private GameModeSO defaultGameMode;
         
 
         private UIStateMachine _stateMachine;
         private IObserver _onSceneChanged;
+        private bool _loadingLevel;
         
         private void Awake()
         {
@@ -84,16 +90,25 @@ namespace Game.UI.Screens
 
         private void NewGame()
         {
+            if (_loadingLevel) return;
+            _loadingLevel = true;
             SaveSystem.ResetGame();
 
-            SceneHandler.LoadFirstLevel();
+            var session = GameSessionSO.GetOrCreate(GlobalLevelManager.CurrentSession, defaultGameMode, defaultGameMode.Levels[0]);
+            
+            
+            GameEntry.LoadSessionAsync(session);
+            //SceneHandler.LoadFirstLevel();
             // creates new save and takes you to the first level.
         }
 
         private void Continue()
         {
+            if (_loadingLevel) return;
+            _loadingLevel = true;
             // ToDo: go to the last scene the player was playing
-            SceneHandler.LoadLastLevel();
+            //SceneHandler.LoadLastLevel();
+            GameEntry.LoadLevelAsync(hub);
         }
 
         private void Options()

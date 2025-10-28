@@ -15,6 +15,7 @@ namespace Game.DesignPatterns.Observers
         
         protected readonly HashSet<TSubject> Subjects = new();
         private readonly HashSet<IObserver> _subscribers = new();
+        private readonly HashSet<IObserver> _toDispose = new();
         
         private readonly bool _detachOnNotify;
         private readonly bool _disposeOnDetach;
@@ -28,12 +29,26 @@ namespace Game.DesignPatterns.Observers
             IsReadOnly = isReadOnly;
         }
 
-        public bool Attach(IObserver observer) => observer != null && _subscribers.Add(observer);
+        public bool Attach(IObserver observer, bool disposeOnDetach = false)
+        {
+            if (observer != null && _subscribers.Add(observer))
+            {
+                if (disposeOnDetach)
+                {
+                    _toDispose.Add(observer);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         public bool Detach(IObserver observer)
         {
             if (_subscribers.Remove(observer))
             {
-                if (_disposeOnDetach) observer.Dispose();
+                if (_disposeOnDetach || _toDispose.Contains(observer)) observer.Dispose();
                 return true;
             }
 
@@ -42,14 +57,17 @@ namespace Game.DesignPatterns.Observers
 
         public void DetachAll()
         {
-            if (_disposeOnDetach)
+            if (_disposeOnDetach || _toDispose.Count > 0)
             {
-                foreach (var subscriber in _subscribers)
+                var toDispose = _disposeOnDetach ? _subscribers : _toDispose;
+                
+                foreach (var subscriber in toDispose)
                 {
                     subscriber.Dispose();
                 }
             }
             
+            _toDispose.Clear();
             _subscribers.Clear();
         }
 

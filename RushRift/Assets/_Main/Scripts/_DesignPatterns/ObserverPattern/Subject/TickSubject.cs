@@ -56,7 +56,7 @@ namespace Game.DesignPatterns.Observers
         /// <summary>
         /// Subscribes an observer to receive tick notifications.
         /// </summary>
-        public bool Attach(IObserver<float> observer) => !_disposed && _subject.Attach(observer);
+        public bool Attach(IObserver<float> observer, bool disposeOnDetach = false) => !_disposed && _subject.Attach(observer, disposeOnDetach);
 
         /// <summary>
         /// Unsubscribes an observer.

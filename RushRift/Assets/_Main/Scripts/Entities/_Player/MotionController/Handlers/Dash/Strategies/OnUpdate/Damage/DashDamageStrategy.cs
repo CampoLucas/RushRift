@@ -31,7 +31,7 @@ namespace Game.Entities.Components.MotionController.Strategies
         {
             return false;
             
-//             Debug.Log("SuperTest: Damage Dash update");
+
 //             if (_detection == null)
 //             {
 // #if UNITY_EDITOR

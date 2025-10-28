@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace MyTools.Global.Editor
@@ -28,13 +29,22 @@ namespace MyTools.Global.Editor
         {
             var height = base.GetPropertyHeight(property, label);
 
-            if (_data != null && _data.isExpanded)
+            try
             {
-                var h = EditorGUI.GetPropertyHeight(_data);
-                if (h > height)
+                _data = property.FindPropertyRelative("data");
+                
+                if (_data != null && _data.isExpanded)
                 {
-                    height = h;
+                    var h = EditorGUI.GetPropertyHeight(_data);
+                    if (h > height)
+                    {
+                        height = h;
+                    }
                 }
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.Log($"ERROR: {e}");
             }
             
             

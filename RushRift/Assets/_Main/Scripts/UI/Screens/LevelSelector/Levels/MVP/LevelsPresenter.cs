@@ -23,14 +23,14 @@ namespace Game.UI.Screens
 
         private List<LevelButton> _spawnedLevelButtons = new();
         private ActionObserver<GameModeSO> _onModeSelected;
-        private ActionObserver<BaseLevelSO> _setDefaultLevel;
+        private ActionObserver<GameModeSO, BaseLevelSO> _setDefaultLevel;
         private NullCheck<LevelButton> _prevSelectedButton;
 
         protected override void OnInit()
         {
             base.OnInit();
 
-            _setDefaultLevel = new ActionObserver<BaseLevelSO>(DefaultSelectionHandler);
+            _setDefaultLevel = new ActionObserver<GameModeSO, BaseLevelSO>(DefaultSelectionHandler);
             LevelSelectorMediator.LevelSelected.Attach(_setDefaultLevel);
             
             _onModeSelected = new ActionObserver<GameModeSO>(OnModeSelectedHandler);
@@ -45,7 +45,7 @@ namespace Game.UI.Screens
 
             if (Model.SelectedMode.TryGet(out var gameMode))
             {
-                PopulateLevels(gameMode.Levels);
+                PopulateLevels(gameMode, gameMode.Levels);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Game.UI.Screens
             return true;
         }
         
-        private void PopulateLevels(List<BaseLevelSO> levels)
+        private void PopulateLevels(GameModeSO mode, List<BaseLevelSO> levels)
         {
             // clear old
             for (var i = 0; i < _spawnedLevelButtons.Count; i++)
@@ -100,7 +100,7 @@ namespace Game.UI.Screens
                     .onClick.AddListener(() =>
                     {
                         if (unlocked)
-                            OnLevelSelected(levelSO, button);
+                            OnLevelSelected(mode, levelSO, button);
                     });
             }
         }
@@ -119,9 +119,9 @@ namespace Game.UI.Screens
             return data.GetUnlockedMedalsCount(levelID);
         }
 
-        private void OnLevelSelected(BaseLevelSO level, LevelButton button)
+        private void OnLevelSelected(GameModeSO mode, BaseLevelSO level, LevelButton button)
         {
-            LevelSelectorMediator.LevelSelected.NotifyAll(level);
+            LevelSelectorMediator.LevelSelected.NotifyAll(mode, level);
             
             if (_prevSelectedButton.TryGet(out var prev))
             {
@@ -138,7 +138,7 @@ namespace Game.UI.Screens
             Model.SetMode(mode);
         }
         
-        private void DefaultSelectionHandler(BaseLevelSO defaultLevel)
+        private void DefaultSelectionHandler(GameModeSO defaultMode, BaseLevelSO defaultLevel)
         {
             LevelSelectorMediator.LevelSelected.Detach(_setDefaultLevel);
             Model.SetSelectedLevel(defaultLevel);

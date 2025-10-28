@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using Game.Entities.Components;
 using UnityEngine;
 
 namespace Game.Entities
 {
-    public class StatusEffectRunner : IEntityComponent
+    public sealed class StatusEffectRunner : EntityComponent
     {
         private List<IEffectInstance> _effects = new();
         private ISubject<float> _updatableEffects = new Subject<float>();
@@ -43,35 +44,13 @@ namespace Game.Entities
             effect.Dispose(); // Dispose all effect's reference, including subjects and observers created dynamically.
         }
 
-        public bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out IObserver<float> observer)
         {
             observer = _updateObserver;
             return _updateObserver != null;
         }
-
-        public bool TryGetLateUpdate(out IObserver<float> observer)
-        {
-            observer = null;
-            return false;
-        }
-
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
-        {
-            observer = null;
-            return false;
-        }
-
-        public void OnDraw(Transform origin)
-        {
-            
-        }
-
-        public void OnDrawSelected(Transform origin)
-        {
-            
-        }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
             for (var i = 0; i < _effects.Count; i++)
             {

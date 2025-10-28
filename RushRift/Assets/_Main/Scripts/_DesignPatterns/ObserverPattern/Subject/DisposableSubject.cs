@@ -16,7 +16,7 @@ namespace Game.DesignPatterns.Observers
             _onDispose = onDispose;
         }
         
-        public bool Attach(IObserver observer) => _inner.Attach(observer);
+        public bool Attach(IObserver observer, bool disposeOnDetach = false) => _inner.Attach(observer, disposeOnDetach);
         public bool Detach(IObserver observer) => _inner.Detach(observer);
         public void NotifyAll() => _inner.NotifyAll();
         public void DetachAll() => _inner.DetachAll();

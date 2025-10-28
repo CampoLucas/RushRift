@@ -9,12 +9,12 @@ namespace Game.UI.Screens.Interfaces
         
         public abstract bool TryGetState(out UIState state);
         
-        public bool Attach(DesignPatterns.Observers.IObserver<MenuState> observer)
+        public bool Attach(IObserver<MenuState> observer, bool disposeOnDetach = false)
         {
-            return _subject.TryGet(out var subject) && subject.Attach(observer);
+            return _subject.TryGet(out var subject) && subject.Attach(observer, disposeOnDetach);
         }
 
-        public bool Detach(DesignPatterns.Observers.IObserver<MenuState> observer)
+        public bool Detach(IObserver<MenuState> observer)
         {
             return _subject.TryGet(out var subject) && subject.Detach(observer);
         }

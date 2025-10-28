@@ -18,7 +18,7 @@ namespace Game.Entities
         }
         
         public bool Evaluate(ref IController args) => _predicate.Evaluate(ref args);
-        public bool Attach(IObserver observer) => _subject.Attach(observer);
+        public bool Attach(IObserver observer, bool disposeOnDetach = false) => _subject.Attach(observer, disposeOnDetach);
         public bool Detach(IObserver observer) => _subject.Detach(observer);
         public void DetachAll() => _subject.DetachAll();
 

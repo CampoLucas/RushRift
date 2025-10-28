@@ -1,4 +1,4 @@
-using Game.Inputs;
+using Game.InputSystem;
 
 
 namespace Game.Entities

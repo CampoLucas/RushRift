@@ -22,10 +22,7 @@ namespace Game.Enviroment
 
         private void Start()
         {
-            if (LevelManager.TryGetTimerSubject(out var subject))
-            {
-                subject.Attach(_updateTimeObserver);
-            }
+            GlobalEvents.TimeUpdated.Attach(_updateTimeObserver);
         }
 
         private void TimeUpdatedHandler(float time)
@@ -38,10 +35,9 @@ namespace Game.Enviroment
         {
             StopAllCoroutines();
             
-            if (LevelManager.TryGetTimerSubject(out var subject))
-            {
-                subject.Detach(_updateTimeObserver);
-            }
+            GlobalEvents.TimeUpdated.Detach(_updateTimeObserver);
+            _updateTimeObserver.Dispose();
+            _updateTimeObserver = null;
         }
     }
 }

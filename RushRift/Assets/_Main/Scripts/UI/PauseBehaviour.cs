@@ -14,6 +14,10 @@ namespace Game.UI
         protected virtual void Awake()
         {
             _onPause = new ActionObserver<bool>(OnPauseHandler);
+            if (PauseHandler.IsPaused)
+            {
+                OnPauseHandler(true);
+            }
         }
 
         protected virtual void Start()

@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
+using Game.Entities;
 using Game.Utils;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Game
@@ -46,7 +48,7 @@ namespace Game
         /// <param name="value">Reference to store. If null, <paramref name="defaultValue"/> is used.</param>
         /// <param name="defaultValue">Fallback value if <paramref name="value"/> is null.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NullCheck(T value, T defaultValue) : this()
+        public NullCheck(T value, Func<T> defaultValue) : this()
         {
             Set(value, defaultValue);
         }
@@ -64,6 +66,18 @@ namespace Game
 
             value = _value;
             return true;
+        }
+        
+        /// <summary>
+        /// Attempts to get the stored value, if it doesn't it attemtps to get one.
+        /// </summary>
+        /// <param name="value">Output value if available; otherwise <c>default</c>.</param>
+        /// <returns>True if the value exists; otherwise false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGet(out T value, Func<T> fallback)
+        {
+            value = GetOrDefault(fallback);
+            return HasValue;
         }
 
         /// <summary>
@@ -130,9 +144,9 @@ namespace Game
         /// <param name="defaultValue">Fallback value if <paramref name="value"/> is null.</param>
         /// <returns>True if a valid value was assigned; otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Set(T value, T defaultValue)
+        public bool Set(T value, Func<T> defaultValue)
         {
-            return Set(value ?? defaultValue);
+            return Set(value ?? defaultValue());
         }
 
         #region Operators

@@ -25,6 +25,12 @@ namespace Game.UI.Screens
             LevelWon = bronze.Unlocked || silver.Unlocked || gold.Unlocked;
         }
 
+        public override void Reset()
+        {
+            base.Reset();
+            Initialize(0, 0, false, default, default, default);
+        }
+
         public bool IsMedalUnlocked(MedalType type)
         {
             return type switch
