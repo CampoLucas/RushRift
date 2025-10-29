@@ -41,6 +41,8 @@ namespace Game.Entities.Components.MotionController
             _readyToJump = false;
             _timer = Config.Cooldown;
             
+            AudioManager.Play("Jump");
+            
             context.Velocity = context.Velocity.XOZ(); // Clear vertical velocity before jump
             
             // Add jump forces

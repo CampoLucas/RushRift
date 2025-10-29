@@ -40,9 +40,7 @@ namespace Game.Entities
         private HashSet<GameObject> _collided = new();
 
         private Vector3 _prevPauseVelocity;
-
         
-
         protected override void Awake()
         {
             base.Awake();
@@ -280,6 +278,8 @@ namespace Game.Entities
 
         private void ExplodeCollision(Vector3 normal, bool recycle = true)
         {
+            
+            AudioManager.Play("TurretProjectileExplosion");
             EffectManager.TryGetVFX(explosion, new VFXEmitterParams()
             {
                 position = transform.position,
