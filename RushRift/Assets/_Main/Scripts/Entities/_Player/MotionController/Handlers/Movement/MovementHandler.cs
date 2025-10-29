@@ -17,7 +17,9 @@ namespace Game.Entities.Components.MotionController
         {
             base.OnFixedUpdate(context, delta);
 
-            if (Config.SlidingEnabled) CheckSlope(context, delta);
+            if (Config.SlidingEnabled) 
+                CheckSlope(context, delta);
+            
             ApplyMovement(context, delta);
         }
 
@@ -57,7 +59,6 @@ namespace Game.Entities.Components.MotionController
 
                 // Combined slippery force
                 var targetSlippery = slopeRatio * Config.Sliding.Mult * (1f + speedFactor);
-
                 Slippery = Mathf.MoveTowards(Slippery, targetSlippery, Time.fixedDeltaTime * 2f);
             }
             else
@@ -80,6 +81,7 @@ namespace Game.Entities.Components.MotionController
 
         private void ApplyMovement(in MotionContext context, in float delta)
         {
+#if false
             // Find the velocity relative to where the player is looking.
             var localVel = GetLookVelocity(context.Origin, context.Velocity);
             
@@ -120,15 +122,28 @@ namespace Game.Entities.Components.MotionController
             
             if (grounded && (Slippery >= .1f || angle > maxAngle))
             {
+#if true
                 // This keeps the player from sticking to the slopes
+                var slopeDir = Vector3.ProjectOnPlane(Vector3.down, normal).normalized;
+
+                
                 var intoSlope = Vector3.Dot(context.Velocity, normal) < 0f;
                 if (intoSlope)
                 {
                     context.Velocity = SlideVector(context.Velocity, normal);
+                    //slopeDir = Vector3.ProjectOnPlane(context.Velocity, normal).normalized;
+
                 }
+#else
+                // Only project once when landing or when slope changes drastically
+                if (!context.PrevGrounded || Vector3.Dot(context.Normal, normal) < 0.98f)
+                {
+                    context.Velocity = SlideVector(context.Velocity, normal);
+                }
+#endif
                 
                 // controlled sliding force
-                var slopeDir = Vector3.ProjectOnPlane(Vector3.down, normal).normalized;
+                //var slopeDir = Vector3.ProjectOnPlane(Vector3.down, normal).normalized;
 
                 var slopeFactor = Mathf.Clamp01((angle - maxAngle) / (90f - maxAngle));
                 var speed = context.Velocity.magnitude;
@@ -158,6 +173,64 @@ namespace Game.Entities.Components.MotionController
             
             context.AddForce(moveDirForward * (moveDir.z * Config.Speed * delta * mult * forwardMult));
             context.AddForce(moveDirRight * (moveDir.x * Config.Speed * delta * mult));
+            
+            if (context.Grounded && !context.Jump && context.MoveDirection.sqrMagnitude < 0.01f)
+            {
+                // Prevent upward drift on slopes
+                var vel = context.Velocity;
+                if (vel.y > 0f)
+                    context.Velocity = vel.XOZ(Mathf.Min(0f, vel.y)); // clamp Y to zero or downward
+            }
+            
+#else
+            var grounded = context.Grounded;
+            var normal = context.Normal;
+            var moveDir = context.MoveDirection;
+
+            var forward = context.Origin.forward;
+            var right = context.Origin.right;
+
+            // --- Build slope-aligned move vectors ---
+            var slopeForward = Vector3.ProjectOnPlane(forward, normal).normalized;
+            var slopeRight   = Vector3.ProjectOnPlane(right,   normal).normalized;
+
+            // --- Compose desired move direction ---
+            var slopeMove = (slopeForward * moveDir.z + slopeRight * moveDir.x);
+            if (slopeMove.sqrMagnitude > 0.001f)
+                slopeMove.Normalize();
+
+            // --- Maintain some vertical component for realistic up/down slope behavior ---
+            if (grounded)
+            {
+                float angleFactor = Mathf.Clamp01(context.GroundAngle / 45f);
+                slopeMove = Vector3.Lerp(slopeMove, Vector3.down, 0.15f * angleFactor).normalized;
+            }
+
+            // --- Air control multipliers ---
+            var mult = grounded ? 1f : Config.AirMultiplier;
+            var forwardMult = grounded ? 1f : Config.AirForwardMultiplier;
+            var speed = Config.Speed * delta * mult;
+
+            // --- Apply acceleration ---
+            context.AddForce(slopeMove * speed * forwardMult, ForceMode.Acceleration);
+
+            // --- Drag (grounded only) ---
+            ApplyDrag(context, GetLookVelocity(context.Origin, context.Velocity), Slippery, delta);
+
+            // --- Clamp max speed ---
+            ClampHorizontal(context);
+
+            // --- Direction correction (prevent exceeding max) ---
+            DirCorrection(context, GetLookVelocity(context.Origin, context.Velocity));
+
+            // --- Prevent idle upward drift, safe for jump ---
+            if (grounded && !context.Jump && !context.IsJumping && moveDir.sqrMagnitude < 0.01f)
+            {
+                var vel = context.Velocity;
+                if (vel.y > 0f)
+                    context.Velocity = vel.XOZ(Mathf.Min(0f, vel.y));
+            }
+#endif
         }
 
         /// <summary>
@@ -169,23 +242,119 @@ namespace Game.Entities.Components.MotionController
         
         private void ApplyDrag(in MotionContext context, in Vector3 localVel, in float t, in float delta)
         {
+#if false
             if (!context.Grounded) return;
+            
+            // Calculate drag reduction based on slipperiness
             var finalDrag = Mathf.Lerp(Config.Drag, 0, t);
 
+            // Instead of using only horizontal XOZ space, project drag along ground plane
+            var normal = context.Normal;
+            var right = Vector3.ProjectOnPlane(context.Origin.right, normal).normalized;
+            var forward = Vector3.ProjectOnPlane(context.Origin.forward, normal).normalized;
+            
             var dir = context.MoveDirection;
             
-            // Drag
-            if (Mathf.Abs(localVel.x) > Config.MinThreshold && Mathf.Abs(dir.x) < Config.MaxThreshold ||
-                (localVel.x < -Config.MinThreshold && dir.x > 0) || (localVel.x > Config.MinThreshold && dir.x < 0))
+            // // Drag
+            // if (Mathf.Abs(localVel.x) > Config.MinThreshold && Mathf.Abs(dir.x) < Config.MaxThreshold ||
+            //     (localVel.x < -Config.MinThreshold && dir.x > 0) || (localVel.x > Config.MinThreshold && dir.x < 0))
+            // {
+            //     context.AddForce(context.Origin.right * (Config.Speed * delta * -localVel.x * finalDrag));
+            // }
+            //
+            // if (Mathf.Abs(localVel.z) > Config.MinThreshold && Mathf.Abs(dir.z) < Config.MaxThreshold ||
+            //     (localVel.z < -Config.MinThreshold && dir.z > 0) || (localVel.z > Config.MinThreshold && dir.z < 0))
+            // {
+            //     context.AddForce(context.Origin.forward * (Config.Speed * delta * -localVel.z * finalDrag));
+            // }
+            
+            // DRAG on X axis
+            if ((Mathf.Abs(localVel.x) > Config.MinThreshold && Mathf.Abs(dir.x) < Config.MaxThreshold) ||
+                (localVel.x < -Config.MinThreshold && dir.x > 0) ||
+                (localVel.x > Config.MinThreshold && dir.x < 0))
             {
-                context.AddForce(context.Origin.right * (Config.Speed * delta * -localVel.x * finalDrag));
+                context.AddForce(right * (Config.Speed * delta * -localVel.x * finalDrag));
             }
 
-            if (Mathf.Abs(localVel.z) > Config.MinThreshold && Mathf.Abs(dir.z) < Config.MaxThreshold ||
+            // DRAG on Z axis
+            if ((Mathf.Abs(localVel.z) > Config.MinThreshold && Mathf.Abs(dir.z) < Config.MaxThreshold) ||
+                (localVel.z < -Config.MinThreshold && dir.z > 0) ||
+                (localVel.z > Config.MinThreshold && dir.z < 0))
+            {
+                context.AddForce(forward * (Config.Speed * delta * -localVel.z * finalDrag));
+            }
+#elif false
+            if (!context.Grounded) return;
+
+            // Interpret Config.Drag as a per-second damping coefficient.
+            // Slippery reduces drag via lerp (your original behavior).
+            float baseDrag = Mathf.Lerp(Config.Drag, 0f, t);
+            if (baseDrag <= 0f) return;
+
+            // Exponential decay factor: how much of the component to remove this frame.
+            float k = 1f - Mathf.Exp(-baseDrag * delta);
+
+            // Build slope-aligned basis so drag acts along the ground plane
+            var n = context.Normal;
+            var rightOnPlane   = Vector3.ProjectOnPlane(context.Origin.right,   n).normalized;
+            var forwardOnPlane = Vector3.ProjectOnPlane(context.Origin.forward, n).normalized;
+
+            var v = context.Velocity;
+            float vx = Vector3.Dot(v, rightOnPlane);
+            float vz = Vector3.Dot(v, forwardOnPlane);
+
+            var dir = context.MoveDirection;
+
+            // X (strafe) damping: only when not actively accelerating that way, or pushing opposite
+            bool dampX =
+                (Mathf.Abs(vx) > Config.MinThreshold && Mathf.Abs(dir.x) < Config.MaxThreshold) ||
+                (vx < -Config.MinThreshold && dir.x > 0f) ||
+                (vx >  Config.MinThreshold && dir.x < 0f);
+
+            if (dampX)
+            {
+                // Remove a k-fraction of the component along rightOnPlane
+                v -= rightOnPlane * (vx * k);
+            }
+
+            // Z (forward) damping: same rule
+            bool dampZ =
+                (Mathf.Abs(vz) > Config.MinThreshold && Mathf.Abs(dir.z) < Config.MaxThreshold) ||
+                (vz < -Config.MinThreshold && dir.z > 0f) ||
+                (vz >  Config.MinThreshold && dir.z < 0f);
+
+            if (dampZ)
+            {
+                v -= forwardOnPlane * (vz * k);
+            }
+
+            // Keep vertical velocity untouched here (gravity/jump handle Y)
+            context.Velocity = v;
+#else
+            if (!context.Grounded) return;
+
+            var finalDrag = Mathf.Lerp(Config.Drag, 0, t);
+
+            // slope-aligned axes
+            var normal = context.Normal;
+            var right = Vector3.ProjectOnPlane(context.Origin.right, normal).normalized;
+            var forward = Vector3.ProjectOnPlane(context.Origin.forward, normal).normalized;
+            var dir = context.MoveDirection;
+
+            // X drag
+            if ((Mathf.Abs(localVel.x) > Config.MinThreshold && Mathf.Abs(dir.x) < Config.MaxThreshold) ||
+                (localVel.x < -Config.MinThreshold && dir.x > 0) || (localVel.x > Config.MinThreshold && dir.x < 0))
+            {
+                context.AddForce(right * (Config.Speed * delta * -localVel.x * finalDrag));
+            }
+
+            // Z drag
+            if ((Mathf.Abs(localVel.z) > Config.MinThreshold && Mathf.Abs(dir.z) < Config.MaxThreshold) ||
                 (localVel.z < -Config.MinThreshold && dir.z > 0) || (localVel.z > Config.MinThreshold && dir.z < 0))
             {
-                context.AddForce(context.Origin.forward * (Config.Speed * delta * -localVel.z * finalDrag));
+                context.AddForce(forward * (Config.Speed * delta * -localVel.z * finalDrag));
             }
+#endif
         }
         
         private void ClampHorizontal(in MotionContext context)

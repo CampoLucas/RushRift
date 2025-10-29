@@ -42,12 +42,41 @@ namespace Game.Entities.Components.MotionController
             _timer = Config.Cooldown;
             
             AudioManager.Play("Jump");
+
+            var velocity = context.Velocity;
             
-            context.Velocity = context.Velocity.XOZ(); // Clear vertical velocity before jump
+            //context.Velocity = Vector3.zero;
+            //context.Velocity = context.Velocity.XOZ(); // Clear vertical velocity before jump
             
             // Add jump forces
-            context.AddForce(Vector3.up * (Config.Force * 1.5f), ForceMode.Impulse);
-            context.AddForce(context.Normal * (Config.Force * 0.5f), ForceMode.Impulse);
+            // var inputDir = Config.InputInfluence > 0 ? Camera.main ?
+            //     Camera.main.transform.TransformDirection(context.MoveDirection) * Config.InputInfluence : 
+            //     Vector3.zero : 
+            //     Vector3.zero;
+            
+            var inputDir = Config.InputInfluence > 0 ? 
+                context.Orientation.TransformDirection(context.MoveDirection) * Config.InputInfluence : 
+                Vector3.zero;
+
+            var h = velocity.XOZ();
+
+            var velocityDir = Config.VelocityInfluence > 0 ? h.normalized * Config.InputInfluence : Vector3.zero;
+            if (h.magnitude < Config.MinHorVelocity)
+            {
+                velocityDir = Vector3.zero;
+            }
+            
+            var upDir = Config.UpInfluence > 0 ? Vector3.up * Config.UpInfluence : Vector3.zero;
+            var normalDir = Config.NormalInfluence > 0
+                ? Vector3.ProjectOnPlane(Vector3.up, context.Normal) * Config.NormalInfluence
+                : Vector3.zero;
+
+            var force = false
+                ? Config.Force * (velocity.magnitude * Config.VelocityInfluence)
+                : Config.Force;
+            
+            context.AddForce((upDir + inputDir + velocityDir + normalDir).normalized * force, ForceMode.Impulse);
+            //context.AddForce(context.Normal * (Config.Force * 0.5f), ForceMode.Impulse);
         }
     }
 }
