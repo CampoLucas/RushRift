@@ -236,39 +236,24 @@ MonoBehaviour:
     pitchRange: {x: 0.8, y: 1.2}
     timeBetweenPlays: 0.5
     isMusic: 0
-  - name: Footstep
+  - name: Footsteps
     loop: 0
     playOnAwake: 0
     delaySeconds: 0
     clips:
-    - {fileID: 8300000, guid: 036e7ce445999ac4ca1353bb09e189ba, type: 3}
-    - {fileID: 8300000, guid: b7f38270ca4d2814b9045f314a394275, type: 3}
-    - {fileID: 8300000, guid: 032a9b0aa526bfe4c9054da6df410f29, type: 3}
-    - {fileID: 8300000, guid: 802259736e1e58c4fa7140172fcd90af, type: 3}
-    - {fileID: 8300000, guid: 46612a2c7a035234b9d042dfd72674c1, type: 3}
-    - {fileID: 8300000, guid: 3b3f463c8aae0024f9e6a82f7423a625, type: 3}
-    - {fileID: 8300000, guid: 47b21f867604eaf489a6fa9e56284a27, type: 3}
-    - {fileID: 8300000, guid: 09d5b5a732875be4eabf8b1de3cabb8f, type: 3}
-    - {fileID: 8300000, guid: 84bc65c8bdc43294e91a754dded3cd36, type: 3}
-    - {fileID: 8300000, guid: 86ede682a5682e04aa6af07cc2f2f2df, type: 3}
-    - {fileID: 8300000, guid: 34a07113f1525a04b9df59843be846ee, type: 3}
-    - {fileID: 8300000, guid: 75637bb5eaa9e3c4ea52c92288a81a52, type: 3}
-    - {fileID: 8300000, guid: 981174511cf04af4ca8cc181e3ecec4f, type: 3}
-    - {fileID: 8300000, guid: 1dc4dcd7516df654aa10b64e41496a7e, type: 3}
-    - {fileID: 8300000, guid: 1a643f13c1aaed94ca09365dc76f488a, type: 3}
-    - {fileID: 8300000, guid: 96b1219b2664edb4eb2804ad1d00b35b, type: 3}
-    - {fileID: 8300000, guid: a86d6bd138db60445a43854f11e5f4ca, type: 3}
-    - {fileID: 8300000, guid: 054b3c852db09634d9a7dc3f84fd297e, type: 3}
-    - {fileID: 8300000, guid: 795dabe3ba9e666458b26353d28bfba2, type: 3}
-    - {fileID: 8300000, guid: d15c81497fcaf9b4fba365e39d711e01, type: 3}
+    - {fileID: 8300000, guid: 67e70efdf6d23db42b894a7288533b09, type: 3}
+    - {fileID: 8300000, guid: 3c0d3fef743a5cb4394c9621fb997cf4, type: 3}
+    - {fileID: 8300000, guid: 9f49c7c50480c3541a475526ed73ff1d, type: 3}
+    - {fileID: 8300000, guid: a06aff0fa601b9544a4e222c4106f1b5, type: 3}
+    - {fileID: 8300000, guid: 6892b5c30196e284db3d5510e6a10c95, type: 3}
     mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
-    randomVolume: 1
-    volume: 1
-    volumeRange: {x: 0.8, y: 1}
+    randomVolume: 0
+    volume: 0.2
+    volumeRange: {x: 0.4, y: 0.4}
     pitch: 1
     randomPitch: 1
     pitchRange: {x: 0.8, y: 1.2}
-    timeBetweenPlays: 0.5
+    timeBetweenPlays: 0.2
     isMusic: 0
   - name: Blink
     loop: 0
@@ -298,6 +283,25 @@ MonoBehaviour:
     pitch: 0.98
     randomPitch: 1
     pitchRange: {x: 0.8, y: 1.2}
+    timeBetweenPlays: 0.5
+    isMusic: 0
+  - name: Jump
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 381b389f7927c054fb48d098ffe9bc7f, type: 3}
+    - {fileID: 8300000, guid: ea8cb2f54488cf449b82e51259690cbe, type: 3}
+    - {fileID: 8300000, guid: cf8ad7f6db108824b9b7b50a5a5c8a3b, type: 3}
+    - {fileID: 8300000, guid: 04d917e31b078b241b7e67c479969bf3, type: 3}
+    - {fileID: 8300000, guid: bc38ebbc78f08784fa980eadc8cc7653, type: 3}
+    mixer: {fileID: -7716872376237256132, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 0
+    volume: 0.5
+    volumeRange: {x: 0.5, y: 0.5}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.9, y: 1.2}
     timeBetweenPlays: 0.5
     isMusic: 0
   mixer: {fileID: 24100000, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}

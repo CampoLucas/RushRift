@@ -40,6 +40,8 @@ namespace Game.Entities.Components.MotionController
         {
             _readyToJump = false;
             _timer = Config.Cooldown;
+            
+            AudioManager.Play("Jump");
 
             var velocity = context.Velocity;
             
