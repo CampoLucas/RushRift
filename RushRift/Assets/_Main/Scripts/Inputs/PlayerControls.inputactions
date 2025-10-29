@@ -16,66 +16,12 @@
                 },
                 {
                     "name": "Look",
-                    "type": "PassThrough",
+                    "type": "Value",
                     "id": "59d7be2e-ce5a-46c7-ab1e-ac5f8cd8c977",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
-                },
-                {
-                    "name": "Interact",
-                    "type": "Button",
-                    "id": "95a2d3bd-2aa0-4cd6-bb90-9779c1441b62",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Jump",
-                    "type": "Button",
-                    "id": "89030478-6f13-4d97-82c3-354217914f71",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Hold",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "PrimaryAttack",
-                    "type": "Button",
-                    "id": "ec148bde-b1d7-431c-ba28-af3ba077f17d",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "PrimaryAttackTap",
-                    "type": "Button",
-                    "id": "a999731e-b3bd-4a0a-bfc1-d2fc8610410f",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Tap",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "PrimaryAttackHold",
-                    "type": "Button",
-                    "id": "68704d61-1e6f-4aee-a367-5909455223f0",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Hold",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SecondaryAttack",
-                    "type": "Button",
-                    "id": "c539a54b-d509-4052-bcc8-8e19d419eeba",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 },
                 {
                     "name": "MousePosition",
@@ -85,6 +31,69 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "89030478-6f13-4d97-82c3-354217914f71",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrimaryAttack",
+                    "type": "Button",
+                    "id": "ec148bde-b1d7-431c-ba28-af3ba077f17d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrimaryAttackTap",
+                    "type": "Button",
+                    "id": "a999731e-b3bd-4a0a-bfc1-d2fc8610410f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrimaryAttackHold",
+                    "type": "Button",
+                    "id": "68704d61-1e6f-4aee-a367-5909455223f0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryAttack",
+                    "type": "Button",
+                    "id": "c539a54b-d509-4052-bcc8-8e19d419eeba",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "95a2d3bd-2aa0-4cd6-bb90-9779c1441b62",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Reset",
+                    "type": "Button",
+                    "id": "9d51f5b6-3150-47b6-93b6-15175e25806f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -417,6 +426,28 @@
                     "action": "PrimaryAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "477d59b8-4551-4c48-9ffb-f3eba30c16ff",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b7ce555d-aaea-48b4-9b41-0a1cbef7aa83",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -428,7 +459,7 @@
                     "name": "Pause",
                     "type": "Button",
                     "id": "1058742e-b626-46d1-a266-68441b94c6fb",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -443,6 +474,125 @@
                     "processors": "",
                     "groups": "Keyboard",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c79cd7c6-bf2e-44e3-a432-63a3b6c4ea7a",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Console",
+            "id": "7179eeaa-3e58-4172-a789-a40ce0e47f7d",
+            "actions": [
+                {
+                    "name": "ToggleDebug",
+                    "type": "Button",
+                    "id": "bf2ef8f1-b843-49e8-8de6-a1a27fb354ef",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Return",
+                    "type": "Button",
+                    "id": "1d54ec15-5cd3-4104-8356-dbd07404ec06",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Close",
+                    "type": "Button",
+                    "id": "ccbb008b-32b1-4eec-98b0-68c66534af40",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Up",
+                    "type": "Button",
+                    "id": "6b29a475-04ee-475c-99ac-fda858fafba3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Down",
+                    "type": "Button",
+                    "id": "2a576093-c261-4d55-bb78-2501dfebe7b6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "fb32b91f-80a2-4b17-a381-c6544c9121a6",
+                    "path": "<Keyboard>/backquote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "ToggleDebug",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3c8ef691-15a8-486f-8cfb-c58e96a07f57",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Return",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7304caff-439a-40d4-95e4-95b764fccf9c",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Close",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ee70f47c-28b7-410b-b3d3-8073ea0a4271",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2255436e-a9ef-45ce-93d7-fd33b6960ecb",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Down",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

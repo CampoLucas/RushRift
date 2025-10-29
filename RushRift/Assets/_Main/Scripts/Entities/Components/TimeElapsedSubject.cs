@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class TimeElapsedSubject : IEntityComponent, ISubject
+    public sealed class TimeElapsedSubject : EntityComponent, ISubject
     {
-        private HashSet<IObserver> _subscribers;
+        private ISubject _subscribers = new Subject();
         private float _elapsedTime;
         private bool _active;
         private DesignPatterns.Observers.IObserver<float> _updateObserver;
@@ -36,64 +36,39 @@ namespace Game.Entities.Components
             _active = true;
         }
         
-        public bool Attach(IObserver observer)
+        public bool Attach(IObserver observer, bool disposeOnDetach = false)
         {
-            return _subscribers.Add(observer);
+            return _subscribers.Attach(observer, disposeOnDetach);
         }
 
         public bool Detach(IObserver observer)
         {
-            return _subscribers.Remove(observer);
+            return _subscribers.Detach(observer);
         }
 
         public void DetachAll()
         {
-            _subscribers.Clear();
+            _subscribers.DetachAll();
         }
 
         public void NotifyAll()
         {
-            foreach (var subscriber in _subscribers)
-            {
-                subscriber.OnNotify();
-            }
+            _subscribers.NotifyAll();
         }
         
-        public bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
+        public override bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             observer = _updateObserver;
             return _updateObserver != null;
         }
-
-        public bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
             _updateObserver.Dispose();
             _updateObserver = null;
             
-            _subscribers.Clear();
+            _subscribers.Dispose();
             _subscribers = null;
-        }
-
-        public void OnDraw(Transform origin)
-        {
-            
-        }
-
-        public void OnDrawSelected(Transform origin)
-        {
-            
         }
     }
 }

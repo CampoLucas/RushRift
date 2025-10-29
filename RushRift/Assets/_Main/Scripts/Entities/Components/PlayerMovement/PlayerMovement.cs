@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class PlayerMovement : IMovement
+    public sealed class PlayerMovement : EntityComponent, IMovement
     {
         public Vector3 Velocity { get; private set; }
         public bool Grounded => _grounded || _coyoteTimer > 0;
@@ -130,19 +130,19 @@ namespace Game.Entities.Components
 
         #region Component Methods
 
-        public bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out IObserver<float> observer)
         {
             observer = _tick;
             return true;
         }
 
-        public bool TryGetLateUpdate(out IObserver<float> observer)
+        public override bool TryGetLateUpdate(out IObserver<float> observer)
         {
             observer = _lateTick;
             return true;
         }
 
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
+        public override bool TryGetFixedUpdate(out IObserver<float> observer)
         {
             observer = default;
             return false;
@@ -152,7 +152,7 @@ namespace Game.Entities.Components
 
         #region Debug Methods
 
-        public void OnDraw(Transform origin)
+        public override void OnDraw(Transform origin)
         {
             if (_detection != null)
             {
@@ -160,7 +160,7 @@ namespace Game.Entities.Components
             }
         }
 
-        public void OnDrawSelected(Transform origin)
+        public override void OnDrawSelected(Transform origin)
         {
             if (_detection != null)
             {
@@ -252,7 +252,7 @@ namespace Game.Entities.Components
             deltaVel = Vector3.ClampMagnitude(deltaVel, rate * delta * curveFactor);
         }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
             _data = null;
             _controller = null;

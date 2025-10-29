@@ -1,4 +1,4 @@
-using Game.Inputs;
+using Game.InputSystem;
 using UnityEngine;
 
 namespace Game.UI.Screens

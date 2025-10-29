@@ -8,6 +8,7 @@ namespace Game.DesignPatterns.Pool
     {
         void Recycle(TPoolable poolable);
         void Remove(TPoolable poolable);
+        void RecycleAll();
     }
     
     public interface IPoolObject<TPoolable, in TData> : IPool<TPoolable>
@@ -15,6 +16,7 @@ namespace Game.DesignPatterns.Pool
     {
         bool TryGet(Vector3 position, Quaternion rotation, TData data, out TPoolable poolable);
         TPoolable Get(Vector3 position, Quaternion rotation, TData data);
+        
     }
 
     public interface IPoolObject<TPoolable> : IPool<TPoolable>

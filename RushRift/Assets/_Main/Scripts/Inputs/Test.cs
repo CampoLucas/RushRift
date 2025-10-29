@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Game.Inputs
+namespace Game.InputSystem
 {
     public class Test : MonoBehaviour
     {

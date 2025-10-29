@@ -12,12 +12,6 @@ public class LockOnBlink : MonoBehaviour
     public enum LockStartMode { Automatic, OnKeyHold, OnKeyPress }
 
     [Header("Upgrade Gate")]
-    [SerializeField, Tooltip("If true, uses Local Enabled instead of LevelManager.CanUseLockOnBlink.")]
-    private bool overrideUpgradeGate;
-
-    [SerializeField, Tooltip("Local enable used only when Override Gate is true.")]
-    private bool localUpgradeEnabled;
-    
     [SerializeField, Tooltip("Read-only: reflects whether the ability is currently usable, considering medal/override gate.")]
     private bool abilityGateMirror;
 
@@ -191,7 +185,7 @@ public class LockOnBlink : MonoBehaviour
 
     private bool IsAbilityEnabled()
     {
-        return overrideUpgradeGate ? localUpgradeEnabled : Game.LevelManager.CanUseLockOnBlink;
+        return GlobalLevelManager.Blink;
     }
 
     public Transform GetCurrentTarget() => _currentTarget;

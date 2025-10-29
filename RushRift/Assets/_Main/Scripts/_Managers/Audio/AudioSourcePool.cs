@@ -90,6 +90,14 @@ namespace Game
             _inUseSources.Remove(source);
             _availableSources.Add(source);
         }
+        
+        public virtual void RecycleAll()
+        {
+            foreach (var source in _inUseSources)
+            {
+                Recycle(source);
+            }
+        }
 
         /// <summary>
         /// Completely removes an AudioSource from the pool and destroys it if it was created at runtime.

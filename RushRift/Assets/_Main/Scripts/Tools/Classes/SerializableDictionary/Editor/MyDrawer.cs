@@ -80,8 +80,9 @@ namespace MyTools.Global.Editor
             return new Rect(position.x + MarginRight(), yPos, GetPropertyWidth(position), LineHeight);
         }
 
-        protected void DrawProperty(Rect position, SerializedProperty property, GUIContent label, bool separateLabel = false)
+        protected void DrawProperty(Rect position, SerializedProperty property, GUIContent label, bool includeChildren = true, bool separateLabel = false)
         {
+#if false
             if (separateLabel)
             {
                 if (label != GUIContent.none)
@@ -90,10 +91,23 @@ namespace MyTools.Global.Editor
             }
             else
                 EditorGUI.PropertyField(GetRect(position), property, label);
+#else
+            if (separateLabel)
+            {
+                if (label != GUIContent.none)
+                    EditorGUI.LabelField(GetRect(position), label);
+                EditorGUI.PropertyField(GetRect(position), property, GUIContent.none, includeChildren);
+            }
+            else
+            {
+                EditorGUI.PropertyField(GetRect(position), property, label, includeChildren);
+            }
+#endif
         }
 
         protected void DrawProperty(Rect position, SerializedProperty[] properties, GUIContent label, float spacing = 0)
         {
+#if false
             var propertiesCount = properties.Length;
             var pos = GetRect(position);
             var width = (GetPropertyWidth(pos)- spacing) / propertiesCount ;
@@ -107,6 +121,21 @@ namespace MyTools.Global.Editor
                 var rect = new Rect(xPos, pos.y, width, pos.height);
                 EditorGUI.PropertyField(rect, properties[i], GUIContent.none);
             }
+#else
+            var propertiesCount = properties.Length;
+            var pos = GetRect(position);
+            var width = (GetPropertyWidth(pos) - spacing) / propertiesCount;
+    
+            if (label != GUIContent.none)
+                EditorGUI.LabelField(GetRect(position), label);
+            
+            for (var i = 0; i < propertiesCount; i++)
+            {
+                var xPos = pos.x + i * (width + spacing);
+                var rect = new Rect(xPos, pos.y, width, pos.height);
+                EditorGUI.PropertyField(rect, properties[i], GUIContent.none, true); // ✅ includeChildren = true
+            }
+#endif
         }
 
         protected void DrawObject(Rect position, SerializedProperty property, GUIContent label)

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Entities.Enemies.Components
 {
-    public class EnemyComponent : IEntityComponent
+    public sealed class EnemyComponent : EntityComponent
     {
         private NullCheck<Transform> _target;
         private bool _isFollowing;
@@ -25,38 +25,11 @@ namespace Game.Entities.Enemies.Components
         public void SetTarget(Transform newTarget) => _target.Set(newTarget);
         public void SetFollowing(bool value) => _isFollowing = value;
         public bool IsFollowing() => _isFollowing;
-
-        public bool TryGetUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public bool TryGetLateUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public void OnDraw(Transform origin)
-        {
-            
-        }
-
-        public void OnDrawSelected(Transform origin)
-        {
-            
-        }
         
-        public void Dispose()
+        
+        protected override void OnDispose()
         {
-            
+            _target.Dispose();
         }
     }
 }

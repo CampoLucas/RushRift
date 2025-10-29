@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Game.Entities;
 using Game.Entities.Components;
 using Game.Utils;
+using MyTools.Global;
 using TMPro;
 using UnityEngine;
 
@@ -20,7 +21,13 @@ public class MovementTest : MonoBehaviour
 #if !UNITY_EDITOR
         Destroy(gameObject);
 #endif
-        _target = FindObjectOfType<PlayerController>();
+        if (!PlayerSpawner.Player.TryGet(out var player))
+        {
+            this.Log("Player not found", LogType.Error);
+            return;
+        }
+        
+        _target = player;
         if (_target && _target.gameObject.TryGetComponent<Rigidbody>(out var rb))
         {
             _rigidbody = rb;

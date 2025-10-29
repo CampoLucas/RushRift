@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Game;
 using Game.DesignPatterns.Observers;
+using Game.Levels;
 using MyTools.Global;
 using MyTools.Utils;
 using TMPro;
@@ -23,12 +24,12 @@ public class TimerDisplay : MonoBehaviour
     [SerializeField] private Color failureColor;
 
     [Header("Settings")]
-    [SerializeField, Tooltip("Makes the text have the same color as the medals.")]
-    private bool useSameColor;
-    [SerializeField, Tooltip("Use the next threshold color instead of the blinkColor when blinking.")]
-    private bool useNextThresholdColor = true;
-    [SerializeField, Tooltip("Makes the text use failure color when passing the failure threshold.")]
-    private bool useFailureTextColor = true;
+    [Tooltip("Makes the text have the same color as the medals.")] 
+    [SerializeField] private bool useSameColor;
+    [Tooltip("Use the next threshold color instead of the blinkColor when blinking.")]
+    [SerializeField] private bool useNextThresholdColor = true;
+    [Tooltip("Makes the text use failure color when passing the failure threshold.")]
+    [SerializeField] private bool useFailureTextColor = true;
     [SerializeField] private Color blinkColor;
     [SerializeField] private float blinkInterval = 0.5f;
     [SerializeField] private float timeToBlink = 5;
@@ -42,33 +43,71 @@ public class TimerDisplay : MonoBehaviour
     private Color _textStartColor;
     private Color _nextThresholdColor = Color.white; // for blinking
 
+    private ActionObserver<BaseLevelSO> _onPreload;
+    private ActionObserver<BaseLevelSO> _onLoad;
+    
     private ActionObserver<float> _timerObserver;
 
     private bool _useBlinkColor;
 
     private void Awake()
     {
-        _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+        if (_timerObserver == null)
+        {
+            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+        }
+
+        _onPreload = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
+        _onLoad = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
+        
         _textStartColor = text.color;
+
+        GameEntry.LoadingState.AttachOnPreload(_onPreload);
+        GameEntry.LoadingState.AttachOnLoad(_onLoad);
     }
 
-    private void Start()
+    private void OnLoadingStartHandler(BaseLevelSO level)
     {
-        if (LevelManager.TryGetTimerSubject(out var subject))
+        StopAllCoroutines();
+        if (_timerObserver == null)
         {
-            subject.Attach(_timerObserver);
+            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
         }
+        GlobalEvents.TimeUpdated.Detach(_timerObserver);
+    }
+    
+    private void OnLoadingEndHandler(BaseLevelSO level)
+    {
+        StopAllCoroutines();
+        if (_timerObserver == null)
+        {
+            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+        }
+        GlobalEvents.TimeUpdated.Attach(_timerObserver);
         
         _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
 
-        if (!LevelManager.TryGetLevelConfig(out var levelConfig) && levelConfig)
+        if (!level)
         {
             this.Log("TimerDisplay couldn't find the level config", LogType.Error);
+            gameObject.SetActive(false);
+            return;
+        }
+
+        if (!level.UsesMedals)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
         }
         
-        _goldThreshold   = Mathf.Max(0f, levelConfig.Gold.requiredTime);
-        _silverThreshold = Mathf.Max(0f, levelConfig.Silver.requiredTime);
-        _bronzeThreshold = Mathf.Max(0f, levelConfig.Bronze.requiredTime);
+        _goldThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Gold).requiredTime);
+        _silverThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Silver).requiredTime);
+        _bronzeThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Bronze).requiredTime);
     }
 
     private void OnTimeUpdated(float time)
@@ -163,10 +202,10 @@ public class TimerDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (LevelManager.TryGetTimerSubject(out var subject))
-        {
-            subject.Detach(_timerObserver);
-        }
+        GameEntry.LoadingState.DetachOnPreload(_onPreload);
+        GameEntry.LoadingState.DetachOnLoad(_onLoad);
+        
+        GlobalEvents.TimeUpdated.Detach(_timerObserver);
         StopAllCoroutines();
         
         _timerObserver.Dispose();

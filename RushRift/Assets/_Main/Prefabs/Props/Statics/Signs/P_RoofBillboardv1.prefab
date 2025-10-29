@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 542152238527056647}
   - component: {fileID: 8493339577351178922}
   - component: {fileID: 2854532888257380302}
+  - component: {fileID: 4083283480736676837}
   m_Layer: 0
   m_Name: Billboard2.001
   m_TagString: Untagged
@@ -83,6 +84,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &4083283480736676837
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1641731731678939337}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.020596597, y: 0.42077246, z: 0.03168324}
+  m_Center: {x: -0.000048688933, y: 0.18032272, z: -0.00545004}
 --- !u!1 &3195673095933331503
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,6 +150,7 @@ GameObject:
   - component: {fileID: 3138728391378007079}
   - component: {fileID: 4598934896195031384}
   - component: {fileID: 5980886051178972071}
+  - component: {fileID: 629005960603375664}
   m_Layer: 0
   m_Name: Screen_Billboard2.001
   m_TagString: Untagged
@@ -200,6 +223,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &629005960603375664
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3648595992651709341}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.020000007, y: 0.020000115, z: 0.020000005}
+  m_Center: {x: 0.0000000016298145, y: 0.00000047683716, z: 0}
 --- !u!1 &4644066406402473997
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,8 +255,8 @@ GameObject:
   - component: {fileID: 4801069748616950071}
   - component: {fileID: 1498163899552749341}
   - component: {fileID: 5537393778010960040}
-  - component: {fileID: 4550343113822943026}
   - component: {fileID: 3454947045121401076}
+  - component: {fileID: 6236581100080225551}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -285,8 +329,40 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &4550343113822943026
-MeshCollider:
+--- !u!114 &3454947045121401076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4644066406402473997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8748ad6dc2feb6b4c9559854a79964cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRenderer: {fileID: 5537393778010960040}
+  useSpriteRenderer: 0
+  baseTexture: {fileID: 2800000, guid: 1cfd59d2c87b4034e9ece8fe9d9bb14d, type: 3}
+  baseTint: {r: 1, g: 1, b: 1, a: 1}
+  emissionStrength: 5.2
+  scrollSpeed: {x: 0.08, y: 0}
+  uvOffset: {x: 0, y: 0}
+  uvTiling: {x: 1, y: 1}
+  flickerSpeed: 13
+  flickerAmount: 1
+  glitchMaxOffsetX: 0.024
+  glitchBurstPerMin: 6.7
+  glitchBurstDuration: 0.196
+  enableScanlines: 1
+  scanlineDensity: 2570
+  scanlineContrast: 0.727
+  scanlineScrollSpeed: 2
+  scanlineRenderer: {fileID: 0}
+  applyWorldOffset: 0
+  worldOffset: {x: 0, y: 0, z: 0}
+--- !u!65 &6236581100080225551
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -303,39 +379,6 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &3454947045121401076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4644066406402473997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8748ad6dc2feb6b4c9559854a79964cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetRenderer: {fileID: 5537393778010960040}
-  useSpriteRenderer: 0
-  baseTexture: {fileID: 2800000, guid: 0c5efd1f7c8e5914d804e55f79ca3519, type: 3}
-  baseTint: {r: 1, g: 1, b: 1, a: 1}
-  emissionStrength: 3
-  scrollSpeed: {x: 0.08, y: 0}
-  uvOffset: {x: 0, y: 0}
-  uvTiling: {x: 1, y: 1}
-  flickerSpeed: 13
-  flickerAmount: 1
-  glitchMaxOffsetX: 0.024
-  glitchBurstPerMin: 6.7
-  glitchBurstDuration: 0.196
-  enableScanlines: 1
-  scanlineDensity: 2570
-  scanlineContrast: 0.727
-  scanlineScrollSpeed: 2
-  scanlineRenderer: {fileID: 0}
-  applyWorldOffset: 0
-  worldOffset: {x: 0, y: 0, z: 0}
+  serializedVersion: 3
+  m_Size: {x: 10.000001, y: 0.0000019464642, z: 10.000002}
+  m_Center: {x: -0.00000035762787, y: -0.0000038146973, z: 0.0000019073486}

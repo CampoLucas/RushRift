@@ -1,8 +1,6 @@
 using System;
-using Game.Inputs;
-using UnityEngine.UI;
 
-namespace Game.Input
+namespace Game.InputSystem
 {
     public class OnButtonPredicate : IPredicate
     {

@@ -1,5 +1,5 @@
 using Cinemachine;
-using Game.Inputs;
+using Game.InputSystem;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

@@ -19,7 +19,7 @@ namespace Game.Entities.Dash
             dash.DirStrategy.Add(DashDirEnum.Target, new DashTargetStrategy(targetConfig));
             dash.UpdateStrategy.Add(DashUpdateEnum.Damage, new DashDamageStrategy(dashDamageConfig));
 
-            LevelManager.HasDashDamage = true;
+            GlobalLevelManager.SetDashDamage(true);
         }
 
         protected override void OnStopEffect(DashHandler dash)
@@ -27,7 +27,7 @@ namespace Game.Entities.Dash
             dash.DirStrategy.Remove(DashDirEnum.Target);
             dash.UpdateStrategy.Remove(DashUpdateEnum.Damage);
             
-            LevelManager.HasDashDamage = false;
+            GlobalLevelManager.SetDashDamage(false);
         }
 
         public override string Description()

@@ -11,12 +11,13 @@ GameObject:
   - component: {fileID: 2743031749912159386}
   - component: {fileID: 8077726849704096531}
   - component: {fileID: 155195997151587333}
+  - component: {fileID: 1054824640203384229}
   m_Layer: 0
   m_Name: WindowsBuilding_V5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2743031749912159386
 Transform:
@@ -83,6 +84,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1054824640203384229
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7209757743023329162}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 6548.5713, y: 19359.338, z: 6548.5674}
+  m_Center: {x: -0.0048828125, y: 0.0009765625, z: 0.0039062498}
 --- !u!1 &7723997927151107022
 GameObject:
   m_ObjectHideFlags: 0
@@ -97,7 +119,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6199151835996981456
 Transform:
@@ -127,13 +149,13 @@ GameObject:
   - component: {fileID: 7287238601505600922}
   - component: {fileID: 5914822431605054611}
   - component: {fileID: 4025207717423888339}
-  - component: {fileID: 5692983822443767720}
+  - component: {fileID: 7555669515970750725}
   m_Layer: 0
   m_Name: Building_V5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7287238601505600922
 Transform:
@@ -200,8 +222,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &5692983822443767720
-MeshCollider:
+--- !u!65 &7555669515970750725
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -218,7 +240,6 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -875125853408494752, guid: f6d0f3eb3f0fa5f4fa6461699e581891, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 7348.573, y: 42280.863, z: 7348.5713}
+  m_Center: {x: 49.999763, y: 227.95316, z: 0.005859375}

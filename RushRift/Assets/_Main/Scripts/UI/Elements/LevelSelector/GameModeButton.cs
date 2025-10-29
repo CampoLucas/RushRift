@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
-using Game.General;
+using Game.Levels;
 using MyTools.Global;
 using TMPro;
 using UnityEngine;
@@ -128,9 +127,9 @@ namespace Game.UI.Screens.Elements
             Dispose();
         }
 
-        public bool Attach(IObserver observer)
+        public bool Attach(IObserver observer, bool disposeOnDetach = false)
         {
-            return _onSelectSubject.TryGet(out var subject) && subject.Attach(observer);
+            return _onSelectSubject.TryGet(out var subject) && subject.Attach(observer, disposeOnDetach);
         }
 
         public bool Detach(IObserver observer)

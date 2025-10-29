@@ -5,6 +5,11 @@ namespace Game.Entities
 {
     public class TriggerCollection : SubjectCollection<ITrigger>, ITrigger
     {
+        public TriggerCollection() : base(false, false, true)
+        {
+            
+        }
+        
         public bool Evaluate(ref IController controller)
         {
             var result = false;

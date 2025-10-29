@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 
 namespace Game.Entities
@@ -8,7 +9,8 @@ namespace Game.Entities
     {
         public override Trigger GetTrigger(IController controller)
         {
-            return new Trigger(LevelManager.OnProjectileDestroyed, this, false);
+            var targetSubject = GlobalEvents.ProjectileDestroyed.ConvertToSimple();
+            return new Trigger(targetSubject, this, true);
         }
 
         public override bool Evaluate(ref IController args)

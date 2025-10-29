@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Entities;
-using Game.Inputs;
+using Game.InputSystem;
 using UnityEngine;
 
 namespace Game

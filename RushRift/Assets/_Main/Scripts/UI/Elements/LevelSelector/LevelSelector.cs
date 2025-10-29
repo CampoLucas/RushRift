@@ -128,7 +128,7 @@ namespace Game.LevelSelector
         private void OnLevelSelected(BaseLevelSO level)
         {
             _currentLevel = level;
-            portal.SetTargetLevel(level);
+            portal.SetTargetSession(_currentMode, level);
         }
 
         public void BackToModeSelection()

@@ -1,6 +1,6 @@
 using Game.Entities.AttackSystem;
 using Game.Entities.Components;
-using Game.Inputs;
+using Game.InputSystem;
 using Game.Predicates;
 using Game.Utils;
 using System.Collections.Generic;
@@ -28,15 +28,15 @@ namespace Game.Entities
         private Vector3 _moveDir;
         private Transform _camera;
 
-        private IObserver<float, float, float> _onPlayerDamage;
+        private IObserver<float, float, float> _onDamage;
+        private IObserver _onDeath;
         
         protected override void Awake()
         {
             base.Awake();
             
-            
-            
-            _onPlayerDamage = new ActionObserver<float, float, float>(OnPlayerDamage);
+            _onDamage = new ActionObserver<float, float, float>(OnDamageHandler);
+            _onDeath = new ActionObserver(OnDeathHandler);
         }
 
         protected override void Start()
@@ -45,8 +45,8 @@ namespace Game.Entities
 
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
-                healthComponent.OnValueChanged.Attach(_onPlayerDamage);
-                LevelManager.GetPlayerReference(healthComponent.OnEmptyValue);
+                healthComponent.OnValueChanged.Attach(_onDamage);
+                healthComponent.OnEmptyValue.Attach(_onDeath);
             }
 
 
@@ -55,22 +55,6 @@ namespace Game.Entities
                 var effect = startEffects[i];
                 if (effect.IsNullOrMissingReference()) continue;
                 effect.ApplyEffect(this);
-            }
-            
-            // var data = SaveAndLoad.Load();
-            // if (data == null) return;
-            //
-            // var levelID = LevelManager.GetLevelID();
-            // if (levelID == 0) return;
-
-            var data = SaveSystem.LoadGame();
-            var levelID = Game.LevelManager.GetLevelID();
-        
-            var effectsAmount = data.TryGetUnlockedEffects(levelID, out var effects);
-
-            for (var i = 0; i < effectsAmount; i++)
-            {
-                effects[i].ApplyEffect(this);
             }
         }
 
@@ -177,12 +161,16 @@ namespace Game.Entities
             _moveDir;
         
         
-        public void OnPlayerDamage(float previousValue, float newValue, float delta)
+        private void OnDamageHandler(float previousValue, float newValue, float delta)
         {
-            Debug.Log("Taking damage");
-            
+            if (newValue >= previousValue) return;
             AudioManager.Play("Grunt");
             //ScreenFlash.Instance.TriggerFlash("#FF0044", .1f, .1f);
+        }
+        
+        private void OnDeathHandler()
+        {
+            GlobalEvents.GameOver.NotifyAll(false);
         }
         
     }

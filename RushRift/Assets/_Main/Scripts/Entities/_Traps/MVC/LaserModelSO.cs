@@ -21,8 +21,11 @@ namespace Game.Entities
         
         public override void Init(in IController controller, in IModel model)
         {
-            model.TryAddComponent(_health.GetComponent());
-            model.TryAddComponent(GetLaserComponent(controller.Origin));
+            var c = controller;
+            model.TryAddComponent(HealthComponentFactory);
+            model.TryAddComponent(() => GetLaserComponent(c.Origin));
         }
+        
+        private HealthComponent HealthComponentFactory() => _health.GetComponent();
     }
 }

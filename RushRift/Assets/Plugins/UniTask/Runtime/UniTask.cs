@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Cysharp.Threading.Tasks
 {

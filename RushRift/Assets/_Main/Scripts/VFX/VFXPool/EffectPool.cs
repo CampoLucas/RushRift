@@ -34,6 +34,18 @@ namespace Game.VFX
             return pool.TryGet(vfxEmitterParams.position, vfxEmitterParams.rotation, vfxEmitterParams, out poolable);
         }
 
+        public void PoolDisableAll()
+        {
+            var pools = _vfxDictionary.Values;
+            
+            if (pools.Count == 0) return;
+
+            foreach (var pool in pools)
+            {
+                pool.RecycleAll();
+            }
+        }
+
         public void Dispose()
         {
             prefabDictionary = null;

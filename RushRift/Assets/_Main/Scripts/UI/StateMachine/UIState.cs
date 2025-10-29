@@ -9,6 +9,15 @@ namespace Game.UI.Screens
     public abstract class UIState : IDisposable
     {
         public HashSet<UITransition> Transitions { get; private set; } = new();
+        protected NullCheck<ActionObserver<bool>> LoadingObserver;
+
+        public virtual void Init()
+        {
+            if (LoadingObserver.TryGet(out var observer))
+            {
+                GameEntry.LoadingState.AttachOnLoading(observer);
+            }
+        }
         
         public virtual void Enable()
         {
@@ -42,6 +51,11 @@ namespace Game.UI.Screens
 
         public virtual void Dispose()
         {
+            if (LoadingObserver.TryGet(out var observer))
+            {
+                GameEntry.LoadingState.DetachOnLoading(observer);
+            }
+            
             if (Transitions != null)
             {
                 foreach (var transition in Transitions)
@@ -68,6 +82,11 @@ namespace Game.UI.Screens
         {
             Transitions.Add(new UISceneTransition(sceneName, condition));
         }
+
+        protected virtual void OnInit()
+        {
+            
+        }
     }
     
     public abstract class UIState<TPresenter, TModel, TView> : UIState 
@@ -92,8 +111,10 @@ namespace Game.UI.Screens
             Presenter = presenter;
         }
         
-        private void Init()
+        public sealed override void Init()
         {
+            base.Init();
+            
             _enableSubject.Attach(new ActionObserver(Enable));
             _disableSubject.Attach(new ActionObserver(Disable));
             _startSubject.Attach(new ActionObserver(Start));

@@ -1,4 +1,5 @@
 using System;
+using Game.DesignPatterns.Observers;
 using Game.General;
 using Game.Levels;
 using Game.Saves;
@@ -14,8 +15,6 @@ namespace Game.UI.Screens
 {
     public sealed class LevelWonPresenter : UIPresenter<LevelWonModel, LevelWonView>
     {
-        public int CurrentLevel => LevelManager.GetLevelID();
-        
         [Header("Buttons")]
         [SerializeField] private Button continueButton;
         [SerializeField] private Button retryButton;
@@ -23,23 +22,33 @@ namespace Game.UI.Screens
 
         [Header("Events")]
         [SerializeField] private UnityEvent onBegin = new UnityEvent();
+
+        private bool _begun;
+        private ActionObserver<bool> _loadingObserver;
         
         private void Awake()
         {
             continueButton.onClick.AddListener(OnLoadNextHandler);
             retryButton.onClick.AddListener(RetryLevelHandler);
             hubButton.onClick.AddListener(HubHandler);
+
+            _loadingObserver = new ActionObserver<bool>((a) => { _begun = false; });
+
+            GameEntry.LoadingState.AttachOnLoading(_loadingObserver);
         }
         
         public override void Begin()
         {
+            if (_begun) return;
+            _begun = true;
             base.Begin();
             
             // Set Cursor
             CursorHandler.lockState = CursorLockMode.None;
             CursorHandler.visible = true;
-            //OnWinLevel();
-            EventSystem.current.SetSelectedGameObject(null);
+            
+
+            //Model.Reset();
             
             SetModelValues(Model);
             UpdateSaveData(Model);
@@ -56,45 +65,40 @@ namespace Game.UI.Screens
 
         private void HubHandler()
         {
-            SceneHandler.LoadHub();
+            UIManager.Instance.Get().LoadHUB();
         }
 
         private void RetryLevelHandler()
         {
-            SceneHandler.ReloadCurrent();
+            UIManager.Instance.Get().Restart();
         }
 
         private void OnLoadNextHandler()
         {
-            var sceneCount = SceneHandler.GetSceneCount();
-            var currentIndex = SceneHandler.GetCurrentSceneIndex();
-
-            var sceneToLoad = SceneHandler.HubIndex;
-            
-            if (currentIndex < sceneCount - 1)
-            {
-                sceneToLoad = currentIndex + 1;
-            }
-
-            SceneHandler.LoadSceneAsync(sceneToLoad);
+            // ToDo: make a LevelWon variant screen for when finishing all levels
+            GlobalLevelManager.LoadNextLevelAsync();
         }
 
         private void CheckTime(in LevelWonModel model)
         {
-            if (model.LevelWon) return;
+            continueButton.interactable = model.LevelWon;
             
-            continueButton.interactable = false;
+            EventSystem.current.SetSelectedGameObject(null);
+            // ToDo: Check if the player is playing with a game pad.
+            //EventSystem.current.SetSelectedGameObject(model.LevelWon ? continueButton.gameObject : retryButton.gameObject);
         }
         
         private void SetModelValues(in LevelWonModel model)
         {
             var data = SaveSystem.LoadGame();
-            var endTime = LevelManager.LevelCompleteTime();
-            data.CheckBestTime(CurrentLevel, endTime, out var prevBest, out var currBest, out var newRecord);
+            var endTime = GlobalLevelManager.CompleteTime;
+            var id = GlobalLevelManager.GetID();
+            
+            data.CheckBestTime(id, endTime, out var prevBest, out var currBest, out var newRecord);
 
-            var bronze = LevelManager.GetMedalInfo(MedalType.Bronze);
-            var silver = LevelManager.GetMedalInfo(MedalType.Silver);
-            var gold = LevelManager.GetMedalInfo(MedalType.Gold);
+            var bronze = GlobalLevelManager.GetMedalInfo(MedalType.Bronze);
+            var silver = GlobalLevelManager.GetMedalInfo(MedalType.Silver);
+            var gold = GlobalLevelManager.GetMedalInfo(MedalType.Gold);
 
             model.Initialize(endTime, currBest, newRecord, bronze, silver, gold);
         }
@@ -111,7 +115,7 @@ namespace Game.UI.Screens
         
         private void SaveUnlockedMedals(in LevelWonModel model, ref SaveData data)
         {
-            var levelID = LevelManager.GetLevelID();
+            var levelID = GlobalLevelManager.GetID();
             
             if (model.IsMedalUnlocked(MedalType.Bronze)) data.UnlockMedal(levelID, MedalType.Bronze);
             if (model.IsMedalUnlocked(MedalType.Silver)) data.UnlockMedal(levelID, MedalType.Silver);
@@ -122,12 +126,19 @@ namespace Game.UI.Screens
         {
             if (model.NewRecord)
             {
-                data.SetNewBestTime(CurrentLevel, model.BestTime);
+                data.SetNewBestTime(GlobalLevelManager.GetID(), model.BestTime);
             }
         }
 
         public override void Dispose()
         {
+            if (_loadingObserver != null)
+            {
+                _loadingObserver.Dispose();
+                GameEntry.LoadingState.DetachOnLoading(_loadingObserver);
+            }
+            
+            
             continueButton.onClick.RemoveAllListeners();
             retryButton.onClick.RemoveAllListeners();
             hubButton.onClick.RemoveAllListeners();

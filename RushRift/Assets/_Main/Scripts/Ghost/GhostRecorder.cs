@@ -5,15 +5,12 @@ using Game;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Game.DesignPatterns.Observers;
+using Game.Entities;
 using MyTools.Global;
 
 [DisallowMultipleComponent]
 public class GhostRecorder : MonoBehaviour
 {
-    [Header("Target")]
-    [SerializeField, Tooltip("Transform to record. If null, tries to find an object tagged Player.")]
-    private Transform targetToRecord;
-
     [Header("Recording")]
     [SerializeField, Tooltip("Begin recording automatically on OnEnable.")]
     private bool startRecordingOnEnable = true;
@@ -39,8 +36,6 @@ public class GhostRecorder : MonoBehaviour
     private string fileNamePattern = "level_{LEVEL}.ghost.json";
 
     [Header("Debug")]
-    [SerializeField, Tooltip("If enabled, prints detailed logs.")]
-    private bool isDebugLoggingEnabled = false;
     [SerializeField, Tooltip("Draw gizmos for a portion of the recorded path.")]
     private bool drawGizmos = true;
     [SerializeField, Tooltip("How many recent segments to draw with gizmos.")]
@@ -70,12 +65,13 @@ public class GhostRecorder : MonoBehaviour
     private float lastFrameTime;
     private Vector3 lastPos;
     private Quaternion lastRot;
-    private IObserver winObserver;
+    private ActionObserver<bool> winObserver;
     private int levelIndex;
 
     // Read gizmo fields once so they count as "used" in builds
     private bool _suppressBuildWarnings;
     private NullCheck<ActionObserver<bool>> _onPause;
+    private NullCheck<Transform> _target;
 
     private void Awake()
     {
@@ -87,26 +83,24 @@ public class GhostRecorder : MonoBehaviour
         _suppressBuildWarnings |= drawGizmos && gizmoSegments >= 0;
 
         levelIndex = SceneManager.GetActiveScene().buildIndex;
-
-        if (!targetToRecord)
-        {
-            var tagged = GameObject.FindGameObjectWithTag("Player");
-            if (tagged) targetToRecord = tagged.transform;
-        }
-
-        winObserver = new ActionObserver(OnLevelWon);
         
-
-        if (startRecordingOnEnable) StartRecording();
-        Log("Recorder Awake");
+        winObserver = new ActionObserver<bool>(OnGameOverHandler);
+        GlobalEvents.GameOver.Attach(winObserver);
     }
 
     private void Start()
     {
-        if (LevelManager.TryGetLevelWon(out var subject))
+        if (PlayerSpawner.Player.TryGet(out var player))
         {
-            subject.Attach(winObserver);
+            _target = player.transform;
         }
+        
+        if (startRecordingOnEnable) StartRecording();
+    }
+    
+    private void OnPlayerSetHandler(PlayerController player)
+    {
+        _target = player.transform;
     }
 
     private void OnEnable()
@@ -117,6 +111,8 @@ public class GhostRecorder : MonoBehaviour
         }
                 
         PauseHandler.Attach(_onPause.Get());
+        
+        OnPauseChanged(PauseHandler.IsPaused);
 
         if (startRecordingOnEnable && !isRecording) StartRecording();
     }
@@ -136,10 +132,7 @@ public class GhostRecorder : MonoBehaviour
         StopRecording();
         if (winObserver != null)
         {
-            if (LevelManager.TryGetLevelWon(out var subject))
-            {
-                subject.Attach(winObserver);
-            }
+            GlobalEvents.GameOver.Detach(winObserver);
             
             winObserver.Dispose();
             winObserver = null;
@@ -160,12 +153,12 @@ public class GhostRecorder : MonoBehaviour
     {
         if (!obeyPauseEvents) return;
         pauseGate = paused;
-        Log(paused ? "Recording paused" : "Recording resumed");
+        //Log(paused ? "Recording paused" : "Recording resumed");
     }
 
     public void StartRecording()
     {
-        if (!targetToRecord) return;
+        if (!_target.TryGet(out var target)) return;
         currentRun = new GhostRunData
         {
             levelIndex = levelIndex,
@@ -175,22 +168,22 @@ public class GhostRecorder : MonoBehaviour
         };
         isRecording = true;
         lastFrameTime = 0f;
-        lastPos = targetToRecord.position;
-        lastRot = targetToRecord.rotation;
+        lastPos = target.position;
+        lastRot = target.rotation;
         PushFrame(0f, lastPos, lastRot);
-        Log("Recording started");
+        //Log("Recording started");
     }
 
     public void StopRecording()
     {
         if (!isRecording) return;
         isRecording = false;
-        Log("Recording stopped");
+        //Log("Recording stopped");
     }
 
     private void TickRecord(float dt)
     {
-        if (!isRecording || !targetToRecord) return;
+        if (!isRecording || !_target.TryGet(out var target)) return;
         if (obeyPauseEvents && (pauseGate || PauseHandler.IsPaused)) return;
 
         currentRun.durationSeconds += dt;
@@ -198,8 +191,8 @@ public class GhostRecorder : MonoBehaviour
 
         if (t - lastFrameTime < minFrameIntervalSeconds) return;
 
-        Vector3 p = targetToRecord.position;
-        Quaternion r = targetToRecord.rotation;
+        Vector3 p = target.position;
+        Quaternion r = target.rotation;
 
         if (Vector3.SqrMagnitude(p - lastPos) < minPositionDeltaMeters * minPositionDeltaMeters &&
             Quaternion.Angle(r, lastRot) < minRotationDeltaDegrees)
@@ -218,12 +211,14 @@ public class GhostRecorder : MonoBehaviour
             currentRun.frames.RemoveAt(0);
     }
 
-    private void OnLevelWon()
+    private void OnGameOverHandler(bool levelWon)
     {
+        if (!levelWon) return;
+        
         float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
         if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
         {
-            Log($"Skip save: invalid run (t={measuredDuration:0.###}s, frames={currentRun?.frames?.Count ?? 0})");
+            //Log($"Skip save: invalid run (t={measuredDuration:0.###}s, frames={currentRun?.frames?.Count ?? 0})");
             StopRecording();
             return;
         }
@@ -238,23 +233,23 @@ public class GhostRecorder : MonoBehaviour
                 if (measuredDuration + Epsilon < existing.durationSeconds)
                 {
                     AtomicSave(currentRun, path);
-                    Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev {existing.durationSeconds:0.###}s)");
+                    //Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev {existing.durationSeconds:0.###}s)");
                 }
                 else
                 {
-                    Log($"Kept previous BEST ({existing.durationSeconds:0.###}s) → {path}");
+                    //Log($"Kept previous BEST ({existing.durationSeconds:0.###}s) → {path}");
                 }
             }
             else
             {
                 AtomicSave(currentRun, path);
-                Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev invalid)");
+                //Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev invalid)");
             }
         }
         else
         {
             AtomicSave(currentRun, path);
-            Log($"Saved FIRST BEST ({measuredDuration:0.###}s) → {path}");
+            //Log($"Saved FIRST BEST ({measuredDuration:0.###}s) → {path}");
         }
 
         StopRecording();
@@ -314,12 +309,7 @@ public class GhostRecorder : MonoBehaviour
         data = null;
         return false;
     }
-
-    private void Log(string msg)
-    {
-        if (!isDebugLoggingEnabled) return;
-        this.Log($"{name}: {msg}", LogType.Log);
-    }
+    
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

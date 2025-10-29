@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Game.Inputs;
+using Game.InputSystem;
 
 namespace Game
 {

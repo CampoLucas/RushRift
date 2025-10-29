@@ -1,6 +1,6 @@
 namespace Game.Entities.Components
 {
-    public class EnergyComponent : Attribute<EnergyComponentData, EnergyComponent>
+    public sealed class EnergyComponent : Attribute<EnergyComponentData, EnergyComponent>
     {
         private float _extraTimer;
         
@@ -28,6 +28,12 @@ namespace Game.Entities.Components
         {
             base.OnDecrease(previousValue);
             if (Value <= 0) _extraTimer = Data.ExtraTime;
+        }
+
+        protected override void Reset()
+        {
+            _extraTimer = 0;
+            base.Reset();
         }
     }
 }

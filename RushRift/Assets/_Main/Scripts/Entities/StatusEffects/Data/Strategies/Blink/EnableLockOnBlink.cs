@@ -12,13 +12,13 @@ namespace Game.Entities.Upgrades
 
         public override void StartEffect(IController controller)
         {
-            LevelManager.CanUseLockOnBlink = true;
+            GlobalLevelManager.SetBlink(true);
             if (isDebugLoggingEnabled) Debug.Log("[EnableLockOnBlink] StartEffect", this);
         }
 
         public override void StopEffect(IController controller)
         {
-            LevelManager.CanUseLockOnBlink = false;
+            GlobalLevelManager.SetBlink(false);
             if (isDebugLoggingEnabled) Debug.Log("[EnableLockOnBlink] StopEffect", this);
         }
     }

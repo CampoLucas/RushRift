@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class LaserComponent : IEntityComponent
+    public sealed class LaserComponent : EntityComponent
     {
         public ISubject<Vector3> SetLengthSubject { get; private set; } = new Subject<Vector3>();
         public ISubject<Vector3> OnActivateSubject { get; private set; } = new Subject<Vector3>();
@@ -89,7 +89,7 @@ namespace Game.Entities.Components
             }
         }
         
-        public bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out IObserver<float> observer)
         {
             if (_disposed)
             {
@@ -102,20 +102,8 @@ namespace Game.Entities.Components
 
             return observer != null;
         }
-
-        public bool TryGetLateUpdate(out IObserver<float> observer)
-        {
-            observer = null;
-            return false;
-        }
-
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
-        {
-            observer = null;
-            return false;
-        }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
             _disposed = true;
             _updateObserver?.Dispose();
@@ -139,17 +127,12 @@ namespace Game.Entities.Components
             OnDeactivateSubject = null;
         }
 
-        public void OnDraw(Transform origin)
+        public override void OnDraw(Transform origin)
         {
             if (_detection == null) return;
 
             var color = _detection.IsOverlapping ? Color.green : _isBlocked ? Color.magenta : Color.red;
             _detection.Draw(origin, color);
-        }
-
-        public void OnDrawSelected(Transform origin)
-        {
-            
         }
 
         public void TurnOn()

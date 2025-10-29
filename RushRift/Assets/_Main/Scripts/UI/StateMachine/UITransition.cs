@@ -73,7 +73,10 @@ namespace Game.UI.Screens
             switch (_sceneTransition)
             {
                 case SceneTransition.Current:
-                    SceneHandler.ReloadCurrent();
+                    if (UIManager.Instance)
+                    {
+                        UIManager.Instance.Get().Restart();
+                    }
                     break;
                 case SceneTransition.Next:
                     SceneHandler.LoadScene(SceneHandler.GetCurrentSceneIndex() + 1);
@@ -88,7 +91,10 @@ namespace Game.UI.Screens
                     SceneHandler.LoadScene(0);
                     break;
                 case SceneTransition.HUB:
-                    SceneHandler.LoadHub();
+                    if (UIManager.Instance)
+                    {
+                        UIManager.Instance.Get().LoadHUB();
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -5,7 +5,7 @@ using Game.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Game.Inputs
+namespace Game.InputSystem
 {
     public class InputManager : MonoBehaviour
     {
@@ -21,7 +21,8 @@ namespace Game.Inputs
         public static HashedKey SecondaryAttackInput { get; private set; }
         public static HashedKey PauseInput { get; private set; }
         public static HashedKey MousePosition { get; private set; }
-        
+        public static HashedKey ResetInput { get; set; }
+
         private static InputManager _instance;
         private Dictionary<HashedKey, InputButton> _buttonsDict = new();
         private Dictionary<HashedKey, InputValue<Vector2>> _valuesDict = new();
@@ -64,8 +65,8 @@ namespace Game.Inputs
         {
             if (_playerControls == null) return;
             _playerControls.Disable();
-            CursorHandler.lockState = CursorLockMode.None;
-            CursorHandler.visible = true;
+            // CursorHandler.lockState = CursorLockMode.None;
+            // CursorHandler.visible = true;
         }
 
         private void OnEnable()
@@ -129,6 +130,7 @@ namespace Game.Inputs
             LookInput = new HashedKey("look");
             InteractInput = new HashedKey("interact");
             JumpInput = new HashedKey("jump");
+            ResetInput = new HashedKey("reset");
             PrimaryAttackInput = new HashedKey("primary");
             PrimaryAttackTapInput = new HashedKey("light");
             PrimaryAttackHoldInput = new HashedKey("heavy");
@@ -142,6 +144,7 @@ namespace Game.Inputs
             
             AddActionInput(InteractInput, InteractAction, InteractActionStarted, InteractActionCanceled);
             AddActionInput(JumpInput, JumpAction, JumpActionStarted, JumpActionCanceled);
+            AddActionInput(ResetInput, ResetAction, ResetActionStarted, ResetActionCanceled);
             AddActionInput(PrimaryAttackTapInput, PrimaryAttackTap, PrimaryAttackTapStarted, PrimaryAttackTapCanceled);
             AddActionInput(PrimaryAttackHoldInput, PrimaryAttackHold, PrimaryAttackHoldStarted, PrimaryAttackHoldCanceled);
             AddActionInput(SecondaryAttackInput, SecondaryAttackAction, SecondaryAttackStarted, SecondaryAttackCanceled);
@@ -149,6 +152,7 @@ namespace Game.Inputs
             
             AddButtonInput(PauseInput, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
             AddButtonInput(JumpInput, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
+            AddButtonInput(ResetInput, () => _playerControls.Gameplay.Reset.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Reset.WasPressedThisFrame(), () => _playerControls.Gameplay.Reset.WasReleasedThisFrame());
         }
 
         #region Add Inputs Methods
@@ -182,6 +186,10 @@ namespace Game.Inputs
         private bool JumpAction() => _playerControls.Gameplay.Jump.triggered;
         private bool JumpActionStarted() => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started;
         private bool JumpActionCanceled() => _playerControls.Gameplay.Jump.phase == InputActionPhase.Canceled;
+        
+        private bool ResetAction() => _playerControls.Gameplay.Reset.triggered;
+        private bool ResetActionStarted() => _playerControls.Gameplay.Reset.phase == InputActionPhase.Started;
+        private bool ResetActionCanceled() => _playerControls.Gameplay.Reset.phase == InputActionPhase.Canceled;
 
         private bool PrimaryAttack() => _playerControls.Gameplay.PrimaryAttack.triggered;
         private bool PrimaryAttackStarted() => _playerControls.Gameplay.PrimaryAttack.phase == InputActionPhase.Started;

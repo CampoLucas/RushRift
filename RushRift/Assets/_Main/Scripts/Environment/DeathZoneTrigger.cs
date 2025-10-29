@@ -7,10 +7,7 @@ public class DeathZoneTrigger : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        if (LevelManager.TryGetGameOver(out var gameOverSubject))
-        {
-            gameOverSubject.NotifyAll(); // Triggers OnPlayerDeath via observer
-        }
+        GlobalEvents.GameOver.NotifyAll(false);
     }
 }
 
