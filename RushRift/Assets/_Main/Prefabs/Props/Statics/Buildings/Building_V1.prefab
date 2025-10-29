@@ -141,8 +141,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 55.31824, y: 210.68773, z: 20.481089}
-  m_Center: {x: -23.34502, y: -0.3255539, z: 24.784641}
+  m_Size: {x: 55.31824, y: 210.68773, z: 20.216173}
+  m_Center: {x: -23.345078, y: -0.3255539, z: 24.391365}
 --- !u!65 &4538533151476072163
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -162,8 +162,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 60.32869, y: 210.71272, z: 18.30832}
-  m_Center: {x: 20.839542, y: -0.31305695, z: -25.871275}
+  m_Size: {x: 59.546326, y: 210.71272, z: 17.392471}
+  m_Center: {x: 20.448402, y: -0.31305695, z: -26.329208}
 --- !u!65 &6080235323293607124
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -183,8 +183,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 13.9101, y: 210.81198, z: 70.04986}
-  m_Center: {x: -1.7926229, y: -0.26342392, z: -0.000011444094}
+  m_Size: {x: 16.472609, y: 210.81198, z: 70.04986}
+  m_Center: {x: -2.456102, y: -0.26342773, z: -0.000011444094}
 --- !u!1 &7699751878521564538
 GameObject:
   m_ObjectHideFlags: 0
@@ -196,7 +196,7 @@ GameObject:
   - component: {fileID: 3759677269708582162}
   - component: {fileID: 1252763425379536281}
   - component: {fileID: 8204573094169916246}
-  - component: {fileID: 8229614650708504445}
+  - component: {fileID: 3450622346613975499}
   m_Layer: 3
   m_Name: WindowsBuilding_V3
   m_TagString: Untagged
@@ -269,8 +269,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8229614650708504445
-BoxCollider:
+--- !u!64 &3450622346613975499
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -286,7 +286,8 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 67.04578, y: 91.23514, z: 92.712746}
-  m_Center: {x: -0.0000019073486, y: 0.0000019073486, z: 0}
+  m_Enabled: 0
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -499390019782911303, guid: cf188ba0037705b468655d2fa2d194d1, type: 3}
