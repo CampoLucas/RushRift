@@ -6,6 +6,7 @@ using Game.Entities.Components;
 using UnityEngine;
 using UnityEngine.VFX;
 using _Main.Scripts.Feedbacks;
+using Game.Entities.Components.MotionController;
 using Game.VFX;
 
 [DisallowMultipleComponent]
@@ -277,8 +278,23 @@ public class ExplosiveBarrel : MonoBehaviour
 
             if (isPlayer)
             {
-                if (agg.Rigidbody)
-                    ApplyJumpPadStyleLaunch(agg.Rigidbody, origin, true, Mathf.Max(0f, scaledPlayerSpeed));
+                // if (agg.Rigidbody)
+                //     ApplyJumpPadStyleLaunch(agg.Rigidbody, origin, true, Mathf.Max(0f, scaledPlayerSpeed));
+                if (agg.Rigidbody && agg.Controller != null)
+                {
+                    var model = agg.Controller.GetModel();
+                    if (model != null && model.TryGetComponent<MotionController>(out var motion))
+                    {
+                        var dir = ComputeLaunchDirection(agg.Rigidbody, origin, true);
+                        motion.ExternalImpulse(dir * scaledPlayerSpeed);
+                    }
+                    else
+                    {
+                        // Fallback: directly modify Rigidbody if no MotionController
+                        ApplyJumpPadStyleLaunch(agg.Rigidbody, origin, true, Mathf.Max(0f, scaledPlayerSpeed));
+                    }
+                }
+
 
                 if (!IsMedalConditionActive())
                     TryDealScaledDamageOrNotify(targetObject, "Player", origin, Mathf.Max(0f, scaledDamage));
