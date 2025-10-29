@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Game.LevelElements.Terminal;
+using Game.LevelElements;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]

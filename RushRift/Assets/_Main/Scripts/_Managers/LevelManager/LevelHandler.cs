@@ -33,7 +33,7 @@ namespace Game
 
         [Header("Spawn")]
         [SerializeField] private Transform spawn;
-#if UNITY_EDITOR
+#if UNITY_EDITOR && DEBUG_SPAWN
         [Tooltip("A spawn that only works on editor, while it has a reference, it will ignore the regular spawn")]
         [SerializeField] private Transform debugSpawn;
 #endif
@@ -43,9 +43,9 @@ namespace Game
         private ActionObserver _halfwayTrigger;
         private ActionObserver _endTrigger;
 
-        private bool _preloadedNext;
-        private bool _completed;
-        public LevelSO CurrentLevelSO => levelConfig;
+        // private bool _preloadedNext;
+        // private bool _completed;
+        // public LevelSO CurrentLevelSO => levelConfig;
 
         private void Awake()
         {
@@ -68,8 +68,8 @@ namespace Game
                 spawner.SetSpawn(Spawn);
             }
             
-            _preloadedNext = false;
-            _completed = false;
+            // _preloadedNext = false;
+            // _completed = false;
 
             _startTrigger = new ActionObserver(OnStartHandler);
             _halfwayTrigger = new ActionObserver(OnHalfwayHandler);

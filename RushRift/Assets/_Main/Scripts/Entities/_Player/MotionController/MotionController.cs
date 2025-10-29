@@ -25,6 +25,9 @@ namespace Game.Entities.Components.MotionController
         // RigidBody values
         private Vector3 _pauseVelocity;
         private RigidbodyConstraints _pauseConstrains;
+        
+        // Impulse
+        private Vector3 _pendingImpulse;
 
         public MotionController(Rigidbody rigidBody, CapsuleCollider collider, Transform orientation, Transform look, MotionConfig[] handlerConfigs)
         {
@@ -134,6 +137,12 @@ namespace Game.Entities.Components.MotionController
             foreach (var t in _handlers)
             {
                 t.OnFixedUpdate(_context, delta);
+            }
+            
+            if (_pendingImpulse.sqrMagnitude > 0.0001f)
+            {
+                _context.AddForce(_pendingImpulse, ForceMode.Impulse);
+                _pendingImpulse = Vector3.zero;
             }
         }
 
@@ -272,6 +281,11 @@ namespace Game.Entities.Components.MotionController
             
             _context.Dash = true;
             return true;
+        }
+
+        public void ExternalImpulse(Vector3 dir)
+        {
+            _pendingImpulse += dir;
         }
     }
 }

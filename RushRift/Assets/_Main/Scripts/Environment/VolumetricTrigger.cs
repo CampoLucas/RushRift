@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
-using Game.LevelElements.Terminal;
+using Game.LevelElements;
 using UnityEngine;
 
 [DisallowMultipleComponent]

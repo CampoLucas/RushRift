@@ -1,4 +1,4 @@
-using Game.LevelElements.Terminal;
+using Game.LevelElements;
 using UnityEngine;
 using System.Collections.Generic;
 using Game;

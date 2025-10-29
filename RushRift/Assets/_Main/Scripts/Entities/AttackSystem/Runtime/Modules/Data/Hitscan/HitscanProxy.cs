@@ -6,7 +6,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using Game.Detection;
-using Game.LevelElements.Terminal;
+using Game.LevelElements;
 using Unity.VisualScripting;
 using Object = UnityEngine.Object;
 
