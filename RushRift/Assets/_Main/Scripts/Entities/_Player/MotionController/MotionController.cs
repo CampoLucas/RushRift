@@ -9,6 +9,8 @@ namespace Game.Entities.Components.MotionController
 {
     public sealed class MotionController : EntityComponent
     {
+        public MotionContext Context => _context;
+        
         private NullCheck<Rigidbody> _rb;
         private MotionContext _context;
         private List<BaseMotionHandler> _handlers = new();
