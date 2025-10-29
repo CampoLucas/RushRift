@@ -300,7 +300,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""id"": ""5516fc4b-399d-48ac-9df6-81b62ce85f0a"",
                     ""path"": ""2DVector"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""ScaleVector2(x=20,y=20)"",
                     ""groups"": """",
                     ""action"": ""Look"",
                     ""isComposite"": true,
