@@ -45,6 +45,7 @@ namespace Game.Entities.AttackSystem
         {
             var data = Data.PData;
             
+            AudioManager.Play("TurretFire");
             FireForwarlly(spawnPos, rotation, Data.Offset, Data.Amount, Data.Spacing * data.Size, Data.ForwardOffset, data, thrower, _pool);
         }
         
