@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Game.Entities;
 using Game.Entities.Components.MotionController;
+using Game.Utils;
 using UnityEngine;
 
 namespace Game.LevelElements
@@ -102,6 +103,10 @@ namespace Game.LevelElements
 
             if (model.TryGetComponent<MotionController>(out var motion))
             {
+                if (other.gameObject.TryGetComponent(out Rigidbody rb))
+                {
+                    rb.velocity = rb.velocity.XOZ();
+                }
                 motion.ExternalImpulse(FinalDir() * force);
             }
             
