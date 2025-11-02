@@ -43,6 +43,12 @@ namespace Game.Entities
         {
             base.Start();
 
+            //StartCoroutine(Database.SendUsernameCoroutine("jorgito", OnReceivedId));
+
+            //StartCoroutine(Database.SendScoreCoroutine(1, 1, "00:49:00", 1, 1, 1));
+
+            StartCoroutine(Database.GetScoreCoroutine(1, OnReceivedScore));
+
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
                 healthComponent.OnValueChanged.Attach(_onDamage);
@@ -57,6 +63,8 @@ namespace Game.Entities
                 effect.ApplyEffect(this);
             }
         }
+
+        
 
         protected override void SetJoins()
         {
@@ -160,7 +168,22 @@ namespace Game.Entities
         public override Vector3 MoveDirection() =>
             _moveDir;
         
-        
+        private void OnReceivedId(int value)
+        {
+            var save = SaveSystem.LoadGame();
+            save.SetUserId(value);
+            save.SaveGame();
+            Debug.Log("Mi id es_" + save.GetUserId());
+        }
+
+        private void OnReceivedScore(Database.ScoreList scoreList)
+        {
+            foreach (Database.ScoreData score in scoreList.scores)
+            {
+                Debug.Log($"User: {score.name}, Nivel: {score.id_level}, Tiempo: {score.timescore}");
+            }
+        }
+
         private void OnDamageHandler(float previousValue, float newValue, float delta)
         {
             if (newValue >= previousValue) return;

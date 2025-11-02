@@ -17,8 +17,9 @@ namespace Game.Saves
     {
         public string LastScene => _lastScene;
         public int lastSceneIndex => _lastSceneIndex;
-
-
+        
+        private int id;
+        private string userName;
         private string _lastScene;
         private int _lastSceneIndex;
 
@@ -43,6 +44,25 @@ namespace Game.Saves
         public SaveData()
         {
             Version = Application.version;
+        }
+
+        public void SetUsername(string userName)
+        {
+            this.userName = userName;
+        }
+
+        public void SetUserId(int id)
+        {
+            this.id = id;
+        }
+
+        public int GetUserId()
+        {
+            return id;
+        }
+        public string GetUsername()
+        {
+            return userName;
         }
 
         public void CheckBestTime(int level, float currTime, out float prevBest, out float currBest, out bool newRecord)

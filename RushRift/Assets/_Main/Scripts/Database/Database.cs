@@ -1,20 +1,78 @@
 using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine;
+using System;
 
-public  class Database : MonoBehaviour
+public static class Database 
 {
-    private void Awake()
+    //private void Awake()
+    //{
+    //    SendScore(1,1,"00:30:00", 0, 0, 0);
+    //}
+
+    //public static void SendScore(int user, int level, string time, int a1, int a2, int a3)
+    //{
+    //    StartCoroutine(SendScoreCoroutine(user, level, time, a1, a2, a3));
+    //}
+
+    [System.Serializable]
+    public class ScoreData
     {
-        SendScore(2,2,"00:50:00", 0, 0, 0);
+        public string name;
+        public int id_level;
+        public string timescore;
+        public int abilities_1;
+        public int abilities_2;
+        public int abilities_3;
     }
 
-    public void SendScore(int user, int level, string time, int a1, int a2, int a3)
+    [System.Serializable]
+    public class ScoreList
     {
-        StartCoroutine(SendScoreCoroutine(user, level, time, a1, a2, a3));
+        public ScoreData[] scores;
     }
 
-    private IEnumerator SendScoreCoroutine(int user, int level, string time, int a1, int a2, int a3)
+    public class ResponseData
+    {
+        public string status;
+        public int id;
+        public string message;
+        public string name;
+    }
+
+    public static IEnumerator SendUsernameCoroutine(string user, Action<int> callback)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("name", user);
+
+        using (UnityWebRequest www = UnityWebRequest.Post("http://localhost/api/save_username.php", form))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                // Parsear JSON
+                string json = www.downloadHandler.text;
+                ResponseData response = JsonUtility.FromJson<ResponseData>(json);
+
+                if (response.status == "success")
+                {
+                    Debug.Log("Username enviado correctamente. ID: " + response.id + response.name);
+                    callback?.Invoke(response.id);
+                }
+                else
+                {
+                    Debug.LogError("Error al guardar: " + response.message);
+                }
+            }
+            else
+            {
+                Debug.LogError("Error al enviar el username: " + www.error);
+            }
+        }
+    }
+
+    public static IEnumerator SendScoreCoroutine(int user, int level, string time, int a1, int a2, int a3)
     {
         WWWForm form = new WWWForm();
         form.AddField("user", user);
@@ -34,6 +92,25 @@ public  class Database : MonoBehaviour
         else
         {
             Debug.LogError(" Error al enviar score: " + www.error);
+        }
+    }
+
+
+    public static IEnumerator GetScoreCoroutine(int level, Action<ScoreList> callback)
+    {
+        UnityWebRequest www = UnityWebRequest.Get($"http://localhost/api/get_scores.php?level= {level}");
+        yield return www.SendWebRequest();
+
+        if (www.result == UnityWebRequest.Result.Success)
+        {
+            string json = www.downloadHandler.text;
+            Debug.Log("Datos recibidos: " + json);
+
+
+            string wrappedJson = "{\"scores\":" + json + "}";
+            ScoreList scoreList = JsonUtility.FromJson<ScoreList>(wrappedJson);
+
+            callback?.Invoke(scoreList);
         }
     }
 }
