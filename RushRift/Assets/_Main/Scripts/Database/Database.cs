@@ -3,8 +3,35 @@ using UnityEngine.Networking;
 using UnityEngine;
 using System;
 
-public static class Database 
+
+[System.Serializable]
+public class ScoreData
 {
+    public string name;
+    public int id_level;
+    public string timescore;
+    public int abilities_1;
+    public int abilities_2;
+    public int abilities_3;
+}
+
+[System.Serializable]
+public class ScoreList
+{
+    public ScoreData[] scores;
+}
+
+public class ResponseData
+{
+    public string status;
+    public int id;
+    public string message;
+    public string name;
+}
+
+public static class Database
+{
+    private static string serverIp = "[2802:8010:8b2a:901:4194:aefe:3e8d:fc95]";
     //private void Awake()
     //{
     //    SendScore(1,1,"00:30:00", 0, 0, 0);
@@ -15,37 +42,14 @@ public static class Database
     //    StartCoroutine(SendScoreCoroutine(user, level, time, a1, a2, a3));
     //}
 
-    [System.Serializable]
-    public class ScoreData
-    {
-        public string name;
-        public int id_level;
-        public string timescore;
-        public int abilities_1;
-        public int abilities_2;
-        public int abilities_3;
-    }
-
-    [System.Serializable]
-    public class ScoreList
-    {
-        public ScoreData[] scores;
-    }
-
-    public class ResponseData
-    {
-        public string status;
-        public int id;
-        public string message;
-        public string name;
-    }
+    
 
     public static IEnumerator SendUsernameCoroutine(string user, Action<int> callback)
     {
         WWWForm form = new WWWForm();
         form.AddField("name", user);
 
-        using (UnityWebRequest www = UnityWebRequest.Post("http://localhost/api/save_username.php", form))
+        using (UnityWebRequest www = UnityWebRequest.Post($"http://{serverIp}/api/save_username.php", form))
         {
             yield return www.SendWebRequest();
 
@@ -82,7 +86,7 @@ public static class Database
         form.AddField("a2", a2);
         form.AddField("a3", a3);
 
-        UnityWebRequest www = UnityWebRequest.Post("http://localhost/api/save_score.php", form);
+        UnityWebRequest www = UnityWebRequest.Post($"http://{serverIp}/api/save_score.php", form);
         yield return www.SendWebRequest();
 
         if (www.result == UnityWebRequest.Result.Success)
@@ -98,7 +102,7 @@ public static class Database
 
     public static IEnumerator GetScoreCoroutine(int level, Action<ScoreList> callback)
     {
-        UnityWebRequest www = UnityWebRequest.Get($"http://localhost/api/get_scores.php?level= {level}");
+        UnityWebRequest www = UnityWebRequest.Get($"http://{serverIp}/api/get_scores.php?level= {level}");
         yield return www.SendWebRequest();
 
         if (www.result == UnityWebRequest.Result.Success)
@@ -114,4 +118,6 @@ public static class Database
         }
     }
 }
+
+
 

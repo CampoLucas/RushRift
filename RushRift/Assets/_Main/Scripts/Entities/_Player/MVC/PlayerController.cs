@@ -42,10 +42,9 @@ namespace Game.Entities
         protected override void Start()
         {
             base.Start();
+            StartCoroutine(Database.SendUsernameCoroutine("cosme", OnReceivedId));
 
-            //StartCoroutine(Database.SendUsernameCoroutine("jorgito", OnReceivedId));
-
-            //StartCoroutine(Database.SendScoreCoroutine(1, 1, "00:49:00", 1, 1, 1));
+            StartCoroutine(Database.SendScoreCoroutine(7, 1, "00:11:00", 1, 1, 1));
 
             StartCoroutine(Database.GetScoreCoroutine(1, OnReceivedScore));
 
@@ -176,9 +175,9 @@ namespace Game.Entities
             Debug.Log("Mi id es_" + save.GetUserId());
         }
 
-        private void OnReceivedScore(Database.ScoreList scoreList)
+        private void OnReceivedScore(ScoreList scoreList)
         {
-            foreach (Database.ScoreData score in scoreList.scores)
+            foreach (ScoreData score in scoreList.scores)
             {
                 Debug.Log($"User: {score.name}, Nivel: {score.id_level}, Tiempo: {score.timescore}");
             }
