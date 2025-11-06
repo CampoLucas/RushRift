@@ -7,13 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Custom_URP_TileArray_Unlit_Rot_Brightness
-  m_Shader: {fileID: 4800000, guid: 13663c51d855d5b468654d084ddf9e8d, type: 3}
+  m_Name: M_URP_Lit_RandomTile
+  m_Shader: {fileID: 4800000, guid: ba72ef7dbc7d42445b54c3048b5ea0d1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
-  - _ALPHACLIP_ON
   - _APPLYFOG_ON
   - _USERANDOMROTATIONPERTILE_ON
   - _USERANDOMSLICEPERTILE_ON
@@ -33,22 +32,23 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaClip: 1
+    - _AlphaClip: 0
     - _ApplyFog: 1
-    - _BrightnessVariance: 0.083
-    - _ColorSpaceComp: 2
+    - _BrightnessVariance: 0.2
+    - _ColorSpaceComp: 0
     - _Cutoff: 0.5
     - _ManualRotationQuarterTurns: 0
     - _ManualSliceIndex: 0
+    - _Metallic: 0.2
+    - _Occlusion: 1
     - _Seed: 1234
-    - _SliceCount: 6
-    - _Smoothness: 0.07
-    - _SpecularStrength: 0
-    - _TileInsetTexels: 1.5
+    - _SliceCount: 8
+    - _Smoothness: 0.2
+    - _TileInsetTexels: 0.5
     - _UseRandomRotationPerTile: 1
     - _UseRandomSlicePerTile: 1
     m_Colors:
-    - _BaseColor: {r: 0.5169811, g: 0.5169811, b: 0.5169811, a: 1}
-    - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0.010914873, g: 0.011117792, b: 0.01132071, a: 0}
     - _Tiling: {r: 0.25, g: 0.25, b: 0.25, a: 0}
   m_BuildTextureStacks: []
