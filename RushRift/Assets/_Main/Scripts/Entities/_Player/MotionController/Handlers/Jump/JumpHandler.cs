@@ -32,21 +32,37 @@ namespace Game.Entities.Components.MotionController
         public override void OnFixedUpdate(in MotionContext context, in float delta)
         {
             base.OnFixedUpdate(in context, in delta);
+
+            var jumpRequested = context.Jump;
+            var grounded = context.Grounded;
             
-            if (context.Grounded && _readyToJump && context.Jump) Jump(context, delta);
+            // Jump buffer
+            if (grounded && !jumpRequested)
+            {
+                jumpRequested = (Time.time - context.JumpInputTime) <= Config.JumpBufferTime;
+            }
+            
+            // Coyote time
+            var canCoyoteJump = !grounded && (Time.time - context.StopGroundedTime) <= Config.CoyoteTime;
+            
+            if ((grounded || canCoyoteJump) && _readyToJump && jumpRequested)
+            {
+                Jump(context, delta);
+            }
         }
 
         private void Jump(in MotionContext context, in float delta)
         {
             _readyToJump = false;
             _timer = Config.Cooldown;
+            context.LastJumpTime = Time.time;
             
             AudioManager.Play("Jump");
 
             var velocity = context.Velocity;
             
             //context.Velocity = Vector3.zero;
-            //context.Velocity = context.Velocity.XOZ(); // Clear vertical velocity before jump
+            context.Velocity = context.Velocity.XOZ(); // Clear vertical velocity before jump
             
             // Add jump forces
             // var inputDir = Config.InputInfluence > 0 ? Camera.main ?

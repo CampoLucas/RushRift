@@ -39,6 +39,19 @@ namespace Game.Entities.Components.MotionController
             }
         }
         
+        /// <summary>
+        /// Time when the player left the ground
+        /// </summary>
+        public float StopGroundedTime { get; set; }
+        /// <summary>
+        /// Time when the player last pressed jump
+        /// </summary>
+        public float JumpInputTime { get; set; }
+        /// <summary>
+        /// Time when jump actually happened
+        /// </summary>
+        public float LastJumpTime { get; set; }
+        
 
         #endregion
         
