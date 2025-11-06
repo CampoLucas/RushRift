@@ -115,5 +115,5 @@ namespace _Main.Scripts.Ghost
             );
         }
     }
-#endif
 }
+#endif
