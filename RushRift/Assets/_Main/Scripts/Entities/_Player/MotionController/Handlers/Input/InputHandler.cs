@@ -16,6 +16,11 @@ namespace Game.Entities.Components.MotionController
         {
             context.MoveDirection = InputManager.GetValueVector(InputManager.MoveInput).XOZ();
             context.Jump = InputManager.OnButtonDown(InputManager.JumpInput);
+
+            if (context.Jump)
+            {
+                context.JumpInputTime = Time.time;
+            }
             //context.Dash = InputManager.GetActionPerformed(InputManager.SecondaryAttackInput);
 
             var lookRot = context.Look.localRotation.eulerAngles;
