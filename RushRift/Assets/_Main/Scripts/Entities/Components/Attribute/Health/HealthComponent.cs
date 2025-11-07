@@ -1,12 +1,15 @@
+using System;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Game.Entities.Components
 {
-    public class HealthComponent : Attribute<HealthComponentData, HealthComponent>
+    public sealed class HealthComponent : Attribute<HealthComponentData, HealthComponent>
     {
         public Vector3 DamagePosition { get; private set; }
-        
+        //public ISubject OnHealthChanged { get; private set; } = new Subject();
+
         private bool _damaged;
         private float _healthLost;
 
@@ -23,7 +26,6 @@ namespace Game.Entities.Components
 
         public bool IsAlive() => !IsEmpty();
         public bool Damaged() => _damaged;
-        public float HealthLost() => _healthLost;
 
         public void Damage(float amount/*, DamageType dmgType*/, Vector3 position)
         {
@@ -35,16 +37,16 @@ namespace Game.Entities.Components
             
             base.Decrease(amount);
         }
-        
+
+        public void Intakill(Vector3 position)
+        {
+            Damage(Value, position);
+        }
+
         protected override void OnDecrease(float previousValue)
         {
             _damaged = true;
             _healthLost = Value - previousValue;
-        }
-
-        public override void OnDraw(Transform origin)
-        {
-            
         }
     }
 }

@@ -5,6 +5,11 @@ namespace Game.Utils
     public static class VectorUtils
     {
         public static Vector3 XOZ(this Vector2 target) => new Vector3(target.x, 0, target.y);
+        public static Vector3 XOZ(this Vector2 target, bool normalized) => target.XOZ().normalized;
+        public static Vector3 XOZ(this Vector3 target) => new Vector3(target.x, 0, target.z);
+        public static Vector3 XOZ(this Vector3 target, bool normalized) => target.XOZ().normalized;
+        public static Vector3 XOZ(this Vector3 target, float yValue) => new Vector3(target.x, yValue, target.z);
+        public static Vector3 XOZ(this Vector3 target, float yValue, bool normalized) => target.XOZ(yValue).normalized;
 
         public static Vector3 TransformOffset(this Vector3 target, Transform origin)
         {

@@ -11,9 +11,11 @@ namespace Game.Entities.AttackSystem.Hitscan
         
         public bool AddSpread => addSpread;
         public float Spread => spread;
-        public LayerMask Mask => mask;
+        public LayerMask GroundMask => groundMask;
+        public LayerMask EntityMask => entityMask;
         public ParticleSystem Muzzle => muzzleEffect;
-        public ParticleSystem Impact => impactEffect;
+        public VFXPrefabID ImpactID => impactEffectID;
+        public float ImpactSize => impactSize;
         public ElectricArcController Line => line;
         public float LineDuration => lineDuration;
         public float Damage => damage;
@@ -21,9 +23,13 @@ namespace Game.Entities.AttackSystem.Hitscan
         public EntityJoint SpawnJoint => spawnJoint;
         public EntityJoint OriginJoint => originJoint;
         public Vector3 Offset => offset;
+        public bool UseSFX => useSFX;
+        public string SFXName => sfxName;
+        public bool CanUseTerminals => canUseTerminals;
 
         [Header("Settings")]
         [SerializeField] private float damage = 10;
+        [SerializeField] private bool canUseTerminals = false;
         
         [Header("Spawn")]
         [SerializeField] private Vector3 offset;
@@ -37,16 +43,25 @@ namespace Game.Entities.AttackSystem.Hitscan
         [SerializeField] private bool addSpread = true;
         [SerializeField] private float spread = .1f;
 
+        [FormerlySerializedAs("mask")]
         [Header("Collision")]
-        [SerializeField] private LayerMask mask;
+        [SerializeField] private LayerMask groundMask;
+        [SerializeField] private LayerMask entityMask;
         [SerializeField] private float radius = .5f;
 
         [Header("Visuals")]
         [SerializeField] private ParticleSystem muzzleEffect;
-        [SerializeField] private ParticleSystem impactEffect;
+        
+        [SerializeField] private VFXPrefabID impactEffectID = VFXPrefabID.HitImpact;
+        [SerializeField] private float impactSize = 1;
+        
         [Header("Line")]
         [SerializeField] private ElectricArcController line;
         [SerializeField] private float lineDuration;
+
+        [Header("SFX")]
+        [SerializeField] private bool useSFX;
+        [SerializeField] private string sfxName;
         
         
         public override IModuleProxy GetProxy(IController controller, bool disposeData = false)
@@ -67,18 +82,22 @@ namespace Game.Entities.AttackSystem.Hitscan
         {
             var direction = forward;
             
-            if (Physics.Raycast(eyesPos, forward, out var hit, Range, Mask))
+            if (Physics.Raycast(eyesPos, forward, out var hit, Range, GroundMask))
             {
                 direction = (hit.point - spawnPos).normalized;
             }
 
             if (AddSpread)
             {
-                direction += Vector3.one * Random.Range(-Spread, Spread);
-                direction.Normalize();
+                // Get a random point in a unit circle
+                var spread = Random.insideUnitCircle * Spread;
+                
+                // Build a rotation offset relative to the forward direction
+                var spreadRotation = Quaternion.Euler(spread.y, spread.x, 0);
+                direction = spreadRotation * direction;
             }
             
-            return direction;
+            return direction.normalized;
         }
         
         

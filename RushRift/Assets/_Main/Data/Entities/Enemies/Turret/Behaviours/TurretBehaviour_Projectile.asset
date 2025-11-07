@@ -1,0 +1,347 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7623025785700192753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74fc5b7c733b41779c59e0784e6418a9, type: 3}
+  m_Name: DebugLogData
+  m_EditorClassIdentifier: 
+  guid: 8c8e3697909d208449a08a6ba05aab64
+  children: []
+  position: {x: -472, y: 610.0001}
+  previousPosition: {x: -472.00003, y: 610.0001}
+  behaviourData: {fileID: 11400000}
+  message: Detecting
+  editorOnly: 1
+--- !u!114 &-6931800837735344402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
+  m_Name: SequencerData
+  m_EditorClassIdentifier: 
+  guid: bad894dcfc9bc004ebffafe67807f189
+  children:
+  - {fileID: -6814332282639265595}
+  - {fileID: -7623025785700192753}
+  - {fileID: 7870774838628615780}
+  position: {x: -186.34555, y: 491.33334}
+  previousPosition: {x: -186.34555, y: 489.56003}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &-6814332282639265595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da082a5d1714d0a8c6cf2c2a94b73ef, type: 3}
+  m_Name: CheckFOV
+  m_EditorClassIdentifier: 
+  guid: 472e49d2a462a3b4da69100be84257d1
+  children: []
+  position: {x: -651.66656, y: 608.6668}
+  previousPosition: {x: -649.40533, y: 610.0001}
+  behaviourData: {fileID: 11400000}
+  fov:
+    FOVs:
+    - checkAngle: 0
+      angle: 90
+      checkRange: 1
+      range: 75
+      checkView: 1
+      mask:
+        serializedVersion: 2
+        m_Bits: 200
+  ifAny: 0
+  originOffset: {x: 0, y: 1.5, z: 0}
+  originRelative: 0
+  targetOffset: {x: 0, y: 2, z: 0}
+  targetRelative: 0
+  useJoins: 0
+  joint: 0
+--- !u!114 &-6742053613094033581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
+  m_Name: SequencerData
+  m_EditorClassIdentifier: 
+  guid: 59fac4ab85f43554c9fbb5261149affc
+  children:
+  - {fileID: 2527731681476120399}
+  position: {x: -17.333374, y: 118}
+  previousPosition: {x: -16.666748, y: 118}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &-5687904714133394737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da082a5d1714d0a8c6cf2c2a94b73ef, type: 3}
+  m_Name: CheckFOV
+  m_EditorClassIdentifier: 
+  guid: 2955e2cddea16434a9e824213237754e
+  children: []
+  position: {x: -564.00006, y: 860}
+  previousPosition: {x: -563.3334, y: 860}
+  behaviourData: {fileID: 11400000}
+  fov:
+    FOVs:
+    - checkAngle: 1
+      angle: 15
+      checkRange: 0
+      range: 0
+      checkView: 0
+      mask:
+        serializedVersion: 2
+        m_Bits: 512
+  ifAny: 0
+  originOffset: {x: 0, y: 0, z: 0}
+  originRelative: 0
+  targetOffset: {x: 0, y: 0, z: 0}
+  targetRelative: 0
+  useJoins: 1
+  joint: 1
+--- !u!114 &-4562655285050628618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fffe7047189404daf553f88fc6add12, type: 3}
+  m_Name: RunBehaviourData
+  m_EditorClassIdentifier: 
+  guid: 36a91832822724f4aa821dd406f2d742
+  children: []
+  position: {x: -320, y: 861.3333}
+  previousPosition: {x: -320, y: 861.3333}
+  behaviourData: {fileID: 11400000}
+  behaviour: {fileID: 11400000, guid: 3ee3437eb7112f84a963e79fad623712, type: 2}
+  waitUntilFinished: 1
+--- !u!114 &-1763924997084066979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e4ca69602c241c686d45dc20ef67e0b, type: 3}
+  m_Name: Rotate
+  m_EditorClassIdentifier: 
+  guid: 695ea80574c13e74d909536d4b988ee2
+  children: []
+  position: {x: -197.66669, y: 757.3332}
+  previousPosition: {x: -197.66669, y: 751.9999}
+  behaviourData: {fileID: 11400000}
+  useJoints: 1
+  joint: 1
+  instant: 0
+  rotationSpeed: 20
+  lockY: 0
+  yOffset: 1.5
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdcad80ea3d04262997149c93f7febcb, type: 3}
+  m_Name: TurretBehaviour_Projectile
+  m_EditorClassIdentifier: 
+  root: {fileID: 3300301289691992510}
+  nodes:
+  - {fileID: 3300301289691992510}
+  - {fileID: -6742053613094033581}
+  - {fileID: 2527731681476120399}
+  - {fileID: -6931800837735344402}
+  - {fileID: -6814332282639265595}
+  - {fileID: -1763924997084066979}
+  - {fileID: -4562655285050628618}
+  - {fileID: -5687904714133394737}
+  - {fileID: 7870774838628615780}
+  - {fileID: 7075909005984343782}
+  - {fileID: 5824425285034466280}
+  - {fileID: 6422692701173399565}
+  - {fileID: 5918855332674748784}
+  - {fileID: -7623025785700192753}
+--- !u!114 &2527731681476120399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc55c95e6fbb4c01abcf5c5e173593f2, type: 3}
+  m_Name: RepeatData
+  m_EditorClassIdentifier: 
+  guid: 3fdbf30eac6129140ae111f7dcce7da4
+  children:
+  - {fileID: -6931800837735344402}
+  position: {x: 60.666626, y: 241.99998}
+  previousPosition: {x: 60.666626, y: 241.99998}
+  behaviourData: {fileID: 11400000}
+  amount: 1
+  infinite: 1
+  stopOnFailure: 0
+--- !u!114 &3300301289691992510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7661c447ca8510d41a7c38291a1a2e65, type: 3}
+  m_Name: RootData
+  m_EditorClassIdentifier: 
+  guid: a2596ecd34e52e54f8927015924ef9b9
+  children:
+  - {fileID: -6742053613094033581}
+  position: {x: 0, y: 0}
+  previousPosition: {x: 0, y: 0}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &5824425285034466280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704a44276c7ccd142b594c9a25dd93b7, type: 3}
+  m_Name: Invert
+  m_EditorClassIdentifier: 
+  guid: aada6fb9eaa512d46a15be0333fcaf24
+  children:
+  - {fileID: 6422692701173399565}
+  position: {x: -437.33337, y: 861.3333}
+  previousPosition: {x: -437.33337, y: 861.3333}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &5918855332674748784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3db2ffa27d614e3092112a09db1f0278, type: 3}
+  m_Name: IsLookingAtTarget
+  m_EditorClassIdentifier: 
+  guid: 37729457b89d1e14d8126042a74baed2
+  children: []
+  position: {x: -746.20874, y: 858.6666}
+  previousPosition: {x: -738.00006, y: 858.6666}
+  behaviourData: {fileID: 11400000}
+  threshold: 0.995
+  yOffset: 1.5
+  useJoins: 1
+  joint: 1
+--- !u!114 &6422692701173399565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da082a5d1714d0a8c6cf2c2a94b73ef, type: 3}
+  m_Name: CheckFOV
+  m_EditorClassIdentifier: 
+  guid: 752b63dd2ce58aa47b07732c87fb86a8
+  children: []
+  position: {x: -437.3334, y: 974.0024}
+  previousPosition: {x: -447.3334, y: 976.0302}
+  behaviourData: {fileID: 11400000}
+  fov:
+    FOVs:
+    - checkAngle: 0
+      angle: 0
+      checkRange: 0
+      range: 0
+      checkView: 1
+      mask:
+        serializedVersion: 2
+        m_Bits: 256
+  ifAny: 0
+  originOffset: {x: 0, y: 0, z: 0}
+  originRelative: 0
+  targetOffset: {x: 0, y: 0, z: 0}
+  targetRelative: 0
+  useJoins: 1
+  joint: 1
+--- !u!114 &7075909005984343782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93c49c783344d3194be6fa8d3bc6bd5, type: 3}
+  m_Name: SequencerData
+  m_EditorClassIdentifier: 
+  guid: 2580983ff52afa946aa603fa032b9d6a
+  children:
+  - {fileID: 5918855332674748784}
+  - {fileID: -4562655285050628618}
+  position: {x: -428.6667, y: 738.6666}
+  previousPosition: {x: -428.6667, y: 739.33325}
+  behaviourData: {fileID: 11400000}
+--- !u!114 &7870774838628615780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f1eaefeeef145298f060deabbc5702a, type: 3}
+  m_Name: SelectorData
+  m_EditorClassIdentifier: 
+  guid: b0ec9739f868bb146898cb6d47df0676
+  children:
+  - {fileID: 7075909005984343782}
+  - {fileID: -1763924997084066979}
+  position: {x: -269.3333, y: 610}
+  previousPosition: {x: -270.66663, y: 610}
+  behaviourData: {fileID: 11400000}

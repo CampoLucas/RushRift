@@ -1,9 +1,11 @@
 using System;
-using Game.Inputs;
+using Game.InputSystem;
 
 namespace Game.Predicates
 {
-    public class InputButtonPredicate<T> : IPredicate<T>
+    
+    
+    public class InputButtonPredicate : IPredicate
     {
         public enum State { Hold, Down, Up, }
 
@@ -16,7 +18,7 @@ namespace Game.Predicates
             _state = inputState;
         }
 
-        public bool Evaluate(ref T args)
+        public bool Evaluate()
         {
             return GetInput();
         }

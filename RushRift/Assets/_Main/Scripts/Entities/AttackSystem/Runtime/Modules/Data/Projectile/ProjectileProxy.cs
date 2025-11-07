@@ -1,7 +1,9 @@
 using Game.DesignPatterns.Observers;
 using Game.DesignPatterns.Pool;
+using Game.Utils;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Game.Entities.AttackSystem
 {
@@ -39,49 +41,15 @@ namespace Game.Entities.AttackSystem
             OnDo(mParams.Joints.GetJoint(Data.SpawnJoint), mParams.Joints.GetJoint(Data.OriginJoint).rotation, mParams.Owner.Get().Origin.gameObject);
         }
         
-
         private void OnDo(Transform spawnPos, Quaternion rotation, GameObject thrower)
         {
             var data = Data.PData;
             
-            FireForwarlly(Data.Amount, Data.ForwardOffset * data.Size, spawnPos, rotation, Data.ForwardOffset, data, thrower, _pool);
+            AudioManager.Play("TurretFire");
+            FireForwarlly(spawnPos, rotation, Data.Offset, Data.Amount, Data.Spacing * data.Size, Data.ForwardOffset, data, thrower, _pool);
         }
         
-        private void Fire(Vector3 spawnPos, Quaternion rot, ProjectileData data, GameObject thrower)
-        {
-            
-            
-            var p = _pool.Get(spawnPos, rot, data);
-            p.SetThrower(thrower);
-        }
-        
-        public void FireDiagonally(int amount, float pDistance, Vector3 position, Quaternion rotation, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
-        {
-            if (amount <= 0)
-                return;
-            
-            var lessOrOne = amount <= 1;
-            
-            var skipMiddle = amount >= 3 && amount % 2 == 1;
-            var angleStep = lessOrOne ? 0 : pDistance / (amount - 1);
-            var startAngle = lessOrOne ? 0 : -pDistance / 2;
-
-            for (var i = 0; i < amount; i++)
-            {
-                if (skipMiddle && i == amount / 2)
-                    continue;
-                
-                var angle = startAngle + (i * angleStep);
-                //var rot = Quaternion.Euler(0, angle, 0) * rotation;
-                var rot = Quaternion.AngleAxis(angle, rotation * Vector3.up) * rotation;
-                var pos = (rot * (Vector3.forward * forwardOffset)) + position;
-
-                var p = pool.Get(pos, rot, pData);
-                p.SetThrower(thrower);
-            }
-        }
-        
-        public void FireForwarlly(int amount, float spacing, Transform spawnPos, Quaternion rotation, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
+        public void FireForwarlly(Transform origin, Quaternion rotation, Vector3 offset, int amount, float spacing, float forwardOffset, ProjectileData pData, GameObject thrower, IPoolObject<Projectile, ProjectileData> pool)
         {
             var lessOrOne = amount <= 1;
             var totalWidth = spacing * (amount - 1);
@@ -91,13 +59,15 @@ namespace Game.Entities.AttackSystem
             {
                 // Calculate the offset along the local X-axis
                 var xOffset = startOffset + (i * spacing);
-                var offset = new Vector3(xOffset, 0, forwardOffset);
+                var bulletsOffset = new Vector3(xOffset, 0, forwardOffset);
 
                 // Transform local offset to world space
-                var worldOffset = rotation * offset;
-                var spawnPosition = spawnPos.position + worldOffset;
+                var worldOffset = rotation * bulletsOffset;
+                var spawnPosition = origin.GetOffsetPos(offset) + worldOffset;
 
                 var p = pool.Get(spawnPosition, rotation, pData);
+                
+                SceneManager.MoveGameObjectToScene(p.gameObject, thrower.scene);
                 p.SetThrower(thrower);
                 
             }

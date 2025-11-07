@@ -4,12 +4,12 @@ using System.Linq;
 using Game.DesignPatterns.Observers;
 using Game.Entities.AttackSystem;
 using Game.Entities.Components;
-using Game.Inputs;
+using Game.InputSystem;
 using UnityEngine;
 
 namespace Game.Entities.AttackSystem
 {
-    public class ComboHandler : IEntityComponent
+    public class ComboHandler : EntityComponent
     {
         public IController Owner { get; private set; }
         public IAttack Current { get; private set; }
@@ -54,22 +54,16 @@ namespace Game.Entities.AttackSystem
             return result;
         }
         
-        public bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
+        public override bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             observer = _updateObserver;
             return _updateObserver != null;
         }
 
-        public bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
+        public override bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             observer = _lateUpdateObserver;
             return _lateUpdateObserver != null;
-        }
-
-        public bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer)
-        {
-            observer = default;
-            return false;
         }
         
         public void Update(float delta)
@@ -100,7 +94,7 @@ namespace Game.Entities.AttackSystem
             if (Current != null) Current.LateUpdateAttack(this, delta);
         }
 
-        public void Dispose()
+        protected override void OnDispose()
         {
             _updateObserver.Dispose();
             _updateObserver = null;
@@ -147,14 +141,14 @@ namespace Game.Entities.AttackSystem
         
         
 
-        public void OnDraw(Transform origin)
+        public override void OnDraw(Transform origin)
         {
-            
+            if (Current != null) Current.OnDraw(origin);
         }
 
-        public void OnDrawSelected(Transform origin)
+        public override void OnDrawSelected(Transform origin)
         {
-            
+            if (Current != null) Current.OnDrawSelected(origin);
         }
 
         public bool Attacking()
@@ -164,7 +158,7 @@ namespace Game.Entities.AttackSystem
 
         public void ForceAttack()
         {
-            if (!_combo.TryGetValue(out var combo) || combo.StartTransitions == null || combo.StartTransitions.Count == 0) return;
+            if (!_combo.TryGet(out var combo) || combo.StartTransitions == null || combo.StartTransitions.Count == 0) return;
 
             var attackTransition = _combo.Get().StartTransitions.FirstOrDefault();
             

@@ -124,6 +124,32 @@ namespace Game.Entities.AttackSystem
             _lateUpdateSubject.NotifyAll(_moduleParams, delta);
         }
 
+        public void OnDraw(Transform origin)
+        {
+            if (_proxies == null || _proxies.Count == 0) return;
+            
+            for (var i = 0; i < _proxies.Count; i++)
+            {
+                var p = _proxies[i];
+                if (p == null) continue;
+                
+                p.OnDraw(origin);
+            }
+        }
+
+        public void OnDrawSelected(Transform origin)
+        {
+            if (_proxies == null || _proxies.Count == 0) return;
+            
+            for (var i = 0; i < _proxies.Count; i++)
+            {
+                var p = _proxies[i];
+                if (p == null) continue;
+                
+                p.OnDrawSelected(origin);
+            }
+        }
+
         public bool ModulesExecuted()
         {
             return _runningProxies.Count == 0;
@@ -131,6 +157,13 @@ namespace Game.Entities.AttackSystem
 
         public void StartAttack(ComboHandler comboHandler)
         {
+            _moduleParams = new ModuleParams()
+            {
+                OriginTransform = comboHandler.Owner.Origin,
+                Joints = comboHandler.Owner.Joints,
+                Owner = new NullCheck<IController>(comboHandler.Owner),
+            };
+            
             _startSubject.NotifyAll(_moduleParams);
             _runningProxies.Clear();
 
@@ -140,13 +173,6 @@ namespace Game.Entities.AttackSystem
                 proxy.Reset();
                 _runningProxies.Add(proxy);
             }
-            
-            _moduleParams = new ModuleParams()
-            {
-                OriginTransform = comboHandler.Owner.Origin,
-                Joints = comboHandler.Owner.Joints,
-                Owner = new NullCheck<IController>(comboHandler.Owner),
-            };
         }
 
         public void EndAttack(ComboHandler comboHandler)

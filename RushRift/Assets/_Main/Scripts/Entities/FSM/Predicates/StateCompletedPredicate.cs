@@ -1,5 +1,5 @@
 using Game.Entities;
-using Game.Inputs;
+using Game.InputSystem;
 
 namespace Game.Predicates
 {
@@ -8,7 +8,7 @@ namespace Game.Predicates
         public bool Evaluate(ref EntityArgs args)
         {
             var stateMachine = args.StateMachine;
-            return stateMachine != null && stateMachine.CurrentState.TryGetValue(out var state) && state.Completed(ref args);
+            return stateMachine != null && stateMachine.CurrentState.TryGet(out var state) && state.Completed(ref args);
         }
 
         public void Dispose()

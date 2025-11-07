@@ -5,60 +5,71 @@ namespace Game.Entities
 {
     public class JumpState : State<EntityArgs>
     {
-        private JumpData _jumpData;
-        private GravityData _gravityData;
-
+        private readonly MoveType _moveType;
+        private JumpData _data;
+        private NullCheck<IMovement> _movement;
+        
         private float _gravity;
-        private float _jumpForce;
         private float _velocity;
         private float _elapsedTime;
         
 
-        public JumpState(JumpData jumpData, GravityData gravityData)
+        public JumpState(JumpData data, MoveType moveType)
         {
-            _jumpData = jumpData;
-            _gravityData = gravityData;
-        }
-
-        protected override void OnInit(ref EntityArgs args)
-        {
-            _gravity = _gravityData.GetValue();
-            _jumpForce = Mathf.Sqrt(_jumpData.Height * -2 * _gravity);
+            _moveType = moveType;
+            _data = data;
         }
 
         protected override void OnStart(ref EntityArgs args)
         {
+            if (!_movement)
+            {
+                if (args.Controller.GetModel().TryGetComponent<IMovement>(out var movement))
+                {
+                    _movement.Set(movement);
+                }
+            }
+
+            if (_movement.TryGet(out var m))
+            {
+                m.SetProfile(_moveType);
+                m.EnableGravity(false);
+            }
+            
             _elapsedTime = 0f;
         }
 
         protected override void OnUpdate(ref EntityArgs args, float delta)
         {
-            if (!args.Controller.GetModel().TryGetComponent<IMovement>(out var movement)) return;
+            if (!_movement.TryGet(out var movement)) return;
 
+            movement.AddMoveDir(args.Controller.MoveDirection());
+            
             _elapsedTime += delta;
-            float t = Mathf.Clamp01(_elapsedTime / _jumpData.Duration);
-            float curveValue = _jumpData.JumpCurve.Evaluate(t);
+            var t = Mathf.Clamp01(_elapsedTime / _data.Duration);
+            var curve = _data.Curve.Evaluate(t);
 
-            _velocity = curveValue * Mathf.Sqrt(_jumpData.Height * -2 * _gravity);
+            _velocity = curve * _data.Force;
 
-            // Add air control
-            var input = args.Controller.MoveDirection() * _jumpData.MoveSpeed;
-            var controlledInput = Vector3.Lerp(Vector3.zero, input, _jumpData.AirControl);
-            var jumpDir = Vector3.up * _velocity;
+            movement.SetYVelocity(_velocity);
+        }
 
-            movement.AddMoveDir(controlledInput);
-            movement.Move(jumpDir, delta);
+        protected override void OnExit(ref EntityArgs args)
+        {
+            if (!_movement) return;
+            _movement.Get().EnableGravity(true);
         }
 
         protected override bool OnCompleted(ref EntityArgs args)
         {
-            return _elapsedTime >= _jumpData.Duration;
+            //return false;
+            //return _elapsedTime >= _jumpData.Duration;
+            return _velocity <= 0 || _elapsedTime >= _data.Duration;
         }
         
         protected override void OnDispose()
         {
-            _jumpData = null;
-            _gravityData = null;
+            _data = null;
         }
     }
 }

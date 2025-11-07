@@ -6,35 +6,64 @@ using UnityEngine;
 
 namespace Game.Entities
 {
+    /// <summary>
+    /// Generic runtime model created from the ScriptableObject
+    /// </summary>
+    /// <typeparam name="TData">The type of ModelSO</typeparam>
     public class EntityModel<TData> : IModel
         where TData : EntityModelSO
     {
-        protected TData Data;
+        private TData _data; // Reference to the data (SO)
 
         private Dictionary<Type, IEntityComponent> _componentsDict = new();
         private ISubject<float> _updateSubject = new Subject<float>();
         private ISubject<float> _lateUpdateSubject = new Subject<float>();
         private ISubject<float> _fixedUpdateSubject = new Subject<float>();
+        public NullCheck<SubjectObserver<bool>> _onLoading;
 
         public EntityModel(TData data)
         {
-            Data = data;
+            _data = data;
         }
-        
-        public virtual void Init(IController controller) { }
+
+        /// <summary>
+        /// Initializes the model with a controller reference
+        /// </summary>
+        /// <param name="controller">The assigned controller for the model</param>
+        public virtual void Init(IController controller)
+        {
+            _data.Init(controller, this);
+
+            if (_onLoading.TryGet(out var observer))
+            {
+                GameEntry.LoadingState.AttachOnLoading(observer);
+            }
+        }
 
         #region UpdateMethods
 
+        /// <summary>
+        /// Notifies components of the Update call
+        /// </summary>
+        /// <param name="delta">The time between frames</param>
         public void Update(float delta)
         {
             _updateSubject.NotifyAll(delta);
         }
 
+        /// <summary>
+        /// Notifies components of the Late Update call
+        /// </summary>
+        /// <param name="delta">The time between frames</param>
         public void LateUpdate(float delta)
         {
             _lateUpdateSubject.NotifyAll(delta);
         }
 
+        /// <summary>
+        /// Notifies components of the Fixed Update call
+        /// </summary>
+        /// <param name="delta">The time between fixed frames</param>
         public void FixedUpdate(float delta)
         {
             _fixedUpdateSubject.NotifyAll(delta);
@@ -44,6 +73,12 @@ namespace Game.Entities
 
         #region Components
 
+        /// <summary>
+        /// Attempts to get a component from the model
+        /// </summary>
+        /// <param name="component">The component to get</param>
+        /// <typeparam name="TComponent">Component's type</typeparam>
+        /// <returns>Returns true if it has the component</returns>
         public bool TryGetComponent<TComponent>(out TComponent component) where TComponent : IEntityComponent
         {
             component = default;
@@ -56,32 +91,83 @@ namespace Game.Entities
             return true;
         }
         
-        public bool TryAddComponent<TComponent>(TComponent newComponent) where TComponent : IEntityComponent
+        /// <summary>
+        /// Attempts to add a new component to the model
+        /// </summary>
+        /// <param name="newComponent">The new component to add</param>
+        /// <typeparam name="TComponent">Component's type</typeparam>
+        /// <returns>Returns true if the component was added</returns>
+        public bool TryAddComponent<TComponent>(Func<TComponent> factory, out TComponent newComponent) where TComponent : IEntityComponent
+        {
+            var type = typeof(TComponent);
+            if (factory == null || _componentsDict.ContainsKey(type))
+            {
+                newComponent = default;
+                return false;
+            }
+
+            newComponent = factory();
+            if (newComponent == null)
+            {
+                return false;
+            }
+            
+            if (!_componentsDict.TryAdd(type, newComponent))
+            {
+                newComponent.Dispose();
+                return false;
+            }
+            
+            AddObservers(newComponent);
+            return true;
+        }
+
+        public bool TryAddComponent<TComponent>(Func<TComponent> factory) where TComponent : IEntityComponent
+        {
+            return TryAddComponent(factory, out var comp);
+        }
+
+        public bool TryAddOrGetComponent<TComponent>(Func<TComponent> factory, out TComponent component) where TComponent : IEntityComponent
         {
             var type = typeof(TComponent);
 
-            if (_componentsDict.ContainsKey(type)) return false;
-            
-            _componentsDict[type] = newComponent;
+            if (!_componentsDict.TryGetValue(type, out var savedComp) || savedComp is not TComponent castedComp) return TryAddComponent(factory, out component);
+            component = castedComp;
+            return true;
+        }
 
-            if (newComponent.TryGetUpdate(out var update))
+        private void AddObservers(in IEntityComponent component)
+        {
+            if (component.TryGetUpdate(out var update)) // If it uses an update, it subscribes it's observer.
             {
                 _updateSubject.Attach(update);
             }
 
-            if (newComponent.TryGetLateUpdate(out var lateUpdate))
+            if (component.TryGetLateUpdate(out var lateUpdate)) // If it uses a late update, it subscribes it's observer.
             {
                 _lateUpdateSubject.Attach(lateUpdate);
             }
 
-            if (newComponent.TryGetFixedUpdate(out var fixedUpdate))
+            if (component.TryGetFixedUpdate(out var fixedUpdate)) // If it uses a fixed update, it subscribes it's observer.
             {
                 _fixedUpdateSubject.Attach(fixedUpdate);
             }
 
-            return true;
+            if (component.OnLoading.TryGet(out var observer) // If it has a OnLoading observer
+                && _onLoading.TryGet(out var subject, CreateBoolSubject)) // Get the OnLoadingSubject from the entity, create one if it doesn't have one
+            {
+                subject.Attach(observer);
+            }
         }
+
+        private SubjectObserver<bool> CreateBoolSubject() => new SubjectObserver<bool>();
         
+        /// <summary>
+        /// Removes a component and optionally disposes it
+        /// </summary>
+        /// <param name="disposeComponent">If it should dispose the component when removing it</param>
+        /// <typeparam name="TComponent">The component to remove</typeparam>
+        /// <returns></returns>
         public bool RemoveComponent<TComponent>(bool disposeComponent = true) where TComponent : IEntityComponent
         {
             var type = typeof(TComponent);
@@ -102,21 +188,36 @@ namespace Game.Entities
                 _fixedUpdateSubject.Detach(fixedUpdate);
             }
             
+            if (component.OnLoading.TryGet(out var observer) // If it has a OnLoading observer
+                && _onLoading.TryGet(out var subject)) // Get the OnLoadingSubject from the entity and unsubscribe
+            {
+                subject.Detach(observer);
+            }
+            
             if (disposeComponent) component.Dispose();
 
             return true;
         }
         
+        /// <summary>
+        /// Checks if the model has a component
+        /// </summary>
+        /// <typeparam name="TComponent">The type of component to check</typeparam>
+        /// <returns>Returns true if it has the component</returns>
         public bool HasComponent<TComponent>() where TComponent : IEntityComponent
         {
             return _componentsDict.ContainsKey(typeof(TComponent));
         }
 
+        /// <summary>
+        /// Disposes all components and clears all observers
+        /// </summary>
         public void RemoveAllComponents()
         {
             _updateSubject.DetachAll();
             _lateUpdateSubject.DetachAll();
             _fixedUpdateSubject.DetachAll();
+            if (_onLoading) _onLoading.Get().DetachAll();
 
             var keys = _componentsDict.Keys;
 
@@ -158,13 +259,22 @@ namespace Game.Entities
 
         #endregion
 
+        /// <summary>
+        /// Disposes model and it's references
+        /// </summary>
         public void Dispose()
         {
             RemoveAllComponents();
             
+            if (_onLoading.TryGet(out var observer))
+            {
+                GameEntry.LoadingState.DetachOnLoading(observer);
+            }
+            
             _updateSubject.Dispose();
             _lateUpdateSubject.Dispose();
             _fixedUpdateSubject.Dispose();
+            _onLoading.Dispose();
             
             _updateSubject = null;
             _lateUpdateSubject = null;
@@ -172,7 +282,7 @@ namespace Game.Entities
 
             _componentsDict = null;
 
-            Data = null;
+            _data = null;
         }
     }
 }

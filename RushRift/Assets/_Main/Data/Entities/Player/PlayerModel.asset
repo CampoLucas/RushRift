@@ -12,79 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4effd1cb90d94e5980c1af96ff7100a1, type: 3}
   m_Name: PlayerModel
   m_EditorClassIdentifier: 
-  moveSpeed:
-    accelerationCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 0.15
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    decelerationCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    maxSpeed: 40
-    useDot: 0
-    groundAcceleration: 100
-    groundDeceleration: 80
-    airAcceleration: 100
-    airDeceleration: 100
-    groundDetect:
-      size: {x: 1, y: 0.34, z: 1}
-      offset: {x: 0, y: 0.02, z: 0}
-      maxCollisions: 2
-      mask:
-        serializedVersion: 2
-        m_Bits: 8
-    gravity:
-      customGravity: 1
-      gravity: 0
-      gravityScale: 0.25
-      fallAirControl: 1
-      airAcceleration: 100
-  jump:
-    airControl: 1
-    height: 4
-    moveSpeed: 25
-    jumpCurve:
+  jumpOld:
+    force: 20
+    duration: 0.8
+    curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -108,23 +39,156 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    duration: 1.25
+  dashOld:
+    distance: 30
+    duration: 0.2
+    cooldown: 0.25
+    speedCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    cost: 1
+    dampening: 0.15
+    strategy: 1
+  movement:
+    enabled: 1
+    order: 2
+    speed: 3000
+    maxSpeed: 35
+    drag: 0.15
+    minThreshold: 0
+    maxThreshold: 0.05
+    airMultiplier: 0.7
+    airForwardMultiplier: 0.7
+    airFallMultiplier: 0.005
+    slidingEnabled: 1
+    sliding:
+      maxSlopeAngle: 90
+      multiplier: 0.1
+      speedScaling: 30
+      slideForce: 160
+      recoverSpeed: 3
+      keepSlipperyValueOnAir: 1
+      recoverOnAir: 1
+      airRecoverSpeed: 4
+      maxSpeedModifier: 3
+      fallTriggerSpeed: 30
+      fallMaxAmount: 0.1
+  airResistance:
+    enabled: 1
+    order: 10
+    airResistance: 0.98
+  jump:
+    enabled: 1
+    order: 3
+    force: 25
+    upInfluence: 5
+    inputInfluence: 3
+    velocityInfluence: 0
+    minHorizontalVelocity: 5
+    normalInfluence: 0.5
+    cooldown: 0.25
+    jumpBuffer: 0.3
+    coyoteTime: 0.25
+  dash:
+    enabled: 1
+    order: 99
+    force: 180
+    duration: 0.1
+    cooldown: 0.1
+    momentumMultiplier: 0.2
+    cost: 1
+    dirStrategy:
+      strategy: 1
+      lookConfig:
+        weight: 2
+      inputConfig:
+        weight: 3
+      momentumConfig:
+        weight: 0.5
+      dashTargetConfig:
+        weight: 15
+        layer:
+          serializedVersion: 2
+          m_Bits: 512
+        range: 15
+        maxColliders: 5
+        fovBuilder:
+          checkAngle: 1
+          angle: 45
+          checkRange: 0
+          range: 0
+          checkView: 1
+          mask:
+            serializedVersion: 2
+            m_Bits: 200
+    updateStrategy:
+      strategy: 0
+      damageConfig:
+        instaKill: 1
+        damage: 100
+        stopOnDamage: 1
+        stopOnDestroy: 0
+    shakeDuration: 0.2
+    shakeMagnitude: 0.25
+    blurMagnitude: 0.5
   gravity:
-    customGravity: 0
-    gravity: 10
-    gravityScale: 5
-    fallAirControl: 0.566
-    airAcceleration: 40
+    enabled: 1
+    order: 1
+    groundGravity: 300
+    fallGravity: 850
+    maxFallSpeed: 80
+    curveDuration: 1.5
+    startMultiplier: 1
+    endMultiplier: 3
+    groundDistance: 0
+    hoverSpeed: 15
+    correctionDistance: 0.2
+  groundDetection:
+    enabled: 1
+    order: 0
+    radius: 0.55
+    offset: 1.2
+    distance: 1.25
+    layer:
+      serializedVersion: 2
+      m_Bits: 8
+  input:
+    enabled: 1
+    order: -1
+    sensitivity: 50
+    sensitivityMultiplier: 1
   comboData: {fileID: 11400000, guid: 0b705b981d3638540927ff120005df2d, type: 2}
   health:
-    startValue: 100
-    max: 100
+    startValue: 10
+    max: 10
+    regenDelay: 2
     regenRate: 0
-  stamina:
-    startValue: 10
-    max: 10
-    regenRate: 0.5
-  mana:
-    startValue: 10
-    max: 10
-    regenRate: 0.5
+    onZeroHealth: 0
+  energy:
+    startValue: 0
+    max: 5
+    regenDelay: 0
+    regenRate: 0
+    extraAmount: 1
+    extraTime: 5

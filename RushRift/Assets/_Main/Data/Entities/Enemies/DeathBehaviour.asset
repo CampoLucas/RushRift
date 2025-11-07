@@ -1,5 +1,26 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2825331974255021693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 194f8500603f4b7ab6a97476b716e925, type: 3}
+  m_Name: GiveEffect
+  m_EditorClassIdentifier: 
+  guid: 3db90f523821f114cb2f6859cef4ccee
+  children: []
+  position: {x: -2.666626, y: 265.3333}
+  previousPosition: {x: -2, y: 265.99994}
+  behaviourData: {fileID: 11400000}
+  effectGiver:
+    effect: {fileID: 11400000, guid: e4d949f19f3c9dd478c887c9a575088b, type: 2}
+    overrideEffect: 0
+    duration: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18,24 +39,7 @@ MonoBehaviour:
   - {fileID: 4366849800867571029}
   - {fileID: 6046247531997033223}
   - {fileID: 7919715613212035022}
-  - {fileID: 3038056235976735128}
---- !u!114 &3038056235976735128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d0b2cd440784c60883785029b37faca, type: 3}
-  m_Name: PlayVFX
-  m_EditorClassIdentifier: 
-  guid: 0b91421fd2d8502429b01557fefae329
-  children: []
-  position: {x: -163, y: 263}
-  previousPosition: {x: -162, y: 263}
-  behaviourData: {fileID: 0}
+  - {fileID: -2825331974255021693}
 --- !u!114 &4366849800867571029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50,10 +54,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: f89326dea15746c47bd668eede611f73
   children: []
-  position: {x: -46.547497, y: 262.81207}
-  previousPosition: {x: -47.869995, y: 262.81207}
+  position: {x: -150, y: 266.6667}
+  previousPosition: {x: -149.33337, y: 267.3333}
   behaviourData: {fileID: 11400000}
   message: DeathToTheEmpire
+  editorOnly: 1
 --- !u!114 &5071820414570829837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,8 +91,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: e8126a70c2763a048b50a045a2b7046d
   children: []
-  position: {x: 118.452545, y: 260.81213}
-  previousPosition: {x: 117.13004, y: 260.81213}
+  position: {x: 111.333374, y: 266.6667}
+  previousPosition: {x: 112, y: 267.3333}
   behaviourData: {fileID: 11400000}
   value: 0
 --- !u!114 &7919715613212035022
@@ -104,8 +109,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guid: 8a6a6490cca6dca478848ce3867653ec
   children:
-  - {fileID: 3038056235976735128}
   - {fileID: 4366849800867571029}
+  - {fileID: -2825331974255021693}
   - {fileID: 6046247531997033223}
   position: {x: -14.547501, y: 97.812096}
   previousPosition: {x: -15.870001, y: 97.812096}

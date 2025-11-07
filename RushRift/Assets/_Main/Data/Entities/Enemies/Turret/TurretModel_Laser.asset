@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2614feaa8d813ab4498956ba4f97bc96, type: 3}
+  m_Name: TurretModel_Laser
+  m_EditorClassIdentifier: 
+  movement:
+    accelerationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    decelerationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    maxSpeed: 10
+    groundAcceleration: 5
+    groundDeceleration: 20
+    airAcceleration: 5
+    airDeceleration: 5
+    groundDetect:
+      size: {x: 0, y: 0, z: 0}
+      offset: {x: 0, y: 0, z: 0}
+      maxCollisions: 0
+      mask:
+        serializedVersion: 2
+        m_Bits: 0
+    gravity:
+      customGravity: 0
+      gravity: 0
+      gravityScale: 0
+      maxGravityAccel: 0
+      fallAirControl: 0.3
+      airAcceleration: 5
+  gravity:
+    customGravity: 0
+    gravity: 0
+    gravityScale: 0
+    maxGravityAccel: 0
+    fallAirControl: 0.3
+    airAcceleration: 5
+  combo: {fileID: 11400000, guid: 6c99a691714480143bfcfa32eefd67a3, type: 2}
+  health:
+    startValue: 1
+    max: 1
+    regenDelay: 0
+    regenRate: 0
+  energy:
+    startValue: 0
+    max: 0
+    regenDelay: 0
+    regenRate: 0
+    extraAmount: 1
+    extraTime: 5
+  mana:
+    startValue: 0
+    max: 0
+    regenDelay: 0
+    regenRate: 0

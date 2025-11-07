@@ -3,85 +3,109 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    public class Attribute<TData, TDataReturn> : IAttribute where TData : AttributeData<TDataReturn> where TDataReturn : IAttribute
+    public class Attribute<TData, TDataReturn> : EntityComponent, IAttribute where TData : AttributeData<TDataReturn> where TDataReturn : IAttribute
     {
         public float Value { get; private set; }
-        public float MaxValue => _data.MaxValue;
-        public ISubject<(float, float, float)> OnValueChanged { get; private set; } = new Subject<(float, float, float)>();
-        public ISubject OnValueDepleted{ get; private set; } = new Subject();
-
+        public float MaxValue => Data.MaxValue + _maxModifier;
+        public float RegenRate => Data.RegenRate + _regenModifier;
+        public float StartRegenRate => Data.RegenRate != 0 ? Data.RegenRate : .1f;
+        public float StartMaxValue => Data.MaxValue;
+        public ISubject<float, float, float> OnValueChanged { get; private set; } = new Subject<float, float, float>();
+        public ISubject OnEmptyValue{ get; private set; } = new Subject();
         
         protected IObserver<float> LateUpdateObserver;
+        protected TData Data;
         protected bool Disposed;
         
         private IObserver<float> _updateObserver;
-        private TData _data;
+        private float _maxModifier;
+        private float _prevValue;
         
-        // ToDo: observers for when value updated, value depleted, value maxed, maxModifierUpdated, regenModifierUpdated
-        // ToDo: when adding a max value modifier and the attribute is full, the value will stay full.
-        // ToDo: when removing a max value modifier adjust the value so it is not over the max value.
-        // ToDo: have a changed max value and check if the current max value is different and if it is, adjust the value if nescesary
+        // Regeneration variables
+        private IRegenStrategy<TData, TDataReturn> _regenStrategy;
+        private float _regenModifier;
         
-        public Attribute(TData data)
+        protected Attribute(TData data)
         {
-            _data = data;
+            Data = data;
             
             _updateObserver = new ActionObserver<float>(Update);
+            _regenStrategy = new RegenStrategy<TData, TDataReturn>();
+            OnLoading = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
             
             InitAttribute();
         }
         
-        public void Update(float delta)
+        protected virtual void Update(float delta)
         {
             if (Disposed) return;
-            if (Value < _data.MaxValue)
-            {
-                Increase(delta * _data.RegenRate);
-            }
+
+            _regenStrategy.Tick(delta, this, Data);
         }
 
         public bool IsEmpty() => Value <= 0;
-        public bool IsFull() => Value >= _data.MaxValue;
+        public bool IsFull() => Value >= MaxValue;
 
         public void Decrease(float amount)
         {
             if (Disposed) return;
             if (IsEmpty()) return; // Don't decrease if it is already empty.
 
-            var prevValue = Value;
+            _prevValue = Value;
             Value -= amount;
             
-            OnDecrease(prevValue);
-            OnValueChanged.NotifyAll((Value, prevValue, _data.MaxValue));
+            OnDecrease(_prevValue);
+            OnValueChanged.NotifyAll(Value, _prevValue, MaxValue);
 
             if (IsEmpty())
             {
-                OnValueDepleted.NotifyAll();
+                OnEmptyHandler();
+                
             }
+            else
+            {
+                _regenStrategy.NotifyValueChanged(_prevValue, Value, Data);
+            }
+            
         }
 
         public void Increase(float amount)
         {
             if (Disposed) return;
-            var maxValue = _data.MaxValue;
+            var maxValue = MaxValue;
+
+            if (Value >= maxValue)
+            {
+                return;
+            }
             
-            if (Value >= maxValue) return;
-            var prevValue = Value;
+            _prevValue = Value;
 
             Value += amount;
             if (Value >= maxValue)
             {
-                Value = maxValue;
+                OnFullHandler();
             }
 
-            OnIncrease(prevValue);
-            OnValueChanged.NotifyAll((Value, prevValue, maxValue));
+            OnIncrease(_prevValue);
+            OnValueChanged.NotifyAll(Value, _prevValue, maxValue);
+            _regenStrategy.NotifyValueChanged(_prevValue, Value, Data);
+        }
+
+        public void MaxValueModifier(float amount)
+        {
+            _maxModifier += amount;
+            OnValueChanged.NotifyAll(Value, Value, MaxValue);
+        }
+
+        public void RegenRateModifier(float amount)
+        {
+            _regenModifier += amount;
         }
         
-        public void Dispose()
+        protected override void OnDispose()
         {
-            OnDispose();
-            _data = null;
+            Data = null;
 
             Disposed = true;
             
@@ -89,42 +113,65 @@ namespace Game.Entities.Components
             _updateObserver = null;
         }
 
-        public bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out IObserver<float> observer)
         {
             observer = _updateObserver;
             return _updateObserver != null;
         }
 
-        public bool TryGetLateUpdate(out IObserver<float> observer)
+        public override bool TryGetLateUpdate(out IObserver<float> observer)
         {
             observer = LateUpdateObserver;
             return LateUpdateObserver != null;
         }
 
-        public bool TryGetFixedUpdate(out IObserver<float> observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public virtual void OnDraw(Transform origin) { }
-        public virtual void OnDrawSelected(Transform origin) { }
-
         #region Protected Methods
         
         protected virtual void OnDecrease(float previousValue) { }
         protected virtual void OnIncrease(float previousValue) { }
-        protected virtual void OnDispose() { }
+        protected virtual void OnEmpty() { }
+        protected virtual void OnFull() { }
 
         #endregion
 
         private void InitAttribute()
         {
             var prevValue = Value;
-            var startValue = _data.StartValue;
+            var startValue = Data.StartValue;
             
-            Value = startValue > _data.MaxValue ? _data.MaxValue : startValue;
-            OnValueChanged.NotifyAll((Value, prevValue, _data.MaxValue));
+            Value = startValue > MaxValue ? MaxValue : startValue;
+            OnValueChanged.NotifyAll(Value, prevValue, MaxValue);
+            _regenStrategy.NotifyValueChanged(Value, prevValue, Data);
+        }
+
+        private void OnEmptyHandler()
+        {
+            Value = 0;
+            
+            OnEmpty();
+            OnEmptyValue.NotifyAll();
+        }
+
+        private void OnFullHandler()
+        {
+            Value = MaxValue;
+            
+            OnFull();
+            // It doesn't have a subject.
+        }
+
+        private void OnLoadingHandler(bool isLoading)
+        {
+            Reset();
+        }
+
+        protected virtual void Reset()
+        {
+            var startValue = Data.StartValue;
+            
+            Value = startValue > MaxValue ? MaxValue : startValue;
+            OnValueChanged.NotifyAll(Value, startValue, MaxValue);
+            _regenStrategy.NotifyValueChanged(Value, startValue, Data);
         }
     }
 }

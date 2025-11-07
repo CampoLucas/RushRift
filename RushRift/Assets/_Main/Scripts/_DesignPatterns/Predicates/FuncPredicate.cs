@@ -21,4 +21,24 @@ namespace Game
             _condition = null;
         }
     }
+    
+    public class FuncPredicate : IPredicate
+    {
+        private Func<bool> _condition;
+
+        public FuncPredicate(Func<bool> condition)
+        {
+            _condition = condition;
+        }
+        
+        public bool Evaluate()
+        {
+            return _condition();
+        }
+
+        public void Dispose()
+        {
+            _condition = null;
+        }
+    }
 }

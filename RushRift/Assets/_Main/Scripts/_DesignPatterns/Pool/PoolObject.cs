@@ -13,17 +13,30 @@ namespace Game.DesignPatterns.Pool
         protected List<TPoolable> Available = new();
         protected TFactory Factory;
         protected bool Disposed = false;
-        protected bool DisposeFactory;
+        private bool DisposeFactory;
 
-        protected Pool(TFactory factory)
+        protected Pool(TFactory factory, bool disposeFactory)
         {
             Factory = factory;
+            DisposeFactory = disposeFactory;
         }
 
         public virtual void Recycle(TPoolable poolable)
         {
             if (Disposed || !InUse.Remove(poolable)) return;
+            
             Available.Add(poolable);
+        }
+
+        public virtual void RecycleAll()
+        {
+            for (var i = 0; i < InUse.Count; i++)
+            {
+                var element = InUse[i];
+                
+                if (element == null) continue;
+                Recycle(element);
+            }
         }
 
         public virtual void Remove(TPoolable poolable)
@@ -50,13 +63,15 @@ namespace Game.DesignPatterns.Pool
             Available.Clear();
             Available = null;
             
+            if (DisposeFactory) Factory.Dispose();
+
         }
     }
     
     public class PoolObject<TPoolable, TData> : Pool<TPoolable, IFactory<TPoolable, TData>>, IPoolObject<TPoolable, TData> 
         where TPoolable : IPoolableObject<TPoolable, TData>
     {
-        public PoolObject(IFactory<TPoolable, TData> factory) : base(factory)
+        public PoolObject(IFactory<TPoolable, TData> factory, bool disposeFactory = false) : base(factory, disposeFactory)
         {
         }
         
@@ -118,7 +133,7 @@ namespace Game.DesignPatterns.Pool
     public class PoolObject<T> : Pool<T, IFactory<T>>, IPoolObject<T> 
         where T : IPoolableObject<T>
     {
-        public PoolObject(IFactory<T> factory) : base(factory) { }
+        public PoolObject(IFactory<T> factory, bool disposeFactory = false) : base(factory, disposeFactory) { }
         
         public bool TryGet(Vector3 position, Quaternion rotation, out T poolable)
         {

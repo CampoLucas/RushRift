@@ -1,5 +1,6 @@
 using System;
 using Game.Entities.Components;
+using UnityEngine;
 
 namespace Game.Entities.AttackSystem
 {
@@ -13,5 +14,9 @@ namespace Game.Entities.AttackSystem
         bool TryGetTransition(ComboHandler comboHandler, out TransitionProxy transition);
         bool ModulesExecuted();
         void LateUpdateAttack(ComboHandler comboHandler, float delta);
+        
+        // Gizmos Methods
+        void OnDraw(Transform origin);
+        void OnDrawSelected(Transform origin);
     }
 }
