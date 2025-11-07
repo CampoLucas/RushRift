@@ -2,325 +2,322 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Game;
+using Game.DesignPatterns.Observers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Game.DesignPatterns.Observers;
-using Game.Entities;
-using MyTools.Global;
 
-[DisallowMultipleComponent]
-public class GhostRecorder : MonoBehaviour
+namespace _Main.Scripts.Ghost
 {
-    [Header("Recording")]
-    [SerializeField, Tooltip("Begin recording automatically on OnEnable.")]
-    private bool startRecordingOnEnable = true;
-    [SerializeField, Tooltip("Record at FixedUpdate for physics-aligned playback.")]
-    private bool recordAtFixedUpdate = true;
-    [SerializeField, Tooltip("Minimum time between frames in seconds.")]
-    private float minFrameIntervalSeconds = 0.02f;
-    [SerializeField, Tooltip("Do not record frames if the target moved less than this distance (meters).")]
-    private float minPositionDeltaMeters = 0.005f;
-    [SerializeField, Tooltip("Do not record frames if the target rotated less than this angle (degrees).")]
-    private float minRotationDeltaDegrees = 0.5f;
-    [SerializeField, Tooltip("Maximum number of frames to keep (0 = unlimited).")]
-    private int maxRecordedFrames = 0;
-
-    [Header("Pause Integration")]
-    [SerializeField, Tooltip("If enabled, recording halts while PauseEventBus reports paused.")]
-    private bool obeyPauseEvents = true;
-
-    [Header("Storage")]
-    [SerializeField, Tooltip("Directory under persistentDataPath where ghosts are saved.")]
-    private string ghostsFolderName = "ghosts";
-    [SerializeField, Tooltip("File pattern per level. {LEVEL} is replaced by the buildIndex.")]
-    private string fileNamePattern = "level_{LEVEL}.ghost.json";
-
-    [Header("Debug")]
-    [SerializeField, Tooltip("Draw gizmos for a portion of the recorded path.")]
-    private bool drawGizmos = true;
-    [SerializeField, Tooltip("How many recent segments to draw with gizmos.")]
-    private int gizmoSegments = 64;
-    [SerializeField, Tooltip("Gizmo color for the path.")]
-    private Color gizmoColor = new Color(0f, 1f, 0.6f, 0.9f);
-
-    [Serializable]
-    public struct GhostFrame { public float time; public Vector3 position; public Quaternion rotation; }
-
-    [Serializable]
-    public class GhostRunData
+    [DisallowMultipleComponent]
+    public class GhostRecorder : MonoBehaviour
     {
-        public int levelIndex;
-        public float durationSeconds;
-        public List<GhostFrame> frames = new List<GhostFrame>(1024);
-        public string recordedAtUtc;
-        public string appVersion;
-    }
+        [Header("Recording")]
+        [SerializeField, Tooltip("Begin recording automatically on OnEnable.")]
+        private bool startRecordingOnEnable = true;
+        [SerializeField, Tooltip("Record at FixedUpdate for physics-aligned playback.")]
+        private bool recordAtFixedUpdate = true;
+        [SerializeField, Tooltip("Minimum time between frames in seconds.")]
+        private float minFrameIntervalSeconds = 0.02f;
+        [SerializeField, Tooltip("Do not record frames if the target moved less than this distance (meters).")]
+        private float minPositionDeltaMeters = 0.005f;
+        [SerializeField, Tooltip("Do not record frames if the target rotated less than this angle (degrees).")]
+        private float minRotationDeltaDegrees = 0.5f;
+        [SerializeField, Tooltip("Maximum number of frames to keep (0 = unlimited).")]
+        private int maxRecordedFrames;
 
-    private const float MinValidDurationSeconds = 0.25f;
-    private const float Epsilon = 0.0005f;
+        [Header("Pause Integration")]
+        [SerializeField, Tooltip("If enabled, recording halts while PauseEventBus reports paused.")]
+        private bool obeyPauseEvents = true;
 
-    private GhostRunData currentRun;
-    private bool isRecording;
-    private bool pauseGate;
-    private float lastFrameTime;
-    private Vector3 lastPos;
-    private Quaternion lastRot;
-    private ActionObserver<bool> winObserver;
-    private int levelIndex;
+        [Header("Storage")]
+        [SerializeField, Tooltip("Directory under persistentDataPath where ghosts are saved.")]
+        private string ghostsFolderName = "ghosts";
+        [SerializeField, Tooltip("File pattern per level. {LEVEL} is replaced by the buildIndex.")]
+        private string fileNamePattern = "level_{LEVEL}.ghost.json";
 
-    // Read gizmo fields once so they count as "used" in builds
-    private bool _suppressBuildWarnings;
-    private NullCheck<ActionObserver<bool>> _onPause;
-    private NullCheck<Transform> _target;
+        [Header("Debug")]
+        [SerializeField, Tooltip("Draw gizmos for a portion of the recorded path.")]
+        private bool drawGizmos = true;
+        [SerializeField, Tooltip("How many recent segments to draw with gizmos.")]
+        private int gizmoSegments = 64;
+        [SerializeField, Tooltip("Gizmo color for the path.")]
+        private Color gizmoColor = new(0f, 1f, 0.6f, 0.9f);
 
-    private void Awake()
-    {
-        if (!_onPause)
+        [Serializable]
+        public struct GhostFrame { public float time; public Vector3 position; public Quaternion rotation; }
+
+        [Serializable]
+        public class GhostRunData
         {
-            _onPause = new ActionObserver<bool>(OnPauseChanged);
-        }
-        
-        _suppressBuildWarnings |= drawGizmos && gizmoSegments >= 0;
-
-        levelIndex = SceneManager.GetActiveScene().buildIndex;
-        
-        winObserver = new ActionObserver<bool>(OnGameOverHandler);
-        GlobalEvents.GameOver.Attach(winObserver);
-    }
-
-    private void Start()
-    {
-        if (PlayerSpawner.Player.TryGet(out var player))
-        {
-            _target = player.transform;
-        }
-        
-        if (startRecordingOnEnable) StartRecording();
-    }
-    
-    private void OnPlayerSetHandler(PlayerController player)
-    {
-        _target = player.transform;
-    }
-
-    private void OnEnable()
-    {
-        if (!_onPause)
-        {
-            _onPause = new ActionObserver<bool>(OnPauseChanged);
-        }
-                
-        PauseHandler.Attach(_onPause.Get());
-        
-        OnPauseChanged(PauseHandler.IsPaused);
-
-        if (startRecordingOnEnable && !isRecording) StartRecording();
-    }
-
-    private void OnDisable()
-    {
-        if (_onPause)
-        {
-            PauseHandler.Detach(_onPause.Get());
+            public int levelIndex;
+            public float durationSeconds;
+            public List<GhostFrame> frames = new List<GhostFrame>(1024);
+            public string recordedAtUtc;
+            public string appVersion;
         }
 
-        StopRecording();
-    }
+        private const float MinValidDurationSeconds = 0.25f;
+        private const float Epsilon = 0.0005f;
 
-    private void OnDestroy()
-    {
-        StopRecording();
-        if (winObserver != null)
+        private GhostRunData currentRun;
+        private bool isRecording;
+        private bool pauseGate;
+        private float lastFrameTime;
+        private Vector3 lastPos;
+        private Quaternion lastRot;
+        private ActionObserver<bool> winObserver;
+        private int levelIndex;
+
+        private bool _suppressBuildWarnings;
+        private NullCheck<ActionObserver<bool>> _onPause;
+        private NullCheck<Transform> _target;
+
+        // NEW: listen to GameEntry level-ready to reset/start a new recording
+        private NullCheck<ActionObserver> _onLevelReadySimple;
+
+        private void Awake()
         {
-            GlobalEvents.GameOver.Detach(winObserver);
-            
-            winObserver.Dispose();
-            winObserver = null;
-        }
-    }
+            if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
+            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
 
-    private void Update()
-    {
-        if (!recordAtFixedUpdate) TickRecord(Time.deltaTime);
-    }
+            _suppressBuildWarnings |= drawGizmos && gizmoSegments >= 0;
 
-    private void FixedUpdate()
-    {
-        if (recordAtFixedUpdate) TickRecord(Time.fixedDeltaTime);
-    }
+            levelIndex = SceneManager.GetActiveScene().buildIndex;
 
-    private void OnPauseChanged(bool paused)
-    {
-        if (!obeyPauseEvents) return;
-        pauseGate = paused;
-        //Log(paused ? "Recording paused" : "Recording resumed");
-    }
-
-    public void StartRecording()
-    {
-        if (!_target.TryGet(out var target)) return;
-        currentRun = new GhostRunData
-        {
-            levelIndex = levelIndex,
-            durationSeconds = 0f,
-            recordedAtUtc = DateTime.UtcNow.ToString("o"),
-            appVersion = Application.version
-        };
-        isRecording = true;
-        lastFrameTime = 0f;
-        lastPos = target.position;
-        lastRot = target.rotation;
-        PushFrame(0f, lastPos, lastRot);
-        //Log("Recording started");
-    }
-
-    public void StopRecording()
-    {
-        if (!isRecording) return;
-        isRecording = false;
-        //Log("Recording stopped");
-    }
-
-    private void TickRecord(float dt)
-    {
-        if (!isRecording || !_target.TryGet(out var target)) return;
-        if (obeyPauseEvents && (pauseGate || PauseHandler.IsPaused)) return;
-
-        currentRun.durationSeconds += dt;
-        float t = currentRun.durationSeconds;
-
-        if (t - lastFrameTime < minFrameIntervalSeconds) return;
-
-        Vector3 p = target.position;
-        Quaternion r = target.rotation;
-
-        if (Vector3.SqrMagnitude(p - lastPos) < minPositionDeltaMeters * minPositionDeltaMeters &&
-            Quaternion.Angle(r, lastRot) < minRotationDeltaDegrees)
-            return;
-
-        PushFrame(t, p, r);
-    }
-
-    private void PushFrame(float time, Vector3 pos, Quaternion rot)
-    {
-        GhostFrame f; f.time = time; f.position = pos; f.rotation = rot;
-        currentRun.frames.Add(f);
-        lastFrameTime = time; lastPos = pos; lastRot = rot;
-
-        if (maxRecordedFrames > 0 && currentRun.frames.Count > maxRecordedFrames)
-            currentRun.frames.RemoveAt(0);
-    }
-
-    private void OnGameOverHandler(bool levelWon)
-    {
-        if (!levelWon) return;
-        
-        float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
-        if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
-        {
-            //Log($"Skip save: invalid run (t={measuredDuration:0.###}s, frames={currentRun?.frames?.Count ?? 0})");
-            StopRecording();
-            return;
+            winObserver = new ActionObserver<bool>(OnGameOverHandler);
+            GlobalEvents.GameOver.Attach(winObserver);
         }
 
-        EnsureFolderExists();
-        string path = GetFilePathForLevel(levelIndex);
-
-        if (TryLoadBestGhostForLevel(levelIndex, out var existing, out _))
+        private void Start()
         {
-            if (existing != null && existing.durationSeconds > MinValidDurationSeconds)
+            if (PlayerSpawner.Player.TryGet(out var player))
             {
-                if (measuredDuration + Epsilon < existing.durationSeconds)
+                _target = player.transform;
+            }
+
+            if (startRecordingOnEnable) StartRecording();
+        }
+
+        private void OnEnable()
+        {
+            if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
+            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
+
+            PauseHandler.Attach(_onPause.Get());
+            OnPauseChanged(PauseHandler.IsPaused);
+
+            GameEntry.LoadingState.LevelChanged.Attach(_onLevelReadySimple.Get());
+
+            if (startRecordingOnEnable && !isRecording) StartRecording();
+        }
+
+        private void OnDisable()
+        {
+            if (_onPause) PauseHandler.Detach(_onPause.Get());
+            if (_onLevelReadySimple) GameEntry.LoadingState.LevelChanged.Detach(_onLevelReadySimple.Get());
+
+            StopRecording();
+        }
+
+        private void OnDestroy()
+        {
+            StopRecording();
+            if (winObserver != null)
+            {
+                GlobalEvents.GameOver.Detach(winObserver);
+                winObserver.Dispose();
+                winObserver = null;
+            }
+        }
+
+        private void Update()
+        {
+            if (!recordAtFixedUpdate) TickRecord(Time.deltaTime);
+        }
+
+        private void FixedUpdate()
+        {
+            if (recordAtFixedUpdate) TickRecord(Time.fixedDeltaTime);
+        }
+
+        private void OnPauseChanged(bool paused)
+        {
+            if (!obeyPauseEvents) return;
+            pauseGate = paused;
+        }
+
+        private void OnLevelReady()
+        {
+            // Level restarted/loaded → stop any old recording and start fresh for the new buildIndex
+            StopRecording();
+            levelIndex = SceneManager.GetActiveScene().buildIndex;
+            currentRun = null;
+            lastFrameTime = 0f;
+
+            if (PlayerSpawner.Player.TryGet(out var player))
+                _target = player.transform;
+
+            if (startRecordingOnEnable) StartRecording();
+
+            // Optional log:
+            // Debug.Log($"[GhostRecorder] OnLevelReady → new levelIndex={levelIndex}, recording={(isRecording ? "ON" : "OFF")}", this);
+        }
+
+        public void StartRecording()
+        {
+            if (!_target.TryGet(out var target)) return;
+            currentRun = new GhostRunData
+            {
+                levelIndex = levelIndex,
+                durationSeconds = 0f,
+                recordedAtUtc = DateTime.UtcNow.ToString("o"),
+                appVersion = Application.version
+            };
+            isRecording = true;
+            lastFrameTime = 0f;
+            lastPos = target.position;
+            lastRot = target.rotation;
+            PushFrame(0f, lastPos, lastRot);
+        }
+
+        public void StopRecording()
+        {
+            if (!isRecording) return;
+            isRecording = false;
+        }
+
+        private void TickRecord(float dt)
+        {
+            if (!isRecording || !_target.TryGet(out var target)) return;
+            if (obeyPauseEvents && (pauseGate || PauseHandler.IsPaused)) return;
+
+            currentRun.durationSeconds += dt;
+            float t = currentRun.durationSeconds;
+
+            if (t - lastFrameTime < minFrameIntervalSeconds) return;
+
+            Vector3 p = target.position;
+            Quaternion r = target.rotation;
+
+            if (Vector3.SqrMagnitude(p - lastPos) < minPositionDeltaMeters * minPositionDeltaMeters &&
+                Quaternion.Angle(r, lastRot) < minRotationDeltaDegrees)
+                return;
+
+            PushFrame(t, p, r);
+        }
+
+        private void PushFrame(float time, Vector3 pos, Quaternion rot)
+        {
+            GhostFrame f; f.time = time; f.position = pos; f.rotation = rot;
+            currentRun.frames.Add(f);
+            lastFrameTime = time; lastPos = pos; lastRot = rot;
+
+            if (maxRecordedFrames > 0 && currentRun.frames.Count > maxRecordedFrames)
+                currentRun.frames.RemoveAt(0);
+        }
+
+        private void OnGameOverHandler(bool levelWon)
+        {
+            if (!levelWon) return;
+
+            float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
+            if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
+            {
+                StopRecording();
+                return;
+            }
+
+            EnsureFolderExists();
+            string path = GetFilePathForLevel(levelIndex);
+
+            if (TryLoadBestGhostForLevel(levelIndex, out var existing, out _))
+            {
+                if (existing != null && existing.durationSeconds > MinValidDurationSeconds)
                 {
-                    AtomicSave(currentRun, path);
-                    //Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev {existing.durationSeconds:0.###}s)");
+                    if (measuredDuration + Epsilon < existing.durationSeconds)
+                    {
+                        AtomicSave(currentRun, path);
+                    }
                 }
                 else
                 {
-                    //Log($"Kept previous BEST ({existing.durationSeconds:0.###}s) → {path}");
+                    AtomicSave(currentRun, path);
                 }
             }
             else
             {
                 AtomicSave(currentRun, path);
-                //Log($"Saved BEST ({measuredDuration:0.###}s) → {path} (prev invalid)");
+            }
+
+            StopRecording();
+        }
+
+        private string GetFolderPath() => Path.Combine(Application.persistentDataPath, ghostsFolderName);
+        private string GetFilePathForLevel(int idx) => Path.Combine(GetFolderPath(), fileNamePattern.Replace("{LEVEL}", idx.ToString()));
+
+        private void EnsureFolderExists()
+        {
+            string folder = GetFolderPath();
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+        }
+
+        private static bool TryReadJson(string path, out GhostRunData data)
+        {
+            try
+            {
+                data = JsonUtility.FromJson<GhostRunData>(File.ReadAllText(path));
+                return data != null;
+            }
+            catch
+            {
+                data = null;
+                return false;
             }
         }
-        else
+
+        private void AtomicSave(GhostRunData run, string path)
         {
-            AtomicSave(currentRun, path);
-            //Log($"Saved FIRST BEST ({measuredDuration:0.###}s) → {path}");
+            if (run == null || run.frames == null || run.frames.Count < 2 || run.durationSeconds <= MinValidDurationSeconds) return;
+
+            string tmp = path + ".tmp";
+            File.WriteAllText(tmp, JsonUtility.ToJson(run));
+            try { if (File.Exists(path)) File.Delete(path); } catch { }
+            File.Move(tmp, path);
         }
 
-        StopRecording();
-    }
-
-    private string GetFolderPath() => Path.Combine(Application.persistentDataPath, ghostsFolderName);
-    private string GetFilePathForLevel(int idx) => Path.Combine(GetFolderPath(), fileNamePattern.Replace("{LEVEL}", idx.ToString()));
-
-    private void EnsureFolderExists()
-    {
-        string folder = GetFolderPath();
-        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-    }
-
-    private static bool TryReadJson(string path, out GhostRunData data)
-    {
-        try
+        public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data, out string path)
         {
-            data = JsonUtility.FromJson<GhostRunData>(File.ReadAllText(path));
-            return data != null;
+            int level = SceneManager.GetActiveScene().buildIndex;
+            return TryLoadBestGhostForLevel(level, out data, out path);
         }
-        catch
+
+        public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data)
         {
+            string _;
+            return TryLoadBestGhostForCurrentLevel(out data, out _);
+        }
+
+        public static bool TryLoadBestGhostForLevel(int levelIndex, out GhostRunData data, out string path)
+        {
+            path = Path.Combine(Application.persistentDataPath, "ghosts", $"level_{levelIndex}.ghost.json");
+            if (File.Exists(path) && TryReadJson(path, out data))
+                return data.levelIndex == levelIndex && data.frames != null && data.frames.Count >= 2 && data.durationSeconds > MinValidDurationSeconds;
+
             data = null;
             return false;
         }
-    }
-
-    private void AtomicSave(GhostRunData run, string path)
-    {
-        if (run == null || run.frames == null || run.frames.Count < 2 || run.durationSeconds <= MinValidDurationSeconds) return;
-
-        string tmp = path + ".tmp";
-        File.WriteAllText(tmp, JsonUtility.ToJson(run));
-        try { if (File.Exists(path)) File.Delete(path); } catch { }
-        File.Move(tmp, path);
-    }
-
-    public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data, out string path)
-    {
-        int level = SceneManager.GetActiveScene().buildIndex;
-        return TryLoadBestGhostForLevel(level, out data, out path);
-    }
-
-    public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data)
-    {
-        string _;
-        return TryLoadBestGhostForCurrentLevel(out data, out _);
-    }
-
-    public static bool TryLoadBestGhostForLevel(int levelIndex, out GhostRunData data, out string path)
-    {
-        path = Path.Combine(Application.persistentDataPath, "ghosts", $"level_{levelIndex}.ghost.json");
-        if (File.Exists(path) && TryReadJson(path, out data))
-            return data.levelIndex == levelIndex && data.frames != null && data.frames.Count >= 2 && data.durationSeconds > MinValidDurationSeconds;
-
-        data = null;
-        return false;
-    }
-    
 
 #if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        if (!drawGizmos) return;
-        if (currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2) return;
-        Gizmos.color = gizmoColor;
-        int count = currentRun.frames.Count;
-        int start = Mathf.Max(0, count - Mathf.Max(2, gizmoSegments));
-        for (int i = start + 1; i < count; i++)
-            Gizmos.DrawLine(currentRun.frames[i - 1].position, currentRun.frames[i].position);
-    }
+        private void OnDrawGizmosSelected()
+        {
+            if (!drawGizmos) return;
+            if (currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2) return;
+            Gizmos.color = gizmoColor;
+            int count = currentRun.frames.Count;
+            int start = Mathf.Max(0, count - Mathf.Max(2, gizmoSegments));
+            for (int i = start + 1; i < count; i++)
+                Gizmos.DrawLine(currentRun.frames[i - 1].position, currentRun.frames[i].position);
+        }
 #endif
+    }
 }

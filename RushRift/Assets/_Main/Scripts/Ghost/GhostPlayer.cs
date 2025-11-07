@@ -3,7 +3,7 @@ using Game;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static GhostPlaybackUtils;
+using static _Main.Scripts.Ghost.GhostPlaybackUtils;
 
 namespace _Main.Scripts.Ghost
 {
@@ -79,34 +79,35 @@ namespace _Main.Scripts.Ghost
         private Vector3 smoothedPos;
         private Vector3 smoothedPosVel;
         private Quaternion smoothedRot = Quaternion.identity;
-    
+
         private readonly List<Frame> framesCache = new();
         private ProximityFader _fader;
         private bool _suppressBuildWarnings;
+
         private NullCheck<ActionObserver<bool>> _onPause;
+        private NullCheck<ActionObserver> _onLevelReadySimple;
 
         private void Awake()
         {
             _suppressBuildWarnings |= drawGizmos && gizmoMaxSegments >= 0;
+
             if (enableProximityFade && proximityFadeMaterial)
                 _fader = new ProximityFader(proximityFadeMaterial, playerTagForFade, fadeMinDistance, fadeMaxDistance, alphaWhenClose, alphaWhenFar);
 
-            if (!_onPause)
-            {
-                _onPause = new ActionObserver<bool>(OnPauseChanged);
-            }
+            if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
+            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
         }
 
         private void OnEnable()
         {
-            if (!_onPause)
-            {
-                _onPause = new ActionObserver<bool>(OnPauseChanged);
-            }
-                
+            if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
+            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
+
             PauseHandler.Attach(_onPause.Get());
-            
             OnPauseChanged(PauseHandler.IsPaused);
+
+            // Subscribe to GameEntry level-ready signal
+            GameEntry.LoadingState.LevelChanged.Attach(_onLevelReadySimple.Get());
 
             if (autoLoadOnEnable) LoadBestGhost();
             EnsureGhostVisual();
@@ -117,11 +118,8 @@ namespace _Main.Scripts.Ghost
 
         private void OnDisable()
         {
-            if (_onPause)
-            {
-                PauseHandler.Detach(_onPause.Get());
-            }
-            
+            if (_onPause) PauseHandler.Detach(_onPause.Get());
+            if (_onLevelReadySimple) GameEntry.LoadingState.LevelChanged.Detach(_onLevelReadySimple.Get());
             Pause();
         }
 
@@ -137,7 +135,6 @@ namespace _Main.Scripts.Ghost
 
             float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
             float dur = Duration(framesCache, loadedRun.durationSeconds);
-        
             if (dur <= 0f) return;
 
             playbackTime += Mathf.Max(0f, dt) * Mathf.Max(0.0001f, playbackSpeed);
@@ -158,6 +155,27 @@ namespace _Main.Scripts.Ghost
             else if (wasPlayingBeforePause && HasValidRun()) Play();
         }
 
+        private void OnLevelReady()
+        {
+            // Level restarted/loaded → reset & reload
+            Log("OnLevelReady → reloading best ghost and resetting playback.");
+            Pause();
+
+            loadedRun = null;
+            framesCache.Clear();
+            cachedPositions.Clear();
+            worldPositionOffset = Vector3.zero;
+            playbackTime = 0f;
+            nextFrameIndex = 1;
+
+            LoadBestGhost();
+            EnsureGhostVisual();
+            AlignToPlayerStartIfNeeded();
+            SetGhostVisible(initialGhostVisible);
+
+            if (beginPlaybackOnEnable && HasValidRun() && !PauseHandler.IsPaused) Play();
+        }
+
         public void LoadBestGhost()
         {
             GhostRecorder.GhostRunData data; string path;
@@ -165,7 +183,7 @@ namespace _Main.Scripts.Ghost
             {
                 loadedRun = data;
                 debugLoadedGhostPath = path;
-            
+
                 framesCache.Clear();
                 for (int i = 0; i < loadedRun.frames.Count; i++)
                 {
@@ -183,7 +201,6 @@ namespace _Main.Scripts.Ghost
 
                 Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) from: {debugLoadedGhostPath}");
             }
-        
             else
             {
                 loadedRun = null;
@@ -290,7 +307,6 @@ namespace _Main.Scripts.Ghost
             Vector3 rawPos = SamplePosition(frames, i0, i1, t, (PosInterp)positionInterpolation) + worldPositionOffset;
 
             Quaternion rawRot;
-        
             if (rotationMode == RotationMode.IgnoreRotation) rawRot = ghostTransform.rotation;
             else rawRot = SampleRotation(frames, i0, i1, t, (RotMode)rotationMode, rawPos, smoothedPos, dt, faceVelocityMinSpeed);
 
@@ -305,7 +321,7 @@ namespace _Main.Scripts.Ghost
             smoothedPos = finalPos; smoothedRot = finalRot;
             ghostTransform.SetPositionAndRotation(finalPos, finalRot);
         }
-    
+
         private void Log(string msg)
         {
             if (!isDebugLoggingEnabled) return;
