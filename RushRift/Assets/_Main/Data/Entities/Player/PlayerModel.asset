@@ -100,7 +100,7 @@ MonoBehaviour:
     airResistance: 0.98
   jump:
     enabled: 1
-    order: 2
+    order: 3
     force: 25
     upInfluence: 5
     inputInfluence: 3
@@ -108,6 +108,8 @@ MonoBehaviour:
     minHorizontalVelocity: 5
     normalInfluence: 0.5
     cooldown: 0.25
+    jumpBuffer: 0.3
+    coyoteTime: 0.25
   dash:
     enabled: 1
     order: 99
