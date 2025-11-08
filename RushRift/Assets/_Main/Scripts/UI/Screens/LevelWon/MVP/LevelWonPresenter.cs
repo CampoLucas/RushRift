@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
 using Game.General;
 using Game.Levels;
@@ -96,11 +97,24 @@ namespace Game.UI.Screens
             
             data.CheckBestTime(id, endTime, out var prevBest, out var currBest, out var newRecord);
 
-            var bronze = GlobalLevelManager.GetMedalInfo(MedalType.Bronze);
-            var silver = GlobalLevelManager.GetMedalInfo(MedalType.Silver);
-            var gold = GlobalLevelManager.GetMedalInfo(MedalType.Gold);
+            var medalInfo = new Dictionary<MedalType, MedalInfo>();
 
-            model.Initialize(endTime, currBest, newRecord, bronze, silver, gold);
+            if (GlobalLevelManager.TryGetMedalInfo(MedalType.Bronze, out var medal))
+            {
+                medalInfo[MedalType.Bronze] = medal;
+            }
+            
+            if (GlobalLevelManager.TryGetMedalInfo(MedalType.Silver, out medal))
+            {
+                medalInfo[MedalType.Silver] = medal;
+            }
+            
+            if (GlobalLevelManager.TryGetMedalInfo(MedalType.Gold, out medal))
+            {
+                medalInfo[MedalType.Gold] = medal;
+            }
+            
+            model.Initialize(endTime, currBest, newRecord, medalInfo);
         }
 
         private void UpdateSaveData(in LevelWonModel model)

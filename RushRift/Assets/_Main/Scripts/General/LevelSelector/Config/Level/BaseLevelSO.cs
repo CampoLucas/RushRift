@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
-using Game.Levels.SingleLevel;
+using Game.Entities;
 using MyTools.Global;
 using UnityEngine;
 
@@ -34,13 +35,11 @@ namespace Game.Levels
             }
 
             return medal;
-            // return type switch
-            // {
-            //     MedalType.Bronze => bronze,
-            //     MedalType.Silver => silver,
-            //     MedalType.Gold   => gold,
-            //     _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            // };
+        }
+
+        public MedalType[] GetMedalTypes()
+        {
+            return medals.Keys.ToArray();
         }
 
         public bool TryGetMedal(MedalType type, out Medal medal)
@@ -54,5 +53,7 @@ namespace Game.Levels
             medal = GetMedal(type);
             return true;
         }
+
+        public abstract int TryGetEffects(out Effect[] effect);
     }
 }

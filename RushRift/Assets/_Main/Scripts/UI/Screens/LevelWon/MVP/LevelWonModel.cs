@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Game.General;
 using Game.Levels;
+using Unity.VisualScripting;
 
 namespace Game.UI.Screens
 {
@@ -10,36 +13,65 @@ namespace Game.UI.Screens
         public float BestTime { get; private set; }
         public bool NewRecord { get; private set; }
         public bool LevelWon { get; private set; }
-        public MedalInfo BronzeInfo { get; private set; }
-        public MedalInfo SilverInfo { get; private set; }
-        public MedalInfo GoldInfo { get; private set; }
 
-        public void Initialize(float endTime, float bestTime, bool newRecord, MedalInfo bronze, MedalInfo silver, MedalInfo gold)
+        public List<MedalType> MedalInfos { get; private set; } = new();
+        private Dictionary<MedalType, MedalInfo> _medalDict = new();
+
+        public void Initialize(float endTime, float bestTime, bool newRecord, Dictionary<MedalType, MedalInfo> medals)
         {
             EndTime = endTime;
             BestTime = bestTime;
             NewRecord = newRecord;
-            BronzeInfo = bronze;
-            SilverInfo = silver;
-            GoldInfo = gold;
-            LevelWon = bronze.Unlocked || silver.Unlocked || gold.Unlocked;
+
+            MedalInfos.Clear();
+            _medalDict.Clear();
+            
+            
+            if (medals != null)
+            {
+                MedalInfos.AddRange(medals.Keys);
+                _medalDict.AddRange(medals);
+                
+            }
+            
+            LevelWon = HasWon();
+        }
+
+        private bool HasWon()
+        {
+            var count = MedalInfos.Count;
+            if (count == 0) return true;
+            
+            for (var i = 0; i < count; i++)
+            {
+                if (_medalDict[MedalInfos[i]].Unlocked)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public override void Reset()
         {
             base.Reset();
-            Initialize(0, 0, false, default, default, default);
+            Initialize(0, 0, false, null);
         }
 
         public bool IsMedalUnlocked(MedalType type)
         {
-            return type switch
-            {
-                MedalType.Bronze => BronzeInfo.Unlocked,
-                MedalType.Silver => SilverInfo.Unlocked,
-                MedalType.Gold => GoldInfo.Unlocked,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
+            return _medalDict.TryGetValue(type, out var medal) && medal.Unlocked;
+        }
+
+        public bool HasMedal(MedalType type)
+        {
+            return _medalDict.ContainsKey(type);
+        }
+
+        public bool TryGetMedal(MedalType type, out MedalInfo info)
+        {
+            return _medalDict.TryGetValue(type, out info);
         }
     }
 

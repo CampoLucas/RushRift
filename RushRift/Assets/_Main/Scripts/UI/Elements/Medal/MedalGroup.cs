@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game.Levels;
 using Game.UI.Screens;
 using UnityEngine;
 
@@ -13,9 +14,38 @@ public class MedalGroup : MonoBehaviour
     public void Init()
     {
         var model = presenter.GetModel();
+
+        if (model.TryGetMedal(MedalType.Bronze, out var medal))
+        {
+            bronze.gameObject.SetActive(true);
+            
+            bronze.Init(medal.MedalTime, medal.Unlocked);
+        }
+        else
+        {
+            bronze.gameObject.SetActive(false);
+        }
         
-        bronze.Init(model.BronzeInfo.MedalTime, model.BronzeInfo.Unlocked);
-        silver.Init(model.SilverInfo.MedalTime, model.SilverInfo.Unlocked);
-        gold.Init(model.GoldInfo.MedalTime, model.GoldInfo.Unlocked);
+        if (model.TryGetMedal(MedalType.Silver, out medal))
+        {
+            silver.gameObject.SetActive(true);
+            
+            silver.Init(medal.MedalTime, medal.Unlocked);
+        }
+        else
+        {
+            silver.gameObject.SetActive(false);
+        }
+        
+        if (model.TryGetMedal(MedalType.Gold, out medal))
+        {
+            gold.gameObject.SetActive(true);
+            
+            gold.Init(medal.MedalTime, medal.Unlocked);
+        }
+        else
+        {
+            gold.gameObject.SetActive(false);
+        }
     }
 }
