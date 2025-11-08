@@ -3,35 +3,9 @@ using UnityEngine.Networking;
 using UnityEngine;
 using System;
 
-
-[System.Serializable]
-public class ScoreData
-{
-    public string name;
-    public int id_level;
-    public string timescore;
-    public int abilities_1;
-    public int abilities_2;
-    public int abilities_3;
-}
-
-[System.Serializable]
-public class ScoreList
-{
-    public ScoreData[] scores;
-}
-
-public class ResponseData
-{
-    public string status;
-    public int id;
-    public string message;
-    public string name;
-}
-
 public static class Database
 {
-    private static string serverIp = "[2802:8010:8b2a:901:4194:aefe:3e8d:fc95]";
+    private static string serverIp = "[2802:8010:8b2a:901::555]";
     //private void Awake()
     //{
     //    SendScore(1,1,"00:30:00", 0, 0, 0);
@@ -55,7 +29,6 @@ public static class Database
 
             if (www.result == UnityWebRequest.Result.Success)
             {
-                // Parsear JSON
                 string json = www.downloadHandler.text;
                 ResponseData response = JsonUtility.FromJson<ResponseData>(json);
 
