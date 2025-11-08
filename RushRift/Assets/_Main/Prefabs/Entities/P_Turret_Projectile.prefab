@@ -894,6 +894,7 @@ GameObject:
   - component: {fileID: 4036694657418605575}
   - component: {fileID: 4025288467119005644}
   - component: {fileID: 3486766384206959456}
+  - component: {fileID: 5295763007051213639}
   m_Layer: 9
   m_Name: P_Turret_Projectile
   m_TagString: Enemy
@@ -1037,6 +1038,23 @@ MonoBehaviour:
   - {fileID: 3947552943855110621}
   - {fileID: 1460731891277681104}
   - {fileID: 4036694657418605575}
+--- !u!114 &5295763007051213639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6713962002373540701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 900c7f13735e5c9459150a774cf76a0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particlePrefab: {fileID: 3180192163280457688, guid: 5850eab43aba5b04684862256338c934, type: 3}
+  matchRotation: 1
+  matchScale: 0
+  overrideSpawnPoint: {fileID: 0}
+  autoDestroyInstance: 1
 --- !u!1 &6774804265165595017
 GameObject:
   m_ObjectHideFlags: 0
