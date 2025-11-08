@@ -272,10 +272,7 @@ namespace Game.UI
 
         public void Restart()
         {
-            Time.timeScale = 1f;
-            // ToDo: Make the GlobalLevelManager have the method to restart.
-            GameEntry.LoadSessionAsync(GlobalLevelManager.CurrentSession);
-            //SceneHandler.ReloadCurrent();
+            GlobalLevelManager.Restart();
         }
 
         protected override bool CreateIfNull() => false;

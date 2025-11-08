@@ -20,9 +20,6 @@ public class TimerDisplay : MonoBehaviour
 
     [Header("Colors")]
     [SerializeField] private SerializedDictionary<MedalType, Color> medalColors = new();
-    [SerializeField] private Color bronzeColor;
-    [SerializeField] private Color silverColor;
-    [SerializeField] private Color goldColor;
     [SerializeField] private Color failureColor;
 
     [Header("Settings")]
@@ -32,10 +29,13 @@ public class TimerDisplay : MonoBehaviour
     [SerializeField] private Color blinkColor;
     [SerializeField] private float blinkInterval = 0.5f;
     [SerializeField] private float timeToBlink = 5;
+    [SerializeField] private float colorLerpSpeed = 10f;
 
     private readonly List<MedalData> _medals = new();
+    
     private Color _textStartColor;
     private Color _currentTargetColor;
+    private Color _previousTargetColor;
     private Color _nextThresholdColor = Color.white; // for blinking
     private Coroutine _blinkCoroutine;
     private bool _useBlinkColor;
@@ -105,12 +105,23 @@ public class TimerDisplay : MonoBehaviour
             TryAddMedal(level, medalTypes[i]);
         }
         
-        TryAddMedal(level, MedalType.Gold);
-        TryAddMedal(level, MedalType.Silver);
-        TryAddMedal(level, MedalType.Bronze);
-        
         // Sort by time ascending
         _medals.Sort((a, b) => a.Time.CompareTo(b.Time));
+        
+        if (_medals.Count > 0)
+        {
+            _currentTargetColor = _previousTargetColor = _medals[0].Color;
+
+            // initialize next threshold color properly
+            _nextThresholdColor = (_medals.Count > 1)
+                ? _medals[1].Color
+                : failureColor;
+        }
+        else
+        {
+            _currentTargetColor = _previousTargetColor = failureColor;
+            _nextThresholdColor = failureColor;
+        }
     }
     
     private void TryAddMedal(BaseLevelSO level, MedalType type)
@@ -128,45 +139,55 @@ public class TimerDisplay : MonoBehaviour
 
     private void OnTimeUpdated(float time)
     {
-        // Update formatted text
         text.text = time.FormatToTimer();
 
         if (_medals.Count == 0)
         {
-            icon.color = failureColor;
-            if (useFailureTextColor) text.color = failureColor;
+            icon.color = Color.Lerp(icon.color, failureColor, Time.deltaTime * colorLerpSpeed);
+            if (useFailureTextColor)
+                text.color = Color.Lerp(text.color, failureColor, Time.deltaTime * colorLerpSpeed);
             return;
         }
-        
-        // Find current medal based on time
+
         var currentIndex = _medals.FindIndex(m => time <= m.Time);
+        Color newTargetColor;
+        Color newNextColor;
+
         if (currentIndex == -1)
         {
-            _currentTargetColor = failureColor;
-            _nextThresholdColor = failureColor;
+            newTargetColor = failureColor;
+            newNextColor = failureColor;
         }
         else
         {
-            _currentTargetColor = _medals[currentIndex].Color;
-            _nextThresholdColor = (currentIndex + 1 < _medals.Count)
+            newTargetColor = _medals[currentIndex].Color;
+            newNextColor = (currentIndex + 1 < _medals.Count)
                 ? _medals[currentIndex + 1].Color
                 : failureColor;
         }
-        
-        // Transition color
+
+        // Only change target when medal tier changes
+        if (newTargetColor != _currentTargetColor)
+        {
+            _previousTargetColor = icon.color;
+            _currentTargetColor = newTargetColor;
+            _nextThresholdColor = newNextColor;
+        }
+
         if (!_useBlinkColor)
         {
-            icon.color = Color.Lerp(icon.color, _currentTargetColor, Time.deltaTime * 10f);
+            icon.color = Color.Lerp(icon.color, _currentTargetColor, Time.deltaTime * colorLerpSpeed);
+
             if (useSameColor)
             {
                 var targetTextColor = (currentIndex == -1 && useFailureTextColor)
                     ? failureColor
                     : _currentTargetColor;
-                text.color = Color.Lerp(text.color, targetTextColor, Time.deltaTime * 10f);
+
+                text.color = Color.Lerp(text.color, targetTextColor, Time.deltaTime * colorLerpSpeed);
             }
         }
 
-        // Blink if close to next threshold
         var timeToNext = NextThresholdTime(time);
         if (timeToNext <= timeToBlink)
         {

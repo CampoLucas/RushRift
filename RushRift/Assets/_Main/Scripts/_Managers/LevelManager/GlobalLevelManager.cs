@@ -399,5 +399,11 @@ namespace Game
             if (Instance.TryGet(out var manager))
                 manager.DashHack = godmode;
         }
+
+        public static void Restart()
+        {
+            Time.timeScale = 1f;
+            GameEntry.LoadSessionAsync(CurrentSession);
+        }
     }
 }

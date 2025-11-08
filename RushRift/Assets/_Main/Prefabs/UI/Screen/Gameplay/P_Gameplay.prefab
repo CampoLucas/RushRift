@@ -979,8 +979,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   View: {fileID: 1643477093141452794}
-  healthBarPresenter: {fileID: 5220196576479486678}
-  energyBarPresenter: {fileID: 666970302246675660}
+  healthBarBaseUIPresenter: {fileID: 5220196576479486678}
+  energyBarBaseUIPresenter: {fileID: 666970302246675660}
 --- !u!114 &1643477093141452794
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1339,6 +1339,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 8530442829529586115}
   icon: {fileID: 7921601800483085964}
+  medalColors:
+    data:
+    - key: 0
+      value: {r: 0.8039216, g: 0.3137255, b: 0.2509804, a: 1}
+    - key: 1
+      value: {r: 0.8352941, g: 0.8352941, b: 0.8352941, a: 1}
+    - key: 2
+      value: {r: 0.84313726, g: 0.6039216, b: 0, a: 1}
   bronzeColor: {r: 0.8039216, g: 0.3137255, b: 0.2509804, a: 1}
   silverColor: {r: 0.8352941, g: 0.8352941, b: 0.8352941, a: 1}
   goldColor: {r: 0.8431373, g: 0.6039216, b: 0, a: 1}
