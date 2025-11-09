@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.590616, y: -1.6318091, z: -95.27885}
-  m_LocalScale: {x: 125.63, y: 125.62999, z: 125.63}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4141192203516914704}
@@ -54,8 +54,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.015408533, y: 0.015356688, z: 0.023717774}
-  m_Center: {x: 0.00000017764978, y: -0.00000006100164, z: 0.0000006416814}
+  m_Size: {x: 2, y: 3, z: 2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6998907797099666698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,32 +74,24 @@ MonoBehaviour:
     regenDelay: 0
     regenRate: 0
     onZeroHealth: 1
-  useDieBehaviourForPostAction: 1
   shouldExplodeOnDestroy: 1
   explosionOriginLocalOffset: {x: 0, y: 0, z: 0}
-  explosionRadiusMeters: 10
+  explosionRadiusMeters: 20
   explosionDelaySeconds: 0
   explosionDamageMax: 100
   explosionDamageMin: 10
-  playerLaunchSpeedMaxMetersPerSecond: 80
-  playerLaunchSpeedMinMetersPerSecond: 80
+  playerLaunchSpeedMaxMetersPerSecond: 150
+  playerLaunchSpeedMinMetersPerSecond: 150
   otherRigidbodiesExplosionImpulseMax: 20
-  otherRigidbodiesExplosionImpulseMin: 4
+  otherRigidbodiesExplosionImpulseMin: 26.1
   otherRigidbodiesUpwardsModifier: 25
-  postExplosionAction: 2
-  postExplosionActionDelaySeconds: 0
   requiredPlayerTag: Player
-  launchDirectionSource: 2
-  customLaunchDirection: {x: 0, y: 50, z: 0}
-  directionReferenceTransform: {fileID: 0}
-  shouldResetTangentialVelocity: 0
   enemyTag: Enemy
   allowExternalExplosionTrigger: 1
   shouldPlayExplosionAudio: 1
   explosionAudioEventName: BarrelExplosion
   explosionVFX: 0
   explosionVfxLocalOffset: {x: 0, y: 0, z: 0}
-  isDebugLoggingEnabled: 1
   drawGizmos: 1
 --- !u!114 &5402738920482113012
 MonoBehaviour:
@@ -148,7 +140,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 125, y: 125, z: 125}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8126299112905828330}
