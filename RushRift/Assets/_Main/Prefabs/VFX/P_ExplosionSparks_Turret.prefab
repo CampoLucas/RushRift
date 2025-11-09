@@ -9,8 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8449815196184175121}
-  - component: {fileID: 3180192163280457688}
-  - component: {fileID: 4236058979814423952}
+  - component: {fileID: 7833946563607677891}
+  - component: {fileID: 116506329700163302}
+  - component: {fileID: 8583165347095201686}
   m_Layer: 0
   m_Name: P_ExplosionSparks_Turret
   m_TagString: Untagged
@@ -27,13 +28,13 @@ Transform:
   m_GameObject: {fileID: 903064811143170794}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 1.22, z: -23.9}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
---- !u!198 &3180192163280457688
+--- !u!198 &7833946563607677891
 ParticleSystem:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4756,7 +4757,20 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!199 &4236058979814423952
+--- !u!114 &116506329700163302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903064811143170794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2601229421834c588d2e0d836d414732, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 7833946563607677891}
+--- !u!199 &8583165347095201686
 ParticleSystemRenderer:
   serializedVersion: 6
   m_ObjectHideFlags: 0

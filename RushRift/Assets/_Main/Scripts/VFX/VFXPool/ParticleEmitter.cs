@@ -10,7 +10,7 @@ namespace Game.Entities
         
         private void Update()
         {
-            if (particle.time >= particle.main.duration)
+            if (!particle.IsAlive(true))
             {
                 Pool.Recycle(this);
             }
