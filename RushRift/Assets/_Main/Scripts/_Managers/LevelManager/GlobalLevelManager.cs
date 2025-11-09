@@ -123,19 +123,30 @@ namespace Game
                 return false;
             }
 
-            if (!session.GameMode || !session.Level)
+            var gm = session.GameMode;
+            var lvl = session.Level;
+            if (!gm || !lvl)
             {
                 this.Log("No GameMode or Level found", LogType.Error);
                 return false;
             }
 
-            var nextLevel = session.GameMode.GetNextLevel(session.Level);
-            if (nextLevel != null)
+            if (gm.TrySetNextLevel(session))
             {
-                session.SetLevel(nextLevel);
                 await GameEntry.TryAwaitLoadSessionAsync(session);
                 return true;
             }
+            
+            
+            // var nextLevel = gm.GetNextLevel(lvl);
+            // if (nextLevel != null)
+            // {
+            //     session.SetLevel(nextLevel);
+            //     await GameEntry.TryAwaitLoadSessionAsync(session);
+            //     return true;
+            // }
+            //
+            // if ()
             
             this.Log("There is no next level", LogType.Error);
             return false;

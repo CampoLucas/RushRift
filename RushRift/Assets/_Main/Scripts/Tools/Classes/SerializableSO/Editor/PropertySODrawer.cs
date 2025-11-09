@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Game.Editor
 {
     [CustomPropertyDrawer(typeof(SerializableSO), true)]
+    [CustomPropertyDrawer(typeof(SerializableSOAttribute), true)]
 
     public class PropertySODrawer : PropertyDrawer
     {

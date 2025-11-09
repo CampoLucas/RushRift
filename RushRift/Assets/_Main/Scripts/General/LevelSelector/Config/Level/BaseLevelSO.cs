@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Game.Levels
 {
-    public abstract class BaseLevelSO : SerializableSO
+    public abstract class BaseLevelSO : ScriptableObject
     {
         public int LevelID => levelID;
         public string LevelName => levelName;

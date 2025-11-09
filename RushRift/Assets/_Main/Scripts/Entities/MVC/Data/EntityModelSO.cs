@@ -1,9 +1,11 @@
+using UnityEngine;
+
 namespace Game.Entities
 {
     /// <summary>
     /// Base ScriptableObject for creating runtime Model proxies
     /// </summary>
-    public abstract class EntityModelSO : SerializableSO
+    public abstract class EntityModelSO : ScriptableObject
     {
         /// <summary>
         /// Creates a proxy instance to be used during runtime 
