@@ -174,9 +174,28 @@ namespace Game.UI.StateMachine.Editor
             // On add, create empty transition
             _transitionsList.onAddCallback = list =>
             {
+                serializedObject.Update();
+
+                // Increase array
                 _transitions.arraySize++;
                 serializedObject.ApplyModifiedProperties();
-                _foldoutStates[_transitions.arraySize - 1] = false;
+
+                // Get the new element
+                var newElement = _transitions.GetArrayElementAtIndex(_transitions.arraySize - 1);
+
+                // Reset the collection (not via objectReferenceValue!)
+                var conditions = newElement.FindPropertyRelative("conditions");
+                if (conditions != null)
+                {
+                    var innerList = conditions.FindPropertyRelative("collection");
+                    if (innerList != null)
+                    {
+                        innerList.ClearArray(); // wipe any copied elements
+                    }
+                }
+
+                serializedObject.ApplyModifiedProperties();
+                EditorUtility.SetDirty(_collection);
             };
             
         }
