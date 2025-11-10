@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Game.Levels;
-using Game.UI.Screens;
+using Game.UI.StateMachine;
 using UnityEngine;
 
 public class MedalGroup : MonoBehaviour

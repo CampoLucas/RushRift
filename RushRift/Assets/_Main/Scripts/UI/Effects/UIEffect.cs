@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.UI.Screens
+namespace Game.UI.StateMachine
 {
     public class UIEffect : ScriptableObject
     {

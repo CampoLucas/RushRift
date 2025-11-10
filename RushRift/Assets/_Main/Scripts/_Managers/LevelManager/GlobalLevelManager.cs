@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
 using Game.Saves;
-using Game.UI.Screens;
+using Game.UI.StateMachine;
 using Game.Utils;
 using MyTools.Global;
 using UnityEngine;

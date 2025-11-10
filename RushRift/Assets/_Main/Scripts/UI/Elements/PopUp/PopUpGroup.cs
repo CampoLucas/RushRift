@@ -4,7 +4,7 @@ using Game.Levels;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Game.UI.Screens.Elements
+namespace Game.UI.StateMachine.Elements
 {
     public class PopUpGroup : MonoBehaviour
     {

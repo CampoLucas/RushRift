@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8174452389659081034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 
+  action: 0
+--- !u!114 &-6993022937991330598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 
+  action: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a482b98b92874ad9906c3d3427c94046, type: 3}
+  m_Name: GameplayUI_Test
+  m_EditorClassIdentifier: 
+  presenters:
+    data:
+    - key: 0
+      value: {fileID: 7366195813824602402, guid: 7310efbec7e37b34caea64d76350444d, type: 3}
+    - key: 1
+      value: {fileID: 5388832394791625013, guid: ab55cb21c0a83674a9f0cd7611d54d6a, type: 3}
+    - key: 2
+      value: {fileID: 3678664892906737821, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
+    - key: 3
+      value: {fileID: 4995141253448380566, guid: b25d9faaca0e19f41b8055ce5df3fc47, type: 3}
+    - key: 4
+      value: {fileID: 4018931262824082179, guid: b4087106d6c5f9845a323c757f8ea532, type: 3}
+  transitions:
+  - from: 0
+    to: 0
+    conditions:
+      collection:
+      - {fileID: -6993022937991330598}
+      - {fileID: -8174452389659081034}
