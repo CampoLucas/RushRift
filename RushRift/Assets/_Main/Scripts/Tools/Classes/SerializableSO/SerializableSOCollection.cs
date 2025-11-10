@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Editor;
 using Game.Tools;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -10,7 +11,7 @@ namespace Game
 {
     [System.Serializable]
     public partial class SerializableSOCollection<T> : ICollection<T>
-        where T : SerializableSO
+        where T : ScriptableObject
     {
         public int Count => collection?.Count ?? -1;
         public bool IsReadOnly => false;
@@ -21,7 +22,7 @@ namespace Game
             set => SetValue(key, value);
         }
         
-        [SerializeField] private List<T> collection = new();
+        [SerializeField, SerializableSO] private List<T> collection = new();
         
         public IEnumerator<T> GetEnumerator()
         {
