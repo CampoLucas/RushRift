@@ -42,11 +42,6 @@ namespace Game.Entities
         protected override void Start()
         {
             base.Start();
-            StartCoroutine(Database.SendUsernameCoroutine("messi", OnReceivedId));
-
-            StartCoroutine(Database.SendScoreCoroutine(7, 1, "00:11:00", 1, 1, 1));
-
-            StartCoroutine(Database.GetScoreCoroutine(1, OnReceivedScore));
 
             if (GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
             {
