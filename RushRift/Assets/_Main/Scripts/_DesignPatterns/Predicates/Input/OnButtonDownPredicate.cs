@@ -4,10 +4,10 @@ namespace Game.InputSystem
 {
     public class OnButtonPredicate : IPredicate
     {
-        private readonly HashedKey _input;
+        private readonly InputManager.Input _input;
         private readonly ButtonAction _action;
 
-        public OnButtonPredicate(HashedKey input, ButtonAction action = ButtonAction.Down)
+        public OnButtonPredicate(InputManager.Input input, ButtonAction action = ButtonAction.Down)
         {
             _input = input;
             _action = action;

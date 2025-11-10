@@ -75,7 +75,7 @@ namespace Game
 #if false
             _cachedDelta = InputManager.GetValueVector(InputManager.LookInput);
 #else    
-            var rawDelta = InputManager.GetValueVector(InputManager.LookInput);
+            var rawDelta = InputManager.GetValueVector(InputManager.Input.Look);
             _cachedDelta = Vector2.Lerp(_cachedDelta, rawDelta, Time.deltaTime * smoothing);
 #endif
         }

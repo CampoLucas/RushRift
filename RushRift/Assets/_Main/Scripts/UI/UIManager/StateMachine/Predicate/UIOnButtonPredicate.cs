@@ -6,9 +6,7 @@ namespace Game.UI.StateMachine
 {
     public class UIOnButtonPredicate : UIPredicate
     {
-        public HashedKey Input => new HashedKey(input);
-        
-        [SerializeField] private string input;
+        [SerializeField] private InputManager.Input input;
         [SerializeField] private ButtonAction action;
 
 
@@ -17,11 +15,11 @@ namespace Game.UI.StateMachine
             switch(action)
             {
                 case ButtonAction.Get:
-                    return InputManager.OnButton(Input);
+                    return InputManager.OnButton(input);
                 case ButtonAction.Down:
-                    return InputManager.OnButtonDown(Input);
+                    return InputManager.OnButtonDown(input);
                 case ButtonAction.Up:
-                    return InputManager.OnButtonUp(Input);
+                    return InputManager.OnButtonUp(input);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

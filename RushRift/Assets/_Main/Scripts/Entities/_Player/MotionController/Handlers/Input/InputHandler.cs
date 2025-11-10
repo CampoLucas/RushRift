@@ -14,8 +14,8 @@ namespace Game.Entities.Components.MotionController
 
         public override void OnUpdate(in MotionContext context, in float delta)
         {
-            context.MoveDirection = InputManager.GetValueVector(InputManager.MoveInput).XOZ();
-            context.Jump = InputManager.OnButtonDown(InputManager.JumpInput);
+            context.MoveDirection = InputManager.GetValueVector(InputManager.Input.Move).XOZ();
+            context.Jump = InputManager.OnButtonDown(InputManager.Input.Jump);
 
             if (context.Jump)
             {

@@ -176,19 +176,19 @@ namespace Game.UI
 #else
             if (stateMachine.TryAddState(UIScreen.GameOver, gameOverPresenter, out var gameOver))
             {
-                gameOver.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.ResetInput));
-                gameOver.AddTransition(SceneTransition.HUB, new OnButtonPredicate(InputManager.PauseInput));
+                gameOver.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.Input.Reset));
+                gameOver.AddTransition(SceneTransition.HUB, new OnButtonPredicate(InputManager.Input.Pause));
             }
                 
             if (stateMachine.TryAddState(UIScreen.Gameplay, gameplayPresenter, out var gameplay))
             {
-                gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.PauseInput), 0, .25f, 0);
-                gameplay.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.ResetInput));
+                gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.Input.Pause), 0, .25f, 0);
+                gameplay.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.Input.Reset));
             }
 
             if (stateMachine.TryAddState(UIScreen.Pause, pausePresenter, out var pause))
             {
-                pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),.25f, 0, 0);
+                pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.Input.Pause),.25f, 0, 0);
             }
 
             stateMachine.TryAddState(UIScreen.LevelWon, levelWonPresenter, out var levelWon);
