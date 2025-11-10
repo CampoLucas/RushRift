@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Game.Entities.AttackSystem
 {
-    public class Predicate : SerializableSO
+    public class ComboPredicate : SerializableSO
     {
         [SerializeField] private bool invert;
         public bool Evaluate(ComboHandler combo, IAttack next)

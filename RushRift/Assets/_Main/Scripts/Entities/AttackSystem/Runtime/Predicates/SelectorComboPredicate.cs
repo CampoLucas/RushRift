@@ -8,9 +8,9 @@ namespace Game
     /// This predicate works like an OR, if any of its predicates return true.
     /// </summary>
     [CreateAssetMenu(menuName = "Game/AttackSystem/Predicates/SelectorPredicate")]
-    public class SelectorPredicate : Predicate
+    public class SelectorComboPredicate : ComboPredicate
     {
-        [SerializeField] private SerializableSOCollection<Predicate> predicates;
+        [SerializeField] private SerializableSOCollection<ComboPredicate> predicates;
 
         protected override bool OnEvaluate(ComboHandler combo, IAttack next)
         {

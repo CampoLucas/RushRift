@@ -13,7 +13,7 @@ namespace Game.Entities.AttackSystem
         [SerializeField] protected Attack to;
         
         [Header("Conditions")]
-        [SerializeField] protected List<Predicate> conditions;
+        [SerializeField] protected List<ComboPredicate> conditions;
 
         public virtual TransitionProxy GetProxy(IController controller) => new TransitionProxy(to.GetProxy(controller), conditions);
     }
@@ -21,9 +21,9 @@ namespace Game.Entities.AttackSystem
     public class TransitionProxy : IDisposable
     {
         private IAttack _to;
-        private List<Predicate> _conditions;
+        private List<ComboPredicate> _conditions;
 
-        public TransitionProxy(IAttack to, List<Predicate> conditions)
+        public TransitionProxy(IAttack to, List<ComboPredicate> conditions)
         {
             _to = to;
             _conditions = conditions;

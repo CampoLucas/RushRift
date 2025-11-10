@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Game.Entities.AttackSystem
 {
     [CreateAssetMenu(menuName = "Game/AttackSystem/Predicates/Input/OnInput")]
-    public class OnInput : InputPredicate
+    public class InputCombo : InputComboPredicate
     {
         [SerializeField] private string input;
         [SerializeField] private bool value = true;

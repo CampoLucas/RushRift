@@ -1,6 +1,6 @@
 namespace Game.Entities.AttackSystem
 {
-    public abstract class MovementPredicate : Predicate
+    public class InputComboPredicate : ComboPredicate
     {
         
     }
