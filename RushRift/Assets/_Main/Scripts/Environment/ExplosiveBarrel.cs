@@ -76,6 +76,10 @@ public class ExplosiveBarrel : MonoBehaviour
     [SerializeField, Tooltip("Local offset from the explosion origin where the VFX will be placed.")]
     private Vector3 explosionVfxLocalOffset = Vector3.zero;
 
+    [Header("Chain Reaction")]
+    [SerializeField, Tooltip("Extra delay added only when this barrel is detonated by another barrel's explosion.")]
+    private float chainReactionDelaySeconds = 0.12f;
+
     [Header("Gizmos")]
     [SerializeField, Tooltip("If enabled, draws gizmos for the explosion radius and example launch direction.")]
     private bool drawGizmos = true;
@@ -138,7 +142,8 @@ public class ExplosiveBarrel : MonoBehaviour
             if (!runtimeHealthComponent.IsAlive() || runtimeHealthComponent.Value <= 0f)
             {
                 hasExplosionAlreadyTriggered = true;
-                ExecuteExplosionNow();
+                if (explosionDelaySeconds > 0f) StartCoroutine(DelayedExplosion(explosionDelaySeconds));
+                else ExecuteExplosionNow();
             }
         }
     }
@@ -150,8 +155,15 @@ public class ExplosiveBarrel : MonoBehaviour
         {
             explosionInitiatedByOnDestroy = true;
             hasExplosionAlreadyTriggered = true;
-            ExecuteExplosionNow();
+            if (explosionDelaySeconds > 0f) StartCoroutine(DelayedExplosion(explosionDelaySeconds));
+            else ExecuteExplosionNow();
         }
+    }
+
+    private IEnumerator DelayedExplosion(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ExecuteExplosionNow();
     }
 
     private void ExecuteExplosionNow()
@@ -234,6 +246,28 @@ public class ExplosiveBarrel : MonoBehaviour
 
             bool isPlayer = IsPlayerObject(agg.Group) || (agg.Controller is PlayerController);
 
+            var otherBarrel = agg.Group.GetComponentInParent<ExplosiveBarrel>();
+
+            if (otherBarrel && otherBarrel != this)
+            {
+                HealthComponent otherHealth = null;
+                if (agg.Controller)
+                {
+                    var mdl = agg.Controller.GetModel();
+                    if (mdl != null) mdl.TryGetComponent(out otherHealth);
+                }
+
+                if (otherHealth != null)
+                {
+                    float wouldRemain = otherHealth.Value - Mathf.Max(0f, scaledDamage);
+                    if (wouldRemain <= 0f)
+                    {
+                        otherBarrel.TriggerExplosionExternal(null, false, null, Mathf.Max(0f, chainReactionDelaySeconds));
+                        continue;
+                    }
+                }
+            }
+
             if (isPlayer)
             {
                 var rb = agg.Rigidbody ? agg.Rigidbody : agg.Group.GetComponentInParent<Rigidbody>();
@@ -268,12 +302,27 @@ public class ExplosiveBarrel : MonoBehaviour
             gameObject.SetActive(false);
     }
 
-    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool forceMaxImpulseForPlayerAndRigidbodies = false, Rigidbody guaranteedImpulseTarget = null)
+    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool forceMaxImpulseForPlayerAndRigidbodies = false, Rigidbody guaranteedImpulseTarget = null, float delaySeconds = 0f)
     {
         if (!allowExternalExplosionTrigger) return;
         if (hasExplosionAlreadyTriggered) return;
+
         hasExplosionAlreadyTriggered = true;
         explosionInitiatedByOnDestroy = false;
+
+        if (delaySeconds > 0f)
+        {
+            StartCoroutine(DelayedExternal(overrideWorldOrigin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget, delaySeconds));
+            return;
+        }
+
+        Vector3 origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOriginLocalOffset);
+        ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
+    }
+
+    private IEnumerator DelayedExternal(Vector3? overrideWorldOrigin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget, float delaySeconds)
+    {
+        yield return new WaitForSeconds(delaySeconds);
         Vector3 origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOriginLocalOffset);
         ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
     }
