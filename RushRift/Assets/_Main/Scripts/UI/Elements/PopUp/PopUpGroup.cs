@@ -93,24 +93,6 @@ namespace Game.UI.StateMachine.Elements
 
                 yield return OpenMedal(popUp.Item1, popUp.Item2);
             }
-            
-            // var bronzeInfo = model.BronzeInfo;
-            // if (bronzeInfo is { PrevUnlocked: false, Unlocked: true })
-            // {
-            //     yield return OpenMedal(bronze, bronzeInfo);
-            // }
-            //
-            // var silverInfo = model.SilverInfo;
-            // if (silverInfo is { PrevUnlocked: false, Unlocked: true })
-            // {
-            //     yield return OpenMedal(silver, silverInfo);
-            // }
-            //
-            // var goldInfo = model.GoldInfo;
-            // if (goldInfo is { PrevUnlocked: false, Unlocked: true })
-            // {
-            //     yield return OpenMedal(gold, goldInfo);
-            // }
         }
 
         private IEnumerator OpenMedal(PopUpData data, MedalInfo medalInfo)
