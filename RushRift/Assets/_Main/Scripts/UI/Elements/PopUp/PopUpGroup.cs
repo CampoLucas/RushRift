@@ -37,13 +37,13 @@ namespace Game.UI.StateMachine.Elements
                 _popUps.Add((bronze, medalInfo));
             }
             
-            if (model.TryGetMedal(MedalType.Bronze, out medalInfo) && medalInfo is { PrevUnlocked: false, Unlocked: true })
+            if (model.TryGetMedal(MedalType.Silver, out medalInfo) && medalInfo is { PrevUnlocked: false, Unlocked: true })
             {
                 silver.popUp.gameObject.SetActive(true);
                 _popUps.Add((silver, medalInfo));
             }
             
-            if (model.TryGetMedal(MedalType.Bronze, out medalInfo) && medalInfo is { PrevUnlocked: false, Unlocked: true })
+            if (model.TryGetMedal(MedalType.Gold, out medalInfo) && medalInfo is { PrevUnlocked: false, Unlocked: true })
             {
                 gold.popUp.gameObject.SetActive(true);
                 _popUps.Add((gold, medalInfo));
