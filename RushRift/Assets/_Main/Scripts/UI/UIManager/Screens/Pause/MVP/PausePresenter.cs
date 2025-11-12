@@ -44,6 +44,15 @@ namespace Game.UI.StateMachine
         {
             base.OnInit();
 
+            
+            
+            if (resumeButton) resumeButton.onClick.AddListener(OnResumeHandler);
+            if (resumeButton) restartButton.onClick.AddListener(OnRestartHandler);
+            if (optionsButton) optionsButton.onClick.AddListener(OnOptionsHandler);
+            if (optionsBackButton) optionsBackButton.onClick.AddListener(OnOptionsBackHandler);
+            if (mainMenuButton) mainMenuButton.onClick.AddListener(OnMainMenuHandler);
+            
+            if (!hubButton) return;
             if (SceneHandler.GetCurrentSceneName().GetHashCode() == SceneHandler.HubIndex.GetHashCode())
             {
                 hubButton.gameObject.SetActive(false);
@@ -52,12 +61,6 @@ namespace Game.UI.StateMachine
             {
                 hubButton.onClick.AddListener(OnHubHandler);
             }
-            
-            resumeButton.onClick.AddListener(OnResumeHandler);
-            restartButton.onClick.AddListener(OnRestartHandler);
-            optionsButton.onClick.AddListener(OnOptionsHandler);
-            optionsBackButton.onClick.AddListener(OnOptionsBackHandler);
-            mainMenuButton.onClick.AddListener(OnMainMenuHandler);
         }
 
         private void OnResumeHandler()
@@ -76,7 +79,7 @@ namespace Game.UI.StateMachine
         {
             OnOptions = false;
             main.enabled = true;
-            options.enabled = false;
+            if (options) options.enabled = false;
         }
         
         private void OnRestartHandler()
@@ -99,12 +102,12 @@ namespace Game.UI.StateMachine
         {
             base.Dispose();
             
-            resumeButton.onClick.RemoveAllListeners();
-            restartButton.onClick.RemoveAllListeners();
-            optionsButton.onClick.RemoveAllListeners();
-            optionsBackButton.onClick.RemoveAllListeners();
-            mainMenuButton.onClick.RemoveAllListeners();
-            hubButton.onClick.RemoveAllListeners();
+            if (resumeButton) resumeButton.onClick.RemoveAllListeners();
+            if (resumeButton) restartButton.onClick.RemoveAllListeners();
+            if (optionsButton) optionsButton.onClick.RemoveAllListeners();
+            if (optionsBackButton) optionsBackButton.onClick.RemoveAllListeners();
+            if (mainMenuButton) mainMenuButton.onClick.RemoveAllListeners();
+            if (hubButton) hubButton.onClick.RemoveAllListeners();
         }
         
         public override bool TryGetState(out UIState state)
