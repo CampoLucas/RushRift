@@ -41,7 +41,7 @@ public class TimerDisplay : MonoBehaviour
     private bool _useBlinkColor;
 
     private ActionObserver<BaseLevelSO> _onPreload;
-    private ActionObserver<BaseLevelSO> _onLoad;
+    private ActionObserver<BaseLevelSO> _onReady;
     private ActionObserver<float> _timerObserver;
 
     private struct MedalData
@@ -54,11 +54,22 @@ public class TimerDisplay : MonoBehaviour
     {
         _timerObserver ??= new ActionObserver<float>(OnTimeUpdated);
         _onPreload = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
-        _onLoad = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
+        _onReady = new ActionObserver<BaseLevelSO>(OnReadyHandler);
         _textStartColor = text.color;
 
         GameEntry.LoadingState.AttachOnPreload(_onPreload);
-        GameEntry.LoadingState.AttachOnLoad(_onLoad);
+        GameEntry.LoadingState.AttachOnReady(_onReady);
+        
+        
+    }
+
+    private void Start()
+    {
+        if (GlobalLevelManager.CurrentLevel.TryGet(out var level))
+        {
+            _onReady.OnNotify(level);
+            
+        }
     }
 
     private void OnLoadingStartHandler(BaseLevelSO level)
@@ -70,7 +81,7 @@ public class TimerDisplay : MonoBehaviour
         }
     }
     
-    private void OnLoadingEndHandler(BaseLevelSO level)
+    private void OnReadyHandler(BaseLevelSO level)
     {
         StopAllCoroutines();
         _timerObserver ??= new ActionObserver<float>(OnTimeUpdated);
@@ -241,7 +252,7 @@ public class TimerDisplay : MonoBehaviour
     private void OnDestroy()
     {
         GameEntry.LoadingState.DetachOnPreload(_onPreload);
-        GameEntry.LoadingState.DetachOnLoad(_onLoad);
+        GameEntry.LoadingState.DetachOnReady(_onReady);
         
         GlobalEvents.TimeUpdated.Detach(_timerObserver);
         StopAllCoroutines();
