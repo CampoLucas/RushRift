@@ -4874,7 +4874,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 1, g: 0.6756128, b: 0, a: 1}
+  m_Color: {r: 0.7649307, g: 0, b: 1, a: 1}
   m_Intensity: 20
   m_Range: 10
   m_SpotAngle: 30
@@ -9792,7 +9792,7 @@ GameObject:
   - component: {fileID: 1234932817616347247}
   - component: {fileID: 968427913173877159}
   m_Layer: 0
-  m_Name: P_EnergyOrb
+  m_Name: P_CollectibleOrb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9808,7 +9808,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5870349694057281295}
@@ -9952,7 +9952,7 @@ VisualEffect:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5120818698406840515}
   m_Enabled: 1
-  m_Asset: {fileID: 8926484042661614526, guid: 90b12d0fddd5e924f9d6f5a3639b6674, type: 3}
+  m_Asset: {fileID: 8926484042661614526, guid: 1a1d6a22d032e634a96f64bff2c9eafd, type: 3}
   m_InitialEventName: OnPlay
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
@@ -10030,6 +10030,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4350029880743449005}
     m_Modifications:
+    - target: {fileID: 7920995684062787853, guid: f4e50ebb8bc504f449732b49125a94e4, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e45714c8e66c148418bd91883d3cf52b, type: 2}
     - target: {fileID: 7992302892451511053, guid: f4e50ebb8bc504f449732b49125a94e4, type: 3}
       propertyPath: m_Name
       value: VFX_OrbPickUp
