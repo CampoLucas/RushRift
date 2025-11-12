@@ -29,9 +29,9 @@ namespace Game.UI.StateMachine
         
         private void Awake()
         {
-            continueButton.onClick.AddListener(OnLoadNextHandler);
-            retryButton.onClick.AddListener(RetryLevelHandler);
-            hubButton.onClick.AddListener(HubHandler);
+            if (continueButton) continueButton.onClick.AddListener(OnLoadNextHandler);
+            if (retryButton) retryButton.onClick.AddListener(RetryLevelHandler);
+            if (hubButton) hubButton.onClick.AddListener(HubHandler);
 
             _loadingObserver = new ActionObserver<bool>((a) => { _begun = false; });
 
@@ -82,7 +82,7 @@ namespace Game.UI.StateMachine
 
         private void CheckTime(in LevelWonModel model)
         {
-            continueButton.interactable = model.LevelWon;
+            if (continueButton) continueButton.interactable = model.LevelWon;
             
             EventSystem.current.SetSelectedGameObject(null);
             // ToDo: Check if the player is playing with a game pad.
@@ -153,9 +153,9 @@ namespace Game.UI.StateMachine
             }
             
             
-            continueButton.onClick.RemoveAllListeners();
-            retryButton.onClick.RemoveAllListeners();
-            hubButton.onClick.RemoveAllListeners();
+            if (continueButton) continueButton.onClick.RemoveAllListeners();
+            if (retryButton) retryButton.onClick.RemoveAllListeners();
+            if (hubButton) hubButton.onClick.RemoveAllListeners();
             onBegin.RemoveAllListeners();
             
             base.Dispose();
