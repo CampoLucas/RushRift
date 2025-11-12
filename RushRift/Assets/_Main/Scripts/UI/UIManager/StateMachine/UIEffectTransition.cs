@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace Game.UI.StateMachine
     /// <summary>
     /// The logic that visually fades in and out a screen when transitioning.
     /// </summary>
-    public class UIEffectTransition
+    public class UIEffectTransition : IDisposable
     {
         private NullCheck<UIState> _from;
         private NullCheck<UIState> _to;
@@ -63,6 +64,12 @@ namespace Game.UI.StateMachine
 
             return _timer >= _duration;
         }
-        
+
+        public void Dispose()
+        {
+            _from.Dispose();
+            _to.Dispose();
+            _effect.Dispose();
+        }
     }
 }

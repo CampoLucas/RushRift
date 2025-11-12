@@ -1,25 +1,29 @@
 using System;
+using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using Game.Editor;
 using Game.Entities.Components;
 using Game.InputSystem;
 using Game.Levels;
 using Game.Predicates;
 using Game.ScreenEffects;
 using Game.UI.StateMachine;
+using Game.UI.StateMachine.Interfaces;
 using Game.Utils;
 using MyTools.Global;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.UI
 {
     public class UIManager : SingletonBehaviour<UIManager>, DesignPatterns.Observers.IObserver<MenuState>
     {
         [Header("Presenters")]
-        [SerializeField] private GameplayPresenter gameplayPresenter;
-        [SerializeField] private GameOverPresenter gameOverPresenter;
-        [SerializeField] private PausePresenter pausePresenter;
-        [SerializeField] private LevelWonPresenter levelWonPresenter;
-        [SerializeField] private OptionsPresenter optionsPresenter;
+        [SerializeField] private UIStateCollection defaultUI;
+
+        [SerializeField] private Transform presenterParent;
+        
 
         [Header("Loading Screen")] // ToDo: make it a state so it fades in
         [SerializeField] private GameObject loadingScreen;
@@ -41,13 +45,15 @@ namespace Game.UI
         private ActionObserver<BaseLevelSO> _onReady;
         private ActionObserver<BaseLevelSO> _initStateMachine;
 
+        private UIStateCollection _currentCollection;
+
         protected override void OnAwake()
         {
             base.OnAwake();
             
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver<bool>(OnGameOverHandler);
-            //_onSceneChanged = new ActionObserver(OnSceneChangedHandler);
+            
 
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
@@ -61,6 +67,8 @@ namespace Game.UI
 
             GameEntry.LoadingState.AttachOnPreload(_onPreload);
             GameEntry.LoadingState.AttachOnReady(_onReady);
+            
+            defaultUI.Test();
         }
 
         private void OnPreloadHandler(BaseLevelSO level)
@@ -68,6 +76,8 @@ namespace Game.UI
             _active = false;
             Debug.Log("Add Loading screen");
             if (loadingScreen) loadingScreen.SetActive(true);
+            
+            
         }
     
         private void OnReadyHandler(BaseLevelSO level)
@@ -88,19 +98,29 @@ namespace Game.UI
             }
 
             _active = true;
+            if (level == null)
+            {
+                this.Log("Level is null", LogType.Error);
+                return;
+            }
+
+            if (level.UI == null || defaultUI == null)
+            {
+                this.Log($"LevelUI is null {level.UI == null} {defaultUI == null}");
+            }
+            
+            SetUIStateCollection(level.UI ? level.UI : defaultUI);
         }
         
         private void Start()
         {
             //SceneHandler.OnSceneChanged.Attach(_onSceneChanged);
-            
-            InitStateMachine();
+            if (!_stateMachine)
+            {
+                SetUIStateCollection(defaultUI);
+            }
 
-            gameplayPresenter.Attach(this);
-            //gameOverPresenter.Attach(this);
-            //levelWonPresenter.Attach(this);
-            pausePresenter.Attach(this);
-            //optionsPresenter.Attach(this);
+            
 
             if (!PlayerSpawner.Player.TryGet(out var player))
             {
@@ -140,65 +160,87 @@ namespace Game.UI
             CursorHandler.visible = !isGameplay;
         }
 
-        private void InitStateMachine()
+        public void SetUIStateCollection(UIStateCollection newCollection)
         {
-            if (!PlayerSpawner.Player.TryGet(out var player))
+            if (newCollection == null)
             {
-                this.Log("Player not found", LogType.Error);
+                this.Log("Tried to assign a null UIStateCollection.");
                 return;
             }
-            var model = player.GetModel();
 
+            if (newCollection == _currentCollection)
+            {
+                return;
+            }
+
+            _currentCollection = newCollection;
+            RebuildStateMachine(newCollection);
+        }
+        
+        private void RebuildStateMachine(UIStateCollection collection)
+        {
+            if (!_stateMachine.TryGet(out var stateMachine))
+            {
+                this.Log("State machine not initialized");
+                InitStateMachine(collection);
+                return;
+            }
+
+            var parent = presenterParent ? presenterParent : transform;
+            
+            // Destroy all presenter instances from previous collection
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                var child = parent.GetChild(i);
+                if (child.IsNullOrMissingReference())
+                {
+                    this.Log("Child is null or missing", LogType.Error);
+                    continue;
+                }
+                Destroy(child.gameObject);
+            }
+
+            // Clear old states and transitions from the FSM
+            stateMachine.Clear();
+
+            BuildStateMachine(stateMachine, collection);
+
+            this.Log($"Rebuilt state machine from {_currentCollection.name}");
+        }
+
+        private void InitStateMachine(in UIStateCollection collection)
+        {
             _stateMachine = new UIStateMachine();
             
             if (!_stateMachine.TryGet(out var stateMachine)) return;
+            
+            BuildStateMachine(stateMachine, collection);
+            // gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.Input.Pause), 0, .25f, 0);
+            // pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.Input.Pause),.25f, 0, 0);
+        }
 
-
-#if false
-            var gameplay = new GameplayState(model, gameplayPresenter);
-            var gameOver = new GameOverState(gameOverPresenter);
-            var pause = new PauseState(pausePresenter);
-            var levelWon = new LevelWonState(levelWonPresenter);
-            
-            stateMachine.TryAddState(UIScreen.Gameplay, gameplay);
-            stateMachine.TryAddState(UIScreen.GameOver, gameOver);
-            stateMachine.TryAddState(UIScreen.Pause, pause);
-            stateMachine.TryAddState(UIScreen.LevelWon, levelWon);
-            
-            gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.PauseInput), 0, .25f, 0);
-            gameplay.AddTransition(SceneTransition.Current, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.R)));
-            gameplay.AddTransition(SceneTransition.First, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.H)));
-            
-            gameOver.AddTransition(SceneTransition.Current, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.R)));
-            gameOver.AddTransition(SceneTransition.HUB, new FuncPredicate(() => UnityEngine.Input.GetKeyDown(KeyCode.Escape)));
-            
-            pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.PauseInput),.25f, 0, 0);
-#else
-            if (stateMachine.TryAddState(UIScreen.GameOver, gameOverPresenter, out var gameOver))
+        private void BuildStateMachine(in UIStateMachine stateMachine,  in UIStateCollection collection)
+        {
+            foreach (var (screen, presenter) in collection.GetPresenters())
             {
-                gameOver.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.Input.Reset));
-                gameOver.AddTransition(SceneTransition.HUB, new OnButtonPredicate(InputManager.Input.Pause));
-            }
+                if (!presenter) continue;
                 
-            if (stateMachine.TryAddState(UIScreen.Gameplay, gameplayPresenter, out var gameplay))
-            {
-                gameplay.AddTransition(UIScreen.Pause, new OnButtonPredicate(InputManager.Input.Pause), 0, .25f, 0);
-                gameplay.AddTransition(SceneTransition.Current, new OnButtonPredicate(InputManager.Input.Reset));
+                var p = Instantiate(presenter, presenterParent ? presenterParent : transform);
+                if (!p) continue;
+                p.gameObject.name = $"({screen}){presenter.name}_CLONE";
+                
+                if (!p.TryGetState(out var state)) continue;
+                p.Attach(this);
+                stateMachine.TryAddState(screen, state);
             }
 
-            if (stateMachine.TryAddState(UIScreen.Pause, pausePresenter, out var pause))
+            foreach (var trd in collection.GetTransitions())
             {
-                pause.AddTransition(UIScreen.Gameplay, new OnButtonPredicate(InputManager.Input.Pause),.25f, 0, 0);
+                if (trd == null) continue;
+                trd.SetTransition(stateMachine);
             }
 
-            stateMachine.TryAddState(UIScreen.LevelWon, levelWonPresenter, out var levelWon);
-
-#endif
-
-
-
-
-            //stateMachine.TransitionTo(UIScreen.Gameplay, 0, .25f, 0);
+            stateMachine.TransitionTo(collection.GetRootScreen(), 0, 0, 0);
         }
         
         private void OnGameOverHandler(bool playerWon)
@@ -280,11 +322,6 @@ namespace Game.UI
         
         protected override void OnDisposeNotInstance()
         {
-            gameplayPresenter = null;
-            gameOverPresenter = null;
-            pausePresenter = null;
-            levelWonPresenter = null;
-            optionsPresenter = null;
             loadingScreen = null;
             screenDamage = null;
         }
@@ -303,8 +340,6 @@ namespace Game.UI
                     health.OnValueChanged.Detach(_onHealthChanged);
                 }
             }
-            
-            pausePresenter.Detach(this);
             
             if (_stateMachine) _stateMachine.Dispose();
             _onGameOver.Dispose();

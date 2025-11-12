@@ -11,11 +11,11 @@ namespace Game.UI.StateMachine
     {
         public UIScreen Current { get; private set; }
         
-        private UIState _current;
-        private Dictionary<UIScreen, UIState> _states = new();
-        private List<UIScreen> _statesList = new();
+        private NullCheck<UIState> _current;
+        private readonly Dictionary<UIScreen, UIState> _states = new();
+        private readonly List<UIScreen> _statesList = new();
+        private readonly HashSet<UITransition> _fromAny = new();
         private NullCheck<UIEffectTransition> _effectTransition; // ToDo: Any transition
-        private HashSet<UITransition> _fromAny = new();
         private float _timer;
 
 
@@ -96,6 +96,9 @@ namespace Game.UI.StateMachine
 
         public void Dispose()
         {
+            Current = default;
+            _current = null;
+            
             for (var i = 0; i < _statesList.Count; i++)
             {
                 var key = _statesList[i];
@@ -112,6 +115,10 @@ namespace Game.UI.StateMachine
             {
                 any.Dispose();
             }
+            _fromAny.Clear();
+            
+            _effectTransition.Dispose();
+            _timer = 0;
         }
         
         public static bool TryGetTransition(HashSet<UITransition> transitions, out UITransition transition)
@@ -134,7 +141,7 @@ namespace Game.UI.StateMachine
 
         private bool TryGetTransition(out UITransition transition)
         {
-            if (TryGetTransition(_fromAny, out transition) || TryGetTransition(_current.Transitions, out transition))
+            if (TryGetTransition(_fromAny, out transition) || (_current.TryGet(out var current) && TryGetTransition(current.Transitions, out transition)))
             {
                 return true;
             }
@@ -152,6 +159,23 @@ namespace Game.UI.StateMachine
 
             predicate?.Dispose();
             return false;
+        }
+        
+        public bool TrySetTransition(UIScreen from, SceneTransition to, IPredicate predicate)
+        {
+            if (_states.TryGetValue(from, out var state) && predicate != null)
+            {
+                state.AddTransition(to, predicate);
+                return true;
+            }
+
+            predicate?.Dispose();
+            return false;
+        }
+
+        public void Clear()
+        {
+            Dispose();
         }
     } 
 }

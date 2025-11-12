@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8486412294248587518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 10
+  action: 1
+--- !u!114 &-7424686025611740569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 8
+  action: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a482b98b92874ad9906c3d3427c94046, type: 3}
+  m_Name: UI_Gameplay
+  m_EditorClassIdentifier: 
+  presenters:
+    data:
+    - key: 0
+      value: {fileID: 7366195813824602402, guid: 7310efbec7e37b34caea64d76350444d, type: 3}
+    - key: 1
+      value: {fileID: 5388832394791625013, guid: ab55cb21c0a83674a9f0cd7611d54d6a, type: 3}
+    - key: 2
+      value: {fileID: 3678664892906737821, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
+    - key: 3
+      value: {fileID: 4995141253448380566, guid: b25d9faaca0e19f41b8055ce5df3fc47, type: 3}
+    - key: 4
+      value: {fileID: 4018931262824082179, guid: b4087106d6c5f9845a323c757f8ea532, type: 3}
+  root: 0
+  transitions:
+  - from: 0
+    screenTransition: 0
+    to: 0
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: 2436592221502691944}
+  - from: 0
+    screenTransition: 1
+    to: 3
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: 7505413138972845374}
+  - from: 1
+    screenTransition: 0
+    to: 1
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: -8486412294248587518}
+  - from: 1
+    screenTransition: 0
+    to: 1
+    scene: 5
+    conditions:
+      collection:
+      - {fileID: 3293094037670487726}
+  - from: 3
+    screenTransition: 1
+    to: 0
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: 2847261481824407036}
+  - from: 4
+    screenTransition: 1
+    to: 0
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: -7424686025611740569}
+--- !u!114 &2436592221502691944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 10
+  action: 1
+--- !u!114 &2847261481824407036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 8
+  action: 1
+--- !u!114 &3293094037670487726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 8
+  action: 1
+--- !u!114 &7505413138972845374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 8
+  action: 1

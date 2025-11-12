@@ -8,11 +8,28 @@ namespace Game.UI.StateMachine
 {
     public abstract class UIStateCollection : ScriptableObject
     {
-        public List<UITransitionDefinition> Transitions => transitions;
+        public SerializedDictionary<UIScreen, BaseUIPresenter> Presenters => presenters;
         
         [Header("Presenters")]
-        [SerializeField] private SerializedDictionary<UIScreen, BaseUIPresenter> presenters = new();
+        [SerializeField] protected SerializedDictionary<UIScreen, BaseUIPresenter> presenters = new();
 
-        [SerializeField, HideInInspector] private List<UITransitionDefinition> transitions;
+        public abstract UIScreen GetRootScreen();
+        /// <summary>
+        /// Returns the presenters prefabs.
+        /// </summary>
+        public abstract Dictionary<UIScreen, BaseUIPresenter> GetPresenters();
+        /// <summary>
+        /// Returns the transitions for this collection.
+        /// </summary>
+        public abstract List<UITransitionDefinition> GetTransitions();
+        /// <summary>
+        /// Returns true if a presenter prefab exist for this screen.
+        /// </summary>
+        public bool TryGetPresenter(UIScreen screen, out BaseUIPresenter presenter)
+        {
+            return presenters.TryGetValue(screen, out presenter) && presenter != null;
+        }
+
+        public virtual void Test() { }
     }
 }

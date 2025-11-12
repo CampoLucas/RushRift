@@ -27,9 +27,8 @@ namespace MyTools.Global
         public ValueValidationDelegate ValueValidation { get; set; } = AnyValueValidation;
 
         #endregion
-
-        // Define a delegate for validating the value
-        public delegate bool ValueValidationDelegate(T2 value);
+        
+        public delegate bool ValueValidationDelegate(T2 value); // Define a delegate for validating the value
         
         [SerializeField] private List<DictionaryElement> data = new();
         private List<DictionaryElement> _cachedData = new();
@@ -109,11 +108,13 @@ namespace MyTools.Global
         
         #region Dictionary Methods
 
-        public void Add(T1 key, T2 value)
+        public void Add(T1 key, T2 value) => Add(key, value, true);
+        
+        public void Add(T1 key, T2 value, bool validateValue)
         {
             if (!_dictionary.ContainsKey(key))
             {
-                if (ValueValidation(value))
+                if (!validateValue || ValueValidation(value))
                 {
                     _dictionary.Add(key, value);
                 }

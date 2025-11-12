@@ -19,12 +19,12 @@ namespace Game.UI.StateMachine
             OnInit();
         }
         
-        public virtual void Begin()
+        public override void Begin()
         {
             View.Show();
         }
 
-        public virtual void End()
+        public override void End()
         {
             View.Hide();   
         }

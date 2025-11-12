@@ -16,7 +16,7 @@ namespace Game.UI.StateMachine
         
         public void Dispose()
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }
