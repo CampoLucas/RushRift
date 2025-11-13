@@ -6,7 +6,7 @@ using Tools.Scripts.PropertyAttributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Levels.SingleLevel
+namespace Game.Levels
 {
     public abstract class SingleLevelSO : BaseLevelSO
     {

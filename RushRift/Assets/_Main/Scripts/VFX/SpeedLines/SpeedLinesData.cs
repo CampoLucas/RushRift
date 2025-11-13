@@ -33,6 +33,7 @@ namespace Game.Entities.Components
         [Header("Rate")]
         [SerializeField] private float minRateRange;
         [SerializeField] private float maxRateRange;
+        public float PositionOffsetAmount;
 
         public float SetEffect(float currentVelocity, VisualEffect effect)
         {

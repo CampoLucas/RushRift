@@ -1,7 +1,7 @@
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
-using Game.LevelElements.Terminal;
+using Game.LevelElements;
 using Unity.VisualScripting;
 using UnityEngine;
 

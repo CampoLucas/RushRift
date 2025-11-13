@@ -3,11 +3,20 @@ using UnityEngine;
 
 public class DeathZoneTrigger : MonoBehaviour
 {
+    [SerializeField] private bool reset;
+    
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        GlobalEvents.GameOver.NotifyAll(false);
+        if (reset)
+        {
+            GlobalLevelManager.Restart();
+        }
+        else
+        {
+            GlobalEvents.GameOver.NotifyAll(false);
+        }
     }
 }
 

@@ -1,3 +1,4 @@
+#define HOVERING_DISABLED
 using Game.Utils;
 using UnityEngine;
 
@@ -6,7 +7,9 @@ namespace Game.Entities.Components.MotionController
     public class GravityHandler : MotionHandler<GravityConfig>
     {
         private float _airTime;
+#if HOVERING_ENABLED
         private bool _hovering;
+#endif
 
         private Vector3 _pos;
         private Vector3 _groundPos;
@@ -28,10 +31,17 @@ namespace Game.Entities.Components.MotionController
             _pos = pos;
             _groundPos = context.GroundPos;
             
-            if (context.Grounded && !context.IsJumping)
+            if (context.Grounded)
             {
+                if ((context.IsJumping || context.Jump))
+                    return;
                 _airTime = 0;
 
+
+#if false
+#if !HOVERING_ENABLED
+                context.AddForce(Vector3.down * (Config.GndGrav * delta), ForceMode.Acceleration);
+#else
                 var yDifference = pos.y - context.GroundPos.y;
 
                 if (yDifference > Config.CorrDist)
@@ -50,10 +60,30 @@ namespace Game.Entities.Components.MotionController
                     
                     Hover(context, delta);
                 }
+#endif
+#else
+                // Remove vertical velocity so we don't fight the ground
+                var vel = context.Velocity;
+                //vel.y = Mathf.Min(0f, Vector3.ProjectOnPlane(vel, context.Normal).y); // never positive
+                vel.y = Vector3.ProjectOnPlane(vel, context.Normal).y;
+                // // allow a tiny upward tolerance (prevents micro bounces)
+                // if (vel.y > 0.05f)
+                //     vel.y = 0f;
+                // else if (vel.y < -0.05f)
+                //     vel.y *= 0.5f; // damp small downward oscillations
+                
+                context.Velocity = vel;
+
+                // Apply a small downward stick to keep contact but not penetrate
+                context.AddForce(Vector3.down * (Config.GndGrav * delta), ForceMode.Acceleration);
+                return;
+#endif
             }
             else
             {
+#if HOVERING_ENABLED
                 _hovering = false;
+#endif
                 _airTime += delta;
 
                 float effectiveGravity;
@@ -74,6 +104,7 @@ namespace Game.Entities.Components.MotionController
                 context.AddForce(Vector3.down * (effectiveGravity * delta), ForceMode.Acceleration);
             }
 
+            return;
             var velocity = context.Velocity;
             
             // Clamp excessive bounce when walking off edges
@@ -121,7 +152,11 @@ namespace Game.Entities.Components.MotionController
         public override void OnDraw(Transform transform)
         {
             base.OnDraw(transform);
+#if HOVERING_ENABLED
             Gizmos.color = _hovering ? Color.magenta : Color.yellow;
+#else
+            Gizmos.color = Color.yellow;
+#endif
             Gizmos.DrawSphere(_pos, .1f);
             Gizmos.DrawCube(_groundPos, Vector3.one * .1f);
         }

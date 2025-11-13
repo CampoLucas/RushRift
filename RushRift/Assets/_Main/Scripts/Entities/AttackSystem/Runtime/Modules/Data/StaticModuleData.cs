@@ -8,7 +8,7 @@ namespace Game.Entities.AttackSystem
     /// <summary>
     /// ModuleData classes that are stored as scriptable objects, cant be created at runtime
     /// </summary>
-    public abstract class StaticModuleData : SerializableSO, IModuleData
+    public abstract class StaticModuleData : ScriptableObject, IModuleData
     {
         public float Duration => duration;
         public List<IModuleData> Children => children.Get<IModuleData>();

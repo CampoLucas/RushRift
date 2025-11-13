@@ -17,8 +17,10 @@ MonoBehaviour:
     max: 1
     regenDelay: 0
     regenRate: 0
-    onZeroHealth: 0
+    onZeroHealth: 1
   _laser:
+    startOn: 1
+    destroyDestroyables: 0
     detection:
       offset: {x: 0, y: 0, z: 0.53}
       direction: 0
@@ -28,7 +30,7 @@ MonoBehaviour:
         serializedVersion: 2
         m_Bits: 256
       maxOverlaps: 1
-      length: 50
+      length: 200
       blockByObstacle: 1
       obstacle:
         serializedVersion: 2

@@ -1,5 +1,5 @@
 using UnityEngine;
-using Game.LevelElements.Terminal;
+using Game.LevelElements;
 
 [DisallowMultipleComponent]
 public class GiantFan : ObserverComponent

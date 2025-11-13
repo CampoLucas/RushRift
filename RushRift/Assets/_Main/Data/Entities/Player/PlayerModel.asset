@@ -72,8 +72,8 @@ MonoBehaviour:
     strategy: 1
   movement:
     enabled: 1
-    order: 4
-    speed: 5000
+    order: 2
+    speed: 3000
     maxSpeed: 35
     drag: 0.15
     minThreshold: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
     airFallMultiplier: 0.005
     slidingEnabled: 1
     sliding:
-      maxSlopeAngle: 45
+      maxSlopeAngle: 90
       multiplier: 0.1
       speedScaling: 30
       slideForce: 160
@@ -100,9 +100,16 @@ MonoBehaviour:
     airResistance: 0.98
   jump:
     enabled: 1
-    order: 2
-    force: 8
+    order: 3
+    force: 25
+    upInfluence: 5
+    inputInfluence: 3
+    velocityInfluence: 0
+    minHorizontalVelocity: 5
+    normalInfluence: 0.5
     cooldown: 0.25
+    jumpBuffer: 0.3
+    coyoteTime: 0.25
   dash:
     enabled: 1
     order: 99
@@ -148,12 +155,12 @@ MonoBehaviour:
   gravity:
     enabled: 1
     order: 1
-    groundGravity: 100
-    fallGravity: 700
+    groundGravity: 300
+    fallGravity: 850
     maxFallSpeed: 80
-    curveDuration: 1
-    startMultiplier: 1.5
-    endMultiplier: 2.5
+    curveDuration: 1.5
+    startMultiplier: 1
+    endMultiplier: 3
     groundDistance: 0
     hoverSpeed: 15
     correctionDistance: 0.2

@@ -78,7 +78,7 @@ namespace Game.Entities
 
         protected override void Update()
         {
-            var inputDir = InputManager.GetValueVector(InputManager.MoveInput).XOZ();
+            var inputDir = InputManager.GetValueVector(InputManager.Input.Move).XOZ();
             _moveDir = _camera.forward * inputDir.z + _camera.right * inputDir.x;
             _moveDir.y = 0;
             

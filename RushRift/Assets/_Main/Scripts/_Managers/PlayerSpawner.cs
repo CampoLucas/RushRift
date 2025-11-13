@@ -182,7 +182,8 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
                 _playerEffects.Clear();
             }
             
-            var effectsAmount = data.TryGetUnlockedEffects(levelId, out var effects);
+            //var effectsAmount = data.TryGetUnlockedEffects(levelId, out var effects);
+            var effectsAmount = levelSo.TryGetEffects(out var effects);
         
             for (var i = 0; i < effectsAmount; i++)
             {

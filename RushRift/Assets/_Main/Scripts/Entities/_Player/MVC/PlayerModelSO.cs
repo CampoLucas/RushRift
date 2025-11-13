@@ -64,11 +64,11 @@ namespace Game.Entities
             });
         }
         
-        private bool PrimaryAttack() => InputManager.GetActionPerformed(InputManager.PrimaryAttackInput);
-        private bool LightAttack() => InputManager.GetActionPerformed(InputManager.PrimaryAttackTapInput);
-        private bool HeavyAttack() => InputManager.GetActionPerformed(InputManager.PrimaryAttackHoldInput);
-        private bool HeavyAttackCancel() => InputManager.GetActionCanceled(InputManager.PrimaryAttackHoldInput);
-        private bool SecondaryAttack() => InputManager.GetActionPerformed(InputManager.SecondaryAttackInput);
+        private bool PrimaryAttack() => InputManager.GetActionPerformed(InputManager.Input.Primary);
+        private bool LightAttack() => InputManager.GetActionPerformed(InputManager.Input.PrimaryTap);
+        private bool HeavyAttack() => InputManager.GetActionPerformed(InputManager.Input.PrimaryHold);
+        private bool HeavyAttackCancel() => InputManager.GetActionCanceled(InputManager.Input.PrimaryHold);
+        private bool SecondaryAttack() => InputManager.GetActionPerformed(InputManager.Input.Secondary);
         
         public override NullCheck<IModel> GetProxy()
         {

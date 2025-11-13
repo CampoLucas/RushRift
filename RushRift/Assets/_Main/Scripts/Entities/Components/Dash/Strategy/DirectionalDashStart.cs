@@ -14,7 +14,7 @@ namespace Game.Entities.Components
         
         public void StartDash(Transform transform, Transform cameraTransform, out Vector3 start, out Vector3 end, out Vector3 dashDir)
         {
-            var input = InputManager.GetValueVector(InputManager.MoveInput);
+            var input = InputManager.GetValueVector(InputManager.Input.Move);
 
             if (input == Vector2.zero)
             {

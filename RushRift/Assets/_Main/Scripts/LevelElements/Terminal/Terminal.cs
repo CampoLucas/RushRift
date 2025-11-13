@@ -3,7 +3,7 @@ using Game.DesignPatterns.Observers;
 using MyTools.Global;
 using UnityEngine;
 
-namespace Game.LevelElements.Terminal
+namespace Game.LevelElements
 {
     [DisallowMultipleComponent]
     public class Terminal : MonoBehaviour, ISubject<string>

@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
-using Game.Levels.SingleLevel;
 using Game.Saves;
-using Game.UI.Screens;
+using Game.UI.StateMachine;
 using Game.Utils;
 using MyTools.Global;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -126,19 +123,30 @@ namespace Game
                 return false;
             }
 
-            if (!session.GameMode || !session.Level)
+            var gm = session.GameMode;
+            var lvl = session.Level;
+            if (!gm || !lvl)
             {
                 this.Log("No GameMode or Level found", LogType.Error);
                 return false;
             }
 
-            var nextLevel = session.GameMode.GetNextLevel(session.Level);
-            if (nextLevel != null)
+            if (gm.TrySetNextLevel(session))
             {
-                session.SetLevel(nextLevel);
                 await GameEntry.TryAwaitLoadSessionAsync(session);
                 return true;
             }
+            
+            
+            // var nextLevel = gm.GetNextLevel(lvl);
+            // if (nextLevel != null)
+            // {
+            //     session.SetLevel(nextLevel);
+            //     await GameEntry.TryAwaitLoadSessionAsync(session);
+            //     return true;
+            // }
+            //
+            // if ()
             
             this.Log("There is no next level", LogType.Error);
             return false;
@@ -364,17 +372,23 @@ namespace Game
 
         #region Medal Methods
 
-        public static MedalInfo GetMedalInfo(MedalType type)
+        public static bool TryGetMedalInfo(MedalType type, out MedalInfo info)
         {
             var data = SaveSystem.LoadGame();
             var currLevel = GetID();
             if (!TryGetLevelConfig(out var config))
             {
                 Debug.LogError($"ERROR: Getting {type} medal [Level: {currLevel}] config not found.");
-                return default;
+                info = default;
+                return false;
+            }
+
+            if (!config.TryGetMedal(type, out var medal))
+            {
+                info = default;
+                return false;
             }
             
-            var medal = config.GetMedal(type);
             var endTime = CompleteTime;
 
             var isUnlocked = data.IsMedalUnlocked(currLevel, type);
@@ -382,7 +396,9 @@ namespace Game
             Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.requiredTime} | IsUnlocked: {isUnlocked}]");
 #endif
 
-            return new MedalInfo(type.ToString(), medal.upgrade.EffectName, isUnlocked || endTime <= medal.requiredTime, isUnlocked, medal.requiredTime);
+            info = new MedalInfo(type.ToString(), medal.EffectName, isUnlocked || endTime <= medal.requiredTime,
+                isUnlocked, medal.requiredTime);
+            return true;
         }
 
         #endregion
@@ -393,6 +409,12 @@ namespace Game
         {
             if (Instance.TryGet(out var manager))
                 manager.DashHack = godmode;
+        }
+
+        public static void Restart()
+        {
+            Time.timeScale = 1f;
+            GameEntry.LoadSessionAsync(CurrentSession);
         }
     }
 }

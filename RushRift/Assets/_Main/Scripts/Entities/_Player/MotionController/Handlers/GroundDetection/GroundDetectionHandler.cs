@@ -25,7 +25,9 @@ namespace Game.Entities.Components.MotionController
             var vel = context.Velocity;
             var horVel = vel.XOZ();
 
-            context.PrevGrounded = context.Grounded;
+            var wasGrounded = context.Grounded;
+            context.PrevGrounded = wasGrounded;
+            
             if (Physics.SphereCast(sphereOrigin, Config.Radius, Vector3.down, out var hit, Config.Distance,
                     Config.Layer, QueryTriggerInteraction.Ignore))
             {
@@ -34,18 +36,9 @@ namespace Game.Entities.Components.MotionController
                 context.GroundPos = hit.point;
                 context.GroundAngle = Vector3.Angle(context.Normal, Vector3.up);
 
-                if (!context.PrevGrounded && context.Grounded) // Just landed
+                if (!wasGrounded && context.Grounded)
                 {
-                    // ToDo: this in slippery handler
-                    
-                    // if (_lastHorizontalSpeed > fallSlideTriggerSpeed)
-                    // {
-                    //     // Map speed over threshold to slide amount (clamped)
-                    //     var slideAmount = Mathf.Clamp01((_lastHorizontalSpeed - fallSlideTriggerSpeed) /
-                    //                                     (movementData.MaxSpeed - fallSlideTriggerSpeed));
-                    //     //_slippery = Mathf.Max(_slippery, slideAmount * fallMaxSlideAmount);
-                    //     _slippery += Mathf.Clamp(slideAmount, 0, fallMaxSlideAmount);
-                    // }
+                    context.StopGroundedTime = -1;
                 }
             }
             else
@@ -59,15 +52,23 @@ namespace Game.Entities.Components.MotionController
                     {
                         context.Grounded = true;
                         context.Normal = snapHit.normal;
-
                         context.GroundAngle = Vector3.Angle(context.Normal, Vector3.up);
+
+                        if (!wasGrounded && context.Grounded)
+                            context.StopGroundedTime = -1f;
+                        
                         return;
                     }
                 }
-                
+
                 context.Grounded = false;
                 context.Normal = Vector3.up;
                 context.GroundAngle = 0;
+                
+                if (wasGrounded && !context.Grounded)
+                {
+                    context.StopGroundedTime = Time.time;
+                }
             }
 
 #if UNITY_EDITOR

@@ -82,8 +82,29 @@ namespace Game.VFX
             {
                 return;
             }
-            var on = data.SetEffect(_rigidbody.velocity.magnitude, effect) > 0;
+            
+            var velocity = _rigidbody.velocity;
+            var speed = velocity.magnitude;
+            var on = data.SetEffect(speed, effect) > 0;
 
+            // --- new section: apply offset based on velocity ---
+            if (speed > 0.1f)
+            {
+                // Normalize velocity to get direction
+                var dir = velocity.normalized;
+
+                // Offset backwards relative to direction
+                var offset = -dir * data.PositionOffsetAmount; // add this float to SpeedLinesData
+
+                // Set it to the VFX Graph
+                effect.SetVector3("Position", offset);
+            }
+            else
+            {
+                // When stopped, reset
+                effect.SetVector3("Position", Vector3.zero);
+            }
+            
             if (GlobalLevelManager.DashDamage && _targetEntity.TryGet(out var player) &&
                 player.GetModel().TryGetComponent<MotionController>(out var controller) &&
                 controller.TryGetHandler<DashHandler>(out var handler))

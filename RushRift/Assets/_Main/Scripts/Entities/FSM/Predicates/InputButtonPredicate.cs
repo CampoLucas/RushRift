@@ -9,10 +9,10 @@ namespace Game.Predicates
     {
         public enum State { Hold, Down, Up, }
 
-        private readonly HashedKey _input;
+        private readonly InputManager.Input _input;
         private readonly State _state;
 
-        public InputButtonPredicate(HashedKey input, State inputState)
+        public InputButtonPredicate(InputManager.Input input, State inputState)
         {
             _input = input;
             _state = inputState;

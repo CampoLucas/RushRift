@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
-using Game.LevelElements.Terminal;
+using Game.LevelElements;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -169,7 +169,11 @@ public class VolumetricTrigger : MonoBehaviour, ISubject<string>
     
     public void Dispose()
     {
-        throw new System.NotImplementedException();
+        areaCollider = null;
+        observers = null;
+        subject?.Dispose();
+        subject = null;
+        occupants?.Clear();
     }
     
     public void DetachAll() => subject.DetachAll();

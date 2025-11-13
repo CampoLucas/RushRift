@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game.Levels;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Game.UI.Screens.Elements
+namespace Game.UI.StateMachine.Elements
 {
     public class PopUpGroup : MonoBehaviour
     {
@@ -30,25 +31,22 @@ namespace Game.UI.Screens.Elements
             
             _popUps.Clear();
             
-            var bronzeInfo = model.BronzeInfo;
-            if (bronzeInfo is { PrevUnlocked: false, Unlocked: true })
+            if (model.TryGetMedal(MedalType.Bronze, out var medalInfo) && medalInfo is { PrevUnlocked: false, Unlocked: true })
             {
                 bronze.popUp.gameObject.SetActive(true);
-                _popUps.Add((bronze, bronzeInfo));
+                _popUps.Add((bronze, medalInfo));
             }
             
-            var silverInfo = model.SilverInfo;
-            if (silverInfo is { PrevUnlocked: false, Unlocked: true })
+            if (model.TryGetMedal(MedalType.Silver, out medalInfo) && medalInfo is { PrevUnlocked: false, Unlocked: true })
             {
                 silver.popUp.gameObject.SetActive(true);
-                _popUps.Add((silver, silverInfo));
+                _popUps.Add((silver, medalInfo));
             }
             
-            var goldInfo = model.GoldInfo;
-            if (goldInfo is { PrevUnlocked: false, Unlocked: true })
+            if (model.TryGetMedal(MedalType.Gold, out medalInfo) && medalInfo is { PrevUnlocked: false, Unlocked: true })
             {
                 gold.popUp.gameObject.SetActive(true);
-                _popUps.Add((gold, goldInfo));
+                _popUps.Add((gold, medalInfo));
             }
         }
         
@@ -95,24 +93,6 @@ namespace Game.UI.Screens.Elements
 
                 yield return OpenMedal(popUp.Item1, popUp.Item2);
             }
-            
-            // var bronzeInfo = model.BronzeInfo;
-            // if (bronzeInfo is { PrevUnlocked: false, Unlocked: true })
-            // {
-            //     yield return OpenMedal(bronze, bronzeInfo);
-            // }
-            //
-            // var silverInfo = model.SilverInfo;
-            // if (silverInfo is { PrevUnlocked: false, Unlocked: true })
-            // {
-            //     yield return OpenMedal(silver, silverInfo);
-            // }
-            //
-            // var goldInfo = model.GoldInfo;
-            // if (goldInfo is { PrevUnlocked: false, Unlocked: true })
-            // {
-            //     yield return OpenMedal(gold, goldInfo);
-            // }
         }
 
         private IEnumerator OpenMedal(PopUpData data, MedalInfo medalInfo)
