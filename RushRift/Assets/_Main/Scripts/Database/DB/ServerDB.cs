@@ -73,7 +73,7 @@ public class ServerDB : IDataBase
     
     public async UniTask<DBRequestState> GetScore(int level, Action<ScoreList> successCallback, CancellationToken token)
     {
-        var www = UnityWebRequest.Get($"http://{serverIp}/api/get_scores.php?level= {level}");
+        var www = UnityWebRequest.Get($"http://{serverIp}/api/get_scores.php?level={level}");
         await www.SendWebRequest().WithCancellation(token);
 
         if (www.result != UnityWebRequest.Result.Success)

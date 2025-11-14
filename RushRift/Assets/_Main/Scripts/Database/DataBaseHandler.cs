@@ -12,7 +12,7 @@ namespace Game.DataBase
         {
             if (HasInternet())
             {
-                DB = new ServerDB("[2802:8010:8b2a:901::555]");
+                DB = new ServerDB("[2802:8010:8b42:a801::5555]");
             }
             else
             {
@@ -27,7 +27,7 @@ namespace Game.DataBase
 
         private static bool HasInternet()
         {
-            return false;
+            return true;
         }
     }
 }
