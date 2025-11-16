@@ -6,6 +6,7 @@ using Game.DesignPatterns.Pool;
 using Game.Entities.Components;
 using Game.UI;
 using Game.VFX;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -304,6 +305,49 @@ namespace Game.Entities
         {
             _poolObject.Remove(this);
             _poolObject = null;
+        }
+
+        public void TriggerHitByHitscan(Vector3 spawnPos, Vector3 direction, float chainRadius, float chainDamage, LayerMask mask, ElectricArcController arcPrefab)
+        {
+            var nearby = Physics.OverlapSphere(transform.position, chainRadius, mask);
+            
+            if (nearby.Length == 0)
+            {
+                // No chain targets, simple destroy
+                this.Log("No chain targets, simple destroy", LogType.Error);
+                DestroyProjectile();
+                return;
+            }
+            
+            // Keep track of who we've hit to avoid duplicates
+            var damaged = new HashSet<Collider>();
+            
+            foreach (var c in nearby)
+            {
+                if (c == null) continue;
+                if (damaged.Contains(c)) continue;
+
+                // Don't chain into yourself
+                if (c.transform == transform) continue;
+
+                if (c.TryGetComponent<IController>(out var controller) &&
+                    controller.GetModel().TryGetComponent<HealthComponent>(out var health))
+                {
+                    // 3. Deal chain damage
+                    health.Damage(chainDamage, transform.position);
+                    damaged.Add(c);
+
+                    // 4. Spawn arc VFX from projectile -> target
+                    if (arcPrefab != null)
+                    {
+                        var arc = Instantiate(arcPrefab);
+                        arc.SetPosition(transform, c.transform.position, 0.2f, Vector3.zero);
+                        arc.Enable(true);
+                    }
+                }
+            }
+            
+            DestroyProjectile();
         }
     }
 }

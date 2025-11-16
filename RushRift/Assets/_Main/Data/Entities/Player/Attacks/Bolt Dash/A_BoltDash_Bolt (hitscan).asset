@@ -39,6 +39,12 @@ MonoBehaviour:
     collection: []
   damage: 10
   canUseTerminals: 0
+  useDotThreshold: 1
+  minDotThreshold: 0.97
+  weights:
+    data:
+    - key: 0
+      value: 55
   offset: {x: 0, y: 0, z: 0}
   delay: 0.0833333
   range: 500
@@ -53,6 +59,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 5632
   radius: 3
+  chainReaction: 1
+  chainRadius: 15
+  chainLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  chainDamage: 20
   muzzleEffect: {fileID: 0}
   impactEffectID: 0
   impactSize: 3
