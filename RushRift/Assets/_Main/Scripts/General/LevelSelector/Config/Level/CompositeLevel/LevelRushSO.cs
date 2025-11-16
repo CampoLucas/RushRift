@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Game.Entities;
 using Game.Saves;
 using Game.Utils;
 using MyTools.Global;
@@ -80,6 +81,17 @@ namespace Game.Levels
             }
 
             return goldUnlocked == Levels.Count;
+        }
+
+        public override int TryGetEffects(out Effect[] effect)
+        {
+            if (GlobalLevelManager.Instance.TryGet(out var lvlManager))
+            {
+                return Levels[lvlManager.LevelIndex].TryGetEffects(out effect);
+            }
+
+            effect = new Effect[] { };
+            return 0;
         }
     }
 }

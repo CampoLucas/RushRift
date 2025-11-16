@@ -16,7 +16,7 @@ public class ExplosiveBarrel : MonoBehaviour
     private HealthComponentData healthComponentData;
 
     [Header("Explosion Settings")]
-    [SerializeField, Tooltip("If enabled, the barrel triggers its explosion when this GameObject is destroyed at runtime.")]
+    [SerializeField, Tooltip("If enabled, the barrel triggers its explosion when this GameObject is disabled at runtime (e.g., killed/destroyed).")]
     private bool shouldExplodeOnDestroy = true;
 
     [SerializeField, Tooltip("Explosion origin offset in local space (added to this Transform.position).")]
@@ -76,6 +76,10 @@ public class ExplosiveBarrel : MonoBehaviour
     [SerializeField, Tooltip("Local offset from the explosion origin where the VFX will be placed.")]
     private Vector3 explosionVfxLocalOffset = Vector3.zero;
 
+    [Header("Chain Reaction")]
+    [SerializeField, Tooltip("Extra delay added only when this barrel is detonated by another barrel's explosion.")]
+    private float chainReactionDelaySeconds = 0.12f;
+
     [Header("Gizmos")]
     [SerializeField, Tooltip("If enabled, draws gizmos for the explosion radius and example launch direction.")]
     private bool drawGizmos = true;
@@ -83,12 +87,14 @@ public class ExplosiveBarrel : MonoBehaviour
     private static readonly Collider[] OverlapBuffer = new Collider[128];
     private bool hasExplosionAlreadyTriggered;
     private bool applicationIsQuitting;
-    private bool explosionInitiatedByOnDestroy;
 
     private EntityController cachedEntityController;
     private IModel cachedModel;
     private HealthComponent runtimeHealthComponent;
     private Coroutine ensureRoutine;
+
+    private bool effectsPendingOnDisable;
+    private Vector3 effectsSpawnWorldPos;
 
     private class AggregatedHit
     {
@@ -97,6 +103,12 @@ public class ExplosiveBarrel : MonoBehaviour
         public Rigidbody Rigidbody;
         public float MinDistance;
         public bool HasDistance;
+    }
+
+    private static bool IsGameLoadingOrUnloading()
+    {
+        // Guard against false explosions during scene transitions
+        return GameEntry.LoadingState != null && GameEntry.LoadingState.Loading;
     }
 
     private void Awake()
@@ -127,6 +139,27 @@ public class ExplosiveBarrel : MonoBehaviour
             StopCoroutine(ensureRoutine);
             ensureRoutine = null;
         }
+
+        // Always run SFX/VFX here if an explosion just scheduled them
+        if (effectsPendingOnDisable)
+        {
+            TriggerExplosionAudioVfx(effectsSpawnWorldPos);
+            effectsPendingOnDisable = false;
+        }
+
+        if (!Application.isPlaying) return;
+        if (applicationIsQuitting) return;
+
+        // Prevent accidental explosions when the scene is (re)loading/unloading
+        if (IsGameLoadingOrUnloading()) return;
+
+        // Auto-explode only when being disabled in gameplay due to death/destruction
+        if (!hasExplosionAlreadyTriggered && shouldExplodeOnDestroy)
+        {
+            hasExplosionAlreadyTriggered = true;
+            Vector3 origin = transform.TransformPoint(explosionOriginLocalOffset);
+            ExecuteExplosionAtOrigin(origin, false, null);
+        }
     }
 
     private void OnApplicationQuit() => applicationIsQuitting = true;
@@ -138,20 +171,16 @@ public class ExplosiveBarrel : MonoBehaviour
             if (!runtimeHealthComponent.IsAlive() || runtimeHealthComponent.Value <= 0f)
             {
                 hasExplosionAlreadyTriggered = true;
-                ExecuteExplosionNow();
+                if (explosionDelaySeconds > 0f) StartCoroutine(DelayedExplosion(explosionDelaySeconds));
+                else ExecuteExplosionNow();
             }
         }
     }
 
-    private void OnDestroy()
+    private IEnumerator DelayedExplosion(float delay)
     {
-        if (!Application.isPlaying) return;
-        if (shouldExplodeOnDestroy && !hasExplosionAlreadyTriggered && !applicationIsQuitting)
-        {
-            explosionInitiatedByOnDestroy = true;
-            hasExplosionAlreadyTriggered = true;
-            ExecuteExplosionNow();
-        }
+        yield return new WaitForSeconds(delay);
+        ExecuteExplosionNow();
     }
 
     private void ExecuteExplosionNow()
@@ -162,7 +191,9 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private void ExecuteExplosionAtOrigin(Vector3 origin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget)
     {
-        TriggerExplosionAudioVfx(origin);
+        // Defer SFX/VFX to OnDisable (so pooled/scene-unload doesn't double-trigger)
+        effectsSpawnWorldPos = origin;
+        effectsPendingOnDisable = true;
 
         int count = Physics.OverlapSphereNonAlloc(origin, Mathf.Max(0f, explosionRadiusMeters), OverlapBuffer, ~0, QueryTriggerInteraction.Collide);
         var byGroup = new Dictionary<Transform, AggregatedHit>(count);
@@ -234,6 +265,28 @@ public class ExplosiveBarrel : MonoBehaviour
 
             bool isPlayer = IsPlayerObject(agg.Group) || (agg.Controller is PlayerController);
 
+            var otherBarrel = agg.Group.GetComponentInParent<ExplosiveBarrel>();
+
+            if (otherBarrel && otherBarrel != this)
+            {
+                HealthComponent otherHealth = null;
+                if (agg.Controller)
+                {
+                    var mdl = agg.Controller.GetModel();
+                    if (mdl != null) mdl.TryGetComponent(out otherHealth);
+                }
+
+                if (otherHealth != null)
+                {
+                    float wouldRemain = otherHealth.Value - Mathf.Max(0f, scaledDamage);
+                    if (wouldRemain <= 0f)
+                    {
+                        otherBarrel.TriggerExplosionExternal(null, false, null, Mathf.Max(0f, chainReactionDelaySeconds));
+                        continue;
+                    }
+                }
+            }
+
             if (isPlayer)
             {
                 var rb = agg.Rigidbody ? agg.Rigidbody : agg.Group.GetComponentInParent<Rigidbody>();
@@ -264,16 +317,30 @@ public class ExplosiveBarrel : MonoBehaviour
             }
         }
 
-        if (!explosionInitiatedByOnDestroy)
+        if (gameObject.activeSelf)
             gameObject.SetActive(false);
     }
 
-    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool forceMaxImpulseForPlayerAndRigidbodies = false, Rigidbody guaranteedImpulseTarget = null)
+    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool forceMaxImpulseForPlayerAndRigidbodies = false, Rigidbody guaranteedImpulseTarget = null, float delaySeconds = 0f)
     {
         if (!allowExternalExplosionTrigger) return;
         if (hasExplosionAlreadyTriggered) return;
+
         hasExplosionAlreadyTriggered = true;
-        explosionInitiatedByOnDestroy = false;
+
+        if (delaySeconds > 0f)
+        {
+            StartCoroutine(DelayedExternal(overrideWorldOrigin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget, delaySeconds));
+            return;
+        }
+
+        Vector3 origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOriginLocalOffset);
+        ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
+    }
+
+    private IEnumerator DelayedExternal(Vector3? overrideWorldOrigin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget, float delaySeconds)
+    {
+        yield return new WaitForSeconds(delaySeconds);
         Vector3 origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOriginLocalOffset);
         ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
     }

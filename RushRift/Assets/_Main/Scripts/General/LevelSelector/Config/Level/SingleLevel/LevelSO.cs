@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Game.Levels.SingleLevel;
+using Game.Entities;
 using Game.Saves;
 using Game.Utils;
 using MyTools.Global;
@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 namespace Game.Levels
 {
-    [CreateAssetMenu(menuName = "Game/Levels/Level", fileName = "New Sector Config")]
+    [CreateAssetMenu(menuName = "Game/Levels/Level", fileName = "New Level Config")]
     public class LevelSO : SingleLevelSO
     {
         
@@ -44,6 +44,12 @@ namespace Game.Levels
             }
 
             return data.IsMedalUnlocked(prevLevel.LevelID, MedalType.Bronze);
+        }
+
+        public override int TryGetEffects(out Effect[] effect)
+        {
+            var data = SaveSystem.LoadGame();
+            return data.TryGetUnlockedEffects(LevelID, out effect);
         }
     }
     

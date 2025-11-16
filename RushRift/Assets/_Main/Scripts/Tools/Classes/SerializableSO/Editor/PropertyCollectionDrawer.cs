@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game.Tools;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -12,6 +13,37 @@ namespace Game.Editor
     [CustomPropertyDrawer(typeof(SerializableSOCollection<>))]
     public class PropertyCollectionDrawer : PropertyDrawer
     {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            var collectionProperty = property.FindPropertyRelative("collection");
+            if (collectionProperty == null)
+                return EditorGUIUtility.singleLineHeight + 4;
+
+            // Always update before measuring so nested changes (predicates added/removed) are visible
+            property.serializedObject.Update();
+
+            // Create a temporary list just to get its layout height
+            var list = new ReorderableList(property.serializedObject, collectionProperty, true, false, true, true)
+            {
+                drawElementCallback = (rect, index, active, focused) =>
+                {
+                    var element = collectionProperty.GetArrayElementAtIndex(index);
+                    EditorGUI.PropertyField(rect, element, GUIContent.none, true);
+                },
+                elementHeightCallback = i =>
+                {
+                    var element = collectionProperty.GetArrayElementAtIndex(i);
+                    return EditorGUI.GetPropertyHeight(element, true) + 2;
+                }
+            };
+            
+            var headerHeight = EditorGUIUtility.singleLineHeight + 2;
+            var listHeight = list.GetHeight();
+
+            // Add a small buffer to avoid cutoff at bottom
+            return headerHeight + listHeight + 2;
+        }
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if (!TryGetReferences(property, out var parent, out var propertyCollection, out var selfReference, out var errorMessage))
@@ -19,17 +51,51 @@ namespace Game.Editor
                 EditorGUI.HelpBox(position, errorMessage, MessageType.Error);
                 return;
             }
+
+            var list = GetList(property);
+            if (list == null)
+            {
+                return;
+            }
+            
+            // draw header manually
+            var headerRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+            EditorGUI.LabelField(headerRect, label);
+
+            // shift down for list body
+            var listRect = new Rect(position.x, position.y + EditorGUIUtility.singleLineHeight + 2,
+                position.width, position.height - EditorGUIUtility.singleLineHeight - 2);
+
+            if (property.serializedObject != null && property.serializedObject.targetObject != null)
+            {
+                try
+                {
+                    list.DoList(listRect);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"ReorderableList failed for {property.propertyPath}: {e.Message}");
+                }
+            }
+            
+            
+        }
+
+        private ReorderableList GetList(SerializedProperty property)
+        {
+            if (property == null) return null;
             
             var collectionProperty = property.FindPropertyRelative("collection");
             var list = new ReorderableList(property.serializedObject, collectionProperty, true, false, true, true)
-            {
-                // drawHeaderCallback = DrawHeaderCallback,
-                drawElementCallback = (a, b, c, d) => DrawElementCallback(a, b, c, d, collectionProperty),
-                // //drawFooterCallback = DrawFooterCallback,
-                onAddCallback = (a) => OnAddCallback(a, propertyCollection, parent),
-                onRemoveCallback = (a) => OnRemoveCallback(a, propertyCollection, parent),
-            };
-            CustomGUI(property.serializedObject, ref list);
+                {
+                    drawElementCallback = (rect, index, active, focused) =>
+                        DrawElementCallback(rect, index, active, focused, collectionProperty),
+                    elementHeightCallback = i => ElementHeightCallback(i, collectionProperty),
+                    onAddCallback = _ => OnAddCallback(property),
+                    onRemoveCallback = l => OnRemoveCallback(l, property)
+                };
+
+            return list;
         }
         
 
@@ -46,15 +112,7 @@ namespace Game.Editor
             AddContainer(ref root, out var containerElement);
             AddButtons(ref containerElement, parent, propertyCollection, ref property);
 
-            var collectionProperty = property.FindPropertyRelative("collection");
-            var list = new ReorderableList(property.serializedObject, collectionProperty, true, false, true, true)
-            {
-                // drawHeaderCallback = DrawHeaderCallback,
-                drawElementCallback = (a, b, c, d) => DrawElementCallback(a, b, c, d, collectionProperty),
-                // //drawFooterCallback = DrawFooterCallback,
-                onAddCallback = (a) => OnAddCallback(a, propertyCollection, parent),
-                onRemoveCallback = (a) => OnRemoveCallback(a, propertyCollection, parent),
-            };
+            var list = GetList(property);
             containerElement.Add(new IMGUIContainer(() => CustomGUI(property.serializedObject, ref list)));
             
             return root;
@@ -149,8 +207,7 @@ namespace Game.Editor
         private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused, SerializedProperty property)
         {
             var element = property.GetArrayElementAtIndex(index);
-
-            EditorGUI.PropertyField(rect, element);
+            EditorGUI.PropertyField(rect, element, GUIContent.none);
             
             // var objectReference = element.objectReferenceValue;
             // var name = objectReference.name;
@@ -162,45 +219,71 @@ namespace Game.Editor
             //     
             // }
         }
-        
-        
-        private void OnRemoveCallback(ReorderableList list, ISerializableSOCollection collection, ScriptableObject parentRef)
-        {
-            var indices = list.selectedIndices;
-            
-            if (indices == null || indices.Count == 0)
-            {
-                if (collection.Count > 0)
-                {
-                    var index = collection.Count - 1;
 
-                    var removedObject = collection.GetAtIndex(index);
+        private float ElementHeightCallback(int index, SerializedProperty property)
+        {
+            var el = property.GetArrayElementAtIndex(index);
+            if (el == null)
+            {
+                Debug.LogError("ERROR: el in PropertyCollectionDrawer is null");
+                return 0;
+            }
+
+            return EditorGUI.GetPropertyHeight(el, true) + 2;
+        }
+        
+        
+        private void OnRemoveCallback(ReorderableList list, SerializedProperty property)
+        {
+            if (!TryGetReferences(property, out var parent, out var pCollection, out var selfReference,
+                    out var errorMessage))
+            {
+                Debug.LogError(errorMessage);
+                return;
+            }
+            
+            var idx = list.selectedIndices;
+            
+            if (idx == null || idx.Count == 0)
+            {
+                if (pCollection.Count > 0)
+                {
+                    var index = pCollection.Count - 1;
+
+                    var removedObject = pCollection.GetAtIndex(index);
                     if (removedObject == null) return;
                     AssetDatabase.RemoveObjectFromAsset(removedObject);
                     AssetDatabase.SaveAssets();
                     
-                    collection.RemoveAt(index);
+                    pCollection.RemoveAt(index);
                     
                 }
                 return;    
             }
             
-            for (var i = 0; i < indices.Count; i++)
+            for (var i = 0; i < idx.Count; i++)
             {
-                var index = indices[i];
+                var index = idx[i];
                 
-                var removedObject = collection.GetAtIndex(index);
+                var removedObject = pCollection.GetAtIndex(index);
                 if (removedObject == null) continue;
                 AssetDatabase.RemoveObjectFromAsset(removedObject);
                 AssetDatabase.SaveAssets();
                     
-                collection.RemoveAt(index);
+                pCollection.RemoveAt(index);
             }
         }
 
-        private void OnAddCallback(ReorderableList list, ISerializableSOCollection collection, ScriptableObject parentRef)
+        private void OnAddCallback(SerializedProperty property)
         {
-            collection.OpenSearchWindow((a) => OnSelectedItem(a, parentRef));
+            if (!TryGetReferences(property, out var parent, out var pCollection, out var selfReference,
+                    out var errorMessage))
+            {
+                Debug.LogError(errorMessage);
+                return;
+            }
+            
+            pCollection.OpenSearchWindow((a) => OnSelectedItem(property, a, parent));
         }
 
         private void DrawHeaderCallback(Rect rect)
@@ -208,10 +291,11 @@ namespace Game.Editor
             
         }
         
-        private void OnSelectedItem(Object objectAdded, ScriptableObject parentRef)
+        private void OnSelectedItem(in SerializedProperty property, in Object objectAdded, in ScriptableObject parentRef)
         {
             AssetDatabase.AddObjectToAsset(objectAdded, parentRef);
             AssetDatabase.SaveAssets();
+            property.serializedObject.Update();
         }
     }
 }

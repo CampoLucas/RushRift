@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game.UI;
-using Game.UI.Screens;
+using Game.UI.StateMachine;
 using MyTools.Global;
 using TMPro;
 using UnityEngine;

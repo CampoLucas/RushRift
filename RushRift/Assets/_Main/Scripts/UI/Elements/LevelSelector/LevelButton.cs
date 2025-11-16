@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using Game;
 using Game.DesignPatterns.Pool;
 using Game.Levels;
-using Game.UI.Screens.Elements;
+using Game.UI.StateMachine.Elements;
 using MyTools.Global;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.UI.Screens.Elements
+namespace Game.UI.StateMachine.Elements
 {
     public sealed class LevelButton : MonoBehaviour, DesignPatterns.Observers.IObserver<ButtonSelectState>
     {

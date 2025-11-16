@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Game;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
@@ -18,74 +19,77 @@ public class TimerDisplay : MonoBehaviour
     [SerializeField] private Graphic icon;
 
     [Header("Colors")]
-    [SerializeField] private Color bronzeColor;
-    [SerializeField] private Color silverColor;
-    [SerializeField] private Color goldColor;
+    [SerializeField] private SerializedDictionary<MedalType, Color> medalColors = new();
     [SerializeField] private Color failureColor;
 
     [Header("Settings")]
-    [Tooltip("Makes the text have the same color as the medals.")] 
-    [SerializeField] private bool useSameColor;
-    [Tooltip("Use the next threshold color instead of the blinkColor when blinking.")]
-    [SerializeField] private bool useNextThresholdColor = true;
-    [Tooltip("Makes the text use failure color when passing the failure threshold.")]
-    [SerializeField] private bool useFailureTextColor = true;
+    [SerializeField] private bool useSameColor; // Makes the text have the same color as the medals.
+    [SerializeField] private bool useNextThresholdColor = true; // Use the next threshold color instead of the blinkColor when blinking.
+    [SerializeField] private bool useFailureTextColor = true; // Makes the text use failure color when passing the failure threshold.
     [SerializeField] private Color blinkColor;
     [SerializeField] private float blinkInterval = 0.5f;
     [SerializeField] private float timeToBlink = 5;
+    [SerializeField] private float colorLerpSpeed = 10f;
 
-    private float _goldThreshold = -1;
-    private float _silverThreshold = -1;
-    private float _bronzeThreshold = -1;
-
-    private Coroutine _blinkCoroutine;
-    private Color _currentTargetColor;
+    private readonly List<MedalData> _medals = new();
+    
     private Color _textStartColor;
+    private Color _currentTargetColor;
+    private Color _previousTargetColor;
     private Color _nextThresholdColor = Color.white; // for blinking
+    private Coroutine _blinkCoroutine;
+    private bool _useBlinkColor;
 
     private ActionObserver<BaseLevelSO> _onPreload;
-    private ActionObserver<BaseLevelSO> _onLoad;
-    
+    private ActionObserver<BaseLevelSO> _onReady;
     private ActionObserver<float> _timerObserver;
 
-    private bool _useBlinkColor;
+    private struct MedalData
+    {
+        public float Time;
+        public Color Color;
+    }
 
     private void Awake()
     {
-        if (_timerObserver == null)
-        {
-            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
-        }
-
+        _timerObserver ??= new ActionObserver<float>(OnTimeUpdated);
         _onPreload = new ActionObserver<BaseLevelSO>(OnLoadingStartHandler);
-        _onLoad = new ActionObserver<BaseLevelSO>(OnLoadingEndHandler);
-        
+        _onReady = new ActionObserver<BaseLevelSO>(OnReadyHandler);
         _textStartColor = text.color;
 
         GameEntry.LoadingState.AttachOnPreload(_onPreload);
-        GameEntry.LoadingState.AttachOnLoad(_onLoad);
+        GameEntry.LoadingState.AttachOnReady(_onReady);
+        
+        
+    }
+
+    private void Start()
+    {
+        if (GlobalLevelManager.CurrentLevel.TryGet(out var level))
+        {
+            _onReady.OnNotify(level);
+            
+        }
     }
 
     private void OnLoadingStartHandler(BaseLevelSO level)
     {
         StopAllCoroutines();
-        if (_timerObserver == null)
+        if (_timerObserver != null)
         {
-            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
+            GlobalEvents.TimeUpdated.Detach(_timerObserver);
         }
-        GlobalEvents.TimeUpdated.Detach(_timerObserver);
     }
     
-    private void OnLoadingEndHandler(BaseLevelSO level)
+    private void OnReadyHandler(BaseLevelSO level)
     {
         StopAllCoroutines();
-        if (_timerObserver == null)
-        {
-            _timerObserver = new ActionObserver<float>(OnTimeUpdated);
-        }
+        _timerObserver ??= new ActionObserver<float>(OnTimeUpdated);
         GlobalEvents.TimeUpdated.Attach(_timerObserver);
         
-        _goldThreshold = _silverThreshold = _bronzeThreshold = float.PositiveInfinity;
+        _medals.Clear();
+        _blinkCoroutine = null;
+        _useBlinkColor = false;
 
         if (!level)
         {
@@ -104,55 +108,99 @@ public class TimerDisplay : MonoBehaviour
         {
             gameObject.SetActive(true);
         }
+
+
+        var medalTypes = level.GetMedalTypes();
+        for (var i = 0; i < medalTypes.Length; i++)
+        {
+            TryAddMedal(level, medalTypes[i]);
+        }
         
-        _goldThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Gold).requiredTime);
-        _silverThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Silver).requiredTime);
-        _bronzeThreshold = Mathf.Max(0f, level.GetMedal(MedalType.Bronze).requiredTime);
+        // Sort by time ascending
+        _medals.Sort((a, b) => a.Time.CompareTo(b.Time));
+        
+        if (_medals.Count > 0)
+        {
+            _currentTargetColor = _previousTargetColor = _medals[0].Color;
+
+            // initialize next threshold color properly
+            _nextThresholdColor = (_medals.Count > 1)
+                ? _medals[1].Color
+                : failureColor;
+        }
+        else
+        {
+            _currentTargetColor = _previousTargetColor = failureColor;
+            _nextThresholdColor = failureColor;
+        }
+    }
+    
+    private void TryAddMedal(BaseLevelSO level, MedalType type)
+    {
+        var medal = level.GetMedal(type);
+        if (medal.requiredTime > 0)
+        {
+            if (!medalColors.TryGetValue(type, out var color))
+            {
+                color = Color.magenta; // Magenta so it is clearly noticeable as an error
+            }
+            _medals.Add(new MedalData { Time = Mathf.Max(0f, medal.requiredTime), Color = color });
+        }
     }
 
     private void OnTimeUpdated(float time)
     {
-        // Update formatted text
         text.text = time.FormatToTimer();
-        
-        // Determine the target color based on thresholds
-        if (time <= _goldThreshold)
+
+        if (_medals.Count == 0)
         {
-            _currentTargetColor = goldColor;
-            _nextThresholdColor = silverColor;
+            icon.color = Color.Lerp(icon.color, failureColor, Time.deltaTime * colorLerpSpeed);
+            if (useFailureTextColor)
+                text.color = Color.Lerp(text.color, failureColor, Time.deltaTime * colorLerpSpeed);
+            return;
         }
-        else if (time <= _silverThreshold)
+
+        var currentIndex = _medals.FindIndex(m => time <= m.Time);
+        Color newTargetColor;
+        Color newNextColor;
+
+        if (currentIndex == -1)
         {
-            _currentTargetColor = silverColor;
-            _nextThresholdColor = bronzeColor;
-        }
-        else if (time <= _bronzeThreshold)
-        {
-            _currentTargetColor = bronzeColor;
-            _nextThresholdColor = failureColor;
+            newTargetColor = failureColor;
+            newNextColor = failureColor;
         }
         else
         {
-            _currentTargetColor = failureColor;
+            newTargetColor = _medals[currentIndex].Color;
+            newNextColor = (currentIndex + 1 < _medals.Count)
+                ? _medals[currentIndex + 1].Color
+                : failureColor;
         }
 
-        // Smoothly transition to the target color
+        // Only change target when medal tier changes
+        if (newTargetColor != _currentTargetColor)
+        {
+            _previousTargetColor = icon.color;
+            _currentTargetColor = newTargetColor;
+            _nextThresholdColor = newNextColor;
+        }
+
         if (!_useBlinkColor)
         {
-            icon.color = Color.Lerp(icon.color, _currentTargetColor, Time.deltaTime * 10f);
-            
+            icon.color = Color.Lerp(icon.color, _currentTargetColor, Time.deltaTime * colorLerpSpeed);
+
             if (useSameColor)
             {
-                if (time > _bronzeThreshold && useFailureTextColor)
-                    text.color = failureColor;
-                else
-                    text.color = Color.Lerp(text.color, _currentTargetColor, Time.deltaTime * 10f);
+                var targetTextColor = (currentIndex == -1 && useFailureTextColor)
+                    ? failureColor
+                    : _currentTargetColor;
+
+                text.color = Color.Lerp(text.color, targetTextColor, Time.deltaTime * colorLerpSpeed);
             }
         }
-        
-        // Start/stop blink when time is below 5 seconds
-        var timeToNextThreshold = NextThresholdTime(time);
-        if (timeToNextThreshold <= timeToBlink)
+
+        var timeToNext = NextThresholdTime(time);
+        if (timeToNext <= timeToBlink)
         {
             if (_blinkCoroutine == null)
                 _blinkCoroutine = StartCoroutine(BlinkColor());
@@ -171,9 +219,11 @@ public class TimerDisplay : MonoBehaviour
     
     private float NextThresholdTime(float time)
     {
-        if (time <= _goldThreshold) return _goldThreshold - time;
-        if (time <= _silverThreshold) return _silverThreshold - time;
-        if (time <= _bronzeThreshold) return _bronzeThreshold - time;
+        foreach (var medal in _medals)
+        {
+            if (time <= medal.Time)
+                return medal.Time - time;
+        }
         return float.PositiveInfinity;
     }
     
@@ -187,7 +237,6 @@ public class TimerDisplay : MonoBehaviour
             
             // Decide blink color: fixed or next threshold
             var blinkTarget = useNextThresholdColor ? _nextThresholdColor : blinkColor;
-            
             var target = _useBlinkColor ? blinkTarget : _currentTargetColor;
             var targetText = _useBlinkColor ? blinkTarget : TextColor();
 
@@ -203,11 +252,11 @@ public class TimerDisplay : MonoBehaviour
     private void OnDestroy()
     {
         GameEntry.LoadingState.DetachOnPreload(_onPreload);
-        GameEntry.LoadingState.DetachOnLoad(_onLoad);
+        GameEntry.LoadingState.DetachOnReady(_onReady);
         
         GlobalEvents.TimeUpdated.Detach(_timerObserver);
         StopAllCoroutines();
-        
+        _medals.Clear();
         _timerObserver.Dispose();
     }
 }

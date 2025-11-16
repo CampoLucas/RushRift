@@ -6,6 +6,8 @@ namespace Game.Levels
     [Serializable]
     public struct Medal
     {
+        public string EffectName => src != UpgradeSource.Self || upgrade == null ? "" : upgrade.EffectName; 
+        
         public float requiredTime;
         public UpgradeSource src;
         public Effect upgrade;
