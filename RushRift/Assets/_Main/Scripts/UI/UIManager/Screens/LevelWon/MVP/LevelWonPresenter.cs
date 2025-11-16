@@ -4,6 +4,7 @@ using Game.DesignPatterns.Observers;
 using Game.General;
 using Game.Levels;
 using Game.Saves;
+using Game.DataBase;
 using Game.Utils;
 using TMPro;
 using UnityEngine;
@@ -11,6 +12,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Threading;
 
 namespace Game.UI.StateMachine
 {
@@ -120,9 +122,14 @@ namespace Game.UI.StateMachine
         private void UpdateSaveData(in LevelWonModel model)
         {
             var data = SaveSystem.LoadGame();
-            
+            CancellationTokenSource cts = new CancellationTokenSource();
+            var id = GlobalLevelManager.GetID();
+
             SaveUnlockedMedals(model, ref data);
             SaveNewBest(model, ref data);
+
+            var timeToSend = FormatTime(model.BestTime);
+            DataBaseHandler.DB.SendScore(data.GetUserId(), id, timeToSend, 1, 1, 1, cts.Token);
             
             data.SaveGame();
         }
@@ -142,6 +149,15 @@ namespace Game.UI.StateMachine
             {
                 data.SetNewBestTime(GlobalLevelManager.GetID(), model.BestTime);
             }
+        }
+
+        private string FormatTime(float time)
+        {
+            var minutes = Mathf.FloorToInt(time / 60f);
+            var seconds = Mathf.FloorToInt(time % 60f);
+            var milliseconds = Mathf.FloorToInt((time * 1000f) % 1000f);
+
+            return $"{minutes:00}:{seconds:00}.{milliseconds:000}";
         }
 
         public override void Dispose()

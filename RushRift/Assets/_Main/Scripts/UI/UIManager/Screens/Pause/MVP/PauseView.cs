@@ -6,6 +6,7 @@ namespace Game.UI.StateMachine
     public class PauseView : UIView
     {
         [SerializeField] private TMP_Text versionText;
+        [SerializeField] private TMP_Text userText;
 
         protected override void Awake()
         {

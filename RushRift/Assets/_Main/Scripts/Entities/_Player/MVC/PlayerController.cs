@@ -162,13 +162,7 @@ namespace Game.Entities
         public override Vector3 MoveDirection() =>
             _moveDir;
         
-        private void OnReceivedId(int value)
-        {
-            var save = SaveSystem.LoadGame();
-            save.SetUserId(value);
-            save.SaveGame();
-            Debug.Log("Mi id es_" + save.GetUserId());
-        }
+        
 
         private void OnReceivedScore(ScoreList scoreList)
         {

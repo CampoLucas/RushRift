@@ -94,6 +94,8 @@ namespace Game.UI.StateMachine
             _loadingLevel = true;
             SaveSystem.ResetGame();
 
+            mainMenuPresenter.saveUsername();
+
             var session = GameSessionSO.GetOrCreate(GlobalLevelManager.CurrentSession, defaultGameMode, defaultGameMode.Levels[0]);
             
             

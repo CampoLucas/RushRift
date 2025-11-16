@@ -1,9 +1,12 @@
 using System;
 using Game.Saves;
 using Game.UI.StateMachine.Elements;
+using Game.DataBase;
 using MyTools.Global;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading;
+using TMPro;
 
 namespace Game.UI.StateMachine
 {
@@ -19,6 +22,9 @@ namespace Game.UI.StateMachine
         [Header("PopUp")]
         [SerializeField] private PopUp popUp;
         [SerializeField] private GameObject popUpBackground;
+
+        [Header("InputField")]
+        [SerializeField] private TMP_InputField username;
 
         private void Awake()
         {
@@ -51,6 +57,8 @@ namespace Game.UI.StateMachine
             {
                 quitButton.onClick.AddListener(OnQuitHandler);
             }
+
+            DataBaseHandler.Init();
         }
 
         protected override void OnInit()
@@ -137,6 +145,33 @@ namespace Game.UI.StateMachine
         {
             state = new MainMenuState(this);
             return true;
+        }
+
+        public void saveUsername()
+        {
+            string usernameToSend;
+            if(username.text != null)
+            {
+                usernameToSend = username.text;
+            }
+            else
+            {
+                usernameToSend = "NoName";
+            }
+
+            CancellationTokenSource cts = new CancellationTokenSource();
+            var save = SaveSystem.LoadGame();
+            save.SetUsername(usernameToSend);
+            save.SaveGame();
+            DataBaseHandler.DB.SendUsername(username.text, OnReceivedId, cts.Token);
+        }
+
+        private void OnReceivedId(int value)
+        {
+            var save = SaveSystem.LoadGame();
+            save.SetUserId(value);
+            save.SaveGame();
+
         }
     }
 }
