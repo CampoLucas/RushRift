@@ -18,15 +18,16 @@ namespace Game.DataBase
             {
                 // Set to offline data base
                 //if (OfflineDataBaseEnabled()) {
-                
+
                 // If there is no offline database
-                DB = new DisabledDB();
+                DB = new ServerDB("");
             }
             // si  esta online setea DB a la database, sino a la ofline DB
         }
 
         private static bool HasInternet()
         {
+            //ping database
             return true;
         }
     }

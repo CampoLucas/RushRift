@@ -10,6 +10,7 @@ using Game.DataBase;
 public class ServerDB : IDataBase
 {
     private string serverIp;
+    private string serverRoute;
 
     public ServerDB(string ip)
     {
@@ -65,7 +66,7 @@ public class ServerDB : IDataBase
 
         if (www.result == UnityWebRequest.Result.Success)
         {
-            Debug.Log("Score sent: " + www.downloadHandler.text);
+            Debug.Log("Score sent: " + www.downloadHandler.text + time);
             return DBRequestState.Success;
         }
         return ErrorResult(DBRequestState.SendingError, "Error sending score: " + www.error);
@@ -73,6 +74,7 @@ public class ServerDB : IDataBase
     
     public async UniTask<DBRequestState> GetScore(int level, Action<ScoreList> successCallback, CancellationToken token)
     {
+
         var www = UnityWebRequest.Get($"http://{serverIp}/api/get_scores.php?level={level}");
         await www.SendWebRequest().WithCancellation(token);
 

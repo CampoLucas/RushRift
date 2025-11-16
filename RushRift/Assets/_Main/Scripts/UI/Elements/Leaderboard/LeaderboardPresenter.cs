@@ -15,9 +15,8 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 
     private bool hasChecked;
 
-    public override void Begin()
+    public void Init()
     {
-        hasChecked = false;
         for (int i = 0; i < userNameList.Count; i++)
         {
             userNameList[i].SetActive(false);
@@ -25,6 +24,11 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         }
 
         hasChecked = false;
+    }
+
+    public override void Begin()
+    {
+        
         base.Begin();
     }
 

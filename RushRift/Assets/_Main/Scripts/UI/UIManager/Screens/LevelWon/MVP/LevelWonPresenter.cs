@@ -122,14 +122,9 @@ namespace Game.UI.StateMachine
         private void UpdateSaveData(in LevelWonModel model)
         {
             var data = SaveSystem.LoadGame();
-            CancellationTokenSource cts = new CancellationTokenSource();
-            var id = GlobalLevelManager.GetID();
 
             SaveUnlockedMedals(model, ref data);
             SaveNewBest(model, ref data);
-
-            var timeToSend = FormatTime(model.BestTime);
-            DataBaseHandler.DB.SendScore(data.GetUserId(), id, timeToSend, 1, 1, 1, cts.Token);
             
             data.SaveGame();
         }
@@ -147,7 +142,11 @@ namespace Game.UI.StateMachine
         {
             if (model.NewRecord)
             {
+                CancellationTokenSource cts = new CancellationTokenSource();
+                var id = GlobalLevelManager.GetID();
+                var timeToSend = FormatTime(model.BestTime);
                 data.SetNewBestTime(GlobalLevelManager.GetID(), model.BestTime);
+                DataBaseHandler.DB.SendScore(data.GetUserId(), id, timeToSend, 1, 1, 1, cts.Token);
             }
         }
 
