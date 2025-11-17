@@ -14,7 +14,7 @@ namespace Game.Entities.AttackSystem
     
     public class ExitTransitionProxy : TransitionProxy
     {
-        public ExitTransitionProxy(IAttack to, List<Predicate> conditions) : base(to, conditions)
+        public ExitTransitionProxy(IAttack to, List<ComboPredicate> conditions) : base(to, conditions)
         {
         }
 

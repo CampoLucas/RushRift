@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Game.Entities.AttackSystem
 {
     [CreateAssetMenu(menuName = "Game/AttackSystem/Predicates/Combo/AttackFinished")]
-    public class AttackFinished : Predicate
+    public class AttackFinished : ComboPredicate
     {
         protected override bool OnEvaluate(ComboHandler combo, IAttack next)
         {

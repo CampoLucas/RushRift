@@ -10,7 +10,16 @@ namespace Game.Entities
     public class EntityView : MonoBehaviour, IView
     {
         protected Animator[] Animators; // Array of Animator components used to play animations
+        protected Transform Transform;
 
+        private void Awake()
+        {
+            Transform = transform;
+            OnAwake();
+        }
+        
+        protected virtual void OnAwake() { }
+        
         /// <summary>
         /// Initializes the view with an array of Animators
         /// </summary>

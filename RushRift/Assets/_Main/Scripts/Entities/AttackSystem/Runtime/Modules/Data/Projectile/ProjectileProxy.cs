@@ -1,9 +1,11 @@
+using System;
 using Game.DesignPatterns.Observers;
 using Game.DesignPatterns.Pool;
 using Game.Utils;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace Game.Entities.AttackSystem
 {
@@ -66,10 +68,39 @@ namespace Game.Entities.AttackSystem
                 var spawnPosition = origin.GetOffsetPos(offset) + worldOffset;
 
                 var p = pool.Get(spawnPosition, rotation, pData);
-                
+
+                var scene = thrower.scene;
+
+#if false
+                // if the scene is unloading, dispose the projectile immediately
+                if (!scene.IsValid() || !scene.isLoaded)
+                {
+                    // Remove from pool.
+                    pool.Remove(p);
+                    // Destroy the game object to avoid leaving orphaned GameObjects.
+                    Object.Destroy(p.gameObject);
+                    continue;
+                }
+
                 SceneManager.MoveGameObjectToScene(p.gameObject, thrower.scene);
+#else
+                try
+                {
+                    SceneManager.MoveGameObjectToScene(p.gameObject, thrower.scene);
+                }
+                catch (Exception e)
+                {
+                    // Remove from pool.
+                    pool.Remove(p);
+                    // Destroy the game object to avoid leaving orphaned GameObjects.
+                    Object.Destroy(p.gameObject);
+                    
+                    Debug.LogError($"ERROR: found exception {e}");
+                    break; // skip everything
+                }
+#endif
                 p.SetThrower(thrower);
-                
+
             }
         }
 

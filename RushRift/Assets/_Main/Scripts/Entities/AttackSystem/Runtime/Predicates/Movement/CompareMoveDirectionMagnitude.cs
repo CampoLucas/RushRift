@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 namespace Game.Entities.AttackSystem
 {
     [CreateAssetMenu(menuName = "Game/AttackSystem/Predicates/Movement/CompareMoveDirectionMagnitude")]
-    public class CompareMoveDirectionMagnitude : MovementPredicate
+    public class CompareMoveDirectionMagnitude : MovementComboPredicate
     {
         [Header("Compare Settings")]
         [SerializeField] private CompareOperation operation;

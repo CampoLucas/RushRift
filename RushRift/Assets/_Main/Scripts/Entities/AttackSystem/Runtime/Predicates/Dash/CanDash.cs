@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Game.Entities.AttackSystem
 {
     [CreateAssetMenu(menuName = "Game/AttackSystem/Predicates/Dash/CanDash")]
-    public class CanDash : Predicate
+    public class CanDash : ComboPredicate
     {
         protected override bool OnEvaluate(ComboHandler combo, IAttack next)
         {

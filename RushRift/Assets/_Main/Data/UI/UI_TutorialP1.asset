@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a482b98b92874ad9906c3d3427c94046, type: 3}
+  m_Name: UI_TutorialP1
+  m_EditorClassIdentifier: 
+  presenters:
+    data:
+    - key: 0
+      value: {fileID: 7366195813824602402, guid: 7310efbec7e37b34caea64d76350444d, type: 3}
+    - key: 2
+      value: {fileID: 8966316171323768053, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+    - key: 3
+      value: {fileID: 5431950308278631213, guid: ad83b501dc4766b48a74b720ff3caaec, type: 3}
+  root: 0
+  transitions:
+  - from: 0
+    screenTransition: 0
+    to: 0
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: 2436592221502691944}
+  - from: 0
+    screenTransition: 1
+    to: 3
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: 7505413138972845374}
+  - from: 3
+    screenTransition: 1
+    to: 0
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: 2847261481824407036}
+--- !u!114 &2436592221502691944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 10
+  action: 1
+--- !u!114 &2847261481824407036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 8
+  action: 1
+--- !u!114 &7505413138972845374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 8
+  action: 1

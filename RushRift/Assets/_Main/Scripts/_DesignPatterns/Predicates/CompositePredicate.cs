@@ -1,7 +1,39 @@
 using System;
+using Game.UI.StateMachine;
 
 namespace Game
 {
+    public class CompositePredicate : IPredicate
+    {
+        private IPredicate[] _predicates;
+
+        public CompositePredicate(IPredicate[] predicates)
+        {
+            _predicates = predicates;
+        }
+        
+        public bool Evaluate()
+        {
+            for (var i = 0; i < _predicates.Length; i++)
+            {
+                var p = _predicates[i];
+                if (!p.Evaluate()) return false;
+            }
+
+            return true;
+        }
+
+        public void Dispose()
+        {
+            for (var i = 0; i < _predicates.Length; i++)
+            {
+                _predicates[i].Dispose();
+            }
+            
+            _predicates = null;
+        }
+    }
+    
     public class CompositePredicate<T> : IPredicate<T>
     {
         private IPredicate<T>[] _predicates;

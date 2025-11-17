@@ -9,24 +9,15 @@ namespace Game.InputSystem
 {
     public class InputManager : MonoBehaviour
     {
-        public static HashedKey MoveInput { get; private set; }
-        public static HashedKey LookInput { get; private set; }
-        public static HashedKey InteractInput { get; private set; }
-        public static HashedKey JumpInput { get; private set; }
-        
-        public static HashedKey PrimaryAttackInput { get; private set; }
-        public static HashedKey PrimaryAttackTapInput { get; private set; }
-        public static HashedKey PrimaryAttackHoldInput { get; private set; }
-        
-        public static HashedKey SecondaryAttackInput { get; private set; }
-        public static HashedKey PauseInput { get; private set; }
-        public static HashedKey MousePosition { get; private set; }
-        public static HashedKey ResetInput { get; set; }
+        public enum Input
+        {
+            Move, Look, Interact, Jump, Primary, PrimaryTap, PrimaryHold, Secondary, Pause, MousePos, Reset
+        }
 
         private static InputManager _instance;
-        private Dictionary<HashedKey, InputButton> _buttonsDict = new();
-        private Dictionary<HashedKey, InputValue<Vector2>> _valuesDict = new();
-        private Dictionary<HashedKey, InputAction> _actionsDict = new();
+        private Dictionary<Input, InputButton> _buttonsDict = new();
+        private Dictionary<Input, InputValue<Vector2>> _valuesDict = new();
+        private Dictionary<Input, InputAction> _actionsDict = new();
 
         private PlayerControls _playerControls;
 
@@ -75,49 +66,49 @@ namespace Game.InputSystem
             _playerControls.Enable();
         }
 
-        public static bool OnButton(HashedKey key)
+        public static bool OnButton(Input key)
         {
             if (_instance == null || !_instance._buttonsDict.TryGetValue(key, out var input)) return false;
 
             return input.OnHold();
         }
 
-        public static bool OnButtonDown(HashedKey key)
+        public static bool OnButtonDown(Input key)
         {
             if (_instance == null || !_instance._buttonsDict.TryGetValue(key, out var input)) return false;
 
             return input.OnPressed();
         }
         
-        public static bool OnButtonUp(HashedKey key)
+        public static bool OnButtonUp(Input key)
         {
             if (_instance == null || !_instance._buttonsDict.TryGetValue(key, out var input)) return false;
 
             return input.OnReleased();
         }
 
-        public static Vector2 GetValueVector(HashedKey key)
+        public static Vector2 GetValueVector(Input key)
         {
             if (_instance == null || !_instance._valuesDict.TryGetValue(key, out var input)) return Vector2.zero;
 
             return input.GetValue();
         }
 
-        public static bool GetActionPerformed(HashedKey key)
+        public static bool GetActionPerformed(Input key)
         {
             if (_instance == null || !_instance._actionsDict.TryGetValue(key, out var input)) return false;
 
             return input.OnPerformed();
         }
         
-        public static bool GetActionCanceled(HashedKey key)
+        public static bool GetActionCanceled(Input key)
         {
             if (_instance == null || !_instance._actionsDict.TryGetValue(key, out var input)) return false;
 
             return input.OnCanceled();
         }
         
-        public static bool GetActionStarted(HashedKey key)
+        public static bool GetActionStarted(Input key)
         {
             if (_instance == null || !_instance._actionsDict.TryGetValue(key, out var input)) return false;
 
@@ -126,50 +117,38 @@ namespace Game.InputSystem
 
         private void InitInputs()
         {
-            MoveInput = new HashedKey("move");
-            LookInput = new HashedKey("look");
-            InteractInput = new HashedKey("interact");
-            JumpInput = new HashedKey("jump");
-            ResetInput = new HashedKey("reset");
-            PrimaryAttackInput = new HashedKey("primary");
-            PrimaryAttackTapInput = new HashedKey("light");
-            PrimaryAttackHoldInput = new HashedKey("heavy");
-            SecondaryAttackInput = new HashedKey("secondary");
-            PauseInput = new HashedKey("pause");
-            MousePosition = new HashedKey("mouse-pos");
+            AddValueInput(Input.Move, MoveValue);
+            AddValueInput(Input.Look, LookValue);
+            AddValueInput(Input.MousePos, MousePosValue);
             
-            AddValueInput(MoveInput, MoveValue);
-            AddValueInput(LookInput, LookValue);
-            AddValueInput(MousePosition, MousePosValue);
+            AddActionInput(Input.Interact, InteractAction, InteractActionStarted, InteractActionCanceled);
+            AddActionInput(Input.Jump, JumpAction, JumpActionStarted, JumpActionCanceled);
+            AddActionInput(Input.Reset, ResetAction, ResetActionStarted, ResetActionCanceled);
+            AddActionInput(Input.PrimaryTap, PrimaryAttackTap, PrimaryAttackTapStarted, PrimaryAttackTapCanceled);
+            AddActionInput(Input.PrimaryHold, PrimaryAttackHold, PrimaryAttackHoldStarted, PrimaryAttackHoldCanceled);
+            AddActionInput(Input.Secondary, SecondaryAttackAction, SecondaryAttackStarted, SecondaryAttackCanceled);
+            AddActionInput(Input.Primary, PrimaryAttack, PrimaryAttackStarted, PrimaryAttackCanceled);
             
-            AddActionInput(InteractInput, InteractAction, InteractActionStarted, InteractActionCanceled);
-            AddActionInput(JumpInput, JumpAction, JumpActionStarted, JumpActionCanceled);
-            AddActionInput(ResetInput, ResetAction, ResetActionStarted, ResetActionCanceled);
-            AddActionInput(PrimaryAttackTapInput, PrimaryAttackTap, PrimaryAttackTapStarted, PrimaryAttackTapCanceled);
-            AddActionInput(PrimaryAttackHoldInput, PrimaryAttackHold, PrimaryAttackHoldStarted, PrimaryAttackHoldCanceled);
-            AddActionInput(SecondaryAttackInput, SecondaryAttackAction, SecondaryAttackStarted, SecondaryAttackCanceled);
-            AddActionInput(PrimaryAttackInput, PrimaryAttack, PrimaryAttackStarted, PrimaryAttackCanceled);
-            
-            AddButtonInput(PauseInput, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
-            AddButtonInput(JumpInput, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
-            AddButtonInput(ResetInput, () => _playerControls.Gameplay.Reset.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Reset.WasPressedThisFrame(), () => _playerControls.Gameplay.Reset.WasReleasedThisFrame());
+            AddButtonInput(Input.Pause, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
+            AddButtonInput(Input.Jump, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
+            AddButtonInput(Input.Reset, () => _playerControls.Gameplay.Reset.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Reset.WasPressedThisFrame(), () => _playerControls.Gameplay.Reset.WasReleasedThisFrame());
         }
 
         #region Add Inputs Methods
 
-        private void AddButtonInput(HashedKey key, Func<bool> onHold, Func<bool> onPressed, Func<bool> onReleased)
+        private void AddButtonInput(Input key, Func<bool> onHold, Func<bool> onPressed, Func<bool> onReleased)
         {
             if (_buttonsDict.ContainsKey(key)) return;
             _buttonsDict[key] = new InputButton(onHold, onPressed, onReleased);
         }
 
-        private void AddValueInput(HashedKey key, Func<Vector2> value)
+        private void AddValueInput(Input key, Func<Vector2> value)
         {
             if (_valuesDict.ContainsKey(key)) return;
             _valuesDict[key] = new InputValue<Vector2>(value);
         }
 
-        private void AddActionInput(HashedKey key, Func<bool> performed, Func<bool> started, Func<bool> canceled)
+        private void AddActionInput(Input key, Func<bool> performed, Func<bool> started, Func<bool> canceled)
         {
             if (_actionsDict.ContainsKey(key)) return;
             _actionsDict[key] = new InputAction(performed, started, canceled);

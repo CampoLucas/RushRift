@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Game.UI.Screens;
-using Game.UI.Screens.Interfaces;
+using Game.UI.StateMachine;
+using Game.UI.StateMachine.Interfaces;
 using MyTools.Global;
 using UnityEngine;
 

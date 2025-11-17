@@ -8,7 +8,7 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Game.UI.Screens.Elements
+namespace Game.UI.StateMachine.Elements
 {
     public class PopUp : MonoBehaviour
     {

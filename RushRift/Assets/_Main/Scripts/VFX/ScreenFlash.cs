@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
@@ -99,4 +100,9 @@ public class ScreenFlash : MonoBehaviour
     }
 
     #endregion
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
 }

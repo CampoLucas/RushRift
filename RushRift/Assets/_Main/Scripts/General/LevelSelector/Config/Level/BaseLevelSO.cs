@@ -1,23 +1,30 @@
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
-using Game.Levels.SingleLevel;
+using Game.Entities;
+using Game.UI.StateMachine;
 using MyTools.Global;
 using UnityEngine;
 
 namespace Game.Levels
 {
-    public abstract class BaseLevelSO : SerializableSO
+    public abstract class BaseLevelSO : ScriptableObject
     {
         public int LevelID => levelID;
         public string LevelName => levelName;
         public bool UsesMedals => medals is { Count: > 0 };
-        
+        public UIStateCollection UI => overrideCollection;
+
         [Header("Settings")]
         [SerializeField] private int levelID;
         [SerializeField] private string levelName;
 
         [Header("Medals")]
         [SerializeField] private SerializedDictionary<MedalType, Medal> medals;
+
+        [Header("UI Override")]
+        [Tooltip("This scriptable object changes the UI from the level, if it is null, the game will play with the default UI.")]
+        [SerializeField] private UIStateCollection overrideCollection;
 
         public abstract int LevelCount();
         public abstract SingleLevelSO GetLevel(int index);
@@ -34,13 +41,11 @@ namespace Game.Levels
             }
 
             return medal;
-            // return type switch
-            // {
-            //     MedalType.Bronze => bronze,
-            //     MedalType.Silver => silver,
-            //     MedalType.Gold   => gold,
-            //     _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            // };
+        }
+
+        public MedalType[] GetMedalTypes()
+        {
+            return medals.Keys.ToArray();
         }
 
         public bool TryGetMedal(MedalType type, out Medal medal)
@@ -54,5 +59,7 @@ namespace Game.Levels
             medal = GetMedal(type);
             return true;
         }
+
+        public abstract int TryGetEffects(out Effect[] effect);
     }
 }

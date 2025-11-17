@@ -169,7 +169,11 @@ public class VolumetricTrigger : MonoBehaviour, ISubject<string>
     
     public void Dispose()
     {
-        throw new System.NotImplementedException();
+        areaCollider = null;
+        observers = null;
+        subject?.Dispose();
+        subject = null;
+        occupants?.Clear();
     }
     
     public void DetachAll() => subject.DetachAll();

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
+using Game.Editor;
 using Game.UI;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -23,7 +24,7 @@ namespace Game.Entities
         public Joints<EntityJoint> Joints => joints;
 
         [Header("Data")]
-        [SerializeField] protected EntityModelSO model; // ScriptableObject used to create the model proxy // ScriptableObject used to create the view proxy
+        [SerializeField, SerializableSO] protected EntityModelSO model; // ScriptableObject used to create the model proxy // ScriptableObject used to create the view proxy
 
         [Header("References")]
         [SerializeField] protected Joints<EntityJoint> joints;

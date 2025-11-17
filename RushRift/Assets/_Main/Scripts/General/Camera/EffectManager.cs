@@ -98,7 +98,7 @@ namespace Game
 
         #region VFX Pool
 
-        public static bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxParams, out EffectEmitter emitter)
+        public static bool TryGetVFX(VFXPrefabID id, VFXEmitterParams vfxParams, out VFXEmitter emitter)
         {
             if (!Usable || !_instance.TryGet(out var manager) || manager.effectPool == null)
             {

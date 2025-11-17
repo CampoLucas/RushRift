@@ -40,7 +40,7 @@ namespace Game
             }
 
             // Left click to interact
-            if (InputManager.GetActionPerformed(InputManager.PrimaryAttackInput))
+            if (InputManager.GetActionPerformed(InputManager.Input.Primary))
             {
                 var ray = new Ray(_camera.position, _camera.forward);
 

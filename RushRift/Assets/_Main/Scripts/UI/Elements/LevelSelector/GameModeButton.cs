@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.UI.Screens.Elements
+namespace Game.UI.StateMachine.Elements
 {
     public sealed class GameModeButton : MonoBehaviour, DesignPatterns.Observers.IObserver<ButtonSelectState>, ISubject
     {

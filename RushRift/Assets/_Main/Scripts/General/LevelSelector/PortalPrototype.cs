@@ -2,7 +2,7 @@ using System;
 using Game;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
-using Game.UI.Screens;
+using Game.UI.StateMachine;
 using Game.Utils;
 using MyTools.Global;
 using UnityEngine;
