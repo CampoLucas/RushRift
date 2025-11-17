@@ -2,6 +2,8 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.UI.StateMachine.Interfaces;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Game.UI.StateMachine
 {
@@ -10,6 +12,7 @@ namespace Game.UI.StateMachine
         where TView : UIView
     {
         [SerializeField] protected TView View;
+        [SerializeField] protected Selectable DefaultButton;
         protected TModel Model;
         
 
@@ -21,6 +24,10 @@ namespace Game.UI.StateMachine
         
         public override void Begin()
         {
+            if(DefaultButton != null)
+            {
+                EventSystem.current.SetSelectedGameObject(DefaultButton.gameObject);
+            }
             View.Show();
         }
 
