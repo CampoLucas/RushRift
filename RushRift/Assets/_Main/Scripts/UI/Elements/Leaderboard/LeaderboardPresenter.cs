@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Game.DataBase;
 using Game;
 using System.Threading;
+using Game.DesignPatterns.Observers;
 using TMPro;
 using Game.UI.StateMachine;
 using UnityEngine.EventSystems;
@@ -12,6 +14,10 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 {
     [SerializeField] private List<GameObject> userNameList;
     [SerializeField] private List<GameObject> userTimelist;
+
+    public Subject<int> OnSuccess; //change the params later
+    public Subject OnFailure;
+    public Subject OnLoading;
 
     private bool hasChecked;
 
@@ -32,13 +38,38 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         base.Begin();
     }
 
-    public void GetScoreData()
+    
+    public async void GetScoreData()
     {
         if (hasChecked) return;
+        hasChecked = true;
+
         CancellationTokenSource cts = new CancellationTokenSource();
         var id = GlobalLevelManager.GetID();
-        DataBaseHandler.DB.GetScore(id,OnrecievedScore,cts.Token);
-        hasChecked = true;
+        
+        GetScoreDataAsync(id, cts);
+    }
+
+    public async void GetScoreDataAsync(int id, CancellationTokenSource cts)
+    {
+        try
+        {
+            var state = await DataBaseHandler.DB.GetScore(id, OnrecievedScore, cts.Token);
+            // Set loading screen here
+            if (state != DBRequestState.Success)
+            {
+                OnFailure.NotifyAll();
+            }
+            else
+            {
+                OnSuccess.NotifyAll(0);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            OnFailure.NotifyAll(); // Set the error window
+        }
     }
 
     private void OnrecievedScore(ScoreList scoreList)
