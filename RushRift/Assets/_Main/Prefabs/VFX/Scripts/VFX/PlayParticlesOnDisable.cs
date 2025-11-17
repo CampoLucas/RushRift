@@ -18,10 +18,10 @@ public sealed class PlayParticlesOnDisable : MonoBehaviour
     {
         if (!Application.isPlaying) return;
 
-        Transform spawnXform = overrideSpawnPoint != null ? overrideSpawnPoint : transform;
-        Quaternion rot = matchRotation ? spawnXform.rotation : Quaternion.identity;
-        Vector3 pos = spawnXform.position;
-        float scale = matchScale ? spawnXform.lossyScale.magnitude : 1f;
+        var spawnXform = overrideSpawnPoint != null ? overrideSpawnPoint : transform;
+        var rot = matchRotation ? spawnXform.rotation : Quaternion.identity;
+        var pos = spawnXform.position;
+        var scale = matchScale ? spawnXform.lossyScale.magnitude : 1f;
 
         var vfxParams = new VFXEmitterParams
         {

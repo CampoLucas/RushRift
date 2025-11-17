@@ -1,4 +1,5 @@
 using Game.VFX;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -26,10 +27,20 @@ namespace Game.Entities.AttackSystem.Hitscan
         public bool UseSFX => useSFX;
         public string SFXName => sfxName;
         public bool CanUseTerminals => canUseTerminals;
+        public SerializedDictionary<HitType, int> Weights => weights;
+        public bool UseDotThreshold => useDotThreshold;
+        public float MinDotThreshold => minDotThreshold;
+        public bool ChainReaction => chainReaction;
+        public LayerMask ChainLayer => chainLayer;
+        public float ChainRadius => chainRadius;
+        public float ChainDamage => chainDamage;
 
         [Header("Settings")]
         [SerializeField] private float damage = 10;
         [SerializeField] private bool canUseTerminals = false;
+        [SerializeField] private bool useDotThreshold = false;
+        [SerializeField] private float minDotThreshold = .1f;
+        [SerializeField] private SerializedDictionary<HitType, int> weights = new();
         
         [Header("Spawn")]
         [SerializeField] private Vector3 offset;
@@ -48,6 +59,13 @@ namespace Game.Entities.AttackSystem.Hitscan
         [SerializeField] private LayerMask groundMask;
         [SerializeField] private LayerMask entityMask;
         [SerializeField] private float radius = .5f;
+
+        [Header("Chain")]
+        [SerializeField] private bool chainReaction;
+        [SerializeField] private float chainRadius;
+        [SerializeField] private LayerMask chainLayer;
+        [SerializeField] private float chainDamage;
+        
 
         [Header("Visuals")]
         [SerializeField] private ParticleSystem muzzleEffect;
@@ -101,5 +119,13 @@ namespace Game.Entities.AttackSystem.Hitscan
         }
         
         
+    }
+
+    public enum HitType
+    {
+        Entity,
+        Projectile,
+        Terminal,
+        World
     }
 }
