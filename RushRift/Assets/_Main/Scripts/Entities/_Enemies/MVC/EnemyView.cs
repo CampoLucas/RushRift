@@ -10,15 +10,13 @@ namespace Game.Entities
     public class EnemyView : EntityView
     {
         [Header("On Destroy")]
-        [SerializeField] private VFXPrefabID destroyVFX = VFXPrefabID.Explosion;
-        [SerializeField] private Vector3 offset;
-        [SerializeField] private float scale = 1;
+        [SerializeField] private VFXEmitterEntry[] destroyVFXs;
         
         private IController _controller;
         private ISubject _onDestroySubject;
         private ActionObserver _destroyVFXObserver;
 
-        private void Awake()
+        protected override void OnAwake()
         {
             _controller = GetComponent<IController>();
             _destroyVFXObserver = new ActionObserver(DestroyVFXHandler);
@@ -38,14 +36,17 @@ namespace Game.Entities
         
         private void DestroyVFXHandler()
         {
-            var tr = transform;
-            
-            EffectManager.TryGetVFX(destroyVFX, new VFXEmitterParams()
+            foreach (var vfx in destroyVFXs)
             {
-                position = tr.GetOffsetPos(offset),
-                rotation = tr.rotation,
-                scale = tr.localScale.magnitude * scale
-            }, out var emitter);
+                vfx.GetVFXEmitter(Transform);
+            }
+
+            // EffectManager.TryGetVFX(destroyVFX, new VFXEmitterParams()
+            // {
+            //     position = tr.GetOffsetPos(offset),
+            //     rotation = tr.rotation,
+            //     scale = tr.localScale.magnitude * scale
+            // }, out var emitter);
         }
         
         protected override void OnDispose()
