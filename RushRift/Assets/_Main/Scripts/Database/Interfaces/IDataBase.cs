@@ -18,7 +18,8 @@ namespace Game.DataBase
         Success,
         Disabled,
         SavingError,
-        SendingError
+        SendingError,
+        Unknown
     }
 
     [Flags]

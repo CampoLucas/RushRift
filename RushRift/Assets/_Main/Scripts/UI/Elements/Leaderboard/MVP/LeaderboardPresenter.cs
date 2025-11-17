@@ -15,8 +15,8 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
     [SerializeField] private List<GameObject> userNameList;
     [SerializeField] private List<GameObject> userTimelist;
 
-    public Subject<int> OnSuccess; //change the params later
-    public Subject OnFailure;
+    public Subject<LeaderboardParams> OnSuccess; //change the params later
+    public Subject<DBRequestState> OnFailure;
     public Subject OnLoading;
 
     private bool hasChecked;
@@ -58,17 +58,17 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
             // Set loading screen here
             if (state != DBRequestState.Success)
             {
-                OnFailure.NotifyAll();
+                OnFailure.NotifyAll(state);
             }
             else
             {
-                OnSuccess.NotifyAll(0);
+                OnSuccess.NotifyAll(new LeaderboardParams());
             }
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            OnFailure.NotifyAll(); // Set the error window
+            OnFailure.NotifyAll(DBRequestState.Unknown); // Set the error window
         }
     }
 
