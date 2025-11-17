@@ -6,7 +6,7 @@ using Game.DesignPatterns.Observers;
 
 namespace Game.Entities
 {
-    public class ParticleEmitter : EffectEmitter
+    public class ParticleEmitter : VFXEmitter
     {
         [SerializeField] private ParticleSystem particle;
 

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 3619531414866528765}
   - component: {fileID: 3877498819990259545}
   - component: {fileID: 7895224853878941186}
-  - component: {fileID: -7834226433311353227}
   m_Layer: 10
   m_Name: P_Projectile_Fireball
   m_TagString: Projectile
@@ -64,8 +63,19 @@ MonoBehaviour:
     enemyBounceCount: 0
     hasGravity: 0
   trail: {fileID: 392842744307276996}
-  explosion: 2
-  explosionScale: 0.5
+  explosionVFX:
+  - id: 2
+    origin: {fileID: 0}
+    offset: {x: 0, y: 0, z: 0}
+    scale: 0.5
+    matchScale: 1
+    matchRotation: 0
+  - id: 4
+    origin: {fileID: 0}
+    offset: {x: 0, y: 0, z: 0}
+    scale: 1
+    matchScale: 1
+    matchRotation: 0
 --- !u!135 &3619531414866528765
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -135,22 +145,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-7834226433311353227
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 296380637666916344}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 900c7f13735e5c9459150a774cf76a0d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  vfxID: 4
-  matchRotation: 1
-  matchScale: 0
-  overrideSpawnPoint: {fileID: 0}
 --- !u!1 &2086765346664185060
 GameObject:
   m_ObjectHideFlags: 0

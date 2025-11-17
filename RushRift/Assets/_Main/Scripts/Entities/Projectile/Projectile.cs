@@ -26,8 +26,7 @@ namespace Game.Entities
 
         [Header("VFX")]
         [SerializeField] private TrailRenderer trail;
-        [SerializeField] private VFXPrefabID explosion;
-        [SerializeField] private float explosionScale;
+        [SerializeField] private VFXEmitterEntry[] explosionVFX;
 
         private Transform _transform;
         private float _timer;
@@ -84,8 +83,6 @@ namespace Game.Entities
             {
                 trail.time = Mathf.Abs(1f / body.velocity.magnitude) * 3;
             }
-
-            //_transform.position += _transform.forward * (data.Speed * Time.deltaTime);
         }
 
         private void OnEnable()
@@ -281,14 +278,10 @@ namespace Game.Entities
         {
             
             AudioManager.Play("TurretProjectileExplosion");
-            EffectManager.TryGetVFX(explosion, new VFXEmitterParams()
+            foreach (var vfx in explosionVFX)
             {
-                position = transform.position,
-                rotation = transform.rotation,
-                scale = explosionScale * data.Size
-            }, out var emitter);
-            //VFXPool.TryGetParticle(transform.position, transform.rotation, Data.Size, out var p);
-            //p.transform.rotation = Quaternion.LookRotation(normal);
+                vfx.GetVFXEmitter(transform);
+            }
             
             if (!recycle) return;
             if (_poolObject != null)

@@ -27,7 +27,7 @@ namespace Game.Entities
         private ActionObserver<Vector3> _deactivateEffectObserver;
         private ActionObserver _destroyVFXObserver;
 
-        private void Awake()
+        protected override void OnAwake()
         {
             _controller = GetComponent<IController>();
             _setLengthObserver = new ActionObserver<Vector3>(SetLaserLengthHandler);

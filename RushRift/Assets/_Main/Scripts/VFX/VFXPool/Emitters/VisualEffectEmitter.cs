@@ -4,7 +4,7 @@ using UnityEngine.VFX;
 
 namespace Game
 {
-    public class VisualEffectEmitter : EffectEmitter
+    public class VisualEffectEmitter : VFXEmitter
     {
         [SerializeField] private VisualEffect effect;
         [SerializeField] private float duration = .4f;

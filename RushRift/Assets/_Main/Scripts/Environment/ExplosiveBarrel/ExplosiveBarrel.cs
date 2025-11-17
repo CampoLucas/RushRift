@@ -16,9 +16,6 @@ public class ExplosiveBarrel : MonoBehaviour
     private HealthComponentData healthComponentData;
 
     [Header("Explosion Settings")]
-    [SerializeField, Tooltip("If enabled, the barrel triggers its explosion when this GameObject is disabled at runtime (e.g., killed/destroyed).")]
-    private bool shouldExplodeOnDestroy = true;
-
     [SerializeField, Tooltip("Explosion origin offset in local space (added to this Transform.position).")]
     private Vector3 explosionOriginLocalOffset = Vector3.zero;
 
@@ -70,8 +67,8 @@ public class ExplosiveBarrel : MonoBehaviour
     private string explosionAudioEventName = "BarrelExplosion";
 
     [Header("Visual Effects")]
-    [SerializeField, Tooltip("Visual Effect Graph asset spawned at the explosion point.")]
-    private VFXPrefabID explosionVFX;
+    [SerializeField] private VFXEmitterEntry[] destroyVFXs;
+    [SerializeField] private VFXPrefabID explosionVFX;
 
     [SerializeField, Tooltip("Local offset from the explosion origin where the VFX will be placed.")]
     private Vector3 explosionVfxLocalOffset = Vector3.zero;
@@ -92,9 +89,6 @@ public class ExplosiveBarrel : MonoBehaviour
     private IModel cachedModel;
     private HealthComponent runtimeHealthComponent;
     private Coroutine ensureRoutine;
-
-    private bool effectsPendingOnDisable;
-    private Vector3 effectsSpawnWorldPos;
 
     private class AggregatedHit
     {
@@ -139,27 +133,6 @@ public class ExplosiveBarrel : MonoBehaviour
             StopCoroutine(ensureRoutine);
             ensureRoutine = null;
         }
-
-        // Always run SFX/VFX here if an explosion just scheduled them
-        if (effectsPendingOnDisable)
-        {
-            TriggerExplosionAudioVfx(effectsSpawnWorldPos);
-            effectsPendingOnDisable = false;
-        }
-
-        if (!Application.isPlaying) return;
-        if (applicationIsQuitting) return;
-
-        // Prevent accidental explosions when the scene is (re)loading/unloading
-        if (IsGameLoadingOrUnloading()) return;
-
-        // Auto-explode only when being disabled in gameplay due to death/destruction
-        if (!hasExplosionAlreadyTriggered && shouldExplodeOnDestroy)
-        {
-            hasExplosionAlreadyTriggered = true;
-            Vector3 origin = transform.TransformPoint(explosionOriginLocalOffset);
-            ExecuteExplosionAtOrigin(origin, false, null);
-        }
     }
 
     private void OnApplicationQuit() => applicationIsQuitting = true;
@@ -191,10 +164,8 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private void ExecuteExplosionAtOrigin(Vector3 origin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget)
     {
-        // Defer SFX/VFX to OnDisable (so pooled/scene-unload doesn't double-trigger)
-        effectsSpawnWorldPos = origin;
-        effectsPendingOnDisable = true;
-
+        TriggerExplosionAudioVfx();
+        
         int count = Physics.OverlapSphereNonAlloc(origin, Mathf.Max(0f, explosionRadiusMeters), OverlapBuffer, ~0, QueryTriggerInteraction.Collide);
         var byGroup = new Dictionary<Transform, AggregatedHit>(count);
 
@@ -345,19 +316,15 @@ public class ExplosiveBarrel : MonoBehaviour
         ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
     }
 
-    private void TriggerExplosionAudioVfx(Vector3 originWorld)
+    private void TriggerExplosionAudioVfx()
     {
         if (shouldPlayExplosionAudio && !string.IsNullOrEmpty(explosionAudioEventName))
             AudioManager.Play(explosionAudioEventName);
 
-        var pos = originWorld + transform.TransformVector(explosionVfxLocalOffset);
-
-        EffectManager.TryGetVFX(explosionVFX, new VFXEmitterParams()
+        foreach (var vfx in destroyVFXs)
         {
-            position = pos,
-            rotation = Quaternion.identity,
-            scale = explosionRadiusMeters
-        }, out var _);
+            vfx.GetVFXEmitter(transform);
+        }
     }
 
     private void ApplyPlayerLaunch(Rigidbody playerRigidbody, float targetSpeed)
