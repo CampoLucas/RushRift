@@ -19,6 +19,7 @@ namespace Game.UI.StateMachine
         [SerializeField] private Button optionsBackButton;
         [SerializeField] private Button hubButton;
         [SerializeField] private Button mainMenuButton;
+        [SerializeField] private Selectable onOptionsPress;
 
         [Header("Screens")]
         [SerializeField] private Canvas main;
@@ -73,6 +74,7 @@ namespace Game.UI.StateMachine
             OnOptions = true;
             main.enabled = false;
             options.enabled = true;
+            EventSystem.current.SetSelectedGameObject(onOptionsPress.gameObject);
         }
 
         private void OnOptionsBackHandler()
@@ -80,8 +82,9 @@ namespace Game.UI.StateMachine
             OnOptions = false;
             main.enabled = true;
             if (options) options.enabled = false;
+            EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
         }
-        
+
         private void OnRestartHandler()
         {
             NotifyAll(MenuState.Restart);
