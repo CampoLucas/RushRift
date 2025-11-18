@@ -1548,11 +1548,9 @@ MonoBehaviour:
       enumType: 0
   animator:
   - {fileID: 8390996798022735615}
-  target: {fileID: 0}
   runner: {fileID: 4036694657418605575}
   damageIndex: 1
   deathIndex: 2
-  points: 50
 --- !u!114 &7374292845704400842
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1565,9 +1563,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c40fb20743040ac8bc441b0fb6ed159, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destroyVFX: 1
-  offset: {x: 0, y: 1.25, z: 0}
-  scale: 1
+  destroyVFXs:
+  - id: 1
+    origin: {fileID: 0}
+    offset: {x: 0, y: 1.25, z: 0}
+    scale: 2
+    matchScale: 1
+    matchRotation: 0
+  - id: 3
+    origin: {fileID: 0}
+    offset: {x: 0, y: 0, z: 0}
+    scale: 0.25
+    matchScale: 1
+    matchRotation: 0
 --- !u!114 &4036694657418605575
 MonoBehaviour:
   m_ObjectHideFlags: 0
