@@ -84,7 +84,7 @@ namespace Game.UI.StateMachine
         {
             if (continueButton) continueButton.interactable = model.LevelWon;
             
-            EventSystem.current.SetSelectedGameObject(null);
+            //EventSystem.current.SetSelectedGameObject(null);
             // ToDo: Check if the player is playing with a game pad.
             //EventSystem.current.SetSelectedGameObject(model.LevelWon ? continueButton.gameObject : retryButton.gameObject);
         }

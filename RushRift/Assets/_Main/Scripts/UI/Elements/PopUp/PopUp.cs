@@ -52,7 +52,6 @@ namespace Game.UI.StateMachine.Elements
 
         public void Open(UnityAction onConfirm, float delay = 0)
         {
-            EventSystem.current.SetSelectedGameObject(defaultButton.gameObject);
             _closed = false;
             StopAllCoroutines();
             
@@ -90,6 +89,7 @@ namespace Game.UI.StateMachine.Elements
 
         public IEnumerator OpenRoutine(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
+            
             _closed = false;
             titleText.text = title;
             infoText.text = info;
@@ -102,6 +102,7 @@ namespace Game.UI.StateMachine.Elements
         {
             _closed = false;
             gameObject.SetActive(true);
+            EventSystem.current.SetSelectedGameObject(defaultButton.gameObject);
 
             if (openAnim)
             {

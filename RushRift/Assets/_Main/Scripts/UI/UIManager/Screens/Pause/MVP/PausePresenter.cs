@@ -30,7 +30,7 @@ namespace Game.UI.StateMachine
             CursorHandler.lockState = CursorLockMode.None;
             CursorHandler.visible = true;
 
-            EventSystem.current.SetSelectedGameObject(null);
+            //EventSystem.current.SetSelectedGameObject(null);
             OnOptionsBackHandler();
         }
 
