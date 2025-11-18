@@ -1,3 +1,4 @@
+using Game.Utils;
 using Game.VFX;
 using MyTools.Global;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace Game.Entities.AttackSystem.Hitscan
         public LayerMask ChainLayer => chainLayer;
         public float ChainRadius => chainRadius;
         public float ChainDamage => chainDamage;
+        public float ChainLifetime => chainLifetime;
 
         [Header("Settings")]
         [SerializeField] private float damage = 10;
@@ -65,6 +67,7 @@ namespace Game.Entities.AttackSystem.Hitscan
         [SerializeField] private float chainRadius;
         [SerializeField] private LayerMask chainLayer;
         [SerializeField] private float chainDamage;
+        [SerializeField] private float chainLifetime = .5f;
         
 
         [Header("Visuals")]
@@ -89,11 +92,12 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         public Vector3 GetOffsetPosition(Transform origin)
         {
-            var x = origin.right * offset.x;
-            var y = origin.up * offset.y;
-            var z = origin.forward * offset.z;
-
-            return origin.position + x + y + z;
+            // var x = origin.right * offset.x;
+            // var y = origin.up * offset.y;
+            // var z = origin.forward * offset.z;
+            //
+            // return origin.position + x + y + z;
+            return origin.GetOffsetPos(offset);
         }
 
         public Vector3 GetDirection(Vector3 eyesPos, Vector3 forward, Vector3 spawnPos)

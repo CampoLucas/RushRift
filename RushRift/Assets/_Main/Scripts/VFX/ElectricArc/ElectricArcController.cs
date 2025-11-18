@@ -107,11 +107,16 @@ namespace Game.VFX
             _end = end;
         }
 
-        public void Enable(bool value)
+        public void Enable(bool value, float lifetime = -1)
         {
             for (var i = 0; i < electricArcs.Length; i++)
             {
                 electricArcs[i].enabled = value;
+            }
+
+            if (lifetime > 0)
+            {
+                Destroy(gameObject, lifetime);
             }
         }
 
