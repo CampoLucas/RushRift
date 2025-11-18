@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Game.UI;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.VFX;
@@ -10,35 +11,21 @@ namespace Game.LevelElements
     public class OrbPickUp : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField, Tooltip("Collision effect component that detects player interaction.")]
-        private EffectOnCollision effectOnCollision;
+        [SerializeField] private EffectOnCollision effectOnCollision;
+        [SerializeField] private VisualEffect orbVFX;
+        [SerializeField] private ParticleSystem orbFadeVFX;
 
-        [SerializeField, Tooltip("Looping VFX while the orb is available.")]
-        private VisualEffect orbVFX;
-
-        [SerializeField, Tooltip("One-shot VFX when the orb fades out on pickup.")]
-        private ParticleSystem orbFadeVFX;
-
-        [SerializeField, Tooltip("Light used to make the orb glow.")]
-        private Light orbLight;
+        [SerializeField] private Light orbLight;
 
         [FormerlySerializedAs("destroyTime")]
         [Header("Settings")]
-        [SerializeField, Tooltip("Seconds the orb light takes to fade after pickup.")]
-        private float fadeTime = 1f;
-
-        [SerializeField, Tooltip("If enabled, the orb will respawn after a delay.")]
-        private bool isRespawnEnabled = true;
-
-        [SerializeField, Tooltip("Seconds before the orb respawns (only if respawn is enabled).")]
-        private float respawnTime = 10f;
+        [SerializeField] private float fadeTime = 1f;
+        [SerializeField] private bool isRespawnEnabled = true;
+        [SerializeField] private float respawnTime = 10f;
 
         [Header("Debug")]
-        [SerializeField, Tooltip("If enabled, prints detailed logs.")]
-        private bool isDebugLoggingEnabled = false;
-
-        [SerializeField, Tooltip("Draw gizmos for orb state and light range.")]
-        private bool drawGizmos = true;
+        [SerializeField] private bool isDebugLoggingEnabled = false;
+        [SerializeField] private bool drawGizmos = true;
 
         private bool _disabled;
         private float _lightStartIntensity;
@@ -60,8 +47,7 @@ namespace Game.LevelElements
 
         private void Update()
         {
-            if (!_disabled) return;
-            if (!isRespawnEnabled) return;
+            if (!_disabled || !isRespawnEnabled || PauseHandler.IsPaused) return;
 
             _timer -= Time.deltaTime;
             if (_timer <= 0f)
