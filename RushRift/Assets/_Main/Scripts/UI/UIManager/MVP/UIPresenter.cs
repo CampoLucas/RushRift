@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+
+
 namespace Game.UI.StateMachine
 {
     public abstract class UIPresenter<TModel, TView> : BaseUIPresenter, IDisposable
@@ -35,6 +37,7 @@ namespace Game.UI.StateMachine
         {
             View.Hide();   
         }
+
 
         public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)
         {

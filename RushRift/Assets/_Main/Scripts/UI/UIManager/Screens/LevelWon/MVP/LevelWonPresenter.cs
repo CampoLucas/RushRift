@@ -11,6 +11,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 namespace Game.UI.StateMachine
 {
@@ -23,6 +24,7 @@ namespace Game.UI.StateMachine
 
         [Header("Events")]
         [SerializeField] private UnityEvent onBegin = new UnityEvent();
+        [SerializeField] private UnityEvent onEnd = new UnityEvent();
 
         private bool _begun;
         private ActionObserver<bool> _loadingObserver;
@@ -45,8 +47,12 @@ namespace Game.UI.StateMachine
             base.Begin();
 
             // Set Cursor
-            CursorHandler.lockState = CursorLockMode.None;
-            CursorHandler.visible = true;
+            if(Gamepad.current == null)
+            {
+                CursorHandler.lockState = CursorLockMode.None;
+                CursorHandler.visible = true;
+            }
+            
 
 
             //Model.Reset();
@@ -62,6 +68,7 @@ namespace Game.UI.StateMachine
         {
             base.End();
             EventSystem.current.SetSelectedGameObject(null);
+            onEnd?.Invoke();
         }
 
         private void HubHandler()

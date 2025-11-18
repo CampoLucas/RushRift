@@ -2,6 +2,7 @@ using System;
 using _Main.Scripts.Feedbacks;
 using Game.Utils;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -25,19 +26,25 @@ namespace Game.UI.StateMachine
         [SerializeField] private Canvas main;
         [SerializeField] private Canvas options;
 
+        [Header("Events")]
+        [SerializeField] private UnityEvent onBegin = new UnityEvent();
+        [SerializeField] private UnityEvent onEnd = new UnityEvent();
+
         public override void Begin()
         {
             base.Begin();
-            CursorHandler.lockState = CursorLockMode.None;
-            CursorHandler.visible = true;
+            //CursorHandler.lockState = CursorLockMode.None;
+            //CursorHandler.visible = true;
 
             //EventSystem.current.SetSelectedGameObject(null);
             OnOptionsBackHandler();
+            onBegin?.Invoke();
         }
 
         public override void End()
         {
             base.End();
+            onEnd?.Invoke();
             EventSystem.current.SetSelectedGameObject(null);
         }
 
