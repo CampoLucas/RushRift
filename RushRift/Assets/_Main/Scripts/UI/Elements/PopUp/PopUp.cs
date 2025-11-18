@@ -87,6 +87,11 @@ namespace Game.UI.StateMachine.Elements
             Close();
         }
 
+        public void ChangeContinueNav()
+        {
+
+        }
+
         public IEnumerator OpenRoutine(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
             
@@ -102,7 +107,10 @@ namespace Game.UI.StateMachine.Elements
         {
             _closed = false;
             gameObject.SetActive(true);
-            EventSystem.current.SetSelectedGameObject(defaultButton.gameObject);
+            if (defaultButton != null)
+            {
+                EventSystem.current.SetSelectedGameObject(defaultButton.gameObject);
+            }
 
             if (openAnim)
             {
