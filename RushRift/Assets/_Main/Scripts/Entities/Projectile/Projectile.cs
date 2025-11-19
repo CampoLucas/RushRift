@@ -300,7 +300,7 @@ namespace Game.Entities
             _poolObject = null;
         }
 
-        public void TriggerHitByHitscan(Vector3 spawnPos, Vector3 direction, float chainRadius, float chainDamage, LayerMask mask, ElectricArcController arcPrefab)
+        public void TriggerHitByHitscan(Vector3 spawnPos, Vector3 direction, float chainRadius, float chainDamage, LayerMask mask, ElectricArcController arcPrefab, float arcLifetime)
         {
             var nearby = Physics.OverlapSphere(transform.position, chainRadius, mask);
             
@@ -334,8 +334,9 @@ namespace Game.Entities
                     if (arcPrefab != null)
                     {
                         var arc = Instantiate(arcPrefab);
+                        arc.Enable(false);
                         arc.SetPosition(transform, c.transform.position, 0.2f, Vector3.zero);
-                        arc.Enable(true);
+                        arc.Enable(true, arcLifetime);
                     }
                 }
             }
