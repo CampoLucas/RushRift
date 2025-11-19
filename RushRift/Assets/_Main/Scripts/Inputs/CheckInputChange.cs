@@ -60,13 +60,23 @@ public class CheckInputChange : MonoBehaviour
         }
         if (device is Mouse)
         {
-            if (_onSubMenu)
-            {
-                CursorHandler.lockState = CursorLockMode.None;
-                CursorHandler.visible = true;
-            }
+            CursorHandler.lockState = CursorLockMode.None;
+            CursorHandler.visible = true;
+            //if (_onSubMenu)
+            //{
+            //}
             _lastSelectableUsed = EventSystem.current.currentSelectedGameObject;
             Debug.Log("mouse");
+        }
+        if (device is Keyboard)
+        {
+            CursorHandler.lockState = CursorLockMode.None;
+            CursorHandler.visible = true;
+            //if (_onSubMenu)
+            //{  
+            //}
+            EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
+            Debug.Log("keyboard");
         }
 
 
