@@ -78,6 +78,24 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "SecondaryAttackTap",
+                    "type": "Button",
+                    "id": "4498d98d-de52-4722-81a0-620520eea840",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryAttackHold",
+                    "type": "Button",
+                    "id": "d0d5cc3f-206a-4ade-ac86-d10447addedc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Interact",
                     "type": "Button",
                     "id": "95a2d3bd-2aa0-4cd6-bb90-9779c1441b62",
@@ -90,6 +108,15 @@
                     "name": "Reset",
                     "type": "Button",
                     "id": "9d51f5b6-3150-47b6-93b6-15175e25806f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Blink",
+                    "type": "Button",
+                    "id": "1d1c5495-8df5-4dd6-9151-d9aa4649b8f4",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -223,7 +250,7 @@
                     "id": "5516fc4b-399d-48ac-9df6-81b62ce85f0a",
                     "path": "2DVector(mode=2)",
                     "interactions": "",
-                    "processors": "ScaleVector2(x=10,y=10)",
+                    "processors": "ScaleVector2(x=11.5,y=11.5)",
                     "groups": "",
                     "action": "Look",
                     "isComposite": true,
@@ -446,6 +473,105 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "69d55017-19e9-45b9-bf5a-fbd9706ec983",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "SecondaryAttackTap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c73b74ea-c0b4-4999-8a01-c546d35fc226",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "SecondaryAttackTap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9a648493-6afc-4e95-911d-ce34feb20d0a",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "SecondaryAttackTap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f2ff2430-ac24-4123-9d93-4bb892490ec2",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "SecondaryAttackHold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b087d301-7dea-40ec-9397-f810e941cffb",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "SecondaryAttackHold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "147f5b0a-29af-4e4e-9d27-fb2058725864",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "SecondaryAttackHold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "120afc19-ad67-4f71-95eb-944c820ddbd9",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Blink",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "99ef8f5a-7494-49fc-abe3-6855c92c106e",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Blink",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f0fc1ac8-08ab-414a-a90f-0b3a0e39168f",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Blink",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

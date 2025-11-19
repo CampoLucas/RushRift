@@ -35,7 +35,7 @@ public class CheckInputChange : MonoBehaviour
     public void OnExitedSubMenu()
     {
         _onSubMenu = false;
-        CursorHandler.lockState = CursorLockMode.Confined;
+        CursorHandler.lockState = CursorLockMode.Locked;
         CursorHandler.visible = false;
     }
 

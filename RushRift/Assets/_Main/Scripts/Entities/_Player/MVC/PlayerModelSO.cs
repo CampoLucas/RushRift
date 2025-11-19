@@ -47,6 +47,7 @@ namespace Game.Entities
                 { "Heavy", HeavyAttack },
                 { "HeavyCancel", HeavyAttackCancel },
                 { "Secondary", SecondaryAttack },
+                { "Blink", Blink },
             });
         }
 
@@ -68,8 +69,14 @@ namespace Game.Entities
         private bool LightAttack() => InputManager.GetActionPerformed(InputManager.Input.PrimaryTap);
         private bool HeavyAttack() => InputManager.GetActionPerformed(InputManager.Input.PrimaryHold);
         private bool HeavyAttackCancel() => InputManager.GetActionCanceled(InputManager.Input.PrimaryHold);
-        private bool SecondaryAttack() => InputManager.GetActionPerformed(InputManager.Input.Secondary);
-        
+        private bool SecondaryAttack()
+        {
+            var input = GlobalLevelManager.Blink ? InputManager.Input.SecondaryTap : InputManager.Input.Secondary;
+            return InputManager.GetActionPerformed(InputManager.Input.Secondary);
+        }
+        private bool Blink() => InputManager.GetActionPerformed(InputManager.Input.Blink);
+
+
         public override NullCheck<IModel> GetProxy()
         {
             return new NullCheck<IModel>(new EntityModel<PlayerModelSO>(this));

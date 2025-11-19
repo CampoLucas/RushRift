@@ -164,6 +164,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""SecondaryAttackTap"",
+                    ""type"": ""Button"",
+                    ""id"": ""4498d98d-de52-4722-81a0-620520eea840"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Tap"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SecondaryAttackHold"",
+                    ""type"": ""Button"",
+                    ""id"": ""d0d5cc3f-206a-4ade-ac86-d10447addedc"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Hold"",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Interact"",
                     ""type"": ""Button"",
                     ""id"": ""95a2d3bd-2aa0-4cd6-bb90-9779c1441b62"",
@@ -176,6 +194,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""name"": ""Reset"",
                     ""type"": ""Button"",
                     ""id"": ""9d51f5b6-3150-47b6-93b6-15175e25806f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Blink"",
+                    ""type"": ""Button"",
+                    ""id"": ""1d1c5495-8df5-4dd6-9151-d9aa4649b8f4"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -309,7 +336,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""id"": ""5516fc4b-399d-48ac-9df6-81b62ce85f0a"",
                     ""path"": ""2DVector(mode=2)"",
                     ""interactions"": """",
-                    ""processors"": ""ScaleVector2(x=10,y=10)"",
+                    ""processors"": ""ScaleVector2(x=11.5,y=11.5)"",
                     ""groups"": """",
                     ""action"": ""Look"",
                     ""isComposite"": true,
@@ -532,6 +559,105 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Reset"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""69d55017-19e9-45b9-bf5a-fbd9706ec983"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""SecondaryAttackTap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c73b74ea-c0b4-4999-8a01-c546d35fc226"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""SecondaryAttackTap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9a648493-6afc-4e95-911d-ce34feb20d0a"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""SecondaryAttackTap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f2ff2430-ac24-4123-9d93-4bb892490ec2"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""SecondaryAttackHold"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b087d301-7dea-40ec-9397-f810e941cffb"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""SecondaryAttackHold"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""147f5b0a-29af-4e4e-9d27-fb2058725864"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""SecondaryAttackHold"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""120afc19-ad67-4f71-95eb-944c820ddbd9"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Blink"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""99ef8f5a-7494-49fc-abe3-6855c92c106e"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Blink"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f0fc1ac8-08ab-414a-a90f-0b3a0e39168f"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Blink"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1244,8 +1370,11 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Gameplay_PrimaryAttackTap = m_Gameplay.FindAction("PrimaryAttackTap", throwIfNotFound: true);
         m_Gameplay_PrimaryAttackHold = m_Gameplay.FindAction("PrimaryAttackHold", throwIfNotFound: true);
         m_Gameplay_SecondaryAttack = m_Gameplay.FindAction("SecondaryAttack", throwIfNotFound: true);
+        m_Gameplay_SecondaryAttackTap = m_Gameplay.FindAction("SecondaryAttackTap", throwIfNotFound: true);
+        m_Gameplay_SecondaryAttackHold = m_Gameplay.FindAction("SecondaryAttackHold", throwIfNotFound: true);
         m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
         m_Gameplay_Reset = m_Gameplay.FindAction("Reset", throwIfNotFound: true);
+        m_Gameplay_Blink = m_Gameplay.FindAction("Blink", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Pause = m_UI.FindAction("Pause", throwIfNotFound: true);
@@ -1356,8 +1485,11 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_PrimaryAttackTap;
     private readonly InputAction m_Gameplay_PrimaryAttackHold;
     private readonly InputAction m_Gameplay_SecondaryAttack;
+    private readonly InputAction m_Gameplay_SecondaryAttackTap;
+    private readonly InputAction m_Gameplay_SecondaryAttackHold;
     private readonly InputAction m_Gameplay_Interact;
     private readonly InputAction m_Gameplay_Reset;
+    private readonly InputAction m_Gameplay_Blink;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gameplay".
     /// </summary>
@@ -1402,6 +1534,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @SecondaryAttack => m_Wrapper.m_Gameplay_SecondaryAttack;
         /// <summary>
+        /// Provides access to the underlying input action "Gameplay/SecondaryAttackTap".
+        /// </summary>
+        public InputAction @SecondaryAttackTap => m_Wrapper.m_Gameplay_SecondaryAttackTap;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/SecondaryAttackHold".
+        /// </summary>
+        public InputAction @SecondaryAttackHold => m_Wrapper.m_Gameplay_SecondaryAttackHold;
+        /// <summary>
         /// Provides access to the underlying input action "Gameplay/Interact".
         /// </summary>
         public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
@@ -1409,6 +1549,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gameplay/Reset".
         /// </summary>
         public InputAction @Reset => m_Wrapper.m_Gameplay_Reset;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/Blink".
+        /// </summary>
+        public InputAction @Blink => m_Wrapper.m_Gameplay_Blink;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1459,12 +1603,21 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @SecondaryAttack.started += instance.OnSecondaryAttack;
             @SecondaryAttack.performed += instance.OnSecondaryAttack;
             @SecondaryAttack.canceled += instance.OnSecondaryAttack;
+            @SecondaryAttackTap.started += instance.OnSecondaryAttackTap;
+            @SecondaryAttackTap.performed += instance.OnSecondaryAttackTap;
+            @SecondaryAttackTap.canceled += instance.OnSecondaryAttackTap;
+            @SecondaryAttackHold.started += instance.OnSecondaryAttackHold;
+            @SecondaryAttackHold.performed += instance.OnSecondaryAttackHold;
+            @SecondaryAttackHold.canceled += instance.OnSecondaryAttackHold;
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
             @Reset.started += instance.OnReset;
             @Reset.performed += instance.OnReset;
             @Reset.canceled += instance.OnReset;
+            @Blink.started += instance.OnBlink;
+            @Blink.performed += instance.OnBlink;
+            @Blink.canceled += instance.OnBlink;
         }
 
         /// <summary>
@@ -1500,12 +1653,21 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @SecondaryAttack.started -= instance.OnSecondaryAttack;
             @SecondaryAttack.performed -= instance.OnSecondaryAttack;
             @SecondaryAttack.canceled -= instance.OnSecondaryAttack;
+            @SecondaryAttackTap.started -= instance.OnSecondaryAttackTap;
+            @SecondaryAttackTap.performed -= instance.OnSecondaryAttackTap;
+            @SecondaryAttackTap.canceled -= instance.OnSecondaryAttackTap;
+            @SecondaryAttackHold.started -= instance.OnSecondaryAttackHold;
+            @SecondaryAttackHold.performed -= instance.OnSecondaryAttackHold;
+            @SecondaryAttackHold.canceled -= instance.OnSecondaryAttackHold;
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
             @Reset.started -= instance.OnReset;
             @Reset.performed -= instance.OnReset;
             @Reset.canceled -= instance.OnReset;
+            @Blink.started -= instance.OnBlink;
+            @Blink.performed -= instance.OnBlink;
+            @Blink.canceled -= instance.OnBlink;
         }
 
         /// <summary>
@@ -1975,6 +2137,20 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSecondaryAttack(InputAction.CallbackContext context);
         /// <summary>
+        /// Method invoked when associated input action "SecondaryAttackTap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecondaryAttackTap(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SecondaryAttackHold" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecondaryAttackHold(InputAction.CallbackContext context);
+        /// <summary>
         /// Method invoked when associated input action "Interact" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1988,6 +2164,13 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnReset(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Blink" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBlink(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
