@@ -18,6 +18,7 @@ namespace Game.Tools.DebugCommands
 
     public class DebugConsole : MonoBehaviour
     {
+#if UNITY_EDITOR || CHEATS_ENABLED
         private const float ConsoleHeight = 30f;
 
         private InputManager _inputManager;
@@ -240,5 +241,6 @@ namespace Game.Tools.DebugCommands
                 }
             }
         }
+#endif
     }
 }
