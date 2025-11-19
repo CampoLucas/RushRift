@@ -52,7 +52,7 @@ namespace _Main.Scripts.Feedbacks
             }
         }
 
-#if true
+#if UNITY_EDITOR
         private void OnGUI()
         {
             var style = new GUIStyle(GUI.skin.label)
