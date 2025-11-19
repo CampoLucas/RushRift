@@ -155,7 +155,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2773842672596887153
 RectTransform:
   m_ObjectHideFlags: 0
@@ -163,7 +163,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1391632875063429671}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -217,6 +217,8 @@ MonoBehaviour:
   iconImage: {fileID: 8657639546890909835}
   closeButton: {fileID: 8603364046019896182}
   confirmButton: {fileID: 0}
+  defaultButton: {fileID: 8603364046019896182}
+  backButton: {fileID: 0}
   openAnim: {fileID: 4617811358699127054}
   closeAnim: {fileID: 7187791488473583891}
   closeDelay: 0.05
@@ -823,7 +825,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -834,7 +836,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.4, g: 1, b: 0, a: 1}
     m_PressedColor: {r: 0.18879993, g: 0.472, b: 0, a: 1}
-    m_SelectedColor: {r: 0.49685526, g: 0.49685526, b: 0.49685526, a: 1}
+    m_SelectedColor: {r: 0.4, g: 1, b: 0, a: 1}
     m_DisabledColor: {r: 0.6415094, g: 0.61528414, b: 0.61528414, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1

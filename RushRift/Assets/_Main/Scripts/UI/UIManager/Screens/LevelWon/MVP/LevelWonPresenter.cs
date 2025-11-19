@@ -11,6 +11,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 namespace Game.UI.StateMachine
 {
@@ -23,6 +24,7 @@ namespace Game.UI.StateMachine
 
         [Header("Events")]
         [SerializeField] private UnityEvent onBegin = new UnityEvent();
+        [SerializeField] private UnityEvent onEnd = new UnityEvent();
 
         private bool _begun;
         private ActionObserver<bool> _loadingObserver;
@@ -43,14 +45,18 @@ namespace Game.UI.StateMachine
             if (_begun) return;
             _begun = true;
             base.Begin();
-            
+
             // Set Cursor
-            CursorHandler.lockState = CursorLockMode.None;
-            CursorHandler.visible = true;
+            if(Gamepad.current == null)
+            {
+                CursorHandler.lockState = CursorLockMode.None;
+                CursorHandler.visible = true;
+            }
             
 
+
             //Model.Reset();
-            
+
             SetModelValues(Model);
             UpdateSaveData(Model);
             CheckTime(Model);
@@ -62,6 +68,7 @@ namespace Game.UI.StateMachine
         {
             base.End();
             EventSystem.current.SetSelectedGameObject(null);
+            onEnd?.Invoke();
         }
 
         private void HubHandler()
@@ -84,7 +91,7 @@ namespace Game.UI.StateMachine
         {
             if (continueButton) continueButton.interactable = model.LevelWon;
             
-            EventSystem.current.SetSelectedGameObject(null);
+            //EventSystem.current.SetSelectedGameObject(null);
             // ToDo: Check if the player is playing with a game pad.
             //EventSystem.current.SetSelectedGameObject(model.LevelWon ? continueButton.gameObject : retryButton.gameObject);
         }
