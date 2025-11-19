@@ -12,6 +12,8 @@ public class TabGroup : MonoBehaviour
 
     public void Init()
     {
+        if (tabs.Count == 0) return;  
+        
         for (int i = 0; i < tabs.Count; i++)
         {
             int index = i;
@@ -23,6 +25,7 @@ public class TabGroup : MonoBehaviour
 
     private void ShowTab(int index)
     {
+        if (tabs.Count == 0) return;  
         for (int i = 0; i < tabs.Count; i++)
         {
             if(i == index)

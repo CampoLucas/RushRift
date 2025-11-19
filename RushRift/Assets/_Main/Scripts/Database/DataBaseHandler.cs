@@ -12,7 +12,7 @@ namespace Game.DataBase
         {
             if (HasInternet())
             {
-                DB = new ServerDB("localhost");
+                DB = new ServerDB("192.168.1.197");
             }
             else
             {
