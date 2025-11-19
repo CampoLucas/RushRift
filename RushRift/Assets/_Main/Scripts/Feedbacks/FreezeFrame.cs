@@ -129,9 +129,26 @@ namespace _Main.Scripts.Feedbacks
 
         private void Update()
         {
-            if (testKey != KeyCode.None && Input.GetKeyDown(testKey))
-                Trigger(defaultFreezeDurationSeconds);
+            // if (testKey != KeyCode.None && Input.GetKeyDown(testKey))
+            //     Trigger(defaultFreezeDurationSeconds);
 
+            
+            // WATCHDOG
+            if (Time.timeScale < 0.95f && !_isFrozen)
+            {
+                Debug.LogWarning("[FreezeFrame] Global watchdog: abnormal timeScale detected, restoring.");
+                Time.timeScale = 1f;
+                Time.fixedDeltaTime = _originalFixedDeltaTime;
+            }
+            if (_freezeRoutine == null && !_isFrozen)
+            {
+                if (Time.timeScale != 1f)
+                {
+                    Debug.LogWarning("[FreezeFrame] Inconsistent timescale after freezing. Restoring.");
+                    Time.timeScale = 1f;
+                    Time.fixedDeltaTime = _originalFixedDeltaTime;
+                }
+            }
             if (!_isFrozen) return;
 
             if (Time.unscaledTime >= _freezeEndUnscaledTime)
@@ -141,14 +158,12 @@ namespace _Main.Scripts.Feedbacks
             }
         }
 
-        public static bool Trigger(float durationSeconds) =>
-            Instance.InternalTrigger(durationSeconds, Instance.restoreRampSeconds);
+        public static bool Trigger(float durationSeconds) => Instance && Instance.InternalTrigger(durationSeconds, Instance.restoreRampSeconds);
 
-        public static bool Trigger(float durationSeconds, float restoreSeconds) =>
+        public static bool Trigger(float durationSeconds, float restoreSeconds) => Instance && 
             Instance.InternalTrigger(durationSeconds, restoreSeconds);
 
-        public static bool TriggerDefault() =>
-            Instance.InternalTrigger(Instance.defaultFreezeDurationSeconds, Instance.restoreRampSeconds);
+        public static bool TriggerDefault() => Instance && Instance.InternalTrigger(Instance.defaultFreezeDurationSeconds, Instance.restoreRampSeconds);
 
         private bool InternalTrigger(float durationSeconds, float restoreSeconds)
         {

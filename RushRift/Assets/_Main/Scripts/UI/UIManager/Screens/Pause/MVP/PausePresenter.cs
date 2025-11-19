@@ -2,6 +2,7 @@ using System;
 using _Main.Scripts.Feedbacks;
 using Game.Utils;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -19,24 +20,31 @@ namespace Game.UI.StateMachine
         [SerializeField] private Button optionsBackButton;
         [SerializeField] private Button hubButton;
         [SerializeField] private Button mainMenuButton;
+        [SerializeField] private Selectable onOptionsPress;
 
         [Header("Screens")]
         [SerializeField] private Canvas main;
         [SerializeField] private Canvas options;
 
+        [Header("Events")]
+        [SerializeField] private UnityEvent onBegin = new UnityEvent();
+        [SerializeField] private UnityEvent onEnd = new UnityEvent();
+
         public override void Begin()
         {
             base.Begin();
-            CursorHandler.lockState = CursorLockMode.None;
-            CursorHandler.visible = true;
+            //CursorHandler.lockState = CursorLockMode.None;
+            //CursorHandler.visible = true;
 
-            EventSystem.current.SetSelectedGameObject(null);
+            //EventSystem.current.SetSelectedGameObject(null);
             OnOptionsBackHandler();
+            onBegin?.Invoke();
         }
 
         public override void End()
         {
             base.End();
+            onEnd?.Invoke();
             EventSystem.current.SetSelectedGameObject(null);
         }
 
@@ -73,6 +81,7 @@ namespace Game.UI.StateMachine
             OnOptions = true;
             main.enabled = false;
             options.enabled = true;
+            EventSystem.current.SetSelectedGameObject(onOptionsPress.gameObject);
         }
 
         private void OnOptionsBackHandler()
@@ -80,8 +89,9 @@ namespace Game.UI.StateMachine
             OnOptions = false;
             main.enabled = true;
             if (options) options.enabled = false;
+            EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
         }
-        
+
         private void OnRestartHandler()
         {
             NotifyAll(MenuState.Restart);
