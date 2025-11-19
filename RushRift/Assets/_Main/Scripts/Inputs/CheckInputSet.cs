@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class CheckInputSet : MonoBehaviour
 {
@@ -15,5 +17,10 @@ public class CheckInputSet : MonoBehaviour
     {
         checkInput.OnExitedSubMenu();
         checkInput.gameObject.SetActive(false);
+    }
+
+    public void SetActiveButton(Selectable selectable)
+    {
+        EventSystem.current.SetSelectedGameObject(selectable.gameObject);
     }
 }
