@@ -13,7 +13,7 @@ public class CheckInputSet : MonoBehaviour
 
     public void End()
     {
-        checkInput.gameObject.SetActive(false);
         checkInput.OnExitedSubMenu();
+        checkInput.gameObject.SetActive(false);
     }
 }
