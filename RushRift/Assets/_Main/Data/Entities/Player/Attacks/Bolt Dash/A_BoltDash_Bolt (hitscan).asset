@@ -38,7 +38,13 @@ MonoBehaviour:
   children:
     collection: []
   damage: 10
-  canUseTerminals: 0
+  canUseTerminals: 1
+  useDotThreshold: 1
+  minDotThreshold: 0.97
+  weights:
+    data:
+    - key: 1
+      value: -55
   offset: {x: 0, y: 0, z: 0}
   delay: 0.0833333
   range: 500
@@ -53,10 +59,18 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 5632
   radius: 3
+  chainReaction: 1
+  chainRadius: 15
+  chainLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  chainDamage: 20
+  chainLifetime: 0.5
   muzzleEffect: {fileID: 0}
   impactEffectID: 0
   impactSize: 3
   line: {fileID: 440560736661759916, guid: 19ce12596154b0a4cb394a4f2dbc1557, type: 3}
+  lineSecondary: {fileID: 4005947066255738047, guid: b55cb592f3cc47242a7dba30cb032de9, type: 3}
   lineDuration: 0.16
   useSFX: 1
   sfxName: SparksAttack

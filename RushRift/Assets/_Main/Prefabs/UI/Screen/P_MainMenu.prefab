@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 32.26, y: 111}
+  m_AnchoredPosition: {x: 32.26001, y: 111}
   m_SizeDelta: {x: -64.52, y: 144.86}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3086590579300873660
@@ -1452,6 +1452,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   View: {fileID: 6755623260677382609}
+  DefaultButton: {fileID: 0}
   newGameButton: {fileID: 803869567109792735}
   continueButton: {fileID: 360179075469802224}
   creditsButton: {fileID: 1169170976214007299}
@@ -1618,6 +1619,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: OptionsButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnUp
+      value: 
+      objectReference: {fileID: 360179075469802224}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnDown
+      value: 
+      objectReference: {fileID: 1169170976214007299}
     - target: {fileID: 8092343276430408725, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_text
       value: Options
@@ -1746,6 +1771,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: ContinueButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnUp
+      value: 
+      objectReference: {fileID: 803869567109792735}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnDown
+      value: 
+      objectReference: {fileID: 8867459934937836590}
     - target: {fileID: 8092343276430408725, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_text
       value: Continue
@@ -1874,6 +1923,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: NewGameButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnUp
+      value: 
+      objectReference: {fileID: 2287842820624942496}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnDown
+      value: 
+      objectReference: {fileID: 360179075469802224}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1998,6 +2071,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: CreditsButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnUp
+      value: 
+      objectReference: {fileID: 8867459934937836590}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnDown
+      value: 
+      objectReference: {fileID: 2287842820624942496}
     - target: {fileID: 8092343276430408725, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_text
       value: Credits
@@ -2126,6 +2223,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuitButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnUp
+      value: 
+      objectReference: {fileID: 1169170976214007299}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 0.9019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_Navigation.m_SelectOnDown
+      value: 
+      objectReference: {fileID: 803869567109792735}
     - target: {fileID: 8092343276430408725, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_text
       value: Quit

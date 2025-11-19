@@ -38,7 +38,7 @@ namespace Game.Entities
             _tickLimiter.Pause();
         }
 
-        private void Awake()
+        protected override void OnAwake()
         {
             _tickLimiter = new RateLimiter(tickTime);
             _rigidbody = GetComponent<Rigidbody>();

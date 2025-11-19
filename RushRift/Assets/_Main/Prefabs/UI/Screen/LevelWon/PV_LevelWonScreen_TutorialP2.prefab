@@ -9,8 +9,48 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 134243832844313388, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: animations.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 134243832844313388, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: animations.Array.data[3].delay
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 134243832844313388, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: animations.Array.data[3].animation
+      value: 
+      objectReference: {fileID: 441321919852923211}
+    - target: {fileID: 134243832844313388, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: onAllSequencesComplete.m_PersistentCalls.m_Calls.Array.size
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: onShow.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: onShow.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: onShow.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 28649737978293042}
+    - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: onShow.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: onShow.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: Play
+      objectReference: {fileID: 0}
+    - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: onShow.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: Game.UI.UIAnimation, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: onShow.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 3463167431870168594, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_fontColor.a
@@ -32,9 +72,23 @@ PrefabInstance:
       propertyPath: m_fontColor32.rgba
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 3962302402557954552, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_text
+      value: 'Tutorial Finished!!!
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 5522102762072931798, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522102762072931798, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_Navigation.m_SelectOnUp
+      value: 
+      objectReference: {fileID: 6044486081706656846}
+    - target: {fileID: 5522102762072931798, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_Navigation.m_SelectOnLeft
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5965498079997548504, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_fontColor.a
@@ -60,6 +114,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7004372876272214080, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_Navigation.m_SelectOnUp
+      value: 
+      objectReference: {fileID: 9112100505365141976}
     - target: {fileID: 7115437662378161513, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -144,6 +202,19 @@ PrefabInstance:
       propertyPath: m_Name
       value: PV_LevelWonScreen_TutorialP2
       objectReference: {fileID: 0}
+    - target: {fileID: 7817324284476104408, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_text
+      value: 'Don''t forget that <color=red>Upgrades are unique to each level</color>!!!
+
+        Press
+        <color=green>Continue</color> to play the real challenge...
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 7817324284476104408, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_fontSize
+      value: 56.6
+      objectReference: {fileID: 0}
     - target: {fileID: 8966316171323768053, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: retryButton
       value: 
@@ -158,6 +229,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+--- !u!114 &28649737978293042 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3653286663060688700, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+  m_PrefabInstance: {fileID: 3663357333313758222}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &441321919852923211 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3803641623557991749, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+  m_PrefabInstance: {fileID: 3663357333313758222}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &6044486081706656846 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7004372876272214080, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}

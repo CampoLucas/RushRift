@@ -52,6 +52,57 @@ namespace _Main.Scripts.Feedbacks
             }
         }
 
+#if UNITY_EDITOR
+        private void OnGUI()
+        {
+            var style = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 16,
+                alignment = TextAnchor.UpperLeft
+            };
+
+#if UNITY_EDITOR
+            float y = 200f;
+#else
+            float y = 10f;
+#endif
+
+            // TimeScale
+            bool tsOk = Mathf.Approximately(Time.timeScale, 1f);
+            style.normal.textColor = tsOk ? Color.green : Color.red;
+            GUI.Label(new Rect(10, y, 500, 30), $"timeScale: {Time.timeScale:0.000}", style);
+            y += 22;
+
+            // fixedDeltaTime
+            style.normal.textColor = Color.white;
+            GUI.Label(new Rect(10, y, 500, 30), $"fixedDeltaTime: {Time.fixedDeltaTime:0.000000}", style);
+            y += 22;
+
+            // Frozen state
+            style.normal.textColor = _isFrozen ? Color.red : Color.green;
+            GUI.Label(new Rect(10, y, 500, 30), $"isFrozen: {_isFrozen}", style);
+            y += 22;
+
+            // Freeze End Time
+            style.normal.textColor = Color.white;
+            GUI.Label(new Rect(10, y, 500, 30), $"freezeEndUnscaledTime: {_freezeEndUnscaledTime:0.000}", style);
+            y += 22;
+
+            // Time Remaining
+            float remaining = Mathf.Max(0f, _freezeEndUnscaledTime - Time.unscaledTime);
+            GUI.Label(new Rect(10, y, 500, 30), $"freezeRemaining: {remaining:0.000}", style);
+            y += 22;
+
+            // Routine info
+            GUI.Label(new Rect(10, y, 500, 30), $"restoreRoutine: {(_freezeRoutine != null ? "running" : "null")}", style);
+            y += 22;
+
+            // Original times
+            GUI.Label(new Rect(10, y, 500, 30), $"originalTS: {_originalTimeScale}", style);
+            y += 22;
+            GUI.Label(new Rect(10, y, 500, 30), $"originalFixed: {_originalFixedDeltaTime}", style);
+        }
+#endif
         private void Awake()
         {
             if (_instance && _instance != this)
@@ -78,9 +129,26 @@ namespace _Main.Scripts.Feedbacks
 
         private void Update()
         {
-            if (testKey != KeyCode.None && Input.GetKeyDown(testKey))
-                Trigger(defaultFreezeDurationSeconds);
+            // if (testKey != KeyCode.None && Input.GetKeyDown(testKey))
+            //     Trigger(defaultFreezeDurationSeconds);
 
+            
+            // WATCHDOG
+            if (Time.timeScale < 0.95f && !_isFrozen)
+            {
+                Debug.LogWarning("[FreezeFrame] Global watchdog: abnormal timeScale detected, restoring.");
+                Time.timeScale = 1f;
+                Time.fixedDeltaTime = _originalFixedDeltaTime;
+            }
+            if (_freezeRoutine == null && !_isFrozen)
+            {
+                if (Time.timeScale != 1f)
+                {
+                    Debug.LogWarning("[FreezeFrame] Inconsistent timescale after freezing. Restoring.");
+                    Time.timeScale = 1f;
+                    Time.fixedDeltaTime = _originalFixedDeltaTime;
+                }
+            }
             if (!_isFrozen) return;
 
             if (Time.unscaledTime >= _freezeEndUnscaledTime)
@@ -90,14 +158,12 @@ namespace _Main.Scripts.Feedbacks
             }
         }
 
-        public static bool Trigger(float durationSeconds) =>
-            Instance.InternalTrigger(durationSeconds, Instance.restoreRampSeconds);
+        public static bool Trigger(float durationSeconds) => Instance && Instance.InternalTrigger(durationSeconds, Instance.restoreRampSeconds);
 
-        public static bool Trigger(float durationSeconds, float restoreSeconds) =>
+        public static bool Trigger(float durationSeconds, float restoreSeconds) => Instance && 
             Instance.InternalTrigger(durationSeconds, restoreSeconds);
 
-        public static bool TriggerDefault() =>
-            Instance.InternalTrigger(Instance.defaultFreezeDurationSeconds, Instance.restoreRampSeconds);
+        public static bool TriggerDefault() => Instance && Instance.InternalTrigger(Instance.defaultFreezeDurationSeconds, Instance.restoreRampSeconds);
 
         private bool InternalTrigger(float durationSeconds, float restoreSeconds)
         {

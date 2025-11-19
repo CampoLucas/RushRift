@@ -301,7 +301,12 @@ namespace Game
         
         public static void SetPowerSurge(bool b)
         {
-            if (!_instance.TryGet(out var manager)) return;
+            if (!_instance.TryGet(out var manager))
+            {
+                Debug.LogError("No manager, couldn't set PowerSurge");
+                return;
+            }
+            
             manager.Flags.PowerSurge = b;
         }
         

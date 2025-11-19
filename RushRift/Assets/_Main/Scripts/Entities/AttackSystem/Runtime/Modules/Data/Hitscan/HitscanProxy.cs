@@ -1,13 +1,11 @@
-using System.Collections;
 using Game.DesignPatterns.Observers;
-using Game.DesignPatterns.Pool;
 using Game.Entities.Components;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Game.Detection;
 using Game.LevelElements;
-using Unity.VisualScripting;
+using MyTools.Global;
 using Object = UnityEngine.Object;
 
 namespace Game.Entities.AttackSystem.Hitscan
@@ -22,6 +20,17 @@ namespace Game.Entities.AttackSystem.Hitscan
         private Vector3 _startPos;
         private Vector3 _direction;
         private bool _detected;
+
+        struct HitData
+        {
+            public float distance;
+            public Vector3 point;
+            public Collider collider;
+            public HitType type;
+            public float weight;
+            public float dot;
+            public object detected;
+        }
         
         public HitscanProxy(HitscanModule data, IModuleProxy[] children, bool disposeData = false) : base(data, children, disposeData)
         {
@@ -54,102 +63,185 @@ namespace Game.Entities.AttackSystem.Hitscan
             _lateUpdate();
         }
 
-
-        private Vector3 CalculateSpawnPosition(Vector3 spawnPos, Vector3 velocity, Vector3 forward, float time, float delta)
-        {
-            var compensatedPosition = spawnPos + velocity * delta;
-
-            return compensatedPosition;
-        }
-
         private void Shoot(ModuleParams mParams, float delta)
         {
+            if (!mParams.Owner) return;
             if (Data.Muzzle) Data.Muzzle.Play();
 
-            var origin = mParams.Joints.GetJoint(Data.OriginJoint);
-            var spawn = mParams.Joints.GetJoint(Data.SpawnJoint);
-            
-            var spawnPos = Data.GetOffsetPosition(spawn);
-            var direction = Data.GetDirection(origin.position, origin.forward, spawnPos);
-            
-            
-            if (!mParams.Owner) return;
-            
-            //direction += movement.Velocity;
-            //spawnPos = CalculateSpawnPosition(spawnPos, movement.Velocity, movement.Velocity, movement.Velocity.magnitude, delta);
-            
-
+            GetSpawnParameters(mParams, out var origin, out var spawn, out var spawnPos, out var direction);
             
             var trail = Object.Instantiate(Data.Line, spawnPos, Quaternion.identity);
             trail.Enable(false);
-            
-            //trail.SetDuration(Data.LineDuration);
-
             _startPos = spawnPos;
             _direction = direction;
+
+            var hits = new List<RaycastHit>();
             
-#if false
-            if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.EntityMask))
-#else
-            if (HitEntity(spawnPos, direction, Data.Radius, out var point, out var collider)) // Checks if it collided with an entity
-#endif
+            var worldHits = Physics.RaycastAll(spawnPos, direction, Data.Range, Data.GroundMask);
+            var enemyHits = Physics.SphereCastAll(spawnPos, Data.Radius, direction, Data.Range, Data.EntityMask);
+            hits.AddRange(worldHits);
+            hits.AddRange(enemyHits);
+                
+            var hitDatas = new List<HitData>();
+
+            foreach (var h in hits)
             {
-                _detected = true;
-                trail.SetPosition(spawn, point, Data.LineDuration, Data.Offset);
-                var other = collider.gameObject;
+                if (h.collider == null) continue;
                 
-                if (other.TryGetComponent<Projectile>(out var projectile))
-                {
-                    projectile.DestroyProjectile();
-                }
-                else if (other.TryGetComponent<IController>(out var controller) &&
-                    controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))
-                {
-                    healthComponent.Damage(Data.Damage, spawnPos);
-                }
-                else if (GlobalLevelManager.PowerSurge && other.layer == 12 && other.TryGetComponent<Terminal>(out var terminal))
-                {
-                    terminal.Do();
-                }
+                var type = DetermineHitType(h.collider, Data, out var d);
+                var toHit = (h.point - spawnPos).normalized;
+                var dot = Vector3.Dot(direction, toHit);
                 
+                if (Data.UseDotThreshold && dot < Data.MinDotThreshold) continue;
 
-                EffectManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
+                hitDatas.Add(new HitData()
                 {
-                    scale = Data.ImpactSize,
-                    position = point,
-                    rotation = Quaternion.identity,
-                }, out var emitter);
-
+                    distance = Vector3.Distance(spawnPos, h.point),
+                    point = h.point,
+                    collider = h.collider,
+                    type = type,
+                    weight = Data.Weights.TryGetValue(type, out var w) ? w : 0f,
+                    dot = dot,
+                    detected = d
+                });
             }
-            else if (Physics.Raycast(spawnPos, direction, out var hit, Data.Range, Data.GroundMask)) // Checks if it collided with the ground
-            {
-                _detected = true;
-                trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
-                // Play particles when collided with the ground
-                
-                // LevelManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
-                // {
-                //     scale = Data.ImpactSize,
-                //     position = hit.point,
-                //     rotation = Quaternion.identity,
-                // }, out var emitter);
 
-                EffectManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
-                {
-                    scale = Data.ImpactSize,
-                    position = hit.point,
-                    rotation = Quaternion.identity,
-                }, out var emitter);
-            }
-            else
+            if (hitDatas.Count == 0)
             {
+                // No hits
                 _detected = false;
                 trail.SetPosition(spawn, spawnPos + (direction * Data.Range), Data.LineDuration, Data.Offset);
+                
+                if (Data.UseSFX) AudioManager.Play(Data.SFXName);
+                trail.Enable(true);
+                return;
             }
+
+            // Sort by distance and weight
+            hitDatas.Sort((a, b) =>
+            {
+                // Distance is primary
+                var distCompare = a.distance.CompareTo(b.distance);
+                if (distCompare != 0)
+                    return distCompare;
+                
+                // Dot if the flag is on
+                if (Data.UseDotThreshold)
+                {
+                    var dotCompare = b.dot.CompareTo(a.dot);
+                    if (dotCompare != 0)
+                        return dotCompare;
+                }
+
+                // Fallback with the weight
+                return b.weight.CompareTo(a.weight);
+            });
+            
+            var hit = hitDatas[0];
+            
+            _detected = true;
+            trail.SetPosition(spawn, hit.point, Data.LineDuration, Data.Offset);
+
+            switch (hit.type)
+            {
+                case HitType.Entity:
+                    if (hit.detected is IController controller)
+                    {
+                        OnEntityHit(controller, spawnPos);
+                    }
+                    break;
+                case HitType.Projectile:
+                    if (hit.detected is Projectile projectile)
+                    {
+                        OnProjectileHit(projectile, spawnPos, direction);
+                    }
+                    break;
+                case HitType.Terminal:
+                    if (hit.detected is Terminal terminal)
+                    {
+                        OnTerminalHit(terminal, hit, spawnPos);
+                    }
+                    break;
+                case HitType.World:
+                    if (hit.detected is Collider collider)
+                    {
+                        OnWorldHit(collider);
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+            EffectManager.TryGetVFX(Data.ImpactID, new VFXEmitterParams()
+            {
+                scale = Data.ImpactSize,
+                position = hit.point,
+                rotation = Quaternion.identity,
+            }, out var emitter);
             
             if (Data.UseSFX) AudioManager.Play(Data.SFXName);
             trail.Enable(true);
+        }
 
+        private void GetSpawnParameters(in ModuleParams mParams, out Transform origin, out Transform spawn,
+            out Vector3 spawnPosition, out Vector3 direction)
+        {
+            origin = mParams.Joints.GetJoint(Data.OriginJoint);
+            spawn = mParams.Joints.GetJoint(Data.SpawnJoint);
+            spawnPosition = Data.GetOffsetPosition(spawn);
+            direction = Data.GetDirection(origin.position, origin.forward, spawnPosition);
+
+        }
+        
+        private HitType DetermineHitType(Collider col, HitscanModule Data, out object detected)
+        {
+            if (col.TryGetComponent<Projectile>(out var projectile))
+            {
+                detected = projectile;
+                return HitType.Projectile;
+            }
+
+            if (Data.CanUseTerminals && GlobalLevelManager.PowerSurge && col.gameObject.layer == 12 && col.gameObject.TryGetComponent<Terminal>(out var terminal))
+            {
+                detected = terminal;
+                return HitType.Terminal;
+            }
+
+            if (col.TryGetComponent<IController>(out var entity))
+            {
+                detected = entity;
+                return HitType.Entity;
+            }
+
+            detected = col;
+            return HitType.World;
+        }
+
+        private void OnEntityHit(in IController ctrl, in Vector3 spawnPos)
+        {
+            if (ctrl.GetModel().TryGetComponent<HealthComponent>(out var hp))
+                hp.Damage(Data.Damage, spawnPos);
+        }
+
+        private void OnProjectileHit(in Projectile projectile, in Vector3 spawnPos, in Vector3 direction)
+        {
+            if (Data.ChainReaction)
+            {
+                projectile.TriggerHitByHitscan(spawnPos, direction, Data.ChainRadius, Data.ChainDamage, Data.ChainLayer, Data.Line, Data.ChainLifetime);
+            }
+            else
+            {
+                projectile.DestroyProjectile();
+            }
+        }
+
+        private void OnTerminalHit(in Terminal terminal, in HitData hit, in Vector3 spawnPos)
+        {
+            terminal.Do();
+        }
+
+        private void OnWorldHit(in Collider collider)
+        {
             
         }
 
@@ -157,39 +249,6 @@ namespace Game.Entities.AttackSystem.Hitscan
         {
             Gizmos.color = _detected ? Color.green : Color.red;
             Gizmos.DrawRay(_startPos, _direction * Data.Range);
-        }
-
-        private Collider[] _colliders = new Collider[3];
-        private bool HitEntity(Vector3 spawnPos, Vector3 direction, float handRadius, out Vector3 closestPoint, out Collider collider)
-        {
-            if (Physics.SphereCast(spawnPos, handRadius, direction, out var hit, Data.Range, Data.EntityMask))
-            {
-                closestPoint = hit.point;
-                collider = hit.collider;
-                return true;
-            }
-
-            //if (Physics.OverlapSphere(spawnPos, Data.Radius, Data.EntityMask) > 0)
-            if (Physics.OverlapSphereNonAlloc(spawnPos, handRadius, _colliders, Data.EntityMask) > 0)
-            {
-                collider = _colliders.FirstOrDefault();
-
-                if (collider == null)
-                {
-                    Debug.LogError("ERROR: The collider in HitScan proxy is null");
-                    closestPoint = Vector3.zero;
-                }
-                else
-                {
-                    closestPoint = collider.ClosestPoint(spawnPos);
-                }
-                
-                return true;
-            }
-
-            collider = null;
-            closestPoint = Vector3.zero;
-            return false;
         }
     }
 }

@@ -4,6 +4,7 @@ using Game.UI.StateMachine.Elements;
 using Game.DataBase;
 using MyTools.Global;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Threading;
 using TMPro;
@@ -22,6 +23,10 @@ namespace Game.UI.StateMachine
         [Header("PopUp")]
         [SerializeField] private PopUp popUp;
         [SerializeField] private GameObject popUpBackground;
+
+        [Header("Events")]
+        [SerializeField] private UnityEvent onBegin = new UnityEvent();
+        [SerializeField] private UnityEvent onEnd = new UnityEvent();
 
         [Header("InputField")]
         [SerializeField] private TMP_InputField username;
@@ -69,6 +74,7 @@ namespace Game.UI.StateMachine
             {
                 continueButton.interactable = false;
             }
+            onBegin?.Invoke();
         }
 
         private void OnTryNewGameHandler()
@@ -139,6 +145,7 @@ namespace Game.UI.StateMachine
             }
             
             base.Dispose();
+            onEnd?.Invoke();
         }
         
         public override bool TryGetState(out UIState state)

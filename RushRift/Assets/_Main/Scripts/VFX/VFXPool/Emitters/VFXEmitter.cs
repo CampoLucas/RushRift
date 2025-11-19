@@ -4,19 +4,20 @@ using UnityEngine;
 
 namespace Game
 {
-    public class EffectEmitter : MonoBehaviour, IPoolableObject<EffectEmitter, VFXEmitterParams>
+    public class VFXEmitter : MonoBehaviour, IPoolableObject<VFXEmitter, VFXEmitterParams>
     {
         public VFXEmitterParams Data { get; private set; }
 
         protected Transform Transform { get; private set; }
-        protected IPoolObject<EffectEmitter, VFXEmitterParams> Pool { get; private set; }
+        protected IPoolObject<VFXEmitter, VFXEmitterParams> Pool { get; private set; }
         
         private void Awake()
         {
             Transform = transform;
+            OnAwake();
         }
         
-        public void PoolInit(IPoolObject<EffectEmitter, VFXEmitterParams> pool)
+        public void PoolInit(IPoolObject<VFXEmitter, VFXEmitterParams> pool)
         {
             gameObject.SetActive(false);
             Pool = pool;
@@ -56,6 +57,7 @@ namespace Game
             Dispose();
         }
 
+        protected virtual void OnAwake() {}
         protected virtual void OnPoolInit() {}
         protected virtual void OnPoolDisable() {}
         protected virtual void OnPoolReset() {}

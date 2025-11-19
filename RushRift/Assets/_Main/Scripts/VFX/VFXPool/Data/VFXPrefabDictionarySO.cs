@@ -8,9 +8,9 @@ namespace Game.VFX
     [CreateAssetMenu(menuName = "Game/VFX/Prefab Dictionary")]
     public class VFXPrefabDictionarySO : ScriptableObject
     {
-        [SerializeField] private SerializedDictionary<VFXPrefabID, EffectEmitter> prefabDictionary;
+        [SerializeField] private SerializedDictionary<VFXPrefabID, VFXEmitter> prefabDictionary;
 
-        public bool TryGet(in VFXPrefabID id, out EffectEmitter emitter)
+        public bool TryGet(in VFXPrefabID id, out VFXEmitter emitter)
         {
             return prefabDictionary.TryGetValue(id, out emitter);
         }
@@ -28,12 +28,5 @@ namespace Game.VFX
         // }
     }
 
-    public enum VFXPrefabID
-    {
-        HitImpact,
-        Explosion,
-        ProjectileExplosion,
-        TurretExplosion,
-        TurretProjectile,
-    }
+    
 }

@@ -1,4 +1,6 @@
+using Game.Utils;
 using Game.VFX;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -16,7 +18,7 @@ namespace Game.Entities.AttackSystem.Hitscan
         public ParticleSystem Muzzle => muzzleEffect;
         public VFXPrefabID ImpactID => impactEffectID;
         public float ImpactSize => impactSize;
-        public ElectricArcController Line => line;
+        public ElectricArcController Line => CanUseTerminals && GlobalLevelManager.PowerSurge ? lineSecondary : line;
         public float LineDuration => lineDuration;
         public float Damage => damage;
         public float Radius => radius;
@@ -26,10 +28,21 @@ namespace Game.Entities.AttackSystem.Hitscan
         public bool UseSFX => useSFX;
         public string SFXName => sfxName;
         public bool CanUseTerminals => canUseTerminals;
+        public SerializedDictionary<HitType, int> Weights => weights;
+        public bool UseDotThreshold => useDotThreshold;
+        public float MinDotThreshold => minDotThreshold;
+        public bool ChainReaction => chainReaction;
+        public LayerMask ChainLayer => chainLayer;
+        public float ChainRadius => chainRadius;
+        public float ChainDamage => chainDamage;
+        public float ChainLifetime => chainLifetime;
 
         [Header("Settings")]
         [SerializeField] private float damage = 10;
         [SerializeField] private bool canUseTerminals = false;
+        [SerializeField] private bool useDotThreshold = false;
+        [SerializeField] private float minDotThreshold = .1f;
+        [SerializeField] private SerializedDictionary<HitType, int> weights = new();
         
         [Header("Spawn")]
         [SerializeField] private Vector3 offset;
@@ -49,6 +62,14 @@ namespace Game.Entities.AttackSystem.Hitscan
         [SerializeField] private LayerMask entityMask;
         [SerializeField] private float radius = .5f;
 
+        [Header("Chain")]
+        [SerializeField] private bool chainReaction;
+        [SerializeField] private float chainRadius;
+        [SerializeField] private LayerMask chainLayer;
+        [SerializeField] private float chainDamage;
+        [SerializeField] private float chainLifetime = .5f;
+        
+
         [Header("Visuals")]
         [SerializeField] private ParticleSystem muzzleEffect;
         
@@ -57,6 +78,7 @@ namespace Game.Entities.AttackSystem.Hitscan
         
         [Header("Line")]
         [SerializeField] private ElectricArcController line;
+        [SerializeField] private ElectricArcController lineSecondary;
         [SerializeField] private float lineDuration;
 
         [Header("SFX")]
@@ -71,11 +93,12 @@ namespace Game.Entities.AttackSystem.Hitscan
 
         public Vector3 GetOffsetPosition(Transform origin)
         {
-            var x = origin.right * offset.x;
-            var y = origin.up * offset.y;
-            var z = origin.forward * offset.z;
-
-            return origin.position + x + y + z;
+            // var x = origin.right * offset.x;
+            // var y = origin.up * offset.y;
+            // var z = origin.forward * offset.z;
+            //
+            // return origin.position + x + y + z;
+            return origin.GetOffsetPos(offset);
         }
 
         public Vector3 GetDirection(Vector3 eyesPos, Vector3 forward, Vector3 spawnPos)
@@ -101,5 +124,13 @@ namespace Game.Entities.AttackSystem.Hitscan
         }
         
         
+    }
+
+    public enum HitType
+    {
+        Entity,
+        Projectile,
+        Terminal,
+        World
     }
 }

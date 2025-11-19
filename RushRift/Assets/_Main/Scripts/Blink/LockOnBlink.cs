@@ -185,7 +185,7 @@ public class LockOnBlink : MonoBehaviour
 
     private bool IsAbilityEnabled()
     {
-        return GlobalLevelManager.Blink;
+        return !PauseHandler.IsPaused && GlobalLevelManager.Blink;
     }
 
     public Transform GetCurrentTarget() => _currentTarget;
