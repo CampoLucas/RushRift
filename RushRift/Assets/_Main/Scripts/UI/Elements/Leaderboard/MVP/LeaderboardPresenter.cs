@@ -15,7 +15,9 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
     [SerializeField] private List<GameObject> userNameList;
     [SerializeField] private List<GameObject> userTimelist;
 
-    public Subject<LeaderboardParams> OnSuccess; //change the params later
+    [SerializeField] private LeaderboardView leaderboardView;
+
+    public Subject<ScoreList> OnSuccess; //change the params later
     public Subject<DBRequestState> OnFailure;
     public Subject OnLoading;
 
@@ -55,14 +57,10 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         try
         {
             var state = await DataBaseHandler.DB.GetScore(id, OnrecievedScore, cts.Token);
-            // Set loading screen here
+            OnLoading.NotifyAll();
             if (state != DBRequestState.Success)
             {
                 OnFailure.NotifyAll(state);
-            }
-            else
-            {
-                OnSuccess.NotifyAll(new LeaderboardParams());
             }
         }
         catch (Exception e)
@@ -74,18 +72,8 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 
     private void OnrecievedScore(ScoreList scoreList)
     {
-        
-        for (int i = 0; i < scoreList.scores.Length; i++)
-        {
-            userNameList[i].SetActive(true);
-            userTimelist[i].SetActive(true);
+        OnSuccess.NotifyAll(scoreList);
 
-            var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
-            var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
-
-            userNameText.text = scoreList.scores[i].name;
-            userTimeText.text = scoreList.scores[i].timescore;
-        }
         
     }
 
