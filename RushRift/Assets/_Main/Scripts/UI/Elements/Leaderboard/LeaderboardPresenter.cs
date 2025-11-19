@@ -12,6 +12,7 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 {
     [SerializeField] private List<GameObject> userNameList;
     [SerializeField] private List<GameObject> userTimelist;
+    [SerializeField] private List<GameObject> userPoslist;
 
     private bool hasChecked;
 
@@ -48,12 +49,15 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         {
             userNameList[i].SetActive(true);
             userTimelist[i].SetActive(true);
+            userPoslist[i].SetActive(true);
 
             var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
             var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
+            var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
 
             userNameText.text = scoreList.scores[i].name;
             userTimeText.text = scoreList.scores[i].timescore;
+            userPosText.text = (i+1).ToString();
         }
         
     }
