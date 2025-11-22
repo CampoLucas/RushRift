@@ -5,6 +5,7 @@ using Game.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -20,6 +21,8 @@ namespace Game.UI.StateMachine.Elements
         [SerializeField] private Graphic iconImage;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button confirmButton;
+        [SerializeField] private Selectable defaultButton;
+        [SerializeField] private Selectable backButton;
 
         [Header("Animation")]
         [SerializeField] private UIAnimation openAnim;
@@ -62,6 +65,7 @@ namespace Game.UI.StateMachine.Elements
         
         public void Close()
         {
+            EventSystem.current.SetSelectedGameObject(backButton.gameObject);
             if (confirmButton) confirmButton.onClick.RemoveAllListeners();
             
             StopAllCoroutines();
@@ -83,8 +87,14 @@ namespace Game.UI.StateMachine.Elements
             Close();
         }
 
+        public void ChangeContinueNav()
+        {
+
+        }
+
         public IEnumerator OpenRoutine(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
+            
             _closed = false;
             titleText.text = title;
             infoText.text = info;
@@ -97,6 +107,10 @@ namespace Game.UI.StateMachine.Elements
         {
             _closed = false;
             gameObject.SetActive(true);
+            if (defaultButton != null)
+            {
+                EventSystem.current.SetSelectedGameObject(defaultButton.gameObject);
+            }
 
             if (openAnim)
             {

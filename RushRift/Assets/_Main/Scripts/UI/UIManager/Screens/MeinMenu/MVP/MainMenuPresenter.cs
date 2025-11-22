@@ -3,6 +3,7 @@ using Game.Saves;
 using Game.UI.StateMachine.Elements;
 using MyTools.Global;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Game.UI.StateMachine
@@ -19,6 +20,10 @@ namespace Game.UI.StateMachine
         [Header("PopUp")]
         [SerializeField] private PopUp popUp;
         [SerializeField] private GameObject popUpBackground;
+
+        [Header("Events")]
+        [SerializeField] private UnityEvent onBegin = new UnityEvent();
+        [SerializeField] private UnityEvent onEnd = new UnityEvent();
 
         private void Awake()
         {
@@ -61,6 +66,7 @@ namespace Game.UI.StateMachine
             {
                 continueButton.interactable = false;
             }
+            onBegin?.Invoke();
         }
 
         private void OnTryNewGameHandler()
@@ -131,6 +137,7 @@ namespace Game.UI.StateMachine
             }
             
             base.Dispose();
+            onEnd?.Invoke();
         }
         
         public override bool TryGetState(out UIState state)

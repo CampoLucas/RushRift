@@ -3,6 +3,7 @@ using UnityEngine;
 using Game;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.InputSystem;
 
 [DisallowMultipleComponent]
 public class LockOnBlink : MonoBehaviour
@@ -17,7 +18,7 @@ public class LockOnBlink : MonoBehaviour
 
     [Header("Lock Start Mode")]
     [SerializeField, Tooltip("Automatic: lock charges when a target is in sight. OnKeyHold: hold Lock Key to charge; release to blink. OnKeyPress: toggle charge on key press.")]
-    private LockStartMode lockStartMode = LockStartMode.OnKeyHold;
+    private LockStartMode lockStartMode = LockStartMode.OnKeyPress;
 
     [Header("Keys")]
     [SerializeField, Tooltip("Lock key. In OnKeyHold, holding this charges and releasing it attempts the blink.")]
@@ -185,7 +186,7 @@ public class LockOnBlink : MonoBehaviour
 
     private bool IsAbilityEnabled()
     {
-        return GlobalLevelManager.Blink;
+        return !PauseHandler.IsPaused && GlobalLevelManager.Blink;
     }
 
     public Transform GetCurrentTarget() => _currentTarget;
@@ -225,38 +226,43 @@ public class LockOnBlink : MonoBehaviour
 
         HandleChargingInput();
         TickLocking();
+        if (InputManager.GetActionPerformed(InputManager.Input.Blink))
+        {
+            TryPerformBlink();
+            Debug.Log("Blink LLamado");
+        } 
 
-        if (lockStartMode == LockStartMode.OnKeyHold)
-        {
-            if (lockKey != KeyCode.None && Input.GetKeyUp(lockKey))
-            {
-                if (_readyToBlink) { TryPerformBlink(); }
-                else { StopLockAudioNow(); ResetLockState(true); ReleaseSlowMoIfOwned(); }
-            }
-        }
-        else
-        {
-            if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey)) TryPerformBlink();
-        }
+        //if (lockStartMode == LockStartMode.OnKeyHold)
+        //{
+        //    if (lockKey != KeyCode.None && Input.GetKeyUp(lockKey))
+        //    {
+        //        if (_readyToBlink) { TryPerformBlink(); }
+        //        else { StopLockAudioNow(); ResetLockState(true); ReleaseSlowMoIfOwned(); }
+        //    }
+        //}
+        //else
+        //{
+        //    if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey)) TryPerformBlink();
+        //}
     }
 
     private void HandleChargingInput()
     {
         switch (lockStartMode)
         {
-            case LockStartMode.Automatic:
-                _chargingActive = true;
-                break;
-            case LockStartMode.OnKeyHold:
-            {
-                if (lockKey == KeyCode.None) { _chargingActive = false; return; }
-                bool isDown = Input.GetKey(lockKey);
-                bool isUpThisFrame = Input.GetKeyUp(lockKey);
-                _chargingActive = isDown || isUpThisFrame;
-                break;
-            }
+            //case LockStartMode.Automatic:
+            //    _chargingActive = true;
+            //    break;
+            //case LockStartMode.OnKeyHold:
+            //{
+            //    if (lockKey == KeyCode.None) { _chargingActive = false; return; }
+            //    bool isDown = Input.GetKey(lockKey);
+            //    bool isUpThisFrame = Input.GetKeyUp(lockKey);
+            //    _chargingActive = isDown || isUpThisFrame;
+            //    break;
+            //}
             case LockStartMode.OnKeyPress:
-                if (lockKey != KeyCode.None && Input.GetKeyDown(lockKey)) _chargingActive = !_chargingActive;
+                if (InputManager.GetActionPerformed(InputManager.Input.Blink)) _chargingActive = !_chargingActive;
                 if (!_chargingActive) { ResetLockState(); ReleaseSlowMoIfOwned(); }
                 break;
         }

@@ -11,7 +11,7 @@ namespace Game.InputSystem
     {
         public enum Input
         {
-            Move, Look, Interact, Jump, Primary, PrimaryTap, PrimaryHold, Secondary, Pause, MousePos, Reset
+            Move, Look, Interact, Jump, Primary, PrimaryTap, PrimaryHold, Secondary, Pause, MousePos, Reset, SecondaryTap, SecondaryHold, Blink,
         }
 
         private static InputManager _instance;
@@ -23,7 +23,8 @@ namespace Game.InputSystem
 
         #region InputFlags
 
-        private bool _heavyFlag;
+        private bool _heavyFlagPrimary;
+        private bool _heavyFlagSecondary;
 
         #endregion
         
@@ -43,12 +44,22 @@ namespace Game.InputSystem
         {
             if (_playerControls.Gameplay.PrimaryAttackHold.triggered)
             {
-                _heavyFlag = true;
+                _heavyFlagPrimary = true;
             }
 
             if (_playerControls.Gameplay.PrimaryAttackHold.WasReleasedThisFrame())
             {
-                _heavyFlag = false;
+                _heavyFlagPrimary = false;
+            }
+
+            if (_playerControls.Gameplay.SecondaryAttackHold.triggered)
+            {
+                _heavyFlagPrimary = true;
+            }
+
+            if (_playerControls.Gameplay.SecondaryAttackHold.WasReleasedThisFrame())
+            {
+                _heavyFlagPrimary = false;
             }
         }
 
@@ -124,11 +135,15 @@ namespace Game.InputSystem
             AddActionInput(Input.Interact, InteractAction, InteractActionStarted, InteractActionCanceled);
             AddActionInput(Input.Jump, JumpAction, JumpActionStarted, JumpActionCanceled);
             AddActionInput(Input.Reset, ResetAction, ResetActionStarted, ResetActionCanceled);
+            AddActionInput(Input.Primary, PrimaryAttack, PrimaryAttackStarted, PrimaryAttackCanceled);
             AddActionInput(Input.PrimaryTap, PrimaryAttackTap, PrimaryAttackTapStarted, PrimaryAttackTapCanceled);
             AddActionInput(Input.PrimaryHold, PrimaryAttackHold, PrimaryAttackHoldStarted, PrimaryAttackHoldCanceled);
             AddActionInput(Input.Secondary, SecondaryAttackAction, SecondaryAttackStarted, SecondaryAttackCanceled);
-            AddActionInput(Input.Primary, PrimaryAttack, PrimaryAttackStarted, PrimaryAttackCanceled);
-            
+            AddActionInput(Input.SecondaryTap, SecondaryAttackTap, SecondaryAttackTapStarted, SecondaryAttackTapCanceled);
+            AddActionInput(Input.SecondaryHold, SecondaryAttackHold, SecondaryAttackHoldStarted, SecondaryAttackHoldCanceled);
+            AddActionInput(Input.Blink, BlinkAction, BlinkActionStarted, BlinkActionCanceled);
+
+
             AddButtonInput(Input.Pause, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
             AddButtonInput(Input.Jump, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
             AddButtonInput(Input.Reset, () => _playerControls.Gameplay.Reset.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Reset.WasPressedThisFrame(), () => _playerControls.Gameplay.Reset.WasReleasedThisFrame());
@@ -178,14 +193,26 @@ namespace Game.InputSystem
         private bool PrimaryAttackTapStarted() => _playerControls.Gameplay.PrimaryAttackTap.phase == InputActionPhase.Started;
         private bool PrimaryAttackTapCanceled() => _playerControls.Gameplay.PrimaryAttackTap.phase == InputActionPhase.Canceled;
         
-        private bool PrimaryAttackHold() => _heavyFlag;
+        private bool PrimaryAttackHold() => _heavyFlagPrimary;
         private bool PrimaryAttackHoldStarted() => _playerControls.Gameplay.PrimaryAttackHold.phase == InputActionPhase.Started;
         private bool PrimaryAttackHoldCanceled() => _playerControls.Gameplay.PrimaryAttackHold.WasReleasedThisFrame();
         
         private bool SecondaryAttackAction() => _playerControls.Gameplay.SecondaryAttack.triggered;
         private bool SecondaryAttackStarted() => _playerControls.Gameplay.SecondaryAttack.phase == InputActionPhase.Started;
         private bool SecondaryAttackCanceled() => _playerControls.Gameplay.SecondaryAttack.phase == InputActionPhase.Canceled;
-        
+
+        private bool SecondaryAttackTap() => _playerControls.Gameplay.SecondaryAttackTap.triggered;
+        private bool SecondaryAttackTapStarted() => _playerControls.Gameplay.SecondaryAttackTap.phase == InputActionPhase.Started;
+        private bool SecondaryAttackTapCanceled() => _playerControls.Gameplay.SecondaryAttackTap.phase == InputActionPhase.Canceled;
+
+        private bool SecondaryAttackHold() => _heavyFlagSecondary;
+        private bool SecondaryAttackHoldStarted() => _playerControls.Gameplay.SecondaryAttackHold.phase == InputActionPhase.Started;
+        private bool SecondaryAttackHoldCanceled() => _playerControls.Gameplay.SecondaryAttackHold.WasReleasedThisFrame();
+
+        private bool BlinkAction() => _playerControls.Gameplay.Blink.triggered;
+        private bool BlinkActionStarted() => _playerControls.Gameplay.Blink.phase == InputActionPhase.Started;
+        private bool BlinkActionCanceled() => _playerControls.Gameplay.Blink.phase == InputActionPhase.Canceled;
+
         private Vector2 MoveValue() => _playerControls.Gameplay.Movement.ReadValue<Vector2>();
         private Vector2 LookValue() => _playerControls.Gameplay.Look.ReadValue<Vector2>();
         private Vector2 MousePosValue() => _playerControls.Gameplay.MousePosition.ReadValue<Vector2>();
