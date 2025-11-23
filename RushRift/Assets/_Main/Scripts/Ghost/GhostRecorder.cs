@@ -13,7 +13,7 @@ namespace _Main.Scripts.Ghost
     [DisallowMultipleComponent]
     public class GhostRecorder : MonoBehaviour
     {
-        [Header("Recording")]
+        [Header("Recording Settings")]
         [SerializeField] private bool startRecordingOnEnable = true;
         [SerializeField] private bool recordAtFixedUpdate = true;
         [SerializeField] private float minFrameIntervalSeconds = 0.02f;
@@ -21,12 +21,17 @@ namespace _Main.Scripts.Ghost
         [SerializeField] private float minRotationDeltaDegrees = 0.5f;
         [SerializeField] private int maxRecordedFrames;
 
+        [Header("Scene Filtering")]
+        [Tooltip("Exact names of scenes to record. If empty, records Active Scene.")]
+        [SerializeField] private List<string> allowedScenes = new List<string>(); 
+
         [Header("Pause Integration")]
         [SerializeField] private bool obeyPauseEvents = true;
 
         [Header("Storage")]
         [SerializeField] private string ghostsFolderName = "ghosts";
-        [SerializeField] private string fileNamePattern = "level_{LEVEL}.ghost.json";
+        // UPDATED PATTERN: Now implies we will put the NAME here
+        [SerializeField] private string fileNamePattern = "level_{NAME}.ghost.json";
 
         [Header("Debug UI")]
         [SerializeField] private bool showDebugUI = true;
@@ -37,7 +42,7 @@ namespace _Main.Scripts.Ghost
         [Serializable]
         public class GhostRunData
         {
-            public int levelIndex;
+            public string levelName; // Changed from index to name
             public float durationSeconds;
             public List<GhostFrame> frames = new List<GhostFrame>(1024);
             public string recordedAtUtc;
@@ -55,7 +60,9 @@ namespace _Main.Scripts.Ghost
         private Quaternion lastRot;
         
         private ActionObserver<bool> winObserver;
-        private int levelIndex;
+        
+        // We use this to store the specific scene NAME we decided to record
+        private string _targetSceneName = ""; 
 
         private NullCheck<ActionObserver<bool>> _onPause;
         private NullCheck<Transform> _target;
@@ -66,7 +73,6 @@ namespace _Main.Scripts.Ghost
             if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
             if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
             
-            levelIndex = SceneManager.GetActiveScene().buildIndex;
             winObserver = new ActionObserver<bool>(OnGameOverHandler);
             GlobalEvents.GameOver.Attach(winObserver);
         }
@@ -83,7 +89,7 @@ namespace _Main.Scripts.Ghost
 
             if (startRecordingOnEnable)
             {
-                StartCoroutine(WaitForPlayerAndStart());
+                CheckSceneAndStart();
             }
         }
 
@@ -93,7 +99,6 @@ namespace _Main.Scripts.Ghost
             if (_onLevelReadySimple) GameEntry.LoadingState.LevelChanged.Detach(_onLevelReadySimple.Get());
             
             GlobalEvents.GameOver.Detach(winObserver);
-            
             StopRecording();
         }
 
@@ -108,27 +113,53 @@ namespace _Main.Scripts.Ghost
             }
         }
         
+        private void CheckSceneAndStart()
+        {
+            if (TryGetAllowedSceneName(out string sceneName))
+            {
+                Debug.Log($"[GhostRecorder] Scene '{sceneName}' is allowed. Initializing...");
+                _targetSceneName = sceneName; 
+                StartCoroutine(WaitForPlayerAndStart());
+            }
+        }
+
+        private bool TryGetAllowedSceneName(out string name)
+        {
+            name = "";
+
+            // 1. If list is empty, default to whatever is Active
+            if (allowedScenes == null || allowedScenes.Count == 0)
+            {
+                name = SceneManager.GetActiveScene().name;
+                return true;
+            }
+
+            // 2. Iterate over ALL loaded scenes to find the one that matches our Allowed List
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                Scene s = SceneManager.GetSceneAt(i);
+                if (allowedScenes.Contains(s.name))
+                {
+                    name = s.name;
+                    return true; 
+                }
+            }
+
+            return false;
+        }
+        
         private IEnumerator WaitForPlayerAndStart()
         {
-            if (TryFindPlayer())
-            {
-                StartRecording();
-                yield break;
-            }
+            if (TryFindPlayer()) { StartRecording(); yield break; }
 
             float timeout = 10f;
             while (timeout > 0)
             {
-                if (TryFindPlayer())
-                {
-                    StartRecording();
-                    yield break;
-                }
-
+                if (TryFindPlayer()) { StartRecording(); yield break; }
                 timeout -= Time.deltaTime;
                 yield return null;
             }
-             Debug.LogWarning("[GhostRecorder] Player not found after timeout.");
+            Debug.LogWarning("[GhostRecorder] Player not found after timeout.");
         }
 
         private bool TryFindPlayer()
@@ -138,14 +169,12 @@ namespace _Main.Scripts.Ghost
                 _target = p.transform;
                 return true;
             }
-
             var directFind = FindObjectOfType<PlayerController>();
             if (directFind != null)
             {
                 _target = directFind.transform;
                 return true;
             }
-
             return false;
         }
 
@@ -167,28 +196,31 @@ namespace _Main.Scripts.Ghost
 
         private void OnLevelReady()
         {
-            Debug.Log("[GhostRecorder] Level Ready. Resetting state and Re-subscribing to events.");
-            
-            GlobalEvents.GameOver.Detach(winObserver);
-            GlobalEvents.GameOver.Attach(winObserver);
-            
+            GlobalEvents.GameOver.Detach(winObserver); 
+            GlobalEvents.GameOver.Attach(winObserver); 
+
             StopRecording();
-            levelIndex = SceneManager.GetActiveScene().buildIndex;
             currentRun = null;
             lastFrameTime = 0f;
             _target.Reset(); 
+            _targetSceneName = ""; 
 
             if (startRecordingOnEnable) 
-                StartCoroutine(WaitForPlayerAndStart());
+            {
+                CheckSceneAndStart();
+            }
         }
 
         public void StartRecording()
         {
             if (!_target.TryGet(out var target)) return;
             
+            if (string.IsNullOrEmpty(_targetSceneName)) 
+                _targetSceneName = SceneManager.GetActiveScene().name;
+
             currentRun = new GhostRunData
             {
-                levelIndex = levelIndex,
+                levelName = _targetSceneName,
                 durationSeconds = 0f,
                 recordedAtUtc = DateTime.UtcNow.ToString("o"),
                 appVersion = Application.version
@@ -198,7 +230,8 @@ namespace _Main.Scripts.Ghost
             lastPos = target.position;
             lastRot = target.rotation;
             PushFrame(0f, lastPos, lastRot);
-            Debug.Log("[GhostRecorder] Started.");
+            
+            Debug.Log($"[GhostRecorder] Started recording for Level: {_targetSceneName}");
         }
 
         public void StopRecording()
@@ -245,15 +278,14 @@ namespace _Main.Scripts.Ghost
             
             if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
             {
-                Debug.LogWarning($"[GhostRecorder] Run too short to save: {measuredDuration}");
                 StopRecording();
                 return;
             }
 
             EnsureFolderExists();
-            string path = GetFilePathForLevel(levelIndex);
+            string path = GetFilePathForLevel(_targetSceneName);
 
-            if (TryLoadBestGhostForLevel(levelIndex, out var existing, out _))
+            if (TryLoadBestGhostForLevel(_targetSceneName, out var existing, out _))
             {
                 if (existing != null && existing.durationSeconds > MinValidDurationSeconds)
                 {
@@ -282,7 +314,14 @@ namespace _Main.Scripts.Ghost
         }
 
         private string GetFolderPath() => Path.Combine(Application.persistentDataPath, ghostsFolderName);
-        private string GetFilePathForLevel(int idx) => Path.Combine(GetFolderPath(), fileNamePattern.Replace("{LEVEL}", idx.ToString()));
+        
+        // FIX: Path generation uses NAME now
+        private string GetFilePathForLevel(string levelName) 
+        {
+            // Fallback if name is empty
+            if (string.IsNullOrEmpty(levelName)) levelName = "UnknownLevel";
+            return Path.Combine(GetFolderPath(), fileNamePattern.Replace("{LEVEL}", levelName).Replace("{NAME}", levelName));
+        }
 
         private void EnsureFolderExists()
         {
@@ -313,34 +352,25 @@ namespace _Main.Scripts.Ghost
             Debug.Log($"[GhostRecorder] FILE SAVED.");
         }
 
-        public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data, out string path)
+        public static bool TryLoadBestGhostForLevel(string levelName, out GhostRunData data, out string path)
         {
-            int level = SceneManager.GetActiveScene().buildIndex;
-            return TryLoadBestGhostForLevel(level, out data, out path);
-        }
-
-        public static bool TryLoadBestGhostForCurrentLevel(out GhostRunData data)
-        {
-            return TryLoadBestGhostForCurrentLevel(out data, out _);
-        }
-
-        public static bool TryLoadBestGhostForLevel(int levelIndex, out GhostRunData data, out string path)
-        {
-            path = Path.Combine(Application.persistentDataPath, "ghosts", $"level_{levelIndex}.ghost.json");
+            string folder = Path.Combine(Application.persistentDataPath, "ghosts");
+            path = Path.Combine(folder, $"level_{levelName}.ghost.json");
+            
             if (File.Exists(path) && TryReadJson(path, out data))
-                return data.levelIndex == levelIndex && data.frames != null && data.frames.Count >= 2 && data.durationSeconds > MinValidDurationSeconds;
+                return data.frames != null && data.frames.Count >= 2 && data.durationSeconds > MinValidDurationSeconds;
 
             data = null;
             return false;
         }
-        
+
         private void OnGUI()
         {
             if (!showDebugUI || !isRecording || currentRun == null) return;
             
-            GUILayout.BeginArea(new Rect(10, 10, 300, 100));
+            GUILayout.BeginArea(new Rect(10, 10, 400, 100));
             GUI.color = Color.red;
-            GUILayout.Label($"[REC] TIME: {currentRun.durationSeconds:F2}");
+            GUILayout.Label($"[REC] Level: {_targetSceneName} | Time: {currentRun.durationSeconds:F2}");
             GUILayout.Label($"FRAMES: {currentRun.frames.Count}");
             GUI.color = Color.white;
             GUILayout.EndArea();
