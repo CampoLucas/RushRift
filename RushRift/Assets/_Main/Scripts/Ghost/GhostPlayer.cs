@@ -86,10 +86,14 @@ namespace _Main.Scripts.Ghost
 
         private NullCheck<ActionObserver<bool>> _onPause;
         private NullCheck<ActionObserver> _onLevelReadySimple;
+        
+        private Vector3 _initialInspectorOffset;
 
         private void Awake()
         {
             _suppressBuildWarnings |= drawGizmos && gizmoMaxSegments >= 0;
+            
+            _initialInspectorOffset = worldPositionOffset;
 
             if (enableProximityFade && proximityFadeMaterial)
                 _fader = new ProximityFader(proximityFadeMaterial, playerTagForFade, fadeMinDistance, fadeMaxDistance, alphaWhenClose, alphaWhenFar);
@@ -105,15 +109,19 @@ namespace _Main.Scripts.Ghost
 
             PauseHandler.Attach(_onPause.Get());
             OnPauseChanged(PauseHandler.IsPaused);
-
-            // Subscribe to GameEntry level-ready signal
             GameEntry.LoadingState.LevelChanged.Attach(_onLevelReadySimple.Get());
 
             if (autoLoadOnEnable) LoadBestGhost();
             EnsureGhostVisual();
             SetGhostVisible(initialGhostVisible);
-
-            if (beginPlaybackOnEnable && HasValidRun() && !PauseHandler.IsPaused) Play();
+            
+            if (beginPlaybackOnEnable && HasValidRun()) 
+            {
+                if (!PauseHandler.IsPaused) 
+                    Play();
+                else 
+                    wasPlayingBeforePause = true;
+            }
         }
 
         private void OnDisable()
@@ -151,20 +159,38 @@ namespace _Main.Scripts.Ghost
 
         private void OnPauseChanged(bool paused)
         {
-            if (paused) { wasPlayingBeforePause = isPlaying; if (isPlaying) Pause(); }
-            else if (wasPlayingBeforePause && HasValidRun()) Play();
+            if (paused) 
+            { 
+                if (isPlaying) 
+                {
+                    wasPlayingBeforePause = true; 
+                    Pause(); 
+                }
+            }
+            
+            else 
+            { 
+                if (wasPlayingBeforePause && HasValidRun()) 
+                {
+                    Play();
+                }
+            }
         }
 
         private void OnLevelReady()
         {
-            // Level restarted/loaded → reset & reload
             Log("OnLevelReady → reloading best ghost and resetting playback.");
+
+            PauseHandler.Detach(_onPause.Get());
+            PauseHandler.Attach(_onPause.Get());
+
             Pause();
 
             loadedRun = null;
             framesCache.Clear();
             cachedPositions.Clear();
-            worldPositionOffset = Vector3.zero;
+            worldPositionOffset = _initialInspectorOffset; 
+            
             playbackTime = 0f;
             nextFrameIndex = 1;
 
@@ -173,12 +199,24 @@ namespace _Main.Scripts.Ghost
             AlignToPlayerStartIfNeeded();
             SetGhostVisible(initialGhostVisible);
 
-            if (beginPlaybackOnEnable && HasValidRun() && !PauseHandler.IsPaused) Play();
+            if (beginPlaybackOnEnable && HasValidRun())
+            {
+                if (!PauseHandler.IsPaused)
+                {
+                    Play();
+                }
+                else
+                {
+                    Log("Game paused on level load. Queueing Ghost Playback.");
+                    wasPlayingBeforePause = true;
+                }
+            }
         }
 
         public void LoadBestGhost()
         {
             GhostRecorder.GhostRunData data; string path;
+
             if (GhostRecorder.TryLoadBestGhostForCurrentLevel(out data, out path))
             {
                 loadedRun = data;
@@ -213,9 +251,28 @@ namespace _Main.Scripts.Ghost
             nextFrameIndex = 1; playbackTime = 0f;
         }
 
-        public void Play() { if (!HasValidRun()) { Log("Play ignored: no run"); return; } EnsureGhostVisual(); isPlaying = true; Log("Play"); }
-        public void Pause() { isPlaying = false; Log("Pause"); }
-        public void Stop() { isPlaying = false; playbackTime = 0f; nextFrameIndex = 1; if (HasValidRun()) ApplyPose(0f, 0f); Log("Stop"); }
+        public void Play() 
+        { 
+            if (!HasValidRun()) { Log("Play ignored: no run"); return; } 
+            EnsureGhostVisual(); 
+            isPlaying = true; 
+            Log("Play"); 
+        }
+        
+        public void Pause() 
+        { 
+            isPlaying = false; 
+            Log("Pause"); 
+        }
+        
+        public void Stop() 
+        { 
+            isPlaying = false; 
+            playbackTime = 0f; 
+            nextFrameIndex = 1; 
+            if (HasValidRun()) ApplyPose(0f, 0f); 
+            Log("Stop"); 
+        }
 
         public void SetGhostVisible(bool visible)
         {
