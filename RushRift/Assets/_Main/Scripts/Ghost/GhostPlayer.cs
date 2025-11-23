@@ -16,6 +16,10 @@ namespace _Main.Scripts.Ghost
         [Header("Ghost Source")]
         [SerializeField] private bool autoLoadOnEnable = true;
 
+        [Header("Scene Filtering")]
+        [Tooltip("Exact names of gameplay scenes. Used to identify the correct level name.")]
+        [SerializeField] private List<string> allowedScenes = new List<string>();
+
         [Header("Ghost Visual")]
         [SerializeField] private GameObject ghostVisualPrefab;
         [SerializeField] private bool parentGhostUnderThis = true;
@@ -92,7 +96,6 @@ namespace _Main.Scripts.Ghost
         private void Awake()
         {
             _suppressBuildWarnings |= drawGizmos && gizmoMaxSegments >= 0;
-            
             _initialInspectorOffset = worldPositionOffset;
 
             if (enableProximityFade && proximityFadeMaterial)
@@ -115,7 +118,8 @@ namespace _Main.Scripts.Ghost
             EnsureGhostVisual();
             SetGhostVisible(initialGhostVisible);
             
-            if (beginPlaybackOnEnable && HasValidRun()) 
+            // Check by NAME now
+            if (beginPlaybackOnEnable && HasValidRun() && !string.IsNullOrEmpty(GetTargetLevelName())) 
             {
                 if (!PauseHandler.IsPaused) 
                     Play();
@@ -167,7 +171,6 @@ namespace _Main.Scripts.Ghost
                     Pause(); 
                 }
             }
-            
             else 
             { 
                 if (wasPlayingBeforePause && HasValidRun()) 
@@ -179,7 +182,7 @@ namespace _Main.Scripts.Ghost
 
         private void OnLevelReady()
         {
-            Log("OnLevelReady → reloading best ghost and resetting playback.");
+            Log("OnLevelReady → reloading best ghost.");
 
             PauseHandler.Detach(_onPause.Get());
             PauseHandler.Attach(_onPause.Get());
@@ -213,11 +216,28 @@ namespace _Main.Scripts.Ghost
             }
         }
 
+        // FIX: Helper to find the correct gameplay scene NAME
+        private string GetTargetLevelName()
+        {
+            if (allowedScenes != null && allowedScenes.Count > 0)
+            {
+                for (int i = 0; i < SceneManager.sceneCount; i++)
+                {
+                    Scene s = SceneManager.GetSceneAt(i);
+                    if (allowedScenes.Contains(s.name)) return s.name;
+                }
+            }
+            return SceneManager.GetActiveScene().name;
+        }
+
         public void LoadBestGhost()
         {
+            // FIX: Use Name logic
+            string levelName = GetTargetLevelName();
+            
             GhostRecorder.GhostRunData data; string path;
 
-            if (GhostRecorder.TryLoadBestGhostForCurrentLevel(out data, out path))
+            if (GhostRecorder.TryLoadBestGhostForLevel(levelName, out data, out path))
             {
                 loadedRun = data;
                 debugLoadedGhostPath = path;
@@ -237,7 +257,7 @@ namespace _Main.Scripts.Ghost
                 smoothedPos = f0.position + worldPositionOffset;
                 smoothedRot = f0.rotation;
 
-                Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) from: {debugLoadedGhostPath}");
+                Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) for {levelName} from: {debugLoadedGhostPath}");
             }
             else
             {
@@ -245,7 +265,7 @@ namespace _Main.Scripts.Ghost
                 framesCache.Clear();
                 cachedPositions.Clear();
                 debugLoadedGhostPath = "";
-                Log($"No BEST ghost found for level {SceneManager.GetActiveScene().buildIndex}");
+                Log($"No BEST ghost found for level {levelName}");
             }
 
             nextFrameIndex = 1; playbackTime = 0f;
