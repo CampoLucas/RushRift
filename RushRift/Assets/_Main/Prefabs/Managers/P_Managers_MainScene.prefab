@@ -192,12 +192,14 @@ MonoBehaviour:
   minPositionDeltaMeters: 0.002
   minRotationDeltaDegrees: 0.5
   maxRecordedFrames: 0
+  allowedScenes:
+  - Level01
+  - Level02
+  - Level03
   obeyPauseEvents: 1
   ghostsFolderName: ghosts
   fileNamePattern: level_{LEVEL}.ghost.json
-  drawGizmos: 1
-  gizmoSegments: 64
-  gizmoColor: {r: 0, g: 1, b: 0.6, a: 0.9}
+  showDebugUI: 1
 --- !u!114 &8413653734175230175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,6 +213,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoLoadOnEnable: 1
+  allowedScenes:
+  - Level01
+  - Level02
+  - Level03
   ghostVisualPrefab: {fileID: 6749424264282746718, guid: 93bda730e915353409f6b642d50abb99, type: 3}
   parentGhostUnderThis: 1
   worldPositionOffset: {x: 0, y: 0.8, z: 0}
