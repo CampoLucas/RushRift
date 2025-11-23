@@ -87,6 +87,10 @@ MonoBehaviour:
   minPositionDeltaMeters: 0.002
   minRotationDeltaDegrees: 0.5
   maxRecordedFrames: 0
+  allowedScenes:
+  - Level01
+  - Level02
+  - Level03
   obeyPauseEvents: 1
   ghostsFolderName: ghosts
   fileNamePattern: level_{LEVEL}.ghost.json
@@ -104,6 +108,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoLoadOnEnable: 1
+  allowedScenes:
+  - Level01
+  - Level02
+  - Level03
   ghostVisualPrefab: {fileID: 6749424264282746718, guid: 93bda730e915353409f6b642d50abb99, type: 3}
   parentGhostUnderThis: 1
   worldPositionOffset: {x: 0, y: 2, z: 0}
