@@ -4,6 +4,7 @@ using System.Linq;
 using Game.General;
 using Game.Levels;
 using Unity.VisualScripting;
+using UnityEngine.Video;
 
 namespace Game.UI.StateMachine
 {
@@ -82,14 +83,17 @@ namespace Game.UI.StateMachine
         public bool Unlocked { get; private set; }
         public bool PrevUnlocked { get; private set; }
         public float MedalTime { get; private set; }
+        
+        public VideoClip UpgradeVideo { get; private set; }
 
-        public MedalInfo(string medal, string upgrade, bool unlocked, bool prevUnlocked, float medalTime)
+        public MedalInfo(string medal, string upgrade, bool unlocked, bool prevUnlocked, float medalTime, VideoClip upgradeVideo)
         {
             Name = medal;
             UpgradeName = upgrade;
             Unlocked = unlocked;
             PrevUnlocked = prevUnlocked;
             MedalTime = medalTime;
+            UpgradeVideo = upgradeVideo;
         }
     }
 }
