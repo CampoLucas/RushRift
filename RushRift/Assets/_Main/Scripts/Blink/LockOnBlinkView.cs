@@ -1,68 +1,56 @@
+#if UNITY_EDITOR && BLINK_DEBUG_ENABLED
+#define BLINK_DEBUG
+#endif
+
 using Game;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Add the BLINK_DEBUG_ENABLED to allow debugs on the editor
+/// </summary>
 [DisallowMultipleComponent]
 public class LockOnBlinkView : MonoBehaviour
 {
     public enum DisplayMode { AutoShowHide, AlwaysVisible }
 
     [Header("Ability Reference")]
-    [SerializeField, Tooltip("LockOnBlink ability instance attached to the player. If empty, it will auto-bind on Start.")]
-    private LockOnBlink lockOnBlinkAbility;
+    [SerializeField] private LockOnBlink lockOnBlinkAbility;
 
     [Header("Progress (Radial)")]
-    [SerializeField, Tooltip("Filled radial Image that visualizes lock progress (0..1).")]
-    private Image lockProgressImage;
+    [SerializeField] private Image lockProgressImage;
+    [SerializeField] private DisplayMode progressDisplayMode = DisplayMode.AutoShowHide;
+    [SerializeField] private bool useUnscaledTimeForUi = true;
 
-    [SerializeField, Tooltip("Display behavior for the progress image.")]
-    private DisplayMode progressDisplayMode = DisplayMode.AutoShowHide;
+    [Tooltip("Keep the progress visible briefly after cancel (AutoShowHide mode).")]
+    [SerializeField] private float uiVisibilityGraceSeconds = 0.15f;
 
-    [SerializeField, Tooltip("If true, uses unscaled time for UI timing.")]
-    private bool useUnscaledTimeForUi = true;
-
-    [SerializeField, Tooltip("Keep the progress visible briefly after cancel (AutoShowHide mode).")]
-    private float uiVisibilityGraceSeconds = 0.15f;
-
-    [SerializeField, Tooltip("Radial fill origin for the progress image.")]
-    private Image.Origin360 radialFillOrigin = Image.Origin360.Top;
-
-    [SerializeField, Tooltip("If true, sets fill direction clockwise.")]
-    private bool radialFillClockwise = true;
+    [SerializeField] private Image.Origin360 radialFillOrigin = Image.Origin360.Top;
+    [SerializeField] private bool radialFillClockwise = true;
 
     [Header("Crosshair Sprites")]
-    [SerializeField, Tooltip("Image component used for the crosshair.")]
-    private Image crosshairImage;
-
-    [SerializeField, Tooltip("Sprite used when no lockable target is being aimed at.")]
-    private Sprite crosshairNormalSprite;
-
-    [SerializeField, Tooltip("Sprite used while aiming a valid lockable target.")]
-    private Sprite crosshairLockSprite;
+    [SerializeField] private Image crosshairImage;
+    [SerializeField] private Sprite crosshairNormalSprite;
+    [SerializeField] private Sprite crosshairLockSprite;
 
     [Header("Audio")]
-    [SerializeField, Tooltip("If enabled, plays a sound once when the aim first touches a valid lockable target.")]
-    private bool playTargetLockedSfx = true;
+    [Tooltip("If enabled, plays a sound once when the aim first touches a valid lockable target.")]
+    [SerializeField] private bool playTargetLockedSfx = true;
 
-    [SerializeField, Tooltip("Audio event name played when the aim first touches a lockable target.")]
-    private string targetLockedSfxEventName = "TargetLocked";
+    [Tooltip("Audio event name played when the aim first touches a lockable target.")]
+    [SerializeField] private string targetLockedSfxEventName = "TargetLocked";
 
-    [SerializeField, Tooltip("Minimum time between consecutive TargetLocked SFX plays.")]
-    private float targetLockedRetriggerCooldownSeconds = 0.15f;
+    [Tooltip("Minimum time between consecutive TargetLocked SFX plays.")]
+    [SerializeField] private float targetLockedRetriggerCooldownSeconds = 0.15f;
 
     [Header("Auto Setup")]
-    [SerializeField, Tooltip("If true and no progress image is assigned, fetches the first Image in children (inactive included).")]
-    private bool autoFindChildImageIfMissing = true;
+    [SerializeField] private bool autoFindChildImageIfMissing = true;
 
-    [Header("Debug")]
-    [SerializeField, Tooltip("Enable debug logs for the view.")]
-    private bool isDebugLoggingEnabled = false;
+    private bool _isProgressCurrentlyVisible;
+    private float _hideAtAbsoluteTime;
 
-    private bool isProgressCurrentlyVisible;
-    private float hideAtAbsoluteTime;
-
-    private bool lastHasLockableTarget;
-    private float nextTargetLockedAllowedTime;
+    private bool _lastHasLockableTarget;
+    private float _nextTargetLockedAllowedTime;
 
     private const string PlayerTag = "Player";
     private float Now => useUnscaledTimeForUi ? Time.unscaledTime : Time.time;
@@ -82,22 +70,22 @@ public class LockOnBlinkView : MonoBehaviour
         }
 
         ApplyInitialVisibility();
-        hideAtAbsoluteTime = 0f;
+        _hideAtAbsoluteTime = 0f;
         SetCrosshairLocked(null);
 
-        lastHasLockableTarget = false;
-        nextTargetLockedAllowedTime = 0f;
+        _lastHasLockableTarget = false;
+        _nextTargetLockedAllowedTime = 0f;
     }
 
     private void OnEnable()
     {
         EnsureSubscribed();
         ApplyInitialVisibility();
-        hideAtAbsoluteTime = 0f;
+        _hideAtAbsoluteTime = 0f;
         RefreshCrosshairImmediate();
 
-        lastHasLockableTarget = false;
-        nextTargetLockedAllowedTime = 0f;
+        _lastHasLockableTarget = false;
+        _nextTargetLockedAllowedTime = 0f;
     }
 
     private void Start()
@@ -112,16 +100,16 @@ public class LockOnBlinkView : MonoBehaviour
     {
         Unsubscribe();
         if (lockProgressImage) lockProgressImage.gameObject.SetActive(false);
-        isProgressCurrentlyVisible = false;
-        hideAtAbsoluteTime = 0f;
+        _isProgressCurrentlyVisible = false;
+        _hideAtAbsoluteTime = 0f;
 
         SetCrosshairLocked(null);
-        lastHasLockableTarget = false;
+        _lastHasLockableTarget = false;
     }
 
     private void Update()
     {
-        if (progressDisplayMode == DisplayMode.AutoShowHide && isProgressCurrentlyVisible && hideAtAbsoluteTime > 0f && Now >= hideAtAbsoluteTime)
+        if (progressDisplayMode == DisplayMode.AutoShowHide && _isProgressCurrentlyVisible && _hideAtAbsoluteTime > 0f && Now >= _hideAtAbsoluteTime)
             SetProgressVisible(false);
 
         bool canSwapCrosshair = lockOnBlinkAbility && lockOnBlinkAbility.IsAbilityAvailable();
@@ -134,19 +122,19 @@ public class LockOnBlinkView : MonoBehaviour
 
         if (!canSwapCrosshair)
         {
-            lastHasLockableTarget = false;
+            _lastHasLockableTarget = false;
             SetCrosshairLocked(null);
             return;
         }
 
-        if (playTargetLockedSfx && hasTarget && !lastHasLockableTarget && Now >= nextTargetLockedAllowedTime && !string.IsNullOrEmpty(targetLockedSfxEventName))
+        if (playTargetLockedSfx && hasTarget && !_lastHasLockableTarget && Now >= _nextTargetLockedAllowedTime && !string.IsNullOrEmpty(targetLockedSfxEventName))
         {
             AudioManager.Play(targetLockedSfxEventName);
-            nextTargetLockedAllowedTime = Now + Mathf.Max(0f, targetLockedRetriggerCooldownSeconds);
+            _nextTargetLockedAllowedTime = Now + Mathf.Max(0f, targetLockedRetriggerCooldownSeconds);
             Log("TargetLocked SFX played");
         }
 
-        lastHasLockableTarget = hasTarget;
+        _lastHasLockableTarget = hasTarget;
         SetCrosshairLocked(target);
     }
 
@@ -162,7 +150,7 @@ public class LockOnBlinkView : MonoBehaviour
         if (lockProgressImage)
         {
             lockProgressImage.fillAmount = 0f;
-            hideAtAbsoluteTime = 0f;
+            _hideAtAbsoluteTime = 0f;
             if (progressDisplayMode == DisplayMode.AutoShowHide) SetProgressVisible(true);
         }
         Log(target ? $"Lock started on {target.name}" : "Lock started");
@@ -172,15 +160,15 @@ public class LockOnBlinkView : MonoBehaviour
     {
         if (!lockProgressImage) return;
         lockProgressImage.fillAmount = Mathf.Clamp01(progress01);
-        hideAtAbsoluteTime = 0f;
-        if (progressDisplayMode == DisplayMode.AutoShowHide && !isProgressCurrentlyVisible) SetProgressVisible(true);
+        _hideAtAbsoluteTime = 0f;
+        if (progressDisplayMode == DisplayMode.AutoShowHide && !_isProgressCurrentlyVisible) SetProgressVisible(true);
     }
 
     private void HandleLockReady()
     {
         if (!lockProgressImage) return;
         lockProgressImage.fillAmount = 1f;
-        hideAtAbsoluteTime = 0f;
+        _hideAtAbsoluteTime = 0f;
         Log("Lock ready");
     }
 
@@ -189,13 +177,13 @@ public class LockOnBlinkView : MonoBehaviour
         if (!lockProgressImage) return;
         lockProgressImage.fillAmount = 0f;
         if (progressDisplayMode == DisplayMode.AutoShowHide)
-            hideAtAbsoluteTime = Now + Mathf.Max(0f, uiVisibilityGraceSeconds);
+            _hideAtAbsoluteTime = Now + Mathf.Max(0f, uiVisibilityGraceSeconds);
         Log("Lock canceled");
     }
 
     private void HandleBlinkExecuted(Vector3 destination)
     {
-        hideAtAbsoluteTime = 0f;
+        _hideAtAbsoluteTime = 0f;
         Log($"Blink executed to {destination}");
     }
 
@@ -219,7 +207,7 @@ public class LockOnBlinkView : MonoBehaviour
     {
         if (!lockProgressImage) return;
         lockProgressImage.gameObject.SetActive(visible);
-        isProgressCurrentlyVisible = visible;
+        _isProgressCurrentlyVisible = visible;
     }
 
     private void EnsureSubscribed()
@@ -257,9 +245,9 @@ public class LockOnBlinkView : MonoBehaviour
         RefreshCrosshairImmediate();
     }
 
+    [System.Diagnostics.Conditional("BLINK_DEBUG")]
     private void Log(string msg)
     {
-        if (!isDebugLoggingEnabled) return;
         Debug.Log($"[LockOnBlinkView] {name}: {msg}", this);
     }
 }

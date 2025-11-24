@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3921474168298658905
+--- !u!114 &-4499261882103817845
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,12 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a23b831b3605474188c45d48c5358411, type: 3}
-  m_Name: ChangeMaxValue
+  m_Script: {fileID: 11500000, guid: 3939d7d4868e48e093891a239e0996a4, type: 3}
+  m_Name: CT_LevelChanged
   m_EditorClassIdentifier: 
-  attribute: 0
-  percentage: 1
-  amount: 30
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24,19 +21,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8c6f6fd0a67401b875e86fed2d0bca3, type: 3}
-  m_Name: IncreaseMaxHealth
+  m_Script: {fileID: 11500000, guid: 5dcd8a3eb18c49ef9d7722c5f7f1acfb, type: 3}
+  m_Name: Crosshair_Default
   m_EditorClassIdentifier: 
-  effectName: 
-  duration: 0
-  removeWhenApplied: 0
-  detachWhenApplied: 1
-  strategy:
-    collection:
-    - {fileID: -3921474168298658905}
+  sprite: {fileID: 21300000, guid: 0ce5025d20a3c0e48a103b59dff87b31, type: 3}
+  alpha: 0.3
   startTriggers:
-    collection: []
+    collection:
+    - {fileID: -4499261882103817845}
   stopTriggers:
-    collection: []
-  removeTriggers:
     collection: []

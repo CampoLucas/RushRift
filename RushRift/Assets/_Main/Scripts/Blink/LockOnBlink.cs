@@ -1,9 +1,12 @@
+using System;
 using _Main.Scripts.Feedbacks;
 using UnityEngine;
 using Game;
+using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
 using Game.InputSystem;
+using Game.Levels;
 
 [DisallowMultipleComponent]
 public class LockOnBlink : MonoBehaviour
@@ -11,6 +14,10 @@ public class LockOnBlink : MonoBehaviour
     public enum OffsetSpace { World, TargetLocal }
     public enum TimeMode { Scaled, Unscaled }
     public enum LockStartMode { Automatic, OnKeyHold, OnKeyPress }
+
+    public static readonly Subject<bool> LockActiveSubject = new();
+    public static readonly Subject<bool> HasTargetSubject = new();
+    public static readonly Subject<bool> AimHasLockableSubject = new();
 
     [Header("Upgrade Gate")]
     [SerializeField, Tooltip("Read-only: reflects whether the ability is currently usable, considering medal/override gate.")]
@@ -172,6 +179,11 @@ public class LockOnBlink : MonoBehaviour
     private Vector3 _lastTargetDirFromCam;
 
     private bool _lockFxActive;
+    private bool _lastHasTarget;
+    private bool _lastAimHasLockable;
+
+    private NullCheck<ActionObserver<BaseLevelSO>> OnLevelReady;
+    private NullCheck<ActionObserver<BaseLevelSO>> OnLevelPreload;
 
     private float Now => timeMode == TimeMode.Unscaled ? Time.unscaledTime : Time.time;
 
@@ -207,6 +219,59 @@ public class LockOnBlink : MonoBehaviour
         if (!playerRigidbody) playerRigidbody = GetComponent<Rigidbody>();
         spherecastMaxHits = Mathf.Max(8, spherecastMaxHits);
         _hitsBuffer = new RaycastHit[spherecastMaxHits];
+
+
+        if (OnLevelPreload.TryGet(out var subject, () => new ActionObserver<BaseLevelSO>(OnLevelPreloadHandler)))
+        {
+            GameEntry.LoadingState.AttachOnPreload(subject);
+        }
+        
+        if (OnLevelReady.TryGet(out subject, () => new ActionObserver<BaseLevelSO>(OnLevelReadyHandler)))
+        {
+            GameEntry.LoadingState.AttachOnReady(subject);
+        }
+    }
+
+    private void OnLevelPreloadHandler(BaseLevelSO level)
+    {
+        enabled = false;
+        
+        // Reset internal state
+        ResetLockState(true);
+        ReleaseSlowMoIfOwned();
+        
+        // Reset Last-known values
+        _chargingActive = false;
+        _chargingTarget = null;
+        _currentTarget = null;
+        _lastHasTarget = false;
+        _lastAimHasLockable = false;
+        
+        // Clear all subjects so UI goes back to default
+        LockActiveSubject.NotifyAll(false);
+        HasTargetSubject.NotifyAll(false);
+        AimHasLockableSubject.NotifyAll(false);
+    }
+
+    private void OnLevelReadyHandler(BaseLevelSO level)
+    {
+        // Reset all internal ability state BEFORE enabling
+        ResetLockState(true);
+        ReleaseSlowMoIfOwned();
+
+        _chargingActive = false;
+        _chargingTarget = null;
+        _currentTarget = null;
+        _lastHasTarget = false;
+        _lastAimHasLockable = false;
+
+        // Reset subjects so the ability starts "quiet"
+        LockActiveSubject.NotifyAll(false);
+        HasTargetSubject.NotifyAll(false);
+        AimHasLockableSubject.NotifyAll(false);
+
+        // Finally re-enable the script
+        enabled = true;
     }
 
     private void OnDisable()
@@ -221,29 +286,50 @@ public class LockOnBlink : MonoBehaviour
         {
             ResetLockState(true);
             ReleaseSlowMoIfOwned();
+            
+            // Make sure to clear the aim subject when disabled
+            UpdateAimSubject(forceClear: true);
             return;
         }
 
         HandleChargingInput();
         TickLocking();
+        
         if (InputManager.GetActionPerformed(InputManager.Input.Blink))
         {
             TryPerformBlink();
-            Debug.Log("Blink LLamado");
-        } 
+        }
 
-        //if (lockStartMode == LockStartMode.OnKeyHold)
-        //{
-        //    if (lockKey != KeyCode.None && Input.GetKeyUp(lockKey))
-        //    {
-        //        if (_readyToBlink) { TryPerformBlink(); }
-        //        else { StopLockAudioNow(); ResetLockState(true); ReleaseSlowMoIfOwned(); }
-        //    }
-        //}
-        //else
-        //{
-        //    if (blinkKey != KeyCode.None && Input.GetKeyDown(blinkKey)) TryPerformBlink();
-        //}
+        UpdateAimSubject();
+    }
+    
+    private void UpdateAimSubject(bool forceClear = false)
+    {
+        Transform aimedTarget = null;
+
+        if (!forceClear)
+        {
+            // reuse your existing probe logic
+            // aimedTarget = ProbeAimedLockableTarget();
+
+            var raw = AcquireTargetRaw();
+            var canonical = CanonicalizeTarget(raw);
+
+            if (enableTargetStickiness)
+            {
+                canonical = ApplyStickiness(canonical);
+            }
+
+            aimedTarget = canonical;
+        }
+
+        var hasLockableNow = aimedTarget != null;
+
+        if (hasLockableNow != _lastAimHasLockable)
+        {
+            _lastAimHasLockable = hasLockableNow;
+            AimHasLockableSubject.NotifyAll(hasLockableNow);
+        }
     }
 
     private void HandleChargingInput()
@@ -298,6 +384,13 @@ public class LockOnBlink : MonoBehaviour
         }
 
         _currentTarget = canonical;
+        var hasTargetNow = _currentTarget != null;
+        var hadTargetBefore = _lastHasTarget;
+        if (hasTargetNow != hadTargetBefore)
+        {
+            HasTargetSubject.NotifyAll(hasTargetNow);
+        }
+        _lastHasTarget = hasTargetNow;
 
         if (!_currentTarget)
         {
@@ -311,6 +404,8 @@ public class LockOnBlink : MonoBehaviour
 
         if (_chargingTarget != _currentTarget)
         {
+            LockActiveSubject.NotifyAll(true);
+            
             _chargingTarget = _currentTarget;
             _lockTimer = 0f;
             _readyToBlink = false;
@@ -478,7 +573,12 @@ public class LockOnBlink : MonoBehaviour
             _chargingTarget = null;
             _currentTarget = null;
         }
-        if (wasCharging) OnLockCanceled?.Invoke();
+
+        if (wasCharging)
+        {
+            OnLockCanceled?.Invoke();
+            LockActiveSubject.NotifyAll(false);
+        }
         if (enableLockVisualFx) StopLockVisualFx();
         StopLockMusicLowPass();
         StopLockAudioNow();
@@ -544,4 +644,20 @@ public class LockOnBlink : MonoBehaviour
         if (_lastBlinkDestination != default) Gizmos.DrawWireCube(_lastBlinkDestination, Vector3.one * 0.2f);
     }
 #endif
+
+    private void OnDestroy()
+    {
+        if (OnLevelPreload.TryGet(out var subject))
+        {
+            GameEntry.LoadingState.DetachOnPreload(subject);
+        }
+        
+        if (OnLevelReady.TryGet(out subject))
+        {
+            GameEntry.LoadingState.DetachOnReady(subject);
+        }
+        
+        LockActiveSubject.DetachAll();
+        HasTargetSubject.DetachAll();
+    }
 }
