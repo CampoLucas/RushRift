@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Video;
 
 namespace Game.Entities
 {
@@ -13,6 +14,10 @@ namespace Game.Entities
         [SerializeField] private float duration;
         [SerializeField] private bool removeWhenApplied = false;
         [SerializeField] private bool detachWhenApplied = true;
+        
+        [Header("UI")]
+        [SerializeField] private VideoClip popUpVideo;
+        public VideoClip PopUpVideo => popUpVideo;
         
         [Header("Effects")]
         [SerializeField] private SerializableSOCollection<EffectStrategy> strategy;
