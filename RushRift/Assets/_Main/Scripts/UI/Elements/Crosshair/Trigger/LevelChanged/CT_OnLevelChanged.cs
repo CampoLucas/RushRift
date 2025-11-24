@@ -1,7 +1,6 @@
-using Game.DesignPatterns.Observers;
 using Game.Entities;
 
-namespace Game.UI.Elements.Crosshair.LevelChanged
+namespace Game.UI.Elements.Crosshair
 {
     public class CT_LevelChanged : CrosshairTrigger
     {

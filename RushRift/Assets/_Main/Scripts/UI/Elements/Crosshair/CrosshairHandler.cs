@@ -10,7 +10,7 @@ namespace Game.UI.Elements.Crosshair
     public class CrosshairHandler : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private Image img;
+        [SerializeField] private Transform viewRoot;
         
         [Header("Crosshair States")]
         [SerializeField] private CrosshairID root;
@@ -20,6 +20,7 @@ namespace Game.UI.Elements.Crosshair
         private List<CrosshairStateInstance> _instances = new();
         private CrosshairID _currentID;
         private NullCheck<CrosshairStateInstance> _current;
+        private NullCheck<CrosshairView> _activeView;
 
         private void Start()
         {
@@ -53,31 +54,87 @@ namespace Game.UI.Elements.Crosshair
                 return;
             }
 
-            if (!_lookup.TryGetValue(id, out var state))
+            if (!_lookup.TryGetValue(id, out var newState))
             {
                 this.Log($"Unknown id '{id}'", LogType.Warning);
                 return;
             }
 
-            if (_current.TryGet(out var current))
+            // End previous state
+            if (_current.TryGet(out var prevState))
             {
-                current.End();
+                prevState.End();
+                
+                // Hide previous view
+                if (_activeView.TryGet(out var prevView))
+                {
+                    prevView.Hide();
+                }
             }
 
             _currentID = id;
-            _current = state;
+            _current = newState;
             
-            state.Start();
+            // Start new state
+            newState.Start();
             
-            img.sprite = state.Sprite;
-            var color = img.color;
-            color.a = state.Alpha;
-            img.color = color;
+            // Get or create the view instance for this state
+            var view = newState.GetView(viewRoot, PlayerSpawner.Player.Get());
+            if (view != null)
+            {
+                view.Show();
+                _activeView = view;
+            }
+            else
+            {
+                _activeView = null;
+            }
         }
 
         public void Stop()
         {
             Set(root);
+        }
+        
+        private void OnDestroy()
+        {
+            // End current state safely
+            if (_current.TryGet(out var currentState))
+            {
+                currentState.End();
+            }
+
+            // Hide and destroy active view
+            if (_activeView.TryGet(out var active))
+            {
+                active.Hide();
+                Destroy(active.gameObject);
+                _activeView = null;
+            }
+
+            // Dispose all state instances
+            foreach (var inst in _instances)
+            {
+                if (inst != null)
+                {
+                    // Remove trigger listeners
+                    inst.OnStartRequested = null;
+                    inst.OnStopRequested = null;
+
+                    inst.Dispose();
+
+                    // Destroy their views if they were created
+                    var view = inst.GetView(viewRoot, PlayerSpawner.Player.Get());
+                    if (view != null)
+                    {
+                        view.Hide();
+                        Destroy(view.gameObject);
+                    }
+                }
+            }
+
+            _lookup.Clear();
+            _instances.Clear();
         }
     }
 }

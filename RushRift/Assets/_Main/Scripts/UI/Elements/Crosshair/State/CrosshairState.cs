@@ -7,12 +7,10 @@ namespace Game.UI.Elements.Crosshair
     [CreateAssetMenu(menuName = "Game/UI/Crosshair")]
     public class CrosshairState : ScriptableObject
     {
-        public Sprite Sprite => sprite;
-        public float Alpha => Mathf.Clamp01(alpha);
+        public CrosshairView ViewPrefab => view;
         
         [Header("Visuals")]
-        [SerializeField] private Sprite sprite;
-        [SerializeField, Range(0, 1)] private float alpha;
+        [SerializeField] private CrosshairView view;
 
         [Header("Triggers")]
         [SerializeField] private SerializableSOCollection<CrosshairTrigger> startTriggers;

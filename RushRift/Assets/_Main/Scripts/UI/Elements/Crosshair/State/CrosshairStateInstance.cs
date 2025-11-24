@@ -2,20 +2,19 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Game.UI.Elements.Crosshair
 {
     public class CrosshairStateInstance : IDisposable
     {
-        public Sprite Sprite => _state.Sprite;
-        public float Alpha => _state.Alpha;
-        
-        public event Action OnStartRequested;
-        public event Action OnStopRequested;
+        public Action OnStartRequested;
+        public Action OnStopRequested;
         
         private readonly CrosshairState _state;
         private readonly TriggerCollection _start;
         private readonly TriggerCollection _stop;
+        private CrosshairView _view;
 
         private IObserver _onStart;
         private IObserver _onStop;
@@ -66,6 +65,19 @@ namespace Game.UI.Elements.Crosshair
             }
         }
 
+        public CrosshairView GetView(Transform parent, IController controller)
+        {
+            if (_view)
+                return _view;
+
+            if (_state.ViewPrefab == null)
+                return null;
+
+            _view = UnityEngine.Object.Instantiate(_state.ViewPrefab, parent);
+            _view.Initialize(controller);
+            return _view;
+        }
+
         private void OnStartHandler()
         {
             OnStartRequested?.Invoke();
@@ -81,10 +93,12 @@ namespace Game.UI.Elements.Crosshair
             _start.Dispose();
             _stop.Dispose();
             
-            _onStart.Dispose();
+            _onStart?.Dispose();
             _onStart = null;
-            _onStop.Dispose();
+            _onStop?.Dispose();
             _onStop = null;
+
+            _view = null;
         }
     }
 }
