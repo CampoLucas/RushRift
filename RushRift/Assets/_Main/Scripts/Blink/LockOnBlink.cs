@@ -18,6 +18,7 @@ public class LockOnBlink : MonoBehaviour
     public static readonly Subject<bool> LockActiveSubject = new();
     public static readonly Subject<bool> HasTargetSubject = new();
     public static readonly Subject<bool> AimHasLockableSubject = new();
+    public static readonly Subject<float> ChargeAmount = new();
 
     [Header("Upgrade Gate")]
     [SerializeField, Tooltip("Read-only: reflects whether the ability is currently usable, considering medal/override gate.")]
@@ -251,6 +252,7 @@ public class LockOnBlink : MonoBehaviour
         LockActiveSubject.NotifyAll(false);
         HasTargetSubject.NotifyAll(false);
         AimHasLockableSubject.NotifyAll(false);
+        ChargeAmount.NotifyAll(0);
     }
 
     private void OnLevelReadyHandler(BaseLevelSO level)
@@ -269,6 +271,7 @@ public class LockOnBlink : MonoBehaviour
         LockActiveSubject.NotifyAll(false);
         HasTargetSubject.NotifyAll(false);
         AimHasLockableSubject.NotifyAll(false);
+        ChargeAmount.NotifyAll(0);
 
         // Finally re-enable the script
         enabled = true;
@@ -295,7 +298,8 @@ public class LockOnBlink : MonoBehaviour
         HandleChargingInput();
         TickLocking();
         
-        if (InputManager.GetActionPerformed(InputManager.Input.Blink))
+        if (lockStartMode != LockStartMode.OnKeyPress 
+            && InputManager.GetActionPerformed(InputManager.Input.Blink))
         {
             TryPerformBlink();
         }
@@ -410,6 +414,7 @@ public class LockOnBlink : MonoBehaviour
             _lockTimer = 0f;
             _readyToBlink = false;
             OnLockStarted?.Invoke(_chargingTarget);
+            ChargeAmount.NotifyAll(0f);
             OnLockProgressChanged?.Invoke(0f);
             if (shouldPlayLockChargingSfx && !string.IsNullOrEmpty(lockChargingSfxEventName)) AudioManager.Play(lockChargingSfxEventName);
             if (enableLockVisualFx) StartLockVisualFx();
@@ -421,11 +426,13 @@ public class LockOnBlink : MonoBehaviour
         {
             _lockTimer += Dt;
             float t = Mathf.Clamp01(_lockTimer / Mathf.Max(0.0001f, lockOnTimeSeconds));
+            ChargeAmount.NotifyAll(t);
             OnLockProgressChanged?.Invoke(t);
 
             if (_lockTimer >= lockOnTimeSeconds)
             {
                 _readyToBlink = true;
+                ChargeAmount.NotifyAll(1f);
                 OnLockProgressChanged?.Invoke(1f);
                 OnLockReady?.Invoke();
                 Log("Lock ready");
@@ -565,9 +572,11 @@ public class LockOnBlink : MonoBehaviour
 
     private void ResetLockState(bool hardReset = false)
     {
-        bool wasCharging = _chargingTarget != null || _currentTarget != null || _readyToBlink || _lockTimer > 0f;
+        var wasCharging = _chargingTarget != null || _currentTarget != null || _readyToBlink || _lockTimer > 0f;
+        
         _lockTimer = 0f;
         _readyToBlink = false;
+        
         if (hardReset)
         {
             _chargingTarget = null;
@@ -576,9 +585,15 @@ public class LockOnBlink : MonoBehaviour
 
         if (wasCharging)
         {
-            OnLockCanceled?.Invoke();
+            ChargeAmount.NotifyAll(0f);
             LockActiveSubject.NotifyAll(false);
+            
+            HasTargetSubject.NotifyAll(false);
+            AimHasLockableSubject.NotifyAll(false);
+            OnLockCanceled?.Invoke();
+            //LockActiveSubject.NotifyAll(false);
         }
+        
         if (enableLockVisualFx) StopLockVisualFx();
         StopLockMusicLowPass();
         StopLockAudioNow();
@@ -659,5 +674,7 @@ public class LockOnBlink : MonoBehaviour
         
         LockActiveSubject.DetachAll();
         HasTargetSubject.DetachAll();
+        AimHasLockableSubject.DetachAll();
+        ChargeAmount.DetachAll();
     }
 }

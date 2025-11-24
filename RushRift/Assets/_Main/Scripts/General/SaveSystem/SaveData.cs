@@ -217,13 +217,27 @@ namespace Game.Saves
             private set => _sound = value;
         }
 
+        public CustomSettings Custom
+        {
+            get => _custom ??= new CustomSettings();
+            private set => _custom = value;
+        }
+
         public SettingsData()
         {
             Version = Application.version;
         }
+        
 
         private CameraSettings _camera = new();
         private SoundSettings _sound = new();
+        private CustomSettings _custom = new();
+
+        public static Color GetBlinkChargeColor()
+        {
+            var settings = SaveSystem.LoadSettings();
+            return settings.Custom.blinkChargeColor;
+        }
     }
 
     [Serializable]
@@ -264,6 +278,12 @@ namespace Game.Saves
         public float masterVolume = 1;
         public float musicVolume = 1;
         public float sfxVolume = 1;
+    }
+
+    [Serializable]
+    public class CustomSettings
+    {
+        public Color blinkChargeColor = Color.red;
     }
 }
 
