@@ -45,18 +45,13 @@ namespace Game.UI.StateMachine
             if (_begun) return;
             _begun = true;
             base.Begin();
-
-            // Set Cursor
+            
             if(Gamepad.current == null)
             {
                 CursorHandler.lockState = CursorLockMode.None;
                 CursorHandler.visible = true;
             }
-            
-
-
-            //Model.Reset();
-
+  
             SetModelValues(Model);
             UpdateSaveData(Model);
             CheckTime(Model);
