@@ -59,8 +59,12 @@ public class HoverVideoFade : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         float start = _currentAlpha;
         float end = visible ? 1f : 0f;
 
-        if (visible && videoPlayer != null && !videoPlayer.isPlaying)
+        if (visible && videoPlayer != null)
         {
+            // Always restart video on hover
+            videoPlayer.Stop();
+            videoPlayer.time = 0;
+            videoPlayer.frame = 0;
             videoPlayer.Play();
         }
 
@@ -69,7 +73,7 @@ public class HoverVideoFade : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
         while (time < duration)
         {
-            time += Time.unscaledDeltaTime; // UI independent of Time.timeScale
+            time += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(time / duration);
             _currentAlpha = Mathf.Lerp(start, end, t);
             ApplyAlpha(_currentAlpha);
