@@ -159,12 +159,6 @@ public class LockOnBlink : MonoBehaviour
 
     private RaycastHit[] _hitsBuffer;
     private Camera _aimCam;
-    private bool _slowMoActive;
-
-    private static int s_slowMoOwners;
-    private static float s_originalTimeScale = 1f;
-    private static float s_originalFixedDelta = 0.02f;
-    private static bool s_originalCaptured;
 
     private float _lastSeenTargetAtTime;
     private float _lastTargetDistance;
@@ -174,8 +168,8 @@ public class LockOnBlink : MonoBehaviour
     private bool _lastHasTarget;
     private bool _lastAimHasLockable;
 
-    private NullCheck<ActionObserver<BaseLevelSO>> OnLevelReady;
-    private NullCheck<ActionObserver<BaseLevelSO>> OnLevelPreload;
+    private NullCheck<ActionObserver<BaseLevelSO>> _levelReadyObserver;
+    private NullCheck<ActionObserver<BaseLevelSO>> _levelPreloadObserver;
     
     private float _aimLostTime;
 
@@ -206,12 +200,12 @@ public class LockOnBlink : MonoBehaviour
         _hitsBuffer = new RaycastHit[spherecastMaxHits];
 
 
-        if (OnLevelPreload.TryGet(out var subject, () => new ActionObserver<BaseLevelSO>(OnLevelPreloadHandler)))
+        if (_levelPreloadObserver.TryGet(out var subject, () => new ActionObserver<BaseLevelSO>(OnLevelPreloadHandler)))
         {
             GameEntry.LoadingState.AttachOnPreload(subject);
         }
         
-        if (OnLevelReady.TryGet(out subject, () => new ActionObserver<BaseLevelSO>(OnLevelReadyHandler)))
+        if (_levelReadyObserver.TryGet(out subject, () => new ActionObserver<BaseLevelSO>(OnLevelReadyHandler)))
         {
             GameEntry.LoadingState.AttachOnReady(subject);
         }
@@ -627,15 +621,18 @@ public class LockOnBlink : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (OnLevelPreload.TryGet(out var subject))
+        if (_levelPreloadObserver.TryGet(out var subject))
         {
             GameEntry.LoadingState.DetachOnPreload(subject);
         }
         
-        if (OnLevelReady.TryGet(out subject))
+        if (_levelReadyObserver.TryGet(out subject))
         {
             GameEntry.LoadingState.DetachOnReady(subject);
         }
+        
+        _levelReadyObserver.Dispose();
+        _levelPreloadObserver.Dispose();
         
         LockActiveSubject.DetachAll();
         HasTargetSubject.DetachAll();
