@@ -40,16 +40,6 @@ public class LockOnBlink : MonoBehaviour
     [SerializeField, Tooltip("Time system for general timing.")]
     private TimeMode timeMode = TimeMode.Scaled;
 
-    [Header("Slow Motion While Locking")]
-    [SerializeField, Tooltip("If enabled, time slows while the lock is charging.")]
-    private bool slowTimeWhileCharging = true;
-    [SerializeField, Tooltip("Time.timeScale while charging.")]
-    private float slowTimeScale = 0.2f;
-    [SerializeField, Tooltip("Also scale FixedDeltaTime while slowed.")]
-    private bool adjustFixedDeltaWhileSlowed = true;
-    [SerializeField, Tooltip("Use Unscaled delta time for the lock timer while slowed.")]
-    private bool useUnscaledForLockTimerWhenSlowed = true;
-
     [Header("Targeting")]
     [SerializeField, Tooltip("Camera used to aim the lock. If empty, main camera is used.")]
     private Transform aimCameraTransform;
@@ -95,6 +85,7 @@ public class LockOnBlink : MonoBehaviour
     private bool snapRotationToTarget = true;
     [SerializeField, Tooltip("If enabled, resets velocity of a Rigidbody (if present) after teleport.")]
     private bool zeroOutRigidbodyVelocity = true;
+    [SerializeField] private float aimGrace = 0.1f;
 
     [Header("On-Blink Kill")]
     [SerializeField, Tooltip("If enabled, the target you blink to will be destroyed.")]
@@ -185,17 +176,10 @@ public class LockOnBlink : MonoBehaviour
 
     private NullCheck<ActionObserver<BaseLevelSO>> OnLevelReady;
     private NullCheck<ActionObserver<BaseLevelSO>> OnLevelPreload;
+    
+    private float _aimLostTime;
 
     private float Now => timeMode == TimeMode.Unscaled ? Time.unscaledTime : Time.time;
-
-    private float Dt
-    {
-        get
-        {
-            if (slowTimeWhileCharging && _slowMoActive && useUnscaledForLockTimerWhenSlowed) return Time.unscaledDeltaTime;
-            return timeMode == TimeMode.Unscaled ? Time.unscaledDeltaTime : Time.deltaTime;
-        }
-    }
 
     private bool IsAbilityEnabled()
     {
@@ -239,7 +223,6 @@ public class LockOnBlink : MonoBehaviour
         
         // Reset internal state
         ResetLockState(true);
-        ReleaseSlowMoIfOwned();
         
         // Reset Last-known values
         _chargingActive = false;
@@ -259,7 +242,6 @@ public class LockOnBlink : MonoBehaviour
     {
         // Reset all internal ability state BEFORE enabling
         ResetLockState(true);
-        ReleaseSlowMoIfOwned();
 
         _chargingActive = false;
         _chargingTarget = null;
@@ -280,7 +262,6 @@ public class LockOnBlink : MonoBehaviour
     private void OnDisable()
     {
         ResetLockState(true);
-        ReleaseSlowMoIfOwned();
     }
 
     private void Update()
@@ -288,7 +269,6 @@ public class LockOnBlink : MonoBehaviour
         if (!IsAbilityEnabled())
         {
             ResetLockState(true);
-            ReleaseSlowMoIfOwned();
             
             // Make sure to clear the aim subject when disabled
             UpdateAimSubject(forceClear: true);
@@ -313,27 +293,41 @@ public class LockOnBlink : MonoBehaviour
 
         if (!forceClear)
         {
-            // reuse your existing probe logic
-            // aimedTarget = ProbeAimedLockableTarget();
-
             var raw = AcquireTargetRaw();
             var canonical = CanonicalizeTarget(raw);
-
-            if (enableTargetStickiness)
-            {
-                canonical = ApplyStickiness(canonical);
-            }
 
             aimedTarget = canonical;
         }
 
-        var hasLockableNow = aimedTarget != null;
+        var hasNow = aimedTarget != null;
 
-        if (hasLockableNow != _lastAimHasLockable)
+        if (!hasNow)
         {
-            _lastAimHasLockable = hasLockableNow;
-            AimHasLockableSubject.NotifyAll(hasLockableNow);
+            // target lost this frame → start timer
+            _aimLostTime += Time.deltaTime;
+            if (_aimLostTime < aimGrace)
+            {
+                // still inside grace → pretend we still have aim
+                hasNow = _lastAimHasLockable;
+            }
         }
+        else
+        {
+            // target reacquired → reset timer
+            _aimLostTime = 0f;
+        }
+
+        if (hasNow != _lastAimHasLockable)
+        {
+            _lastAimHasLockable = hasNow;
+            AimHasLockableSubject.NotifyAll(hasNow);
+        }
+        
+        // if (hasNow != _lastAimHasLockable)
+        // {
+        //     _lastAimHasLockable = hasNow;
+        //     AimHasLockableSubject.NotifyAll(hasNow);
+        // }
     }
 
     private void HandleChargingInput()
@@ -353,7 +347,7 @@ public class LockOnBlink : MonoBehaviour
             //}
             case LockStartMode.OnKeyPress:
                 if (InputManager.GetActionPerformed(InputManager.Input.Blink)) _chargingActive = !_chargingActive;
-                if (!_chargingActive) { ResetLockState(); ReleaseSlowMoIfOwned(); }
+                if (!_chargingActive) { ResetLockState(); }
                 break;
         }
     }
@@ -364,7 +358,6 @@ public class LockOnBlink : MonoBehaviour
         {
             StopLockAudioNow();
             ResetLockState();
-            ReleaseSlowMoIfOwned();
             return;
         }
 
@@ -374,7 +367,6 @@ public class LockOnBlink : MonoBehaviour
             {
                 StopLockAudioNow();
                 ResetLockState();
-                ReleaseSlowMoIfOwned();
             }
             return;
         }
@@ -400,11 +392,8 @@ public class LockOnBlink : MonoBehaviour
         {
             StopLockAudioNow();
             ResetLockState();
-            ReleaseSlowMoIfOwned();
             return;
         }
-
-        if (slowTimeWhileCharging && !_slowMoActive) AcquireSlowMo();
 
         if (_chargingTarget != _currentTarget)
         {
@@ -424,7 +413,7 @@ public class LockOnBlink : MonoBehaviour
 
         if (!_readyToBlink)
         {
-            _lockTimer += Dt;
+            _lockTimer += Time.deltaTime;
             float t = Mathf.Clamp01(_lockTimer / Mathf.Max(0.0001f, lockOnTimeSeconds));
             ChargeAmount.NotifyAll(t);
             OnLockProgressChanged?.Invoke(t);
@@ -454,8 +443,18 @@ public class LockOnBlink : MonoBehaviour
     
     private Transform AcquireTargetRaw()
     {
-        return LockOnBlinkUtilities.AcquireTargetRaw(_aimCam, GetDynamicLockRadius(), maxLockDistance, targetLayers, requiredTargetTag, requireLineOfSight, _hitsBuffer);
-    }
+        var radius = crosshairProbeUsesBaseRadius
+            ? lockSphereRadius
+            : GetDynamicLockRadius();
+
+        return LockOnBlinkUtilities.AcquireTargetRaw(
+            _aimCam,
+            radius,
+            maxLockDistance,
+            targetLayers,
+            requiredTargetTag,
+            requireLineOfSight,
+            _hitsBuffer);    }
 
     private Transform CanonicalizeTarget(Transform tr)
     {
@@ -470,7 +469,7 @@ public class LockOnBlink : MonoBehaviour
     private void TryPerformBlink()
     {
         if (!_readyToBlink) { Log("Blink ignored: lock not ready"); return; }
-        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(true); ReleaseSlowMoIfOwned(); return; }
+        if (!_currentTarget) { Log("Blink ignored: no target"); ResetLockState(true); return; }
         if (Now < _cooldownUntil) { Log("Blink ignored: on cooldown"); return; }
 
         PerformBlink(_currentTarget);
@@ -481,7 +480,6 @@ public class LockOnBlink : MonoBehaviour
         if (lockStartMode != LockStartMode.Automatic) _chargingActive = false;
 
         ResetLockState(true);
-        ReleaseSlowMoIfOwned();
     }
 
     private void PerformBlink(Transform target)
@@ -535,39 +533,6 @@ public class LockOnBlink : MonoBehaviour
     private float GetDynamicLockRadius()
     {
         return LockOnBlinkUtilities.ComputeDynamicLockRadius(_chargingActive, lockOnTimeSeconds, _lockTimer, lockSphereRadius, lockSphereRadiusWhileCharging, lockRadiusRamp);
-    }
-
-    private void AcquireSlowMo()
-    {
-        if (_slowMoActive) return;
-        if (!s_originalCaptured)
-        {
-            s_originalCaptured = true;
-            s_originalTimeScale = Time.timeScale;
-            s_originalFixedDelta = Time.fixedDeltaTime;
-        }
-        s_slowMoOwners++;
-        _slowMoActive = true;
-        Time.timeScale = Mathf.Clamp(slowTimeScale, 0.01f, 1f);
-        if (adjustFixedDeltaWhileSlowed) Time.fixedDeltaTime = s_originalFixedDelta * Time.timeScale;
-        Log($"SlowMo ON (owners={s_slowMoOwners}, scale={Time.timeScale:0.###})");
-    }
-
-    private void ReleaseSlowMoIfOwned()
-    {
-        if (!_slowMoActive) return;
-        _slowMoActive = false;
-        s_slowMoOwners = Mathf.Max(0, s_slowMoOwners - 1);
-        if (s_slowMoOwners == 0)
-        {
-            Time.timeScale = s_originalTimeScale;
-            if (adjustFixedDeltaWhileSlowed) Time.fixedDeltaTime = s_originalFixedDelta;
-            Log("SlowMo OFF (restored original scales)");
-        }
-        else
-        {
-            Log($"SlowMo owner released (owners remaining={s_slowMoOwners})");
-        }
     }
 
     private void ResetLockState(bool hardReset = false)
