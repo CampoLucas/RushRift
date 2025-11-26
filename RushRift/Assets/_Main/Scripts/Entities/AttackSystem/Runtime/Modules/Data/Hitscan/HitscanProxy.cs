@@ -86,7 +86,6 @@ namespace Game.Entities.AttackSystem.Hitscan
             var hitDatas = new List<HitData>();
             
             
-            Debug.LogError($"Overlaps hitscan {overlapHits.Length}");
             foreach (var col in overlapHits)
             {
                 if (col == null) continue;

@@ -22,6 +22,11 @@ namespace Game.UI.Elements
                 () => new ActionObserver<BaseLevelSO>(OnLoadHandler)));
         }
 
+        private void Start()
+        {
+            OnLoadHandler(GlobalLevelManager.CurrentLevel);
+        }
+
         private void OnLoadHandler(BaseLevelSO level)
         {
             var slots = origin.childCount;

@@ -11,7 +11,8 @@ namespace Game.UI.Elements
         [SerializeField] private Color disabledColor = Color.gray;
         
         [Header("Visuals")]
-        [SerializeField] private Image iconImg;
+        [SerializeField] private RawImage iconImg;
+        [SerializeField] private Image backgroundImg;
         
         private UpgradeIcon _icon;
 
@@ -19,8 +20,10 @@ namespace Game.UI.Elements
         {
             _icon = icon;
 
-            iconImg.sprite = _icon.IconSprite;
-            iconImg.color = state ? enabledColor : disabledColor;
+            iconImg.texture = _icon.Icon;
+            iconImg.material = state ? _icon.UnlockedMat : _icon.LockedMat;
+            iconImg.color = state ? icon.Color : disabledColor;
+            //backgroundImg.color = state ? icon.Color : disabledColor;
         }
     }
 }
