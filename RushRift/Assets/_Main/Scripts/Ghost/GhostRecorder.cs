@@ -364,6 +364,7 @@ namespace _Main.Scripts.Ghost
             return false;
         }
 
+#if UNITY_EDITOR
         private void OnGUI()
         {
             if (!showDebugUI || !isRecording || currentRun == null) return;
@@ -375,5 +376,6 @@ namespace _Main.Scripts.Ghost
             GUI.color = Color.white;
             GUILayout.EndArea();
         }
+#endif
     }
 }
