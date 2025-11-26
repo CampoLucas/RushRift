@@ -167,7 +167,6 @@ namespace Game
             
             var op = SceneHandler.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             
-            // If preloaded, don't await it. Let it load in background
             if (!preloaded)
             {
                 await op.ToUniTask();
@@ -218,8 +217,7 @@ namespace Game
 
                 if (!_loadedLevelsDict.TryGetValue(n, out var scene))
                     continue;
-
-                // Skip invalid or already unloaded scenes
+                
                 if (!scene.IsValid() || !scene.isLoaded)
                 {
                     _loadedLevelsDict.Remove(n);
@@ -393,20 +391,20 @@ namespace Game
                 info = default;
                 return false;
             }
-            
+
             var endTime = CompleteTime;
 
             var isUnlocked = data.IsMedalUnlocked(currLevel, type);
 #if UNITY_EDITOR
             Debug.Log($"LOG: Getting {type} medal [Level: {currLevel} | End Time: {endTime} | Medal Time: {medal.requiredTime} | IsUnlocked: {isUnlocked}]");
 #endif
+            
+            info = new MedalInfo(type.ToString(), medal.EffectName, isUnlocked || endTime <= medal.requiredTime, isUnlocked, medal.requiredTime, medal.EffectVideo);
 
-            info = new MedalInfo(type.ToString(), medal.EffectName, isUnlocked || endTime <= medal.requiredTime,
-                isUnlocked, medal.requiredTime);
             return true;
         }
 
-        #endregion
+            #endregion
 
         public bool DashHack { get; private set; }
         

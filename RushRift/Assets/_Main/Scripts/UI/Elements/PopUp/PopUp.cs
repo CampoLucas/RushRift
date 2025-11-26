@@ -1,13 +1,10 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using Game.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 namespace Game.UI.StateMachine.Elements
 {
@@ -23,32 +20,58 @@ namespace Game.UI.StateMachine.Elements
         [SerializeField] private Button confirmButton;
         [SerializeField] private Selectable defaultButton;
         [SerializeField] private Selectable backButton;
-
+        
+        [Header("Video")]
+        [SerializeField] private VideoPlayer videoPlayer;
+        [SerializeField] private RawImage videoImage;
+        
         [Header("Animation")]
         [SerializeField] private UIAnimation openAnim;
-
         [SerializeField] private UIAnimation closeAnim;
         [SerializeField] private float closeDelay;
 
         private bool _closed;
+        private RenderTexture _instanceRenderTexture;
 
         private void Awake()
         {
-            closeButton.onClick.AddListener(CloseHandler);
+            if (closeButton)
+                closeButton.onClick.AddListener(CloseHandler);
+            
+            if (videoPlayer && videoImage)
+            {
+                var baseTexture = videoPlayer.targetTexture;
+                if (baseTexture != null)
+                {
+                    _instanceRenderTexture = new RenderTexture(baseTexture);
+                    _instanceRenderTexture.name = $"{baseTexture.name}_Instance_{GetInstanceID()}";
+                    
+                    videoPlayer.targetTexture = _instanceRenderTexture;
+
+                    if (videoImage.texture == null || videoImage.texture == baseTexture)
+                    {
+                        videoImage.texture = _instanceRenderTexture;
+                    }
+                }
+            }
         }
+
 
         public void Open(string title, string info, Color iconColor, Color backgroundColor, float delay = 0)
         {
             _closed = false;
             StopAllCoroutines();
-            
+
             titleText.text = title;
             infoText.text = info;
             iconImage.color = iconColor;
             background.color = backgroundColor;
-            
+
+            SetVideo(null);
+
             StartCoroutine(OpenRoutine(delay));
         }
+
 
         public void Open(UnityAction onConfirm, float delay = 0)
         {
@@ -70,6 +93,28 @@ namespace Game.UI.StateMachine.Elements
             
             StopAllCoroutines();
             StartCoroutine(CloseRoutine(closeDelay));
+        }
+        
+        public void SetVideo(VideoClip clip)
+        {
+            if (!videoPlayer) return;
+
+            if (clip == null)
+            {
+                videoPlayer.Stop();
+                videoPlayer.clip = null;
+                if (videoImage)
+                {
+                    videoImage.enabled = false;
+                }
+                return;
+            }
+
+            videoPlayer.clip = clip;
+            if (videoImage)
+            {
+                videoImage.enabled = true;
+            }
         }
 
         public void Close(float delay)
@@ -103,6 +148,7 @@ namespace Game.UI.StateMachine.Elements
 
             yield return OpenRoutine(delay);
         }
+        
         public IEnumerator OpenRoutine(float delay = 0)
         {
             _closed = false;
@@ -120,21 +166,37 @@ namespace Game.UI.StateMachine.Elements
             {
                 yield return null;
             }
-        }
 
+            if (videoPlayer && videoPlayer.clip)
+            {
+                videoPlayer.Play();
+            }
+        }
+        
         private IEnumerator CloseRoutine(float delay)
         {
             _closed = true;
+            
+            if (videoPlayer)
+            {
+                videoPlayer.Stop();
+            }
 
             yield return closeAnim.PlayRoutine(delay);
-
             gameObject.SetActive(false);
         }
-
+        
         private void OnDestroy()
         {
             if (closeButton) closeButton.onClick.RemoveAllListeners();
             if (confirmButton) confirmButton.onClick.RemoveAllListeners();
+
+            if (_instanceRenderTexture != null)
+            {
+                _instanceRenderTexture.Release();
+                Destroy(_instanceRenderTexture);
+                _instanceRenderTexture = null;
+            }
 
             titleText = null;
             infoText = null;

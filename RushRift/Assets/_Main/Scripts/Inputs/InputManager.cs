@@ -11,7 +11,7 @@ namespace Game.InputSystem
     {
         public enum Input
         {
-            Move, Look, Interact, Jump, Primary, PrimaryTap, PrimaryHold, Secondary, Pause, MousePos, Reset, SecondaryTap, SecondaryHold, Blink,
+            Move, Look, Interact, Jump, Primary, PrimaryTap, PrimaryHold, Secondary, Pause, MousePos, Reset, SecondaryTap, SecondaryHold, Blink, Click,
         }
 
         private static InputManager _instance;
@@ -143,7 +143,7 @@ namespace Game.InputSystem
             AddActionInput(Input.SecondaryHold, SecondaryAttackHold, SecondaryAttackHoldStarted, SecondaryAttackHoldCanceled);
             AddActionInput(Input.Blink, BlinkAction, BlinkActionStarted, BlinkActionCanceled);
 
-
+            AddButtonInput(Input.Click, () => _playerControls.UI.Click.phase == InputActionPhase.Performed, () => _playerControls.UI.Click.WasPressedThisFrame(), () => _playerControls.UI.Click.WasReleasedThisFrame());
             AddButtonInput(Input.Pause, () => _playerControls.UI.Pause.phase == InputActionPhase.Performed, () => _playerControls.UI.Pause.WasPressedThisFrame(), () => _playerControls.UI.Pause.WasReleasedThisFrame());
             AddButtonInput(Input.Jump, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Started, () => _playerControls.Gameplay.Jump.phase == InputActionPhase.Performed);
             AddButtonInput(Input.Reset, () => _playerControls.Gameplay.Reset.phase == InputActionPhase.Performed, () => _playerControls.Gameplay.Reset.WasPressedThisFrame(), () => _playerControls.Gameplay.Reset.WasReleasedThisFrame());
