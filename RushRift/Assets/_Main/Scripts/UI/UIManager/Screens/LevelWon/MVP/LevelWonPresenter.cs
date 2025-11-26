@@ -60,6 +60,8 @@ namespace Game.UI.StateMachine
             
             onBegin?.Invoke();
 
+            
+            Debug.Log($"Won: {Model.LevelWon}");
             var wonEvent = Model.LevelWon ? onWon : onLost;
             wonEvent?.Invoke();
         }
