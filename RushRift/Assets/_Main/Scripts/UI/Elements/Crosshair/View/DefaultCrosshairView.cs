@@ -22,10 +22,10 @@ namespace Game.UI.Elements.Crosshair
         [SerializeField] private Color energyColor = Color.yellow;
         
         private NullCheck<EnergyComponent> _energy;
-
         private NullCheck<ActionObserver<float, float, float>> _valueObserver;
         private NullCheck<ActionObserver<float>> _refillObserver;
 
+        private Color _flashStartColor;
         private float _flashLerp;
         private bool _isFlashing;
         
@@ -64,7 +64,7 @@ namespace Game.UI.Elements.Crosshair
             _flashLerp += Time.unscaledDeltaTime * 6f;
             var t = Mathf.Clamp01(_flashLerp);
 
-            crosshairImg.color = Color.Lerp(energyColor, defaultColor, t);
+            crosshairImg.color = Color.Lerp(_flashStartColor, defaultColor, t);
 
             if (t >= 1f) _isFlashing = false;
         }
@@ -152,7 +152,12 @@ namespace Game.UI.Elements.Crosshair
             // flash yellow when energy increases
             if (current > previous)
             {
-                StartFlash();
+                StartFlash(energyColor);
+            }
+
+            if (current < previous)
+            {
+                StartFlash(darkColor);
             }
 
             // max energy => yellow solid
@@ -178,11 +183,12 @@ namespace Game.UI.Elements.Crosshair
             refillImg.fillAmount = amount * refillSize;
         }
         
-        private void StartFlash()
+        private void StartFlash(Color color)
         {
+            _flashStartColor = color;
             _flashLerp = 0f;
             _isFlashing = true;
-            crosshairImg.color = energyColor;
+            crosshairImg.color = color;
         }
     }
 }
