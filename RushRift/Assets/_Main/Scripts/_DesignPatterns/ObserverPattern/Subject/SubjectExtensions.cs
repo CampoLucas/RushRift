@@ -78,7 +78,7 @@ namespace Game.DesignPatterns.Observers
             return new DisposableSubject(newSubject, () => DisposeObserver(newObserver, source));
         }
 
-        private static void DisposeObserver<T>(IObserver<T> observer, ISubject<T> source)
+        private static void DisposeObserver<T>(in IObserver<T> observer, in ISubject<T> source)
         {
             if (source != null)
             {
@@ -88,7 +88,7 @@ namespace Game.DesignPatterns.Observers
             observer?.Dispose();
         }
         
-        private static void DisposeObserver<T1, T2>(IObserver<T1, T2> observer, ISubject<T1, T2> source)
+        private static void DisposeObserver<T1, T2>(in IObserver<T1, T2> observer, in ISubject<T1, T2> source)
         {
             if (source != null)
             {
@@ -98,7 +98,7 @@ namespace Game.DesignPatterns.Observers
             observer?.Dispose();
         }
         
-        private static void DisposeObserver<T1, T2, T3>(IObserver<T1, T2, T3> observer, ISubject<T1, T2, T3> source)
+        private static void DisposeObserver<T1, T2, T3>(in IObserver<T1, T2, T3> observer, in ISubject<T1, T2, T3> source)
         {
             if (source != null)
             {
