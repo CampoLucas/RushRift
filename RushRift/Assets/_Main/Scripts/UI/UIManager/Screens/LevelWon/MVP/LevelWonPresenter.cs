@@ -25,6 +25,8 @@ namespace Game.UI.StateMachine
         [Header("Events")]
         [SerializeField] private UnityEvent onBegin = new UnityEvent();
         [SerializeField] private UnityEvent onEnd = new UnityEvent();
+        [SerializeField] private UnityEvent onWon = new UnityEvent();
+        [SerializeField] private UnityEvent onLost = new UnityEvent();
 
         private bool _begun;
         private ActionObserver<bool> _loadingObserver;
@@ -57,6 +59,9 @@ namespace Game.UI.StateMachine
             CheckTime(Model);
             
             onBegin?.Invoke();
+
+            var wonEvent = Model.LevelWon ? onWon : onLost;
+            wonEvent?.Invoke();
         }
 
         public override void End()

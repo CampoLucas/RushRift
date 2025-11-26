@@ -15,9 +15,6 @@ namespace Game.Levels
         public VideoClip EffectVideo =>
             src != UpgradeSource.Self || upgrade == null ? null : upgrade.PopUpVideo;
 
-		public VideoClip EffectVideo =>
-            src != UpgradeSource.Self || upgrade == null ? null : upgrade.PopUpVideo;
-
         public float requiredTime;
         public UpgradeSource src;
         public Effect upgrade;
