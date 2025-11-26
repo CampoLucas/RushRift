@@ -8,11 +8,11 @@ namespace Game.UI
 {
     public class Options : MonoBehaviour
     {
-        public static ISubject<float> OnCameraSensibilityChanged = new Subject<float>();
-        public static ISubject<float> OnCameraSmoothnessChanged = new Subject<float>();
-        public static ISubject<float> OnMasterVolumeChanged = new Subject<float>();
-        public static ISubject<float> OnMusicVolumeChanged = new Subject<float>();
-        public static ISubject<float> OnSFXVolumeChanged = new Subject<float>();
+        public static readonly ISubject<float> CameraSensibilityChanged = new Subject<float>();
+        public static readonly ISubject<float> CameraSmoothnessChanged = new Subject<float>();
+        public static readonly ISubject<float> MasterVolumeChanged = new Subject<float>();
+        public static readonly ISubject<float> MusicVolumeChanged = new Subject<float>();
+        public static readonly ISubject<float> SfxVolumeChanged = new Subject<float>();
 
         [Header("Camera Settings")]
         [SerializeField] private OptionSlider sensibilitySlider;
@@ -39,7 +39,6 @@ namespace Game.UI
             
             sensibilitySlider.OnValueChanged.AddListener(OnSensibilityChangedHandler);
             smoothnessSlider.OnValueChanged.AddListener(OnSmoothnessChangedHandler);
-            
             masterSlider.OnValueChanged.AddListener(OnMasterChangedHandler);
             musicSlider.OnValueChanged.AddListener(OnMusicChangedHandler);
             sfxSlider.OnValueChanged.AddListener(OnSFXChangedHandler);
@@ -59,7 +58,7 @@ namespace Game.UI
 
         public void OnSensibilityChangedHandler(float value)
         {
-            OnCameraSensibilityChanged.NotifyAll(value);
+            CameraSensibilityChanged.NotifyAll(value);
             
             // save value
             var saveData = SaveSystem.LoadSettings();
@@ -70,7 +69,7 @@ namespace Game.UI
         
         public void OnSmoothnessChangedHandler(float value)
         {
-            OnCameraSmoothnessChanged.NotifyAll(value);
+            CameraSmoothnessChanged.NotifyAll(value);
             
             // Save value
             var saveData = SaveSystem.LoadSettings();
@@ -81,7 +80,7 @@ namespace Game.UI
         
         public void OnMasterChangedHandler(float value)
         {
-            OnMasterVolumeChanged.NotifyAll(value);
+            MasterVolumeChanged.NotifyAll(value);
             
             // Save value
             var saveData = SaveSystem.LoadSettings();
@@ -92,7 +91,7 @@ namespace Game.UI
         
         public void OnMusicChangedHandler(float value)
         {
-            OnMusicVolumeChanged.NotifyAll(value);
+            MusicVolumeChanged.NotifyAll(value);
             
             // Save value
             var saveData = SaveSystem.LoadSettings();
@@ -103,7 +102,7 @@ namespace Game.UI
         
         public void OnSFXChangedHandler(float value)
         {
-            OnSFXVolumeChanged.NotifyAll(value);
+            SfxVolumeChanged.NotifyAll(value);
             
             // Save value
             var saveData = SaveSystem.LoadSettings();
@@ -114,6 +113,12 @@ namespace Game.UI
 
         private void OnDestroy()
         {
+            sensibilitySlider.OnValueChanged.RemoveAllListeners();
+            smoothnessSlider.OnValueChanged.RemoveAllListeners();
+            masterSlider.OnValueChanged.RemoveAllListeners();
+            musicSlider.OnValueChanged.RemoveAllListeners();
+            sfxSlider.OnValueChanged.RemoveAllListeners();
+            
             if (_instance == this)
             {
                 _instance = null;
@@ -123,15 +128,11 @@ namespace Game.UI
                 return;
             }
             
-            OnCameraSmoothnessChanged.DetachAll();
-            //OnCameraSmoothnessChanged.Dispose();
-            
-            OnCameraSensibilityChanged.DetachAll();
-            //OnCameraSensibilityChanged.Dispose();
-            
-            OnMasterVolumeChanged.DetachAll();
-            OnMusicVolumeChanged.DetachAll();
-            OnSFXVolumeChanged.DetachAll();
+            // CameraSensibilityChanged.DetachAll();
+            // CameraSmoothnessChanged.DetachAll();
+            // MasterVolumeChanged.DetachAll();
+            // MusicVolumeChanged.DetachAll();
+            // SfxVolumeChanged.DetachAll();
         }
     }
 }

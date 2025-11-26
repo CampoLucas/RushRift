@@ -235,8 +235,8 @@ namespace Game.Saves
 
         public static Color GetBlinkChargeColor()
         {
-            var settings = SaveSystem.LoadSettings();
-            return settings.Custom.blinkChargeColor;
+            //var settings = SaveSystem.LoadSettings();
+            return Color.white;
         }
     }
 
@@ -283,7 +283,7 @@ namespace Game.Saves
     [Serializable]
     public class CustomSettings
     {
-        public Color blinkChargeColor = Color.red;
+        //public Vector3 blinkChargeColor = Color.red;
     }
 }
 
