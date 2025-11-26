@@ -78,15 +78,48 @@ namespace Game.Entities.AttackSystem.Hitscan
             var hits = new List<RaycastHit>();
             
             var worldHits = Physics.RaycastAll(spawnPos, direction, Data.Range, Data.GroundMask);
+            var overlapHits = Physics.OverlapSphere(spawnPos, Data.Radius, Data.EntityMask);
             var enemyHits = Physics.SphereCastAll(spawnPos, Data.Radius, direction, Data.Range, Data.EntityMask);
             hits.AddRange(worldHits);
             hits.AddRange(enemyHits);
                 
             var hitDatas = new List<HitData>();
+            
+            
+            Debug.LogError($"Overlaps hitscan {overlapHits.Length}");
+            foreach (var col in overlapHits)
+            {
+                if (col == null) continue;
+
+                var type = DetermineHitType(col, Data, out var detected);
+
+                // Compute a fake hit point: closest point to the muzzle
+                var closestPoint = spawnPos;
+
+                var dot = 1;
+
+                if (Data.UseDotThreshold && dot < Data.MinDotThreshold)
+                    continue;
+
+                hitDatas.Add(new HitData()
+                {
+                    distance = Vector3.Distance(spawnPos, closestPoint),
+                    point = closestPoint,
+                    collider = col,
+                    type = type,
+                    weight = Data.Weights.TryGetValue(type, out var w) ? w : 0f,
+                    dot = dot,
+                    detected = detected
+                });
+            }
 
             foreach (var h in hits)
             {
                 if (h.collider == null) continue;
+                
+                // If the sphere cast already collected this collider, skip duplicate
+                if (overlapHits.Any(coll => coll == h.collider)) 
+                    continue;
                 
                 var type = DetermineHitType(h.collider, Data, out var d);
                 var toHit = (h.point - spawnPos).normalized;
@@ -105,7 +138,7 @@ namespace Game.Entities.AttackSystem.Hitscan
                     detected = d
                 });
             }
-
+            
             if (hitDatas.Count == 0)
             {
                 // No hits
