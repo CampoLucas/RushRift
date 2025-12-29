@@ -97,7 +97,14 @@ namespace Game.UI.StateMachine.Elements
 
         private IEnumerator OpenMedal(PopUpData data, MedalInfo medalInfo)
         {
-            yield return data.popUp.OpenRoutine(title, medalInfo.UpgradeName, data.medalColor, data.backgroundColor, delay);
+            data.popUp.SetVideo(medalInfo.UpgradeVideo);
+
+            yield return data.popUp.OpenRoutine(
+                title,
+                medalInfo.UpgradeName,
+                data.medalColor,
+                data.backgroundColor,
+                delay);
         }
 
         private void OnDestroy()

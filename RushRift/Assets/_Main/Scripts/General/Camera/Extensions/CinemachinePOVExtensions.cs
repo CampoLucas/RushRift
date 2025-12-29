@@ -59,13 +59,13 @@ namespace Game
             _onSmoothnessChanged = new ActionObserver<float>(OnSmoothnessChanged);
 
 
-            if (Options.OnCameraSensibilityChanged == null)
+            if (Options.CameraSensibilityChanged == null)
             {
                 Debug.Log("On Camara Sensibility is null");
             }
             
-            Options.OnCameraSensibilityChanged?.Attach(_onSensibilityChanged);
-            Options.OnCameraSmoothnessChanged?.Attach(_onSmoothnessChanged);
+            Options.CameraSensibilityChanged?.Attach(_onSensibilityChanged);
+            Options.CameraSmoothnessChanged?.Attach(_onSmoothnessChanged);
         }
 
         private void Update()
@@ -195,8 +195,8 @@ namespace Game
             GameEntry.LoadingState.DetachOnLoading(_onLoading);
             PlayerSpawner.PlayerSpawned.Detach(_onPlayerSpawned);
             
-            var sensibilitySubject = Options.OnCameraSensibilityChanged;
-            var smoothnessSubject = Options.OnCameraSensibilityChanged;
+            var sensibilitySubject = Options.CameraSensibilityChanged;
+            var smoothnessSubject = Options.CameraSensibilityChanged;
 
             if (_onSensibilityChanged != null)
             {

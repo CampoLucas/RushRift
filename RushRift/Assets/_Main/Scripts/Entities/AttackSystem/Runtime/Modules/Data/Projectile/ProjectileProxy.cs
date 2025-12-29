@@ -1,6 +1,7 @@
 using System;
 using Game.DesignPatterns.Observers;
 using Game.DesignPatterns.Pool;
+using Game.Levels;
 using Game.Utils;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -15,6 +16,11 @@ namespace Game.Entities.AttackSystem
         private bool _executed;
         private float _timer;
 
+        private bool _disabled;
+
+        private NullCheck<ActionObserver<BaseLevelSO>> _disableObserver;
+        private NullCheck<ActionObserver<BaseLevelSO>> _enableObserver;
+
         public ProjectileProxy(ProjectileModule data, IModuleProxy[] children, IController controller, bool disposeData = false) : base(data, children, disposeData)
         {
             _pool = new PoolObject<Projectile, ProjectileData>(data);
@@ -24,6 +30,27 @@ namespace Game.Entities.AttackSystem
         {
             StartObserver = new ActionObserver<ModuleParams>(OnReset);
             UpdateObserver = new ActionObserver<ModuleParams, float>(OnUpdate);
+
+            if (_disableObserver.TryGet(out var observer, () => new ActionObserver<BaseLevelSO>(DisableHandler)))
+            {
+                GameEntry.LoadingState.AttachOnPreload(observer);
+            }
+
+            if (_enableObserver.TryGet(out observer, () => new ActionObserver<BaseLevelSO>(EnableHandler)))
+            {
+                GameEntry.LoadingState.AttachOnReady(observer);
+            }
+            
+        }
+
+        private void DisableHandler(BaseLevelSO levelSo)
+        {
+            _disabled = true;
+        }
+
+        private void EnableHandler(BaseLevelSO levelSo)
+        {
+            _disabled = false;
         }
 
         private void OnReset(ModuleParams mParams)
@@ -34,6 +61,7 @@ namespace Game.Entities.AttackSystem
 
         private void OnUpdate(ModuleParams mParams, float delta)
         {
+            if (_disabled) return;
             if (_executed) return;
             _timer += delta;
             
@@ -45,6 +73,7 @@ namespace Game.Entities.AttackSystem
         
         private void OnDo(Transform spawnPos, Quaternion rotation, GameObject thrower)
         {
+            if (_disabled) return;
             var data = Data.PData;
             
             AudioManager.Play("TurretFire");
@@ -106,6 +135,19 @@ namespace Game.Entities.AttackSystem
 
         protected override void OnDispose()
         {
+            if (_disableObserver.TryGet(out var observer))
+            {
+                GameEntry.LoadingState.DetachOnPreload(observer);
+            }
+
+            if (_enableObserver.TryGet(out observer))
+            {
+                GameEntry.LoadingState.DetachOnReady(observer);
+            }
+            
+            _disableObserver.Dispose();
+            _enableObserver.Dispose();
+            
             _pool.Dispose();
             _pool = null;
         }

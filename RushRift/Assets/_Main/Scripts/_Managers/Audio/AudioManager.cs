@@ -100,9 +100,9 @@ namespace Game
             _onMusicVolumeChanged  = new ActionObserver<float>(OnMusicVolumeChanged);
             _onSFXVolumeChanged    = new ActionObserver<float>(OnSFXVolumeChanged);
 
-            Options.OnMasterVolumeChanged.Attach(_onMasterVolumeChanged);
-            Options.OnMusicVolumeChanged.Attach(_onMusicVolumeChanged);
-            Options.OnSFXVolumeChanged.Attach(_onSFXVolumeChanged);
+            Options.MasterVolumeChanged.Attach(_onMasterVolumeChanged);
+            Options.MusicVolumeChanged.Attach(_onMusicVolumeChanged);
+            Options.SfxVolumeChanged.Attach(_onSFXVolumeChanged);
         }
 
         public static void Play(string name)
@@ -283,9 +283,9 @@ namespace Game
             _pool?.Dispose();
             _pool = null;
 
-            var masterSubject = Options.OnMasterVolumeChanged;
-            var musicSubject  = Options.OnMusicVolumeChanged;
-            var sfxSubject    = Options.OnSFXVolumeChanged;
+            var masterSubject = Options.MasterVolumeChanged;
+            var musicSubject  = Options.MusicVolumeChanged;
+            var sfxSubject    = Options.SfxVolumeChanged;
 
             if (_onMasterVolumeChanged != null)
             {

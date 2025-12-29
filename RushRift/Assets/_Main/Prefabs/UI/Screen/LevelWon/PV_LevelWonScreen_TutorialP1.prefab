@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2627554395113913062}
   - component: {fileID: 5949034078446746502}
   m_Layer: 0
-  m_Name: UnlockedEffects (1)
+  m_Name: Tutorial Won Pop Up
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -332,6 +332,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7004372876272214080}
     - target: {fileID: 3678664892906737821, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
+      propertyPath: onWon.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3678664892906737821, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
+      propertyPath: onLost.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3678664892906737821, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
       propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.size
       value: 0
       objectReference: {fileID: 0}
@@ -486,6 +494,14 @@ PrefabInstance:
     - target: {fileID: 7648220281316747745, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9127694593503101951, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 959.8446
+      objectReference: {fileID: 0}
+    - target: {fileID: 9127694593503101951, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -540.0874
       objectReference: {fileID: 0}
     - target: {fileID: 9181814181008855674, guid: 2ed253ad315350b4ab55499d46a9eff0, type: 3}
       propertyPath: m_fontColor.a
@@ -895,6 +911,10 @@ PrefabInstance:
     - target: {fileID: 7426238254639407729, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8534183585807519931, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
+      propertyPath: baseImage
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8603364046019896182, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
