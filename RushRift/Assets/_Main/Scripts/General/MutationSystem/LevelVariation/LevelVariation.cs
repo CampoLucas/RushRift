@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.MutationSystem.LevelVariation
@@ -30,9 +31,13 @@ namespace Game.MutationSystem.LevelVariation
         
         [Header("Conditions")]
         [SerializeField] private VariationCondition[] conditions;
-        
+
         [Header("Branching")]
+        [Tooltip("Actions that depending of the condition state does different things")]
+        [SerializeField] private VariationAction[] actions;
+        [Tooltip("Actions that are only executed if it returns success")]
         [SerializeField] private VariationAction[] success;
+        [Tooltip("Actions that are only executed if it returns failure")]
         [SerializeField] private VariationAction[] failure;
 
         private void Start()
@@ -52,22 +57,37 @@ namespace Game.MutationSystem.LevelVariation
             };
         }
 
-        private void Init() {
-            if (CheckConditions()) {
-                ExecuteActions(success);
+        private void Init()
+        {
+            var condition = CheckConditions();
+
+            var a = new List<VariationAction>();
+            if (actions is { Length: > 0 }) a.AddRange(actions);
+            if (success is { Length: > 0 }) a.AddRange(success);
+            if (failure is { Length: > 0 }) a.AddRange(failure);
+
+            for (var i = 0; i < a.Count; i++)
+            {
+                a[i].Init();
+            }
+            
+            ExecuteActions(actions, condition);
+            
+            if (condition == VariationAction.State.Success) {
+                ExecuteActions(success, VariationAction.State.Success);
             }
             else {
-                ExecuteActions(failure);
+                ExecuteActions(failure, VariationAction.State.Success);
             }
         }
 
-        private void ExecuteActions(VariationAction[] actions) {
+        private void ExecuteActions(VariationAction[] actions, VariationAction.State state) {
             for (var i = 0; i < actions.Length; i++) {
-                actions[i].Do();
+                actions[i].Execute(state);
             }
         }
 
-        private bool CheckConditions() {
+        private VariationAction.State CheckConditions() {
             var successCount = 0;
 
             for (var i = 0; i < conditions.Length; i++) {
@@ -78,11 +98,13 @@ namespace Game.MutationSystem.LevelVariation
 
             var required = GetRequiredSuccessCount();
 
-            return evaluate switch
+            var result = evaluate switch
             {
                 CompareType.NoneSuccess => successCount == 0,
                 _ => successCount >= required
             };
+
+            return result ? VariationAction.State.Success : VariationAction.State.Failure;
         }
     }
 }
