@@ -81,7 +81,7 @@ namespace Game.Entities.Components.MotionController
             AudioManager.Play("Dash");
             ChromaticAberrationPlayer.PlayGlobal();
             LensDistortionPlayer.PlayGlobal();
-            FreezeFrame.TriggerDefault();
+            //FreezeFrame.TriggerDefault();
 #if false
             _dashDir = context.Look.forward;
 #else

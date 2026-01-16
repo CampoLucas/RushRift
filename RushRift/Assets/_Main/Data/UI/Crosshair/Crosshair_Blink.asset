@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6717469265735883820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fa38d102d84fd2bba36123c79a4de8, type: 3}
+  m_Name: CT_BlinkEvent
+  m_EditorClassIdentifier: 
+  blinkEvent: 2
+  invert: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dcd8a3eb18c49ef9d7722c5f7f1acfb, type: 3}
+  m_Name: Crosshair_Blink
+  m_EditorClassIdentifier: 
+  view: {fileID: 7029469440237986220, guid: 60cb2ce12867d824c862f93c7326cc61, type: 3}
+  startTriggers:
+    collection:
+    - {fileID: -6717469265735883820}
+  stopTriggers:
+    collection:
+    - {fileID: 1056386758895833485}
+--- !u!114 &1056386758895833485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fa38d102d84fd2bba36123c79a4de8, type: 3}
+  m_Name: CT_BlinkEvent
+  m_EditorClassIdentifier: 
+  blinkEvent: 2
+  invert: 1

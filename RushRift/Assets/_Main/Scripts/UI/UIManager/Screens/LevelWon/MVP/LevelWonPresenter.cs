@@ -25,6 +25,8 @@ namespace Game.UI.StateMachine
         [Header("Events")]
         [SerializeField] private UnityEvent onBegin = new UnityEvent();
         [SerializeField] private UnityEvent onEnd = new UnityEvent();
+        [SerializeField] private UnityEvent onWon = new UnityEvent();
+        [SerializeField] private UnityEvent onLost = new UnityEvent();
 
         private bool _begun;
         private ActionObserver<bool> _loadingObserver;
@@ -45,23 +47,23 @@ namespace Game.UI.StateMachine
             if (_begun) return;
             _begun = true;
             base.Begin();
-
-            // Set Cursor
+            
             if(Gamepad.current == null)
             {
                 CursorHandler.lockState = CursorLockMode.None;
                 CursorHandler.visible = true;
             }
-            
-
-
-            //Model.Reset();
-
+  
             SetModelValues(Model);
             UpdateSaveData(Model);
             CheckTime(Model);
             
             onBegin?.Invoke();
+
+            
+            Debug.Log($"Won: {Model.LevelWon}");
+            var wonEvent = Model.LevelWon ? onWon : onLost;
+            wonEvent?.Invoke();
         }
 
         public override void End()

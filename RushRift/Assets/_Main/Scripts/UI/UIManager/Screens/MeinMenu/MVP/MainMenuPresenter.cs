@@ -49,7 +49,11 @@ namespace Game.UI.StateMachine
 
             if (optionsButton)
             {
+#if OPTIONS_DISABLED
+                optionsButton.interactable = false;
+#else
                 optionsButton.onClick.AddListener(OnOptionsHandler);
+#endif
             }
 
             if (quitButton)
@@ -101,7 +105,9 @@ namespace Game.UI.StateMachine
 
         private void OnOptionsHandler()
         {
+#if !OPTIONS_DISABLED
             NotifyAll(MenuState.Options);
+#endif
         }
 
         private void OnQuitHandler()

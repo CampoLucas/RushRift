@@ -1,10 +1,7 @@
-using System;
-using _Main.Scripts.Feedbacks;
 using Game.Utils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Game.UI.StateMachine
@@ -56,7 +53,11 @@ namespace Game.UI.StateMachine
             
             if (resumeButton) resumeButton.onClick.AddListener(OnResumeHandler);
             if (resumeButton) restartButton.onClick.AddListener(OnRestartHandler);
+#if OPTIONS_DISABLED
+            if (optionsButton) optionsButton.interactable = false;
+#else 
             if (optionsButton) optionsButton.onClick.AddListener(OnOptionsHandler);
+#endif
             if (optionsBackButton) optionsBackButton.onClick.AddListener(OnOptionsBackHandler);
             if (mainMenuButton) mainMenuButton.onClick.AddListener(OnMainMenuHandler);
             
@@ -78,10 +79,13 @@ namespace Game.UI.StateMachine
 
         private void OnOptionsHandler()
         {
+#if !OPTIONS_DISABLED
             OnOptions = true;
             main.enabled = false;
             options.enabled = true;
             EventSystem.current.SetSelectedGameObject(onOptionsPress.gameObject);
+#endif
+            
         }
 
         private void OnOptionsBackHandler()

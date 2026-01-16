@@ -50,13 +50,26 @@ public class CheckInputChange : MonoBehaviour
         // Ignore presses on devices that are already used by a player.
         if (PlayerInput.FindFirstPairedToDevice(device) != null)
             return;
+        
+        var current = EventSystem.current;
 
         if (device is Gamepad)
         {
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
-            EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
-            Debug.Log("Gamepad");   
+
+            if (current)
+            {
+                if (_lastSelectableUsed)
+                {
+                    EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
+                }
+                else
+                {
+                    EventSystem.current.SetSelectedGameObject(null);
+                }
+                Debug.Log("Gamepad");   
+            }
         }
         if (device is Mouse)
         {
@@ -65,8 +78,12 @@ public class CheckInputChange : MonoBehaviour
             //if (_onSubMenu)
             //{
             //}
-            _lastSelectableUsed = EventSystem.current.currentSelectedGameObject;
-            Debug.Log("mouse");
+            if (current)
+            {
+                _lastSelectableUsed = EventSystem.current.currentSelectedGameObject;
+                Debug.Log("mouse");
+                
+            }
         }
         if (device is Keyboard)
         {
@@ -75,8 +92,18 @@ public class CheckInputChange : MonoBehaviour
             //if (_onSubMenu)
             //{  
             //}
-            EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
-            Debug.Log("keyboard");
+            if (current)
+            {
+                if (_lastSelectableUsed)
+                {
+                    EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
+                }
+                else
+                {
+                    EventSystem.current.SetSelectedGameObject(null);
+                }
+                Debug.Log("keyboard");
+            }
         }
 
 

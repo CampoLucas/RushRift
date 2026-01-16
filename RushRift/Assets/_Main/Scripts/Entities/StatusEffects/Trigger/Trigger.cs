@@ -17,7 +17,7 @@ namespace Game.Entities
             _disposeSubject = disposeSubject;
         }
         
-        public bool Evaluate(ref IController args) => _predicate.Evaluate(ref args);
+        public bool Evaluate(ref IController args) => _predicate?.Evaluate(ref args) ?? false;
         public bool Attach(IObserver observer, bool disposeOnDetach = false) => _subject.Attach(observer, disposeOnDetach);
         public bool Detach(IObserver observer) => _subject.Detach(observer);
         public void DetachAll() => _subject.DetachAll();
@@ -34,7 +34,7 @@ namespace Game.Entities
             if (_disposeSubject) _subject.Dispose();
             _subject = null;
             
-            _predicate.Dispose();
+            _predicate?.Dispose();
             _predicate = null;
         }
     }
