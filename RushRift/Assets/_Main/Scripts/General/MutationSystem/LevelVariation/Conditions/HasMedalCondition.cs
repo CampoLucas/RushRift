@@ -1,5 +1,6 @@
 using Game.Levels;
 using Game.Saves;
+using MyTools.Global;
 using UnityEngine;
 
 namespace Game.MutationSystem.LevelVariation
@@ -10,7 +11,19 @@ namespace Game.MutationSystem.LevelVariation
         [SerializeField] private MedalType medal;
         public override bool Evaluate()
         {
-            return SaveSystem.LoadGame().IsMedalUnlocked(GlobalLevelManager.CurrentLevel.Get().LevelID, medal);
+            var save = SaveSystem.LoadGame();
+            if (save == null)
+            {
+                this.Log("SaveData is null", LogType.Error);
+                return false;
+            }
+            
+            if (!GlobalLevelManager.CurrentLevel.TryGet(out var level))
+            {
+                this.Log("The level is null", LogType.Error);
+                return false;
+            }
+            return SaveSystem.LoadGame().IsMedalUnlocked(level.LevelID, medal);
         }
     }
 }
