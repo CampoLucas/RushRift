@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -57,8 +58,20 @@ namespace Game.MutationSystem.LevelVariation
             };
         }
 
-        private void Init()
+        private async void Init()
         {
+            var level = GlobalLevelManager.CurrentLevel.Get();
+            if (!level)
+            {
+                await UniTask.WaitUntil(() => GlobalLevelManager.CurrentLevel.TryGet(out level));
+            }
+
+            if (!level.VariationsEnabled)
+            {
+                Destroy(this);
+                return;
+            }
+            
             var condition = CheckConditions();
 
             var a = new List<VariationAction>();

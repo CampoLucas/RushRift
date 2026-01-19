@@ -14,6 +14,7 @@ namespace Game.Levels
         public string LevelName => levelName;
         public bool UsesMedals => medals is { Count: > 0 };
         public UIStateCollection UI => overrideCollection;
+        public virtual bool VariationsEnabled => false;
 
         [Header("Settings")]
         [SerializeField] private int levelID;
