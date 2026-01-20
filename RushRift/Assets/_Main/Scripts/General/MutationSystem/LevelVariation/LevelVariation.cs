@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Game.Utils;
+using MyTools.Global;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -81,7 +83,18 @@ namespace Game.MutationSystem.LevelVariation
 
             for (var i = 0; i < a.Count; i++)
             {
-                a[i].Init();
+                var action = a[i];
+                if (!action)
+                {
+                    this.Log("The action is null, check if there isn't a null element in the lists.", LogType.Error);
+                    continue;
+                }
+                else if (action.IsNullOrMissingReference())
+                {
+                    this.Log("The action is missing reference, check if there an action wasn't deleted.", LogType.Error);
+                    continue;
+                }
+                action.Init();
             }
             
             ExecuteActions(actions, condition);
