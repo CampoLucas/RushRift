@@ -24,7 +24,10 @@ namespace Game.UI.Elements
 
         private void Start()
         {
-            OnLoadHandler(GlobalLevelManager.CurrentLevel);
+            if (GlobalLevelManager.CurrentLevel.TryGet(out var level))
+            {
+                OnLoadHandler(level);
+            }
         }
 
         private void OnLoadHandler(BaseLevelSO level)
