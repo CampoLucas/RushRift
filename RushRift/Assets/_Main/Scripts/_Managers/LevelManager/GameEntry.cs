@@ -405,7 +405,7 @@ namespace Game
         /// <param name="observer"></param>
         /// <param name="disposeOnDetach"></param>
         /// <returns></returns>
-        public bool AttachOnLoad(DesignPatterns.Observers.IObserver<BaseLevelSO> observer, bool disposeOnDetach = false)
+        public bool AttachOnLoaded(DesignPatterns.Observers.IObserver<BaseLevelSO> observer, bool disposeOnDetach = false)
         {
             return _onLevelLoaded.Attach(observer, disposeOnDetach);
         }
