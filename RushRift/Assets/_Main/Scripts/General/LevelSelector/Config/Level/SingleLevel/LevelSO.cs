@@ -15,6 +15,8 @@ namespace Game.Levels
     [CreateAssetMenu(menuName = "Game/Levels/Level", fileName = "New Level Config")]
     public class LevelSO : SingleLevelSO
     {
+        public override bool VariationsEnabled => levelVariationsEnabled;
+        [SerializeField] private bool levelVariationsEnabled = false;
         
         public sealed override async UniTask LoadAsync(GlobalLevelManager manager)
         {
