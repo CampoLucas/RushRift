@@ -121,7 +121,11 @@ namespace Game.Saves
             using var fs = new FileStream(path, FileMode.Open);
             var data = (TData)formatter.Deserialize(fs);
 
-            return data.Version == Application.version;
+            var correctVersion = data.Version == Application.version;
+
+            if (correctVersion) return true;
+            Debug.LogWarning($"WARNING: The current save version {data.Version} doesn't match the build version {Application.version}");
+            return false;
         }
 
         private static TData ApplyMigrations<TData>(
