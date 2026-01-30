@@ -5161,21 +5161,16 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5623607920778510774}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 608f0d7885deb1f4f9701f34f2e11adb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilityGateMirror: 0
   lockStartMode: 2
   lockKey: 102
   blinkKey: 102
   cooldownSeconds: 1
   timeMode: 0
-  slowTimeWhileCharging: 1
-  slowTimeScale: 0.2
-  adjustFixedDeltaWhileSlowed: 1
-  useUnscaledForLockTimerWhenSlowed: 1
   aimCameraTransform: {fileID: 0}
   maxLockDistance: 20000
   lockSphereRadius: 8
@@ -5220,6 +5215,7 @@ MonoBehaviour:
   destinationOffsetSpace: 1
   snapRotationToTarget: 1
   zeroOutRigidbodyVelocity: 1
+  aimGrace: 0.1
   shouldKillTargetOnBlink: 1
   preferHealthComponentKill: 1
   shouldPlayLockChargingSfx: 1

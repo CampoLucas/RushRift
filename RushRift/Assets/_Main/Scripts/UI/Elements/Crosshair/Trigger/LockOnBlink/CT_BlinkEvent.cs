@@ -1,6 +1,7 @@
 using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.Entities.Components;
 using UnityEngine;
 
 namespace Game.UI.Elements.Crosshair
@@ -22,14 +23,26 @@ namespace Game.UI.Elements.Crosshair
 
         private ISubject GetSubject(bool i)
         {
+            PlayerSpawner.Player.Get().GetModel().TryGetComponent<BlinkComponent>(out var blink);
+            
             switch (blinkEvent)
             {
-                case BlinkEvent.LockOn:
-                    return LockOnBlink.LockActiveSubject.Where(v => v != i);
+                // case BlinkEvent.LockOn:
+                //     return LockOnBlink.LockActiveSubject.Where(v => v != i);
+                // case BlinkEvent.TargetFound:
+                //     return LockOnBlink.HasTargetSubject.Where(v => v != i);
+                // case BlinkEvent.HasLockableTarget:
+                //     return LockOnBlink.AimHasLockableSubject.Where(v => v != i);
+                // default:
+                //     throw new ArgumentOutOfRangeException();
                 case BlinkEvent.TargetFound:
-                    return LockOnBlink.HasTargetSubject.Where(v => v != i);
-                case BlinkEvent.HasLockableTarget:
-                    return LockOnBlink.AimHasLockableSubject.Where(v => v != i);
+                    return blink.OnTargetFound;
+                case BlinkEvent.TargetLost:
+                    return blink.OnTargetLost;
+                case BlinkEvent.BlinkStart:
+                    return blink.OnBlinkStart;
+                case BlinkEvent.BlinkEnd:
+                    return blink.OnBlinkEnd;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -38,6 +51,7 @@ namespace Game.UI.Elements.Crosshair
 
     public enum BlinkEvent
     {
-        LockOn, TargetFound, HasLockableTarget
+        TargetFound, TargetLost, BlinkStart, BlinkEnd
+        //LockOn, TargetFound, HasLockableTarget
     }
 }

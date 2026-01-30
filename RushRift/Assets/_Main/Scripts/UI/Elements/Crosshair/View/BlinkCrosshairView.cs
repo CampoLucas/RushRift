@@ -1,6 +1,7 @@
 using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.Entities.Components;
 using Game.Saves;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,7 +31,9 @@ namespace Game.UI.Elements.Crosshair
             image.fillAmount = 0;
             if (_onChargeObserver.TryGet(out var observer, () => new ActionObserver<float>(OnChargeHandler)))
             {
-                LockOnBlink.ChargeAmount.Attach(observer);
+                PlayerSpawner.Player.Get().GetModel().TryGetComponent<BlinkComponent>(out var blink);
+                blink.OnProgressUpdated.Attach(observer);
+                //LockOnBlink.ChargeAmount.Attach(observer);
             }
         }
 
@@ -38,7 +41,8 @@ namespace Game.UI.Elements.Crosshair
         {
             if (_onChargeObserver.TryGet(out var observer))
             {
-                LockOnBlink.ChargeAmount.Detach(observer);
+                PlayerSpawner.Player.Get().GetModel().TryGetComponent<BlinkComponent>(out var blink);
+                blink.OnProgressUpdated.Detach(observer);
             }
         }
 

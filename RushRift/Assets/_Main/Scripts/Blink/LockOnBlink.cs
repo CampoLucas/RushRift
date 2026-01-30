@@ -20,10 +20,6 @@ public class LockOnBlink : MonoBehaviour
     public static readonly Subject<bool> AimHasLockableSubject = new();
     public static readonly Subject<float> ChargeAmount = new();
 
-    [Header("Upgrade Gate")]
-    [SerializeField, Tooltip("Read-only: reflects whether the ability is currently usable, considering medal/override gate.")]
-    private bool abilityGateMirror;
-
     [Header("Lock Start Mode")]
     [SerializeField, Tooltip("Automatic: lock charges when a target is in sight. OnKeyHold: hold Lock Key to charge; release to blink. OnKeyPress: toggle charge on key press.")]
     private LockStartMode lockStartMode = LockStartMode.OnKeyPress;
@@ -183,13 +179,6 @@ public class LockOnBlink : MonoBehaviour
     public Transform GetCurrentTarget() => _currentTarget;
     public float GetCooldownRemaining() => Mathf.Max(0f, _cooldownUntil - Now);
     public bool IsReadyToBlink() => _readyToBlink;
-    
-    public bool IsAbilityAvailable()
-    {
-        bool open = IsAbilityEnabled();
-        abilityGateMirror = open;
-        return open;
-    }
 
     private void Awake()
     {
