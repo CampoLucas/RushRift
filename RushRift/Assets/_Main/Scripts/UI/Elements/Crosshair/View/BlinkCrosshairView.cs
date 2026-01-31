@@ -57,9 +57,11 @@ namespace Game.UI.Elements.Crosshair
         {
             chargeImg = null;
             
-            if (_onChargeObserver.TryGet(out var observer))
+            if (_onChargeObserver.TryGet(out var observer) && 
+                PlayerSpawner.Player.TryGet(out var player) && 
+                player.GetModel().TryGetComponent<BlinkComponent>(out var blink))
             {
-                LockOnBlink.ChargeAmount.Detach(observer);
+                blink.OnProgressUpdated.Detach(observer);
             }
             
             _onChargeObserver.Dispose();
