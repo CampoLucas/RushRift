@@ -178,7 +178,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""id"": ""d0d5cc3f-206a-4ade-ac86-d10447addedc"",
                     ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold(duration=0.2,pressPoint=0.25)"",
+                    ""interactions"": ""Hold(duration=0.2,pressPoint=0.1)"",
                     ""initialStateCheck"": false
                 },
                 {
