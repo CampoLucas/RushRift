@@ -1,8 +1,12 @@
+using System;
 using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    [System.Serializable]
+    /// <summary>
+    /// Deprecated
+    /// </summary>
+    [System.Serializable, Obsolete]
     public class JumpData
     {
         public float Force => force;

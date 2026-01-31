@@ -39,9 +39,10 @@ namespace Game.UI.Elements.Crosshair
 
         protected override void OnHide()
         {
-            if (_onChargeObserver.TryGet(out var observer))
+            if (_onChargeObserver.TryGet(out var observer) && 
+                PlayerSpawner.Player.TryGet(out var player) && 
+                player.GetModel().TryGetComponent<BlinkComponent>(out var blink))
             {
-                PlayerSpawner.Player.Get().GetModel().TryGetComponent<BlinkComponent>(out var blink);
                 blink.OnProgressUpdated.Detach(observer);
             }
         }

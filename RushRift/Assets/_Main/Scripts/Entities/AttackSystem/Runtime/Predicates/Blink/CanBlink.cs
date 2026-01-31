@@ -23,7 +23,7 @@ namespace Game.Entities.AttackSystem
                 return false;
             }
 
-            if (blink.HasTarget)
+            if (blink.CurrentTarget)
             {
                 this.Log("It can blink");
 

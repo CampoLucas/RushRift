@@ -3,7 +3,10 @@ using UnityEngine;
 
 namespace Game.Entities.Components
 {
-    [System.Serializable]
+    /// <summary>
+    /// Deprecated
+    /// </summary>
+    [System.Serializable, Obsolete]
     public class DashData
     {
         public float Distance => distance;

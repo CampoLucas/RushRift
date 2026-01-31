@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.DesignPatterns.Observers;
+using MyTools.Global;
 using UnityEngine;
 
 namespace Game.Entities
@@ -19,24 +20,25 @@ namespace Game.Entities
         private ISubject<float> _updateSubject = new Subject<float>();
         private ISubject<float> _lateUpdateSubject = new Subject<float>();
         private ISubject<float> _fixedUpdateSubject = new Subject<float>();
-        public NullCheck<SubjectObserver<bool>> _onLoading;
+        public NullCheck<SubjectObserver<bool>> _onLoading = new SubjectObserver<bool>();
 
         public EntityModel(TData data)
         {
             _data = data;
+            
         }
 
         /// <summary>
         /// Initializes the model with a controller reference
         /// </summary>
         /// <param name="controller">The assigned controller for the model</param>
-        public virtual void Init(IController controller)
+        public void Init(IController controller)
         {
             _data.Init(controller, this);
 
-            if (_onLoading.TryGet(out var observer))
+            if (_onLoading.TryGet(out var subject, CreateBoolSubject))
             {
-                GameEntry.LoadingState.AttachOnLoading(observer);
+                GameEntry.LoadingState.AttachOnLoading(subject);
             }
         }
 
@@ -153,10 +155,12 @@ namespace Game.Entities
                 _fixedUpdateSubject.Attach(fixedUpdate);
             }
 
-            if (component.OnLoading.TryGet(out var observer) // If it has a OnLoading observer
-                && _onLoading.TryGet(out var subject, CreateBoolSubject)) // Get the OnLoadingSubject from the entity, create one if it doesn't have one
+            // If it has a OnLoading observer
+            // Get the OnLoadingSubject from the entity, create one if it doesn't have one
+            if (_onLoading.TryGet(out var subject, CreateBoolSubject) && component.OnLoadingObserver.TryGet(out var observer)) 
             {
                 subject.Attach(observer);
+                //GameEntry.LoadingState.AttachOnLoading(observer);
             }
         }
 
@@ -188,10 +192,12 @@ namespace Game.Entities
                 _fixedUpdateSubject.Detach(fixedUpdate);
             }
             
-            if (component.OnLoading.TryGet(out var observer) // If it has a OnLoading observer
-                && _onLoading.TryGet(out var subject)) // Get the OnLoadingSubject from the entity and unsubscribe
+            // If it has a OnLoading observer
+            // Get the OnLoadingSubject from the entity and unsubscribe
+            if (_onLoading.TryGet(out var subject) && component.OnLoadingObserver.TryGet(out var observer)) 
             {
                 subject.Detach(observer);
+                //GameEntry.LoadingState.DetachOnLoading(observer);
             }
             
             if (disposeComponent) component.Dispose();

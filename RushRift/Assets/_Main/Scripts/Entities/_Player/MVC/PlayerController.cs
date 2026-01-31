@@ -85,22 +85,22 @@ namespace Game.Entities
         
         protected override void InitStateMachine()
         {
-            _fsm = new EntityStateMachine(this);
-
-            var playerModel = model as PlayerModelSO;
-            
-            //var idleState = new IdleState();
-            var moveState = new MoveState(MoveType.Grounded);
-            var jumpState = new JumpState(playerModel.Jump, MoveType.Air);
-            var fallState = new MoveState(MoveType.Air);
-
-            //_fsm.AddState(IdleState, idleState);
-            _fsm.AddState(MoveState, moveState);
-            _fsm.AddState(JumpState, jumpState);
-            _fsm.AddState(FallState, fallState);
-            
-            //_fsm.SetRootState(IdleState);
-            _fsm.SetState(MoveState);
+            // _fsm = new EntityStateMachine(this);
+            //
+            // var playerModel = model as PlayerModelSO;
+            //
+            // //var idleState = new IdleState();
+            // var moveState = new MoveState(MoveType.Grounded);
+            // var jumpState = new JumpState(playerModel.Jump, MoveType.Air);
+            // var fallState = new MoveState(MoveType.Air);
+            //
+            // //_fsm.AddState(IdleState, idleState);
+            // _fsm.AddState(MoveState, moveState);
+            // _fsm.AddState(JumpState, jumpState);
+            // _fsm.AddState(FallState, fallState);
+            //
+            // //_fsm.SetRootState(IdleState);
+            // _fsm.SetState(MoveState);
 
             // // Idle Transitions
             // // idleState.AddTransition(MoveState, new IsMovingPredicate());

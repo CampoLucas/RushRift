@@ -6,14 +6,10 @@ namespace Game.Entities.Components
     public class BlinkConfig
     {
         public float Range => range;
-        public float SphereRadius => sphereRadius;
-        public LayerMask TargetLayers => targetLayers;
-        public string RequiredTag => requiredTag;
-        public bool RequireLineOfSight => requireLineOfSight;
-        public int MaxHits => Mathf.Max(8, maxHits);
 
         public float LockTime => Mathf.Max(0.01f, lockTime);
         public float RetainGrace => Mathf.Max(0f, retainGrace);
+        public float MinAimDot => minAimDot;
 
         public Vector3 BlinkOffset => blinkOffset;
         public bool OffsetIsTargetLocal => offsetIsTargetLocal;
@@ -23,18 +19,19 @@ namespace Game.Entities.Components
 
         public float Cooldown => Mathf.Max(0f, cooldown);
         
-        [Header("Targeting")]
+        [Header("Lock")]
         [SerializeField] private float range = 45f;
-        [SerializeField] private float sphereRadius = 0.35f;
-        [SerializeField] private LayerMask targetLayers = ~0;
-        [SerializeField] private string requiredTag = "Enemy";
-        [SerializeField] private bool requireLineOfSight = true;
-        [SerializeField] private int maxHits = 32;
+        [Tooltip("The energy increases the base range bia x%.")]
+        [SerializeField] private float energyRangeBoost = 5;
 
         [Header("Charge")]
         [SerializeField] private float lockTime = .30f;
+        
+        [Header("Grace")]
+        [Tooltip("The delay until it stop locking after losing the target.")]
         [SerializeField] private float retainGrace = .20f;
-
+        [SerializeField, Range(-1f, 1f)] private float minAimDot = .85f; 
+        
         [Header("Blink")]
         [SerializeField] private Vector3 blinkOffset = new Vector3(0f, 0f, -1.25f);
         [SerializeField] private bool offsetIsTargetLocal = true;

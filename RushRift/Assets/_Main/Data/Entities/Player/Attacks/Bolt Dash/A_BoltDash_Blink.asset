@@ -16,20 +16,16 @@ MonoBehaviour:
   children:
     collection: []
   config:
-    range: 20000
-    sphereRadius: 0.35
-    targetLayers:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    requiredTag: Enemy
-    requireLineOfSight: 1
-    maxHits: 32
+    range: 15
+    energyRangeBoost: 5
     lockTime: 0.3
     retainGrace: 0.2
-    blinkOffset: {x: 0, y: 0, z: 1.25}
-    offsetIsTargetLocal: 1
+    minAimDot: 0.85
+    blinkOffset: {x: 0, y: 0, z: 0}
+    offsetIsTargetLocal: 0
     snapRotationToTarget: 1
     zeroVelocity: 1
+    killOnBlink: 1
     cooldown: 1
 --- !u!114 &11400000
 MonoBehaviour:

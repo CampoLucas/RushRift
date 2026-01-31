@@ -6,7 +6,7 @@ namespace Game.Entities.Components
 {
     public class EntityComponent : IEntityComponent
     {
-        public NullCheck<ActionObserver<bool>> OnLoading { get; protected set; }
+        public NullCheck<ActionObserver<bool>> OnLoadingObserver { get; protected set; }
         public virtual bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             observer = default;
@@ -31,7 +31,7 @@ namespace Game.Entities.Components
         public void Dispose()
         {
             OnDispose();
-            OnLoading.Dispose();
+            OnLoadingObserver.Dispose();
         }
         
         protected virtual void OnDispose() {}

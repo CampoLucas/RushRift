@@ -1,78 +1,316 @@
 using Game.DesignPatterns.Observers;
-using Game.Levels;
 using MyTools.Global;
 using UnityEngine;
+using UnityEngine.Android;
 
 namespace Game.Entities.Components
 {
     public class BlinkComponent : EntityComponent
     {
-        public NullCheck<Transform> CurrentTarget => _currentTarget;
-        private NullCheck<Transform> _currentTarget;
-        public bool HasTarget => _currentTarget;
-        public float LockProgress { get; private set; }
-        public bool IsCharging { get; private set; }
-        public bool IsReady => LockProgress >= 1f;
-        public bool BlinkFinished { get; private set; }
-        
-        public Subject OnTargetFound { get; private set; } = new();
-        public Subject OnTargetChanged { get; private set; } = new();
-        public Subject OnTargetLost { get; private set; } = new();
-        public Subject<float> OnProgressUpdated { get; private set; } = new();
-        public Subject OnBlinkStart { get; private set; } = new();
-        public Subject OnBlinkEnd { get; private set; } = new();
-        
-        private readonly BlinkConfig _config;
+        public enum BlinkState { Idle, Charging, Charged, Finished }
 
+        #region Public Properties
+
+        public BlinkState State { get; private set; } = BlinkState.Idle;
+        public NullCheck<Transform> CurrentTarget => _currentTarget;
+        public Transform Origin => _origin.Get();
+        public float BlinkProgress { get; private set; }
+
+        #endregion
+        
+        #region Subjects
+
+        public Subject OnTargetFound { get; } = new();
+        public Subject OnTargetChanged { get; } = new();
+        public Subject OnTargetLost { get; } = new();
+        public Subject<float> OnProgressUpdated { get; } = new();
+        public Subject OnBlinkStart { get; } = new();
+        public Subject OnBlinkEnd { get; } = new();
+        public Subject OnBlinkCanceled { get; } = new();
+
+        #endregion
+
+        private readonly BlinkConfig _config;
+        
+        private NullCheck<TargetDetectComp> _detector;
         private NullCheck<Transform> _origin;
         private NullCheck<Transform> _forward;
-        private NullCheck<Rigidbody> _rb;
-        private NullCheck<Transform> _aimTarget;
-
-        private float _lastSeenTime;
+        
+        private NullCheck<Transform> _currentTarget;
+        
+        private bool _targetLost;
+        private float _targetLostTime;
+        
         private float _cooldown;
 
-        private RaycastHit[] _hits;
         private ActionObserver<float> _updateObserver;
         
-        public BlinkComponent(BlinkConfig config, Transform origin, Transform forward, Rigidbody rb = null)
+        // detector observers
+        private ActionObserver<Transform> _onAimFound;
+        private ActionObserver<Transform> _onAimLost;
+        private ActionObserver<Transform> _onAimChanged;
+
+        public BlinkComponent(BlinkConfig config, TargetDetectComp detector, Transform origin, Transform forward)
         {
             _config = config;
+            _detector = detector;
             _origin = origin;
             _forward = forward;
-            _rb = rb;
 
-            _hits = new RaycastHit[_config.MaxHits];
+            OnLoadingObserver = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
 
-            OnLoading.Set(new ActionObserver<bool>(OnLoadingHandler));
+            AttachDetector(detector);
         }
+
+        public BlinkComponent(BlinkConfig config, TargetDetectComp detector) : this(config, detector, detector.Origin,
+            detector.Forward) { }
         
         private void Update(float delta)
         {
-            if (!_origin || !_forward)
-            {
-                this.Log("returning");
-                return;
-            }
+            if (!_origin || !_forward) return;
 
-            UpdateTarget();
-            
-            if (IsCharging && HasTarget && Time.time >= _cooldown)
+            if (_targetLost) DoGrace();
+
+            if (State == BlinkState.Charging)
             {
-                this.Log($"Lock progress ongoing LP: {LockProgress} Cooldown: {_cooldown}");
-                LockProgress += delta / _config.LockTime;
-                if (LockProgress > 1f) LockProgress = 1f;
+                if (!_currentTarget)
+                {
+                    CancelCharge(hard: false);
+                    return;
+                }
+
+                BlinkProgress += delta / Mathf.Max(0.0001f, _config.LockTime);
+                
+                if (BlinkProgress >= 1f)
+                {
+                    BlinkProgress = 1f;
+                    State = BlinkState.Charged;
+                    
+                    OnProgressUpdated.NotifyAll(BlinkProgress);
+                    OnBlinkEnd.NotifyAll(); // finished charging
+                    return;
+                }
+                
+                OnProgressUpdated.NotifyAll(BlinkProgress);
             }
-            else
-            {
-                LockProgress = 0f;
-            }
-            OnProgressUpdated.NotifyAll(LockProgress);
         }
 
         private void OnLoadingHandler(bool state)
         {
-            ResetState(true);
+            this.Log("Reset Blink On Load");
+            HardReset();
+        }
+
+        #region Detector Callbacks
+
+        private void OnDetectorTargetFound(Transform t)
+        {
+            _targetLost = false;
+            _targetLostTime = 0f;
+
+            if (_currentTarget.TryGet(out var curr))
+            {
+                if (curr != t)
+                {
+                    _currentTarget.Set(t);
+                    OnTargetChanged.NotifyAll();
+                }
+            }
+            else
+            {
+                _currentTarget.Set(t);
+                OnTargetFound.NotifyAll();
+            }
+            
+            //UpdateBlinkData();
+        }
+
+        private void OnDetectorTargetChanged(Transform t)
+        {
+            _targetLost = false;
+            _targetLostTime = 0f;
+            
+            _currentTarget.Set(t);
+            OnTargetChanged.NotifyAll();
+            //UpdateBlinkData();
+        }
+        
+        private void OnDetectorTargetLost(Transform t)
+        {
+            _targetLost = true;
+            _targetLostTime = Time.time;
+        }
+
+        #endregion
+
+        #region Charge Control
+
+        public bool BeginCharge()
+        {
+            if (State != BlinkState.Idle) return false;
+            if (Time.time < _cooldown) return false;
+            if (!_currentTarget) return false;
+
+            State = BlinkState.Charging;
+            BlinkProgress = 0f;
+            
+            OnProgressUpdated.NotifyAll(BlinkProgress);
+            OnBlinkStart.NotifyAll();
+            //UpdateBlinkData();
+            return true;
+        }
+
+        public void FinishCharge()
+        {
+            State = BlinkState.Finished;
+        }
+        
+        public void CancelCharge(bool hard)
+        {
+            var wasCanceled = State == BlinkState.Charging && BlinkProgress < 1f;
+
+            State = BlinkState.Idle;
+            BlinkProgress = 0f;
+            OnProgressUpdated.NotifyAll(BlinkProgress);
+
+            if (wasCanceled)
+                OnBlinkCanceled.NotifyAll();
+
+            if (hard)
+            {
+                ClearTarget();
+                _cooldown = 0f;
+                _targetLost = false;
+                _targetLostTime = 0f;
+            }
+        }
+        
+        public bool CanBlinkNow()
+        {
+            return State == BlinkState.Charged && _currentTarget && Time.time >= _cooldown;
+        }
+
+        public void ConfirmCooldown(float seconds)
+        {
+            _cooldown = Time.time + Mathf.Max(0f, seconds);
+        }
+
+        #endregion
+
+        #region Target Handling
+
+        private void DoGrace()
+        {
+            if (!IsValidTarget(_currentTarget) || Time.time - _targetLostTime > _config.RetainGrace)
+            {
+                LoseTarget();
+            }
+        }
+
+        private void LoseTarget()
+        {
+            ClearTarget();
+
+            if (State == BlinkState.Charging || State == BlinkState.Charged)
+            {
+                CancelCharge(false);
+            }
+        }
+
+        private void ClearTarget()
+        {
+            if (!_currentTarget) return;
+
+            _currentTarget.Set(null);
+            OnTargetLost.NotifyAll();
+        }
+
+        #endregion
+        
+        #region Blink Data
+
+        private bool IsValidTarget(Transform t)
+        {
+            if (!t) return false;
+            if (!_origin.TryGet(out var origin)) return false;
+            if (!_forward.TryGet(out var fwd)) return false;
+
+            var to = t.position - origin.position;
+
+            if (to.sqrMagnitude > _config.Range * _config.Range)
+                return false;
+
+            var dot = Vector3.Dot(fwd.forward, to.normalized);
+            return dot >= _config.MinAimDot;
+        }
+        
+        public bool TryGetBlinkCoords(out Vector3 pos, out Quaternion rot)
+        {
+            if (!_currentTarget.TryGet(out var targetTr) || !_origin.TryGet(out var origin))
+            {
+                pos = Vector3.zero;
+                rot = Quaternion.identity;
+                return false;
+            }
+
+            var offset = _config.OffsetIsTargetLocal
+                ? targetTr.TransformVector(_config.BlinkOffset)
+                : _config.BlinkOffset;
+
+            pos = targetTr.position + offset;
+            
+            if (_config.SnapRotationToTarget)
+            {
+                var dir = (targetTr.position - pos);
+                dir.y = 0f;
+                if (dir.sqrMagnitude > 0.0001f)
+                    rot = Quaternion.LookRotation(dir.normalized, Vector3.up);
+            }
+            
+            rot = origin.rotation;
+            return true;
+        }
+
+        #endregion
+        
+        private void HardReset()
+        {
+            State = BlinkState.Idle;
+            BlinkProgress = 0f;
+            _cooldown = 0f;
+
+            _targetLost = false;
+            _targetLostTime = 0f;
+
+            ClearTarget();
+            OnProgressUpdated.NotifyAll(BlinkProgress);
+        }
+        
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            
+            if (_detector.TryGet(out var detector) && detector != null)
+            {
+                if (_onAimFound != null) detector.OnTargetFound.Detach(_onAimFound);
+                if (_onAimLost != null) detector.OnTargetLost.Detach(_onAimLost);
+                if (_onAimChanged != null) detector.OnTargetChanged.Detach(_onAimChanged);
+            }
+            
+            _onAimFound?.Dispose(); 
+            _onAimFound = null;
+            _onAimLost?.Dispose(); 
+            _onAimLost = null;
+            _onAimChanged?.Dispose(); 
+            _onAimChanged = null;
+
+            _updateObserver?.Dispose();
+            _updateObserver = null;
+
+            _origin.Dispose();
+            _forward.Dispose();
+            _currentTarget.Dispose();
+            _detector = null;
         }
         
         public override bool TryGetUpdate(out IObserver<float> observer)
@@ -81,258 +319,24 @@ namespace Game.Entities.Components
             observer = _updateObserver;
             return true;
         }
-
-        // public void SetCharging(bool charging)
-        // {
-        //     if (!IsCharging && charging)
-        //     {
-        //         BlinkFinished = false;
-        //     }
-        //     
-        //     if (IsCharging && !charging)
-        //     {
-        //         LockProgress = 0f;
-        //     }
-        //
-        //     IsCharging = charging;
-        // }
-
-        public bool CanBlink()
-        {
-            if (!_origin || !_forward) return false;
-            if (Time.time < _cooldown) return false;
-
-            if (!HasTarget)
-            {
-                this.Log("It doesn't have a target");
-            }
-
-            if (!IsReady)
-            {
-                this.Log("It is not ready");
-            }
-            
-            return HasTarget && IsReady;
-        }
-
-        public bool TryAutoBlink()
-        {
-            if (!IsCharging) return false;
-            return TryBlink();
-        }
-
-        public bool TryBlink(bool forced = false)
-        {
-            if (!forced && !CanBlink()) return false;
-            return ExecuteBlink(_currentTarget);
-        }
-
-        private void UpdateTarget()
-        {
-            var aimed = GetTarget();
-            
-            if (aimed && !_aimTarget)
-                OnTargetFound.NotifyAll();
-            
-            if (!aimed && _aimTarget)
-                OnTargetLost.NotifyAll();
-
-            _aimTarget = aimed;
-            
-            if (aimed.TryGet(out var t))
-            {
-                if (_currentTarget.TryGet(out var curr) && curr != t)
-                {
-                    OnTargetChanged.NotifyAll();
-                }
-                
-                _currentTarget.Set(t);
-                _lastSeenTime = Time.time;
-                return;
-            }
-            
-            // if t is null apply grace
-            if (!_currentTarget) return;
-
-            if (!IsCharging)
-            {
-                _currentTarget.Set(null);
-                return;
-            }
-
-            if (Time.time - _lastSeenTime > _config.RetainGrace)
-            {
-                _currentTarget.Set(null);
-            }
-        }
-
-        private NullCheck<Transform> GetTarget()
-        {
-            // Ray from the camera to the center
-            var forward = _forward.Get();
-            var ray = new Ray(forward.position, forward.forward);
-
-            var hitCount = Physics.SphereCastNonAlloc(
-                ray,
-                _config.SphereRadius,
-                _hits,
-                GetRange(),
-                _config.TargetLayers,
-                QueryTriggerInteraction.Ignore
-            );
-
-            if (hitCount <= 0) return null;
-            
-            // Pick closest valid
-            Transform best = null;
-            var bestDist = float.PositiveInfinity;
-
-            for (var i = 0; i < hitCount; i++)
-            {
-                var hit = _hits[i];
-                var tr = hit.collider ? hit.collider.transform : null;
-                if (tr == null) continue;
-
-                // Tag filter
-                if (!string.IsNullOrEmpty(_config.RequiredTag) && !tr.CompareTag(_config.RequiredTag))
-                {
-                    // If collider is on a child, the tag might be on the root.
-                    var root = tr.root;
-                    if (root == null || !root.CompareTag(_config.RequiredTag))
-                        continue;
-
-                    tr = root;
-                }
-
-                // LOS check
-                if (_config.RequireLineOfSight)
-                {
-                    var targetPos = tr.position;
-                    var dir = (targetPos - forward.position);
-                    var dist = dir.magnitude;
-                    if (dist > 0.0001f)
-                    {
-                        if (Physics.Raycast(forward.position, dir / dist, out var losHit, dist, ~0, QueryTriggerInteraction.Ignore))
-                        {
-                            // If something else blocks, reject
-                            if (losHit.collider == null || losHit.collider.transform.root != tr.root)
-                                continue;
-                        }
-                    }
-                }
-
-                var d = hit.distance;
-                if (d < bestDist)
-                {
-                    bestDist = d;
-                    best = tr;
-                }
-            }
-
-            return best;
-        }
         
-        private bool ExecuteBlink(NullCheck<Transform> target)
+        private void AttachDetector(TargetDetectComp detector)
         {
-            if (!target.TryGet(out var targetTr) || !_origin.TryGet(out var origin)) return false;
+            if (detector == null) return;
 
-            var offset = _config.OffsetIsTargetLocal
-                ? targetTr.TransformVector(_config.BlinkOffset)
-                : _config.BlinkOffset;
+            _onAimFound = new ActionObserver<Transform>(OnDetectorTargetFound);
+            _onAimLost = new ActionObserver<Transform>(OnDetectorTargetLost);
+            _onAimChanged = new ActionObserver<Transform>(OnDetectorTargetChanged);
 
-            var blinkPos = targetTr.position + offset;
+            detector.OnTargetFound.Attach(_onAimFound);
+            detector.OnTargetLost.Attach(_onAimLost);
+            detector.OnTargetChanged.Attach(_onAimChanged);
 
-            origin.position = blinkPos;
-
-            if (_config.SnapRotationToTarget)
+            // If detector already has a target when we spawn, treat as found
+            if (detector.CurrentTarget.TryGet(out var t) && t != null)
             {
-                var dir = (targetTr.position - origin.position);
-                dir.y = 0f;
-                if (dir.sqrMagnitude > 0.0001f)
-                    origin.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+                OnDetectorTargetFound(t);
             }
-
-            if (_config.ZeroVelocity && _rb.TryGet(out var rb))
-                rb.velocity = Vector3.zero;
-
-            _cooldown = Time.time + _config.Cooldown;
-            
-            if (_config.KillOnBlink)
-                KillTarget(targetTr);
-            
-            EndBlink();
-            
-            return true;
-        }
-
-        public void BeginBlink()
-        {
-            OnBlinkStart.NotifyAll();
-            BlinkFinished = false;
-            LockProgress = 0f;
-            IsCharging = true;
-            //ResetState(hard: false);
-        }
-        
-        private void EndBlink()
-        {
-            OnBlinkEnd.NotifyAll();
-            BlinkFinished = true;
-            ResetState(hard: false); // keep target if you want, but clear charge
-        }
-        
-        public void ResetState(bool hard)
-        {
-            
-            LockProgress = 0f;
-            IsCharging = false;
-
-            if (hard)
-            {
-                _currentTarget.Set(null);
-                _cooldown = 0f;
-                _lastSeenTime = 0f;
-                BlinkFinished = false;
-            }
-        }
-        
-        private void KillTarget(NullCheck<Transform> t)
-        {
-            if (!t.TryGet(out var target)) return;
-
-            // var controller = target.GetComponentInParent<EntityController>();
-            // if (controller == null) return;
-            
-            var controller = target.GetComponentInParent<EntityController>();
-            var barrel = target.GetComponentInParent<ExplosiveBarrel>();
-            if (barrel && _rb.TryGet(out var rb)) barrel.TriggerExplosionExternal(null, true, rb);
-
-            if (controller != null)
-            {
-                var model = controller.GetModel();
-                if (model != null && model.TryGetComponent<HealthComponent>(out var health))
-                {
-                    health.Intakill(target.position);
-                    return;
-                }
-                controller.OnNotify(EntityController.DESTROY);
-                
-            }
-
-        }
-
-        private float GetRange() => _config.Range;
-
-        protected override void OnDispose()
-        {
-            base.OnDispose();
-            _updateObserver?.Dispose();
-            _updateObserver = null;
-            _hits = null;
-            _currentTarget.Dispose();
-            _origin.Dispose();
-            _forward.Dispose();
-            _rb.Dispose();
         }
     }
 }

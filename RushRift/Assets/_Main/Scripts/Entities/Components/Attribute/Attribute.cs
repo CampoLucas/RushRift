@@ -31,7 +31,7 @@ namespace Game.Entities.Components
             
             _updateObserver = new ActionObserver<float>(Update);
             _regenStrategy = new RegenStrategy<TData, TDataReturn>();
-            OnLoading = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
+            OnLoadingObserver = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
             
             InitAttribute();
         }

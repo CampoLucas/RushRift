@@ -5,6 +5,7 @@ using Game.DesignPatterns.Observers;
 using Game.Entities.AttackSystem;
 using Game.Entities.Components;
 using Game.InputSystem;
+using MyTools.Global;
 using UnityEngine;
 
 namespace Game.Entities.AttackSystem
@@ -33,6 +34,14 @@ namespace Game.Entities.AttackSystem
             
             _updateObserver = new ActionObserver<float>(Update);
             _lateUpdateObserver = new ActionObserver<float>(LateUpdate);
+
+            OnLoadingObserver = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
+            //OnLoadingObserver.Set(new ActionObserver<bool>(OnLoadingHandler));
+        }
+
+        private void OnLoadingHandler(bool state)
+        {
+            ResetCombo();
         }
 
         public static bool EvaluateTransitions(in IEnumerable<TransitionProxy> transitions, ComboHandler comboHandler,
@@ -115,10 +124,24 @@ namespace Game.Entities.AttackSystem
 
         public void SetAttack(IAttack attack)
         {
-            _timeAttackStarted = Time.time;
             if (Current != null) Current.EndAttack(this);
+
             Current = attack;
-            Current.StartAttack(this);
+
+            if (Current != null)
+            {
+                _timeAttackStarted = Time.time;
+                Current.StartAttack(this);
+            }
+            else
+            {
+                _timeAttackStarted = 0f; // or -Mathf.Infinity, see below
+            }
+            
+            // _timeAttackStarted = Time.time;
+            // if (Current != null) Current.EndAttack(this);
+            // Current = attack;
+            // if (Current != null) Current.StartAttack(this);
         }
         
         public void StopCombo()
@@ -126,15 +149,13 @@ namespace Game.Entities.AttackSystem
             if (Current != null) Current.EndAttack(this);
             Current = null;
         }
-        
-        public void SetCombo(IAttack attack)
-        {
-            if (attack == null) return;
-            if (Current != null) Current.EndAttack(this);
 
-            _timeAttackStarted = Time.time;
-            Current = attack;
-            Current.StartAttack(this);
+        public void ResetCombo()
+        {
+            if (Current != null) Current.EndAttack(this);
+            Current = null;
+
+            _timeAttackStarted = 0f;
         }
         
         public bool AttackEnded() => Current == null || Time.time - _timeAttackStarted >= Current.Duration;

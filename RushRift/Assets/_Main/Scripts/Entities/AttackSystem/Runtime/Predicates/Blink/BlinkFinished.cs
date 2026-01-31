@@ -12,7 +12,7 @@ namespace Game.Entities.AttackSystem
             var owner = combo.Owner;
             if (owner == null || !owner.GetModel().TryGetComponent<BlinkComponent>(out var blink)) return false;
 
-            return blink.BlinkFinished;
+            return blink.State == BlinkComponent.BlinkState.Finished;
         }
     }
 }

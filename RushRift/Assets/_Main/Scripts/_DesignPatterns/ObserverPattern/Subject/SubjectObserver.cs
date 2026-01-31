@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using MyTools.Global;
 
 namespace Game.DesignPatterns.Observers
 {
@@ -14,7 +16,20 @@ namespace Game.DesignPatterns.Observers
     {
         public void OnNotify(T arg)
         {
-            NotifyAll(arg);
+            this.Log($"Notyfy all on notify {Subscribers.Count}");
+            var subscribers = Subscribers.ToList();
+        
+            for (var i = 0; i < subscribers.Count; i++)
+            {
+                var subscriber = subscribers[i];
+                if (subscriber == null)
+                {
+                    continue;
+                }
+                subscriber.OnNotify(arg);
+        
+                if (DetachOnNotify) Detach(subscriber);
+            }
         }
     }
 
