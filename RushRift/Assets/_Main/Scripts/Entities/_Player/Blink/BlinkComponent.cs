@@ -35,12 +35,9 @@ namespace Game.Entities.Components
         private NullCheck<TargetDetectComp> _detector;
         private NullCheck<Transform> _origin;
         private NullCheck<Transform> _forward;
-        
+
+        private NullCheck<Transform> _newTarget;
         private NullCheck<Transform> _currentTarget;
-        
-        private bool _targetLost;
-        private float _targetLostTime;
-        
         private float _cooldown;
 
         private ActionObserver<float> _updateObserver;
@@ -49,6 +46,9 @@ namespace Game.Entities.Components
         private ActionObserver<Transform> _onAimFound;
         private ActionObserver<Transform> _onAimLost;
         private ActionObserver<Transform> _onAimChanged;
+
+        private bool _targetOutOfSight;
+        private float _graceTimer;
 
         public BlinkComponent(BlinkConfig config, TargetDetectComp detector, Transform origin, Transform forward)
         {
@@ -69,8 +69,33 @@ namespace Game.Entities.Components
         {
             if (!_origin || !_forward) return;
 
-            if (_targetLost) DoGrace();
+            if (_newTarget.TryGet(out var newT) && InRange(newT))
+            {
+                StopGrace();
+                SetTarget(newT);
+                _newTarget.Set(null);
+            }
+            
+            if (!_currentTarget.TryGet(out var t)) return;
+            
+            // if target is to far away, lose the lock
+            if (!InRange(t, _config.RangeOffset))
+            {
+                StopCharge();
+                return;
+            }
 
+            if (_targetOutOfSight)
+            {
+                _graceTimer -= delta;
+                if (_graceTimer <= 0 || !IsInFOV(t))
+                {
+                    StopCharge();
+                    return;
+                }
+            }
+            
+            
             if (State == BlinkState.Charging)
             {
                 if (!_currentTarget)
@@ -79,19 +104,17 @@ namespace Game.Entities.Components
                     return;
                 }
 
-                BlinkProgress += delta / Mathf.Max(0.0001f, _config.LockTime);
+                SetProgress(BlinkProgress + delta / Mathf.Max(0.0001f, _config.LockTime));
                 
                 if (BlinkProgress >= 1f)
                 {
-                    BlinkProgress = 1f;
                     State = BlinkState.Charged;
                     
-                    OnProgressUpdated.NotifyAll(BlinkProgress);
+                    SetProgress(1f);
                     OnBlinkEnd.NotifyAll(); // finished charging
                     return;
                 }
                 
-                OnProgressUpdated.NotifyAll(BlinkProgress);
             }
         }
 
@@ -101,44 +124,60 @@ namespace Game.Entities.Components
             HardReset();
         }
 
+        #region Grace Methods
+
+        private bool InRange(Transform t, float offset = 0)
+        {
+            if (!t) return false;
+            if (!_origin.TryGet(out var origin)) return false;
+            
+            var range = _config.Range + offset;
+            var to = t.position - origin.position;
+            return to.sqrMagnitude <= range * range;
+        }
+        
+        private void StopGrace()
+        {
+            _targetOutOfSight = false;
+            _graceTimer = 0;
+        }
+
+        private void StartGrace()
+        {
+            _targetOutOfSight = true;
+            _graceTimer = _config.LoseDelay;
+        }
+
+        #endregion
+        
+
         #region Detector Callbacks
 
         private void OnDetectorTargetFound(Transform t)
         {
-            _targetLost = false;
-            _targetLostTime = 0f;
-
-            if (_currentTarget.TryGet(out var curr))
+            if (!InRange(t))
             {
-                if (curr != t)
-                {
-                    _currentTarget.Set(t);
-                    OnTargetChanged.NotifyAll();
-                }
-            }
-            else
-            {
-                _currentTarget.Set(t);
-                OnTargetFound.NotifyAll();
+                _newTarget.Set(t);
+                return;
             }
             
-            //UpdateBlinkData();
+            StopGrace();
+
+            if (_currentTarget.TryGet(out var curr) && curr == t) return;
+            SetTarget(t);
         }
 
         private void OnDetectorTargetChanged(Transform t)
         {
-            _targetLost = false;
-            _targetLostTime = 0f;
-            
-            _currentTarget.Set(t);
-            OnTargetChanged.NotifyAll();
-            //UpdateBlinkData();
+            if (!InRange(t)) return;
+            StopGrace();
+
+            SetTarget(t);
         }
         
         private void OnDetectorTargetLost(Transform t)
         {
-            _targetLost = true;
-            _targetLostTime = Time.time;
+            StartGrace();
         }
 
         #endregion
@@ -152,9 +191,7 @@ namespace Game.Entities.Components
             if (!_currentTarget) return false;
 
             State = BlinkState.Charging;
-            BlinkProgress = 0f;
-            
-            OnProgressUpdated.NotifyAll(BlinkProgress);
+            SetProgress(0f);
             OnBlinkStart.NotifyAll();
             //UpdateBlinkData();
             return true;
@@ -170,8 +207,7 @@ namespace Game.Entities.Components
             var wasCanceled = State == BlinkState.Charging && BlinkProgress < 1f;
 
             State = BlinkState.Idle;
-            BlinkProgress = 0f;
-            OnProgressUpdated.NotifyAll(BlinkProgress);
+            SetProgress(0f);
 
             if (wasCanceled)
                 OnBlinkCanceled.NotifyAll();
@@ -180,9 +216,26 @@ namespace Game.Entities.Components
             {
                 ClearTarget();
                 _cooldown = 0f;
-                _targetLost = false;
-                _targetLostTime = 0f;
+                _targetOutOfSight = false;
+                _graceTimer = 0;
             }
+        }
+
+        private void StopCharge()
+        {
+            State = BlinkState.Idle;
+            SetProgress(0f);
+            
+            ClearTarget();
+            _cooldown = 0f;
+            _targetOutOfSight = false;
+            _graceTimer = 0;
+        }
+
+        private void SetProgress(float progress)
+        {
+            BlinkProgress = Mathf.Clamp01(progress);
+            OnProgressUpdated.NotifyAll(progress);
         }
         
         public bool CanBlinkNow()
@@ -198,25 +251,7 @@ namespace Game.Entities.Components
         #endregion
 
         #region Target Handling
-
-        private void DoGrace()
-        {
-            if (!IsValidTarget(_currentTarget) || Time.time - _targetLostTime > _config.RetainGrace)
-            {
-                LoseTarget();
-            }
-        }
-
-        private void LoseTarget()
-        {
-            ClearTarget();
-
-            if (State == BlinkState.Charging || State == BlinkState.Charged)
-            {
-                CancelCharge(false);
-            }
-        }
-
+        
         private void ClearTarget()
         {
             if (!_currentTarget) return;
@@ -224,12 +259,27 @@ namespace Game.Entities.Components
             _currentTarget.Set(null);
             OnTargetLost.NotifyAll();
         }
+        
+        private void SetTarget(Transform t)
+        {
+            if (_currentTarget.TryGet(out var curr) && curr != null)
+            {
+                if (curr == t) return;
+                _currentTarget.Set(t);
+                OnTargetChanged.NotifyAll();
+            }
+            else
+            {
+                _currentTarget.Set(t);
+                OnTargetFound.NotifyAll();
+            }
+        }
 
         #endregion
         
         #region Blink Data
 
-        private bool IsValidTarget(Transform t)
+        private bool IsInFOV(Transform t)
         {
             if (!t) return false;
             if (!_origin.TryGet(out var origin)) return false;
@@ -258,6 +308,7 @@ namespace Game.Entities.Components
                 : _config.BlinkOffset;
 
             pos = targetTr.position + offset;
+            rot = origin.rotation;
             
             if (_config.SnapRotationToTarget)
             {
@@ -267,7 +318,6 @@ namespace Game.Entities.Components
                     rot = Quaternion.LookRotation(dir.normalized, Vector3.up);
             }
             
-            rot = origin.rotation;
             return true;
         }
 
@@ -276,14 +326,15 @@ namespace Game.Entities.Components
         private void HardReset()
         {
             State = BlinkState.Idle;
-            BlinkProgress = 0f;
             _cooldown = 0f;
 
-            _targetLost = false;
-            _targetLostTime = 0f;
+            
+            _targetOutOfSight = false;
+            _graceTimer = 0;
 
             ClearTarget();
-            OnProgressUpdated.NotifyAll(BlinkProgress);
+            
+            SetProgress(0f);
         }
         
         protected override void OnDispose()

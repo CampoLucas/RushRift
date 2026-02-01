@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Entities.Components
 {
@@ -6,9 +7,11 @@ namespace Game.Entities.Components
     public class BlinkConfig
     {
         public float Range => range;
+        public float RangeBoost => energyRangeBoost;
+        public float RangeOffset => rangeOffset;
 
         public float LockTime => Mathf.Max(0.01f, lockTime);
-        public float RetainGrace => Mathf.Max(0f, retainGrace);
+        public float LoseDelay => Mathf.Max(0f, loseDelay);
         public float MinAimDot => minAimDot;
 
         public Vector3 BlinkOffset => blinkOffset;
@@ -28,8 +31,10 @@ namespace Game.Entities.Components
         [SerializeField] private float lockTime = .30f;
         
         [Header("Grace")]
+        [Tooltip("Offset to the range to lose the lock.")]
+        [SerializeField] private float rangeOffset = 15f;
         [Tooltip("The delay until it stop locking after losing the target.")]
-        [SerializeField] private float retainGrace = .20f;
+        [SerializeField] private float loseDelay = .2f;
         [SerializeField, Range(-1f, 1f)] private float minAimDot = .85f; 
         
         [Header("Blink")]

@@ -20,17 +20,20 @@ namespace Game.Entities.AttackSystem
     public class BlinkProxy : ModuleProxy<BlinkModule>
     {
         private IController _controller;
-        private BlinkComponent _blink;
+        private NullCheck<BlinkComponent> _blink;
+        private NullCheck<EnergyComponent> _energy;
 
         public BlinkProxy(BlinkModule data, IModuleProxy[] children, IController controller, bool disposeData = false) : base(data, children, disposeData)
         {
             if (controller == null || !controller.Origin) return;
             _controller = controller;
 
-            if (!controller.GetModel().TryAddOrGetComponent(CreateBlinkComponent, out _blink))
+            if (!controller.GetModel().TryAddOrGetComponent(CreateBlinkComponent, out var blink))
             {
-                Debug.LogWarning($"WARNING: Couldn't add the [{typeof(BlinkComponent).Name}] to the model.");
+                Debug.LogWarning($"WARNING: Couldn't add the [{nameof(BlinkComponent)}] to the model.");
             }
+
+            _blink = blink;
         }
 
         private BlinkComponent CreateBlinkComponent()
@@ -52,46 +55,54 @@ namespace Game.Entities.AttackSystem
             EndObserver = new ActionObserver<ModuleParams>(OnEnd);
             UpdateObserver = new ActionObserver<ModuleParams, float>(OnUpdate);
         }
-
         
-
         private void OnStart(ModuleParams mParams)
         {
-            _blink.BeginCharge();
+            if (!_blink.TryGet(out var blink)) return;
+            blink.BeginCharge();
         }
         
         private void OnUpdate(ModuleParams mParams, float delta)
         {
             this.Log("Updating Blink");
             
-            if (_blink.State == BlinkComponent.BlinkState.Charged)
+            if (!_blink.TryGet(out var blink)) return;
+            if (blink.State != BlinkComponent.BlinkState.Charged) return;
+            
+            if (mParams.Owner.TryGet(out var controller) && 
+                ExecuteBlink(controller) &&
+                _energy.TryGet(out var energy, GetEnergyComponent))
             {
-                Debug.Log("Yay we bliked");
-                // Blink...
-
-                if (mParams.Owner.TryGet(out var controller))
-                {
-                    ExecuteBlink(controller);
-                }
-                    
-                    
-                //_blink.CancelCharge(true);
-                _blink.FinishCharge();
+                energy.Decrease(energy.Value);
             }
+                
+            blink.FinishCharge();
+        }
+
+        private EnergyComponent GetEnergyComponent()
+        {
+            if (_controller.GetModel().TryGetComponent<EnergyComponent>(out var energy))
+            {
+                return energy;
+            }
+
+            return null;
         }
 
         private void OnEnd(ModuleParams mParams)
         {
-            _blink.CancelCharge(false);
+            if (!_blink.TryGet(out var blink)) return;
+            blink.CancelCharge(false);
             //_blink.ResetState(false);
         }
         
         private bool ExecuteBlink(IController controller)
         {
-            var origin = _blink.Origin;
+            if (!_blink.TryGet(out var blink)) return false;
+            var origin = blink.Origin;
             var motion = new NullCheck<MotionController>();
-            if (!_blink.CurrentTarget.TryGet(out var target) || !origin ||
-                !_blink.TryGetBlinkCoords(out var blinkPos, out var blinkRot)) return false;
+            if (!blink.CurrentTarget.TryGet(out var target) || !origin ||
+                !blink.TryGetBlinkCoords(out var blinkPos, out var blinkRot)) return false;
 
             origin.position = blinkPos;
             origin.rotation = blinkRot;
@@ -103,7 +114,7 @@ namespace Game.Entities.AttackSystem
                 motionController.Context.Velocity = Vector3.zero;
             }
 
-            _blink.ConfirmCooldown(Data.BlinkConfig.Cooldown);
+            blink.ConfirmCooldown(Data.BlinkConfig.Cooldown);
             
             if (Data.BlinkConfig.KillOnBlink)
                 KillTarget(target, motion);
