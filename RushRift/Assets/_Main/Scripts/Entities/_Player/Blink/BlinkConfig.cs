@@ -46,6 +46,5 @@ namespace Game.Entities.Components
         
         [Header("Cooldown")]
         [SerializeField] private float cooldown = 1.0f;
-
     }
 }

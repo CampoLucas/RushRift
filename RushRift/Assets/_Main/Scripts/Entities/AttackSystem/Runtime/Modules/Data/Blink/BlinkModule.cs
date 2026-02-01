@@ -40,13 +40,12 @@ namespace Game.Entities.AttackSystem
         {
             if (_controller.GetModel().TryGetComponent<TargetDetectComp>(out var detectComp))
             {
-                return new BlinkComponent(Data.BlinkConfig, detectComp);
+                _controller.GetModel().TryGetComponent<EnergyComponent>(out var energyComp);
+                return new BlinkComponent(Data.BlinkConfig, detectComp, energyComp);
             }
-            else
-            {
-                this.Log("No Target Detector detected...", logType: LogType.Error);
-                return null;
-            }
+            
+            this.Log("No Target Detector detected...", logType: LogType.Error);
+            return null;
         }
 
         protected override void BeforeInit()

@@ -35,6 +35,7 @@ namespace Game.Entities.Components
         private NullCheck<TargetDetectComp> _detector;
         private NullCheck<Transform> _origin;
         private NullCheck<Transform> _forward;
+        private NullCheck<EnergyComponent> _energyComp;
 
         private NullCheck<Transform> _newTarget;
         private NullCheck<Transform> _currentTarget;
@@ -50,20 +51,21 @@ namespace Game.Entities.Components
         private bool _targetOutOfSight;
         private float _graceTimer;
 
-        public BlinkComponent(BlinkConfig config, TargetDetectComp detector, Transform origin, Transform forward)
+        public BlinkComponent(BlinkConfig config, TargetDetectComp detector, Transform origin, Transform forward, EnergyComponent energyComp)
         {
             _config = config;
             _detector = detector;
             _origin = origin;
             _forward = forward;
+            _energyComp = energyComp;
 
             OnLoadingObserver = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
 
             AttachDetector(detector);
         }
 
-        public BlinkComponent(BlinkConfig config, TargetDetectComp detector) : this(config, detector, detector.Origin,
-            detector.Forward) { }
+        public BlinkComponent(BlinkConfig config, TargetDetectComp detector, EnergyComponent energyComp = null) : this(config, detector, detector.Origin,
+            detector.Forward, energyComp) { }
         
         private void Update(float delta)
         {
@@ -130,10 +132,18 @@ namespace Game.Entities.Components
         {
             if (!t) return false;
             if (!_origin.TryGet(out var origin)) return false;
+
+            var hasEnergy = _energyComp.TryGet(out var energy);
+
+            var range = _config.Range;
+            var finalRange = !hasEnergy
+                ? range + offset
+                : (range + (((_config.RangeBoost * (energy.Value - 1)) / 100) * 70)) + offset;
             
-            var range = _config.Range + offset;
+            //var range = (_config.Range + ((_config.RangeBoost / 100) * 70) * currEnergy) + offset;
+            //var range = _config.Range + offset;
             var to = t.position - origin.position;
-            return to.sqrMagnitude <= range * range;
+            return to.sqrMagnitude <= finalRange * finalRange;
         }
         
         private void StopGrace()
