@@ -1,6 +1,8 @@
 using System;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.Entities.Components;
+using MyTools.Global;
 using UnityEngine;
 
 namespace Game.UI.Elements.Crosshair
@@ -12,32 +14,50 @@ namespace Game.UI.Elements.Crosshair
         
         public override Trigger GetTrigger(IController controller)
         {
-            var subject = GetSubject(invert);
-
-            if (subject == null)
+            if (!TryGetSubject(out var subject))
+            {
                 return null;
+            }
             
             return new Trigger(subject, null, true);
         }
 
-        private ISubject GetSubject(bool i)
+        private bool TryGetSubject(out ISubject subject)
         {
+            subject = null;
+
+            if (!PlayerSpawner.Player.TryGet(out var player) ||
+                !player.GetModel().TryGetComponent<BlinkComponent>(out var blink))
+            {
+                return false;
+            }
+            
             switch (blinkEvent)
             {
-                case BlinkEvent.LockOn:
-                    return LockOnBlink.LockActiveSubject.Where(v => v != i);
                 case BlinkEvent.TargetFound:
-                    return LockOnBlink.HasTargetSubject.Where(v => v != i);
-                case BlinkEvent.HasLockableTarget:
-                    return LockOnBlink.AimHasLockableSubject.Where(v => v != i);
+                    subject = blink.OnTargetFound;
+                    break;
+                case BlinkEvent.TargetLost:
+                    subject = blink.OnTargetLost;
+                    break;
+                case BlinkEvent.BlinkStart:
+                    subject = blink.OnBlinkStart;
+                    break;
+                case BlinkEvent.BlinkEnd:
+                    subject = blink.OnBlinkEnd;
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    this.Log("Argument Out Of Exception", LogType.Warning);
+                    return false;
             }
+
+            return true;
         }
     }
 
     public enum BlinkEvent
     {
-        LockOn, TargetFound, HasLockableTarget
+        TargetFound, TargetLost, BlinkStart, BlinkEnd
+        //LockOn, TargetFound, HasLockableTarget
     }
 }
