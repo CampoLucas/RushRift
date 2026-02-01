@@ -69,7 +69,7 @@ namespace Game.Entities.Components
         
         private void Update(float delta)
         {
-            if (!_origin || !_forward) return;
+            if (!_origin || !_forward || !GlobalLevelManager.Blink) return;
 
             if (_newTarget.TryGet(out var newT) && InRange(newT))
             {
@@ -165,6 +165,7 @@ namespace Game.Entities.Components
 
         private void OnDetectorTargetFound(Transform t)
         {
+            if (!GlobalLevelManager.Blink) return;
             if (!InRange(t))
             {
                 _newTarget.Set(t);
@@ -179,7 +180,7 @@ namespace Game.Entities.Components
 
         private void OnDetectorTargetChanged(Transform t)
         {
-            if (!InRange(t)) return;
+            if (!GlobalLevelManager.Blink || !InRange(t)) return;
             StopGrace();
 
             SetTarget(t);
@@ -187,6 +188,7 @@ namespace Game.Entities.Components
         
         private void OnDetectorTargetLost(Transform t)
         {
+            if (!GlobalLevelManager.Blink) return;
             StartGrace();
         }
 
@@ -203,7 +205,6 @@ namespace Game.Entities.Components
             State = BlinkState.Charging;
             SetProgress(0f);
             OnBlinkStart.NotifyAll();
-            //UpdateBlinkData();
             return true;
         }
 
@@ -246,11 +247,6 @@ namespace Game.Entities.Components
         {
             BlinkProgress = Mathf.Clamp01(progress);
             OnProgressUpdated.NotifyAll(progress);
-        }
-        
-        public bool CanBlinkNow()
-        {
-            return State == BlinkState.Charged && _currentTarget && Time.time >= _cooldown;
         }
 
         public void ConfirmCooldown(float seconds)
