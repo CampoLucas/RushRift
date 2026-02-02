@@ -191,7 +191,8 @@ public class ExplosiveBarrel : MonoBehaviour
                 if (rb) agg.Rigidbody = rb;
             }
 
-            Vector3 closest = col.ClosestPoint(origin);
+            
+            Vector3 closest = col is MeshCollider ? origin : col.ClosestPoint(origin);
             float d = Vector3.Distance(origin, closest);
             if (d < agg.MinDistance)
             {

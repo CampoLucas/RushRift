@@ -8,6 +8,8 @@ namespace Game.Entities.AttackSystem
     [CreateAssetMenu(menuName = "Game/AttackSystem/Predicates/Blink/CanBlink")]
     public class CanBlink : ComboPredicate
     {
+        [SerializeField] private bool logsEnabled = false;
+        
         protected override bool OnEvaluate(ComboHandler combo, IAttack next)
         {
             var owner = combo.Owner;
@@ -25,12 +27,19 @@ namespace Game.Entities.AttackSystem
 
             if (blink.CurrentTarget)
             {
-                this.Log("It can blink");
+                if (logsEnabled)
+                {
+                    this.Log("It can blink");
+                }
 
                 return true;
             }
+            
+            if (logsEnabled)
+            {
+                this.Log("It can't blink");
+            }
 
-            this.Log("It can't blink");
             return false;
         }
     }
