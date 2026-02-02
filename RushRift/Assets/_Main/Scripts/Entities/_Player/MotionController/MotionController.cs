@@ -11,7 +11,7 @@ namespace Game.Entities.Components.MotionController
     {
         public MotionContext Context => _context;
         
-        private NullCheck<Rigidbody> _rb;
+        public NullCheck<Rigidbody> Body { get; private set; }
         private MotionContext _context;
         private List<BaseMotionHandler> _handlers = new();
         private Dictionary<Type, BaseMotionHandler> _handlersDict = new();
@@ -31,9 +31,9 @@ namespace Game.Entities.Components.MotionController
 
         public MotionController(Rigidbody rigidBody, CapsuleCollider collider, Transform orientation, Transform look, MotionConfig[] handlerConfigs)
         {
-            _rb = rigidBody;
+            Body = rigidBody;
 
-            if (_rb.TryGet(out var rb))
+            if (Body.TryGet(out var rb))
             {
                 _pauseConstrains = rb.constraints;
             }
@@ -53,7 +53,7 @@ namespace Game.Entities.Components.MotionController
                 OnPauseHandler(true);
             }
             
-            OnLoading = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
+            OnLoadingObserver = new NullCheck<ActionObserver<bool>>(new ActionObserver<bool>(OnLoadingHandler));
         }
 
         public bool TryAddHandler<THandler>(THandler newHandler, bool rebuildHandlers = true) where THandler : BaseMotionHandler
@@ -148,7 +148,7 @@ namespace Game.Entities.Components.MotionController
 
         private void OnPauseHandler(bool paused)
         {
-            if (!_rb.TryGet(out var rb)) return;
+            if (!Body.TryGet(out var rb)) return;
             
             if (paused)
             {
@@ -215,7 +215,7 @@ namespace Game.Entities.Components.MotionController
             }
             
             Gizmos.color = Color.green;
-            if (!_rb.TryGet(out var rb)) return;
+            if (!Body.TryGet(out var rb)) return;
             
             var velocity = rb.velocity;
             Gizmos.DrawRay(origin.position, velocity.normalized * 5);
@@ -263,7 +263,7 @@ namespace Game.Entities.Components.MotionController
             _context = null;
             // _orientationTransform = null;
             // _lookTransform = null;
-            _rb = null;
+            Body = null;
             
             _updateObserver?.Dispose();
             _updateObserver = null;

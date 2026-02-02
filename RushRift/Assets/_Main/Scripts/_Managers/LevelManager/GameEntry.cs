@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
 using Game.Utils;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

@@ -42,6 +42,7 @@ namespace Game.InputSystem
 
         private void Update()
         {
+            // Primary
             if (_playerControls.Gameplay.PrimaryAttackHold.triggered)
             {
                 _heavyFlagPrimary = true;
@@ -52,14 +53,17 @@ namespace Game.InputSystem
                 _heavyFlagPrimary = false;
             }
 
+            
+            
+            // Secondary
             if (_playerControls.Gameplay.SecondaryAttackHold.triggered)
             {
-                _heavyFlagPrimary = true;
+                _heavyFlagSecondary = true;
             }
 
             if (_playerControls.Gameplay.SecondaryAttackHold.WasReleasedThisFrame())
             {
-                _heavyFlagPrimary = false;
+                _heavyFlagSecondary = false;
             }
         }
 

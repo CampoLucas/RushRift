@@ -307,7 +307,6 @@ namespace Game.Entities
             if (nearby.Length == 0)
             {
                 // No chain targets, simple destroy
-                this.Log("No chain targets, simple destroy", LogType.Error);
                 DestroyProjectile();
                 return;
             }

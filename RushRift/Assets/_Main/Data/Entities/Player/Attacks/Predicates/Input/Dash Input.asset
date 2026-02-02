@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3885119105582774731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fc9147e6004b7caafab0d6b70ed0ca, type: 3}
+  m_Name: InputCombo
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: SecondaryTap
+  value: 1
+--- !u!114 &-1656833293279285965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f94adc62aee458888d73de11368f232, type: 3}
+  m_Name: CanBlink
+  m_EditorClassIdentifier: 
+  invert: 0
+--- !u!114 &-1411737159905295122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e80dbac177094476bfd886131f78bd89, type: 3}
+  m_Name: SequenceComboPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  predicates:
+    collection:
+    - {fileID: 5167334609439937765}
+    - {fileID: 7705127892603954430}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7ac12056d50415ca979a7f7327352dd, type: 3}
+  m_Name: Dash Input
+  m_EditorClassIdentifier: 
+  invert: 0
+  predicates:
+    collection:
+    - {fileID: -1411737159905295122}
+    - {fileID: -3885119105582774731}
+--- !u!114 &5167334609439937765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e80dbac177094476bfd886131f78bd89, type: 3}
+  m_Name: SequenceComboPredicate
+  m_EditorClassIdentifier: 
+  invert: 1
+  predicates:
+    collection:
+    - {fileID: -1656833293279285965}
+--- !u!114 &7705127892603954430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fc9147e6004b7caafab0d6b70ed0ca, type: 3}
+  m_Name: InputCombo
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: Secondary
+  value: 1
