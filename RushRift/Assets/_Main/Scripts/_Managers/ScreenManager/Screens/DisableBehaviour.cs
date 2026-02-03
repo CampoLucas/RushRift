@@ -64,7 +64,7 @@ public class DisableBehaviour : MonoBehaviour
                 continue;
             }
 
-            if (behaviour.IsNullOrMissingReference())
+            if (behaviour.IsNullOrMissing())
             {
 #if UNITY_EDITOR
                 var o = gameObject;
@@ -91,7 +91,7 @@ public class DisableBehaviour : MonoBehaviour
                 continue;
             }
 
-            if (behaviour.IsNullOrMissingReference())
+            if (behaviour.IsNullOrMissing())
             {
 #if UNITY_EDITOR
                 var o = gameObject;

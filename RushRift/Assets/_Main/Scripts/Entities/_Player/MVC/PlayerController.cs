@@ -53,7 +53,7 @@ namespace Game.Entities
             for (var i = 0; i < startEffects.Length; i++)
             {
                 var effect = startEffects[i];
-                if (effect.IsNullOrMissingReference()) continue;
+                if (effect.IsNullOrMissing()) continue;
                 effect.ApplyEffect(this);
             }
         }

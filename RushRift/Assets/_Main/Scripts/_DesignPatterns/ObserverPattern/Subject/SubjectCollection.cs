@@ -68,7 +68,7 @@ namespace Game.DesignPatterns.Observers
                 {
                     foreach (var subscriber in toDispose)
                     {
-                        if (subscriber.IsNullOrMissingReference())
+                        if (subscriber.IsNullOrMissing())
                         {
                             this.Log("The observer that is trying to dispose is null or missing reference", logType: LogType.Error);
                         }

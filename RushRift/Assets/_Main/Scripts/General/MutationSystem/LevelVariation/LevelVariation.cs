@@ -89,7 +89,7 @@ namespace Game.MutationSystem.LevelVariation
                     this.Log("The action is null, check if there isn't a null element in the lists.", LogType.Error);
                     continue;
                 }
-                else if (action.IsNullOrMissingReference())
+                else if (action.IsNullOrMissing())
                 {
                     this.Log("The action is missing reference, check if there an action wasn't deleted.", LogType.Error);
                     continue;

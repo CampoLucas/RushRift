@@ -192,7 +192,7 @@ namespace Game.UI
             for (int i = parent.childCount - 1; i >= 0; i--)
             {
                 var child = parent.GetChild(i);
-                if (child.IsNullOrMissingReference())
+                if (child.IsNullOrMissing())
                 {
                     this.Log("Child is null or missing", LogType.Error);
                     continue;

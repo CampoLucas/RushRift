@@ -50,7 +50,7 @@ namespace Game.MutationSystem.LevelVariation
             for (var i = 0; i < success.Length; i++)
             {
                 var e = success[i];
-                if (e.IsNullOrMissingReference())
+                if (e.IsNullOrMissing())
                 {
                     this.Log("Missing reference chief...", LogType.Error);
                     continue;
@@ -61,7 +61,7 @@ namespace Game.MutationSystem.LevelVariation
             for (var i = 0; i < failure.Length; i++)
             {
                 var e = failure[i];
-                if (e.IsNullOrMissingReference())
+                if (e.IsNullOrMissing())
                 {
                     this.Log("Missing reference chief...", LogType.Error);
                     continue;
