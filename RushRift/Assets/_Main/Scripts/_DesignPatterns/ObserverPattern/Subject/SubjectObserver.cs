@@ -16,7 +16,6 @@ namespace Game.DesignPatterns.Observers
     {
         public void OnNotify(T arg)
         {
-            this.Log($"Notyfy all on notify {Subscribers.Count}");
             var subscribers = Subscribers.ToList();
         
             for (var i = 0; i < subscribers.Count; i++)

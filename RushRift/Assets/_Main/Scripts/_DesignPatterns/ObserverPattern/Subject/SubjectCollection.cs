@@ -2,7 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Utils;
+using MyTools.Global;
 using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Game.DesignPatterns.Observers
 {
@@ -60,10 +63,22 @@ namespace Game.DesignPatterns.Observers
             if (_disposeOnDetach || _toDispose.Count > 0)
             {
                 var toDispose = _disposeOnDetach ? _subscribers : _toDispose;
-                
-                foreach (var subscriber in toDispose)
+
+                if (toDispose != null && toDispose.Count > 0)
                 {
-                    subscriber.Dispose();
+                    foreach (var subscriber in toDispose)
+                    {
+                        if (subscriber.IsNullOrMissing())
+                        {
+                            this.Log("The observer that is trying to dispose is null or missing reference", logType: LogType.Error);
+                        }
+                        
+                        subscriber.Dispose();
+                    }
+                }
+                else
+                {
+                    this.Log("No observers to dispose", logType: LogType.Warning);
                 }
             }
             

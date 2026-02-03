@@ -52,8 +52,8 @@ namespace Game
             bool mainSceneAdditive = false,
             CancellationToken ct = default)
         {
-            if (session.IsNullOrMissingReference()) return LoadResult.InvalidSession;
-            if (session.Level.IsNullOrMissingReference()) return LoadResult.MissingLevel;
+            if (session.IsNullOrMissing()) return LoadResult.InvalidSession;
+            if (session.Level.IsNullOrMissing()) return LoadResult.MissingLevel;
 
             return await TryAwaitLoad(session, session.Level, mainSceneAdditive, ct);
         }
@@ -295,7 +295,7 @@ namespace Game
 
             try
             {
-                if (GlobalLevelManager.Instance.TryGet(out var manager) && !manager.IsNullOrMissingReference())
+                if (GlobalLevelManager.Instance.TryGet(out var manager) && !manager.IsNullOrMissing())
                 {
                     manager.ClearLoadedLevelTracking();
                 }

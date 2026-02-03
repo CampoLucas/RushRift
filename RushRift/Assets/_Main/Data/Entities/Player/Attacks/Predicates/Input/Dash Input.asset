@@ -28,6 +28,7 @@ MonoBehaviour:
   m_Name: CanBlink
   m_EditorClassIdentifier: 
   invert: 0
+  logsEnabled: 0
 --- !u!114 &-1411737159905295122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45,6 +46,19 @@ MonoBehaviour:
     collection:
     - {fileID: 5167334609439937765}
     - {fileID: 7705127892603954430}
+--- !u!114 &-366746727949092810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0419bece8005478a966ec2b6fee3074d, type: 3}
+  m_Name: HasBlinkUpgrade
+  m_EditorClassIdentifier: 
+  invert: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,6 +91,7 @@ MonoBehaviour:
   invert: 1
   predicates:
     collection:
+    - {fileID: -366746727949092810}
     - {fileID: -1656833293279285965}
 --- !u!114 &7705127892603954430
 MonoBehaviour:

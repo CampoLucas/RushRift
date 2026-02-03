@@ -63,8 +63,6 @@ namespace Game.Entities.AttackSystem
         
         private void OnUpdate(ModuleParams mParams, float delta)
         {
-            this.Log("Updating Blink");
-            
             if (!_blink.TryGet(out var blink)) return;
             if (blink.State != BlinkComponent.BlinkState.Charged) return;
             

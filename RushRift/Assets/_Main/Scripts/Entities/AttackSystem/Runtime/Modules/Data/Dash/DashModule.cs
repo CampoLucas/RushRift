@@ -70,7 +70,6 @@ namespace Game.Entities.AttackSystem
             
             //if (!motion.StartDash() || !_energy || !motion.TryGetHandler<DashHandler>(out var dash)) return;
             if (!motion.TryGetHandler<DashHandler>(out var dash) || !dash.CanDash(_controller)) return;
-            Debug.Log("Dash");
             _energy.Get().Decrease(dash.GetCost());
             motion.StartDash();
         }

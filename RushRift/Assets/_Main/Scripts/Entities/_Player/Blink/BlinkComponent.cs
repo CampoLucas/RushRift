@@ -1,4 +1,5 @@
 using Game.DesignPatterns.Observers;
+using Game.Utils;
 using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Android;
@@ -71,7 +72,7 @@ namespace Game.Entities.Components
         {
             if (!_origin || !_forward || !GlobalLevelManager.Blink) return;
 
-            if (_newTarget.TryGet(out var newT) && InRange(newT))
+            if (_newTarget.TryGet(out var newT) && !newT.IsNullOrMissing() && InRange(newT))
             {
                 StopGrace();
                 SetTarget(newT);
@@ -79,6 +80,14 @@ namespace Game.Entities.Components
             }
             
             if (!_currentTarget.TryGet(out var t)) return;
+
+            // If it is invalid, destroyed, disabled, pooled, etc.
+            if (t.IsNullOrMissing() || !t.gameObject.activeInHierarchy)
+            {
+                StopCharge();
+                return;
+            }
+            
             
             // if target is to far away, lose the lock
             if (!InRange(t, _config.RangeOffset))
@@ -189,6 +198,14 @@ namespace Game.Entities.Components
         private void OnDetectorTargetLost(Transform t)
         {
             if (!GlobalLevelManager.Blink) return;
+
+            if (!_currentTarget.TryGet(out var curr) || curr.IsNullOrMissing() || !curr.gameObject.activeInHierarchy)
+            {
+                StopCharge();
+                return;
+            }
+            
+            
             StartGrace();
         }
 
@@ -302,7 +319,8 @@ namespace Game.Entities.Components
         
         public bool TryGetBlinkCoords(out Vector3 pos, out Quaternion rot)
         {
-            if (!_currentTarget.TryGet(out var targetTr) || !_origin.TryGet(out var origin))
+            if (!_currentTarget.TryGet(out var targetTr) || !_origin.TryGet(out var origin) || 
+                targetTr.IsNullOrMissing() || !targetTr.gameObject.activeInHierarchy)
             {
                 pos = Vector3.zero;
                 rot = Quaternion.identity;
