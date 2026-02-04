@@ -43,7 +43,7 @@ public class CheckInputChange : MonoBehaviour
     {
         var device = button.device;
 
-       // if (device == _lastDeviceUsed) return;
+       
 
         _lastDeviceUsed = device;
 
@@ -55,6 +55,7 @@ public class CheckInputChange : MonoBehaviour
 
         if (device is Gamepad)
         {
+            if (device == _lastDeviceUsed) return;
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
 
