@@ -55,9 +55,9 @@ public class CheckInputChange : MonoBehaviour
 
         if (device is Gamepad)
         {
-            if (device == _lastDeviceUsed) return;
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
+            if (device == _lastDeviceUsed) return;
 
             if (current)
             {
