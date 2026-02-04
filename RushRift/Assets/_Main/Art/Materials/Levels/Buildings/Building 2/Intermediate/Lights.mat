@@ -10,13 +10,15 @@ Material:
   m_Name: Lights
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: 952534ac107f6364b8492fb09e437216, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 2
   m_ValidKeywords:
+  - _EMISSION
   - _METALLICSPECGLOSSMAP
   - _NORMALMAP
+  - _OCCLUSIONMAP
   - _PARALLAXMAP
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -28,30 +30,42 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: b56c3ec25bb90ea4cb2023cbe8ee4323, type: 3}
+        m_Texture: {fileID: 2800000, guid: c674c46575b6ea24fa9159fd16e1dfef, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 5e0d3a885756b1d42b868bb2c6c6b70b, type: 3}
+        m_Texture: {fileID: 2800000, guid: ac3cab87771ce05459c53482403e551a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 2800000, guid: 39d01ec3e3a855e42b962cdd40e54e85, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: b56c3ec25bb90ea4cb2023cbe8ee4323, type: 3}
+        m_Texture: {fileID: 2800000, guid: c674c46575b6ea24fa9159fd16e1dfef, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 2800000, guid: 16065673691064749bb69e53e4d74d39, type: 3}
+        m_Texture: {fileID: 2800000, guid: be18465523280d343a9e7c9c09f847a8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 2800000, guid: 7d5ff0a9eab19ac40aa2d885d22aa0fa, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
-        m_Texture: {fileID: 2800000, guid: 23887ed98473a774798bf2a6349e38a8, type: 3}
+        m_Texture: {fileID: 2800000, guid: d0cda33aa3d2168468518fda4b9b5ec7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _OcclusionStrength: 1
+    - _Parallax: 0.005
+    - _Smoothness: 0.53
     m_Colors:
-    - _BaseColor: {r: 0.47915903, g: 0.7137255, b: 0.20784311, a: 1}
-    - _Color: {r: 0.47915894, g: 0.7137255, b: 0.20784307, a: 1}
+    - _BaseColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0.93207544, g: 0.27768207, b: 0, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &1340926940254698579
 MonoBehaviour:
