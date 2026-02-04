@@ -13,7 +13,6 @@ namespace Game.LevelElements
         private enum DirectionRelative { World, Transform, Custom }
 
         [Header("Impulse Settings")]
-        [Header("Impulse")]
         [SerializeField] private bool isStatic = true;
         [SerializeField] private float force;
         
@@ -23,23 +22,22 @@ namespace Game.LevelElements
         [SerializeField] private Transform customRelative;
 
         [Space(10)]
-        [Header("Observer Settings")]
-        [SerializeField] private bool startOn;
-        [SerializeField] private bool invertArgs;
+        [Header("Observer / Control")]
+        [SerializeField] private bool startOn = true;
+        [SerializeField, Tooltip("Argument that triggers activation.")]
+        private string onArgument = "on";
+        [SerializeField, Tooltip("Argument that triggers deactivation.")]
+        private string offArgument = "off";
+
+        [Header("Visuals")]
+        [SerializeField, Tooltip("Child objects (VFX, Particles, Lights) to toggle on/off.")]
+        private GameObject[] visualsToToggle;
 
         private bool _isOn;
-        private Dictionary<string, Action> _notifyActions = new();
         private Vector3 _staticDirection;
-
 
         private void Awake()
         {
-            var onArg = invertArgs ? Terminal.OFF_ARGUMENT : Terminal.ON_ARGUMENT;
-            var offArg = invertArgs ? Terminal.ON_ARGUMENT : Terminal.OFF_ARGUMENT;
-            
-            _notifyActions.Add(onArg, On);
-            _notifyActions.Add(offArg, Off);
-
             if (isStatic)
             {
                 _staticDirection = GetDir();
@@ -48,24 +46,40 @@ namespace Game.LevelElements
 
         private void Start()
         {
+            // Initialize state and visuals
             _isOn = startOn;
+            UpdateVisuals(_isOn);
         }
 
         public override void OnNotify(string arg)
         {
-            if (!_notifyActions.TryGetValue(arg, out var action) || action == null) return;
+            // Normalize string for comparison like in LightBridge.cs
+            string a = (arg ?? "").Trim().ToLowerInvariant();
             
-            action();
+            // Compare against Terminal arguments or standard defaults
+            if (a == onArgument.ToLowerInvariant() || a == "on" || a == "enable") 
+                SetState(true);
+            else if (a == offArgument.ToLowerInvariant() || a == "off" || a == "disable") 
+                SetState(false);
         }
 
-        private void On()
+        private void SetState(bool state)
         {
-            _isOn = true;
+            _isOn = state;
+            UpdateVisuals(_isOn);
         }
 
-        private void Off()
+        private void UpdateVisuals(bool state)
         {
-            _isOn = false;
+            if (visualsToToggle == null) return;
+
+            foreach (var visual in visualsToToggle)
+            {
+                if (visual != null)
+                {
+                    visual.SetActive(state);
+                }
+            }
         }
 
         private Vector3 GetDir()
@@ -96,6 +110,9 @@ namespace Game.LevelElements
 
         private void OnTriggerEnter(Collider other)
         {
+            // Ensure pad is active before applying force
+            if (!_isOn) return;
+
             if (!other.gameObject.TryGetComponent<IController>(out var controller)) return;
 
             var model = controller.GetModel();
@@ -109,35 +126,25 @@ namespace Game.LevelElements
                 }
                 motion.ExternalImpulse(FinalDir() * force);
             }
-            
         }
 
         private void OnDrawGizmos()
         {
-            // Color based on state
             Gizmos.color = _isOn ? Color.cyan : Color.gray;
 
             var origin = transform.position;
-            var dir = Vector3.zero;
-
-            if (Application.isPlaying)
-                dir = GetDir();
-            else
-            {
-                // Approximate in edit mode (without runtime refs)
-                dir = relativeTo switch
+            var dir = Application.isPlaying ? GetDir() : 
+                relativeTo switch
                 {
                     DirectionRelative.World => direction.normalized,
                     DirectionRelative.Transform => transform.TransformDirection(direction.normalized),
                     DirectionRelative.Custom => (customRelative ? customRelative : transform).TransformDirection(direction.normalized),
                     _ => transform.up
                 };
-            }
 
             var arrowLength = Mathf.Max(1f, force * 0.1f);
             Gizmos.DrawRay(origin, dir * arrowLength);
 
-            // Draw small arrowhead
             var right = Vector3.Cross(dir, Vector3.up).normalized * 0.2f;
             var up = Vector3.Cross(dir, right).normalized * 0.2f;
             var tip = origin + dir * arrowLength;
