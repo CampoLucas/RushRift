@@ -14,6 +14,10 @@ public class CheckInputChange : MonoBehaviour
     private InputDevice _lastDeviceUsed;
     private bool _onSubMenu;
 
+    private void Start()
+    {
+        
+    }
 
     private void OnEnable()
     {
@@ -42,8 +46,6 @@ public class CheckInputChange : MonoBehaviour
     private void OnButtonPressed(InputControl button)
     {
         var device = button.device;
-
-       
 
         _lastDeviceUsed = device;
 

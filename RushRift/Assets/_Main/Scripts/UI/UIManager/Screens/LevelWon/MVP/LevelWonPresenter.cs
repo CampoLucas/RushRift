@@ -48,7 +48,7 @@ namespace Game.UI.StateMachine
             _begun = true;
             base.Begin();
             
-            if(Gamepad.current == null)
+            if(Mouse.current.device != null)
             {
                 CursorHandler.lockState = CursorLockMode.None;
                 CursorHandler.visible = true;
