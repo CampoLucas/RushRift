@@ -14,14 +14,12 @@ public class CheckInputChange : MonoBehaviour
     private InputDevice _lastDeviceUsed;
     private bool _onSubMenu;
 
-    private void Start()
-    {
-        
-    }
+   
 
     private void OnEnable()
     {
         _m_EventListener = InputSystem.onAnyButtonPress.Call(OnButtonPressed);
+
     }
 
     private void OnDisable()
@@ -88,26 +86,23 @@ public class CheckInputChange : MonoBehaviour
             //{
             //}
         }
-        //if (device is Keyboard)
-        //{
-        //    CursorHandler.lockState = CursorLockMode.None;
-        //    CursorHandler.visible = true;
-        //    //if (_onSubMenu)
-        //    //{  
-        //    //}
-        //    if (current)
-        //    {
-        //        if (_lastSelectableUsed)
-        //        {
-        //            EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
-        //        }
-        //        else
-        //        {
-        //            EventSystem.current.SetSelectedGameObject(null);
-        //        }
-        //        Debug.Log("keyboard");
-        //    }
-        //}
+        if (device is Keyboard)
+        {
+            CursorHandler.lockState = CursorLockMode.None;
+            CursorHandler.visible = true;
+            if (current)
+            {
+                if (_lastSelectableUsed)
+                {
+                    EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
+                }
+                else
+                {
+                    EventSystem.current.SetSelectedGameObject(null);
+                }
+                Debug.Log("keyboard");
+            }
+        }
 
 
     }
