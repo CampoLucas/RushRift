@@ -43,7 +43,7 @@ public class CheckInputChange : MonoBehaviour
     {
         var device = button.device;
 
-        if (device == _lastDeviceUsed) return;
+       // if (device == _lastDeviceUsed) return;
 
         _lastDeviceUsed = device;
 
@@ -75,36 +75,36 @@ public class CheckInputChange : MonoBehaviour
         {
             CursorHandler.lockState = CursorLockMode.None;
             CursorHandler.visible = true;
-            //if (_onSubMenu)
-            //{
-            //}
             if (current)
             {
                 _lastSelectableUsed = EventSystem.current.currentSelectedGameObject;
                 Debug.Log("mouse");
-                
+
             }
-        }
-        if (device is Keyboard)
-        {
-            CursorHandler.lockState = CursorLockMode.None;
-            CursorHandler.visible = true;
             //if (_onSubMenu)
-            //{  
+            //{
             //}
-            if (current)
-            {
-                if (_lastSelectableUsed)
-                {
-                    EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
-                }
-                else
-                {
-                    EventSystem.current.SetSelectedGameObject(null);
-                }
-                Debug.Log("keyboard");
-            }
         }
+        //if (device is Keyboard)
+        //{
+        //    CursorHandler.lockState = CursorLockMode.None;
+        //    CursorHandler.visible = true;
+        //    //if (_onSubMenu)
+        //    //{  
+        //    //}
+        //    if (current)
+        //    {
+        //        if (_lastSelectableUsed)
+        //        {
+        //            EventSystem.current.SetSelectedGameObject(_lastSelectableUsed.gameObject);
+        //        }
+        //        else
+        //        {
+        //            EventSystem.current.SetSelectedGameObject(null);
+        //        }
+        //        Debug.Log("keyboard");
+        //    }
+        //}
 
 
     }
