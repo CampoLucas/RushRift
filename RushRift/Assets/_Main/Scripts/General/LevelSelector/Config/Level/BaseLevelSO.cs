@@ -27,6 +27,9 @@ namespace Game.Levels
         [Tooltip("This scriptable object changes the UI from the level, if it is null, the game will play with the default UI.")]
         [SerializeField] private UIStateCollection overrideCollection;
 
+        [Header("Arguments")]
+        [SerializeField] private LevelArgument[] arguments;
+
         public abstract int LevelCount();
         public abstract SingleLevelSO GetLevel(int index);
         public abstract UniTask LoadAsync(GlobalLevelManager manager);
@@ -62,5 +65,10 @@ namespace Game.Levels
         }
 
         public abstract int TryGetEffects(out Effect[] effect);
+
+        public bool HasArgument(LevelArgument argument)
+        {
+            return arguments.Contains(argument);
+        }
     }
 }
