@@ -51,6 +51,7 @@ namespace Game.Entities.Components
 
         private bool _targetOutOfSight;
         private float _graceTimer;
+        private int _executedCount;
 
         public BlinkComponent(BlinkConfig config, TargetDetectComp detector, Transform origin, Transform forward, EnergyComponent energyComp)
         {
@@ -133,6 +134,7 @@ namespace Game.Entities.Components
         {
             this.Log("Reset Blink On Load");
             HardReset();
+            _executedCount = 0;
         }
 
         #region Grace Methods
@@ -412,6 +414,16 @@ namespace Game.Entities.Components
             {
                 OnDetectorTargetFound(t);
             }
+        }
+
+        public int ExecutedCount()
+        {
+            return _executedCount;
+        }
+
+        public void IncreaseExecutedCount()
+        {
+            _executedCount++;
         }
     }
 }

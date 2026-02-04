@@ -70,6 +70,7 @@ namespace Game.Entities.AttackSystem
                 ExecuteBlink(controller) &&
                 _energy.TryGet(out var energy, GetEnergyComponent))
             {
+                blink.IncreaseExecutedCount();
                 energy.Decrease(energy.Value);
             }
                 

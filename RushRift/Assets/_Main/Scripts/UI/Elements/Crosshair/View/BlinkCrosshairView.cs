@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.Entities.Components;
+using Game.Levels;
 using Game.Saves;
 using MyTools.Global;
 using TMPro;
@@ -25,11 +27,15 @@ namespace Game.UI.Elements.Crosshair
         [Header("Reference")]
         [SerializeField] private GameObject distanceObj;
         [SerializeField] private TMP_Text distanceText;
+        [SerializeField] private UIAnimationRunner tutorial;
 
         private NullCheck<EnergyComponent> _energy;
         private NullCheck<ActionObserver<float, float, float>> _valueObserver;
         private NullCheck<ActionObserver<float>> _onChargeObserver;
         private NullCheck<Image> _chargeImg;
+
+        private bool _played;
+        private bool _showTutorial;
         
         public override void Initialize(IController controller)
         {
@@ -49,17 +55,11 @@ namespace Game.UI.Elements.Crosshair
         protected override void OnShow()
         {
             if (!_chargeImg.TryGet(out var image)) return;
-
+            _played = false;
+            
             image.color = setColorFromSettings ? SettingsData.GetBlinkChargeColor() : chargeColor;
             image.fillAmount = 0;
             
-            if (_onChargeObserver.TryGet(out var observer, () => new ActionObserver<float>(OnChargeHandler)))
-            {
-                PlayerSpawner.Player.Get().GetModel().TryGetComponent<BlinkComponent>(out var blink);
-                blink.OnProgressUpdated.Attach(observer);
-                //LockOnBlink.ChargeAmount.Attach(observer);
-            }
-
             var hasEnergy = _energy.TryGet(out var energy);
             if (hasEnergy)
             {
@@ -74,6 +74,23 @@ namespace Game.UI.Elements.Crosshair
             {
                 energy.OnValueChanged.Attach(valueObs);
             }
+            
+            if (_onChargeObserver.TryGet(out var observer, () => new ActionObserver<float>(OnChargeHandler)))
+            {
+                PlayerSpawner.Player.Get().GetModel().TryGetComponent<BlinkComponent>(out var blink);
+                blink.OnProgressUpdated.Attach(observer);
+                //LockOnBlink.ChargeAmount.Attach(observer);
+                
+                // Show the key tutorial
+                _showTutorial = blink.ExecutedCount() < 1 && tutorial &&
+                                GlobalLevelManager.CurrentLevel.TryGet(out var levelSo) &&
+                                levelSo.HasArgument(LevelArgument.BlinkTutorial);
+                if (_showTutorial && hasEnergy && !_energy.Get().IsEmpty())
+                {
+                    ShowTutorial();
+                }
+            }
+            
         }
 
         protected override void OnHide()
@@ -89,6 +106,29 @@ namespace Game.UI.Elements.Crosshair
             {
                 energy.OnValueChanged.Detach(valueObs);
             }
+
+
+            if (tutorial && tutorial.isActiveAndEnabled)
+            {
+                HideTutorial();
+            } 
+        }
+
+        private void ShowTutorial()
+        {
+            if (_played || !_showTutorial) return;
+            
+            this.Log("Show tutorial", LogType.Error);
+            _played = true;
+            tutorial.gameObject.SetActive(true);
+            tutorial.Play();
+            
+        }
+
+        private void HideTutorial()
+        {
+            tutorial.Stop();
+            tutorial.gameObject.SetActive(false);
         }
 
         private void OnChargeHandler(float t)
@@ -123,7 +163,16 @@ namespace Game.UI.Elements.Crosshair
             {
                  distanceObj.SetActive(false);
             }
-            
+
+            if (_showTutorial && current > 0)
+            {
+                ShowTutorial();
+            }
+
+            if (_showTutorial && current == 0)
+            {
+                HideTutorial();
+            }
         }
 
         private void OnDestroy()
