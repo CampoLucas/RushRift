@@ -1,4 +1,6 @@
 using System;
+using Game.Utils;
+using MyTools.Global;
 using UnityEngine;
 
 namespace Game.MutationSystem.LevelVariation
@@ -32,7 +34,14 @@ namespace Game.MutationSystem.LevelVariation
         {
             for (var i = 0; i < targets.Length; i++)
             {
-                targets[i].SetActive(enable);
+                var e = targets[i];
+                if (e.IsNullOrMissing())
+                {
+                    this.Log($"Missing reference chief... {gameObject.name}", LogType.Error);
+                    continue;
+                }
+                
+                e.SetActive(enable);
             }
         }
 
@@ -40,7 +49,14 @@ namespace Game.MutationSystem.LevelVariation
         {
             for (var i = 0; i < targets.Length; i++)
             {
-                targets[i].SetActive(!enable);
+                var e = targets[i];
+                if (e.IsNullOrMissing())
+                {
+                    this.Log($"Missing reference chief... {gameObject.name}", LogType.Error);
+                    continue;
+                }
+                
+                e.SetActive(!enable);
             }
         }
     }

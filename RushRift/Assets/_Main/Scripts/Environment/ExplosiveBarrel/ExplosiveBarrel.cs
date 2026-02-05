@@ -162,7 +162,7 @@ public class ExplosiveBarrel : MonoBehaviour
         ExecuteExplosionAtOrigin(origin, false, null);
     }
 
-    private void ExecuteExplosionAtOrigin(Vector3 origin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget)
+    private void ExecuteExplosionAtOrigin(Vector3 origin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody targetRb)
     {
         TriggerExplosionAudioVfx();
         
@@ -191,7 +191,8 @@ public class ExplosiveBarrel : MonoBehaviour
                 if (rb) agg.Rigidbody = rb;
             }
 
-            Vector3 closest = col.ClosestPoint(origin);
+            
+            Vector3 closest = col is MeshCollider ? origin : col.ClosestPoint(origin);
             float d = Vector3.Distance(origin, closest);
             if (d < agg.MinDistance)
             {
@@ -200,17 +201,17 @@ public class ExplosiveBarrel : MonoBehaviour
             }
         }
 
-        if (guaranteedImpulseTarget)
+        if (targetRb)
         {
-            Transform group = guaranteedImpulseTarget.transform;
+            Transform group = targetRb.transform;
             if (!byGroup.TryGetValue(group, out var agg))
             {
-                agg = new AggregatedHit { Group = group, MinDistance = 0f, HasDistance = true, Rigidbody = guaranteedImpulseTarget };
+                agg = new AggregatedHit { Group = group, MinDistance = 0f, HasDistance = true, Rigidbody = targetRb };
                 byGroup.Add(group, agg);
             }
             else
             {
-                agg.Rigidbody = guaranteedImpulseTarget;
+                agg.Rigidbody = targetRb;
                 agg.MinDistance = 0f;
                 agg.HasDistance = true;
             }
@@ -292,7 +293,7 @@ public class ExplosiveBarrel : MonoBehaviour
             gameObject.SetActive(false);
     }
 
-    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool forceMaxImpulseForPlayerAndRigidbodies = false, Rigidbody guaranteedImpulseTarget = null, float delaySeconds = 0f)
+    public void TriggerExplosionExternal(Vector3? overrideWorldOrigin = null, bool maxImpulse = false, Rigidbody targetRb = null, float delaySeconds = 0f)
     {
         if (!allowExternalExplosionTrigger) return;
         if (hasExplosionAlreadyTriggered) return;
@@ -301,12 +302,12 @@ public class ExplosiveBarrel : MonoBehaviour
 
         if (delaySeconds > 0f)
         {
-            StartCoroutine(DelayedExternal(overrideWorldOrigin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget, delaySeconds));
+            StartCoroutine(DelayedExternal(overrideWorldOrigin, maxImpulse, targetRb, delaySeconds));
             return;
         }
 
         Vector3 origin = overrideWorldOrigin ?? transform.TransformPoint(explosionOriginLocalOffset);
-        ExecuteExplosionAtOrigin(origin, forceMaxImpulseForPlayerAndRigidbodies, guaranteedImpulseTarget);
+        ExecuteExplosionAtOrigin(origin, maxImpulse, targetRb);
     }
 
     private IEnumerator DelayedExternal(Vector3? overrideWorldOrigin, bool forceMaxImpulseForPlayerAndRigidbodies, Rigidbody guaranteedImpulseTarget, float delaySeconds)

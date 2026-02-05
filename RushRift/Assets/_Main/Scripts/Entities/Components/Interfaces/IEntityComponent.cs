@@ -6,7 +6,7 @@ namespace Game.Entities
 {
     public interface IEntityComponent : System.IDisposable
     {
-        NullCheck<ActionObserver<bool>> OnLoading { get; }
+        NullCheck<ActionObserver<bool>> OnLoadingObserver { get; }
         bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer);
         bool TryGetLateUpdate(out DesignPatterns.Observers.IObserver<float> observer);
         bool TryGetFixedUpdate(out DesignPatterns.Observers.IObserver<float> observer);

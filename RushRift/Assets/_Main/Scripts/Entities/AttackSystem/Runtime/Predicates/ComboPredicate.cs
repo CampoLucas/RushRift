@@ -1,8 +1,9 @@
+using Game.Editor;
 using UnityEngine;
 
 namespace Game.Entities.AttackSystem
 {
-    public class ComboPredicate : SerializableSO
+    public class ComboPredicate : ScriptableObject
     {
         [SerializeField] private bool invert;
         public bool Evaluate(ComboHandler combo, IAttack next)
