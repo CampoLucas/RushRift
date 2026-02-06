@@ -53,6 +53,16 @@ namespace Game.UI
                 canvas.enabled = false;
             }
         }
+        
+        public override UnityEvent OnPlaySequences()
+        {
+            return onPlaySequences;
+        }
+
+        public override UnityEvent OnAllSequencesComplete()
+        {
+            return onAllSequencesComplete;
+        }
 
         public void SetPosition(Vector2 pos)
         {

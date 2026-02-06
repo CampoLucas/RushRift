@@ -4,6 +4,7 @@ using Game.DesignPatterns.Observers;
 using Game.General;
 using Game.Levels;
 using Game.Saves;
+using Game.UI;
 using Game.UI.StateMachine.Elements;
 using MyTools.Global;
 using UnityEngine;
@@ -12,7 +13,11 @@ namespace Game.LevelSelector
 {
     public class LevelSelector : MonoBehaviour
     {
+        public Subject Opened { get; private set; } = new();
+        public Subject Closed { get; private set; } = new();
+        
         [SerializeField] private PortalPrototype portal;
+        [SerializeField] private SuperComputer computer;
         
         [Header("Game Mode")]
         [SerializeField] private Canvas gameModeCanvas;
@@ -23,118 +28,89 @@ namespace Game.LevelSelector
         [SerializeField] private LevelButton levelButtonPrefab;
         [SerializeField] private Transform levelContainer;
 
+        [Header("Canvas")]
+        [SerializeField] private Canvas canvas;
+        [SerializeField] private UIAnimationRunner openAnimation;
+        [SerializeField] private UIAnimationRunner closeAnimation;
+
         private List<LevelButton> _spawnedLevelButtons = new();
         private NullCheck<GameModeSO> _currentMode;
         private NullCheck<BaseLevelSO> _currentLevel;
+        private NullCheck<ActionObserver> _openObserver;
+        private NullCheck<ActionObserver> _closeObserver;
+
+        private void Awake()
+        {
+            _openObserver = new ActionObserver(Open);
+            _closeObserver = new ActionObserver(Close);
+        }
 
         private void Start()
         {
+            if (_openObserver.TryGet(out var observer))
+            {
+                computer.OpenLevelSelector.Attach(observer);
+            }
+            
             PopulateModes();
+        }
+
+        private void Open()
+        {
+            // Detach form the open subject
+            if (_openObserver.TryGet(out var observer))
+            {
+                computer.OpenLevelSelector.Detach(observer);
+            }
+
+            // Attach to the close subject
+            if (_closeObserver.TryGet(out observer))
+            {
+                computer.CloseLevelSelector.Attach(observer);
+            }
+            
+            Opened.NotifyAll();
+        }
+
+        private void Close()
+        {
+            // Detach form the close subject
+            if (_closeObserver.TryGet(out var observer))
+            {
+                computer.CloseLevelSelector.Detach(observer);
+            }
+
+            // Attach to the open subject
+            if (_openObserver.TryGet(out observer))
+            {
+                computer.OpenLevelSelector.Attach(observer);
+            }
+            
+            Closed.NotifyAll();
         }
 
         private void PopulateModes()
         {
             levelCanvas.enabled = false;
             gameModeCanvas.enabled = true;
-
-            for (var i = 0; i < gameModes.Count; i++)
-            {
-                var gmButton = gameModes[i];
-
-                if (!gmButton)
-                {
-                    this.Log("GameMode Button is null.", LogType.Error);
-                    continue;
-                }
-
-                var modeSO = gmButton.Data;
-                if (!modeSO)
-                {
-                    this.Log("GameMode Button's data is null.", LogType.Error);
-                    continue;
-                }
-                
-                gmButton.Init(new ActionObserver(() => SelectMode(modeSO)));
-            }
-        }
-
-        private void SelectMode(GameModeSO mode)
-        {
-            this.Log("Select GameMode");
-            _currentMode = mode;
-            if (_currentMode)
-            {
-                PopulateLevels(_currentMode.Get().Levels);
-                levelCanvas.enabled = true;
-                gameModeCanvas.enabled = false;
-            }
-        }
-
-        private void PopulateLevels(List<BaseLevelSO> levels)
-        {
-            // clear old
-            for (var i = 0; i < _spawnedLevelButtons.Count; i++)
-            {
-                var old = _spawnedLevelButtons[i];
-                
-                if (!old) continue;
-                Destroy(old.gameObject);
-            }
-            
-            _spawnedLevelButtons.Clear();
-            
-            if (levels == null || levels.Count == 0) return;
-
-            for (var i = 0; i < levels.Count; i++)
-            {
-                var levelSO = levels[i];
-
-                if (!levelSO)
-                {
-                    this.Log("LevelSO is null", LogType.Error);
-                    continue;
-                }
-                
-                var button = Instantiate(levelButtonPrefab, levelContainer);
-                _spawnedLevelButtons.Add(button);
-                
-                var unlocked = CheckIfUnlocked(levelSO, levels, i);
-                var medals = GetUnlockedMedals(levelSO);
-
-                button.Init(levelSO, unlocked, medals);
-                button.GetComponent<InteractiveButton>()
-                    .onClick.AddListener(() =>
-                    {
-                        if (unlocked)
-                            OnLevelSelected(levelSO);
-                    });
-            }
-        }
-        
-        private bool CheckIfUnlocked(BaseLevelSO so, List<BaseLevelSO> levels, int index)
-        {
-            return so.IsUnlocked(levels, index);
-        }
-
-        private int GetUnlockedMedals(BaseLevelSO so)
-        {
-            var data = SaveSystem.LoadGame();
-
-            var levelID = so.LevelID;
-            
-            return data.GetUnlockedMedalsCount(levelID);
-        }
-
-        private void OnLevelSelected(BaseLevelSO level)
-        {
-            _currentLevel = level;
-            portal.SetTargetSession(_currentMode, level);
         }
 
         public void BackToModeSelection()
         {
             levelCanvas.enabled = false;
             gameModeCanvas.enabled = true;
+        }
+
+        private void OnDestroy()
+        {
+            Opened?.Dispose();
+            Opened = null;
+            
+            Closed?.Dispose();
+            Closed = null;
+
+            portal = null;
+            computer = null;
         }
     }
 }
