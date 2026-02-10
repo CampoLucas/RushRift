@@ -46,7 +46,7 @@ namespace Game.DesignPatterns.Observers
 
         public void DetachAll()
         {
-            if (DisposeOnDetach || _toDispose.Count > 0)
+            if (DisposeOnDetach || _toDispose is { Count: > 0 })
             {
                 var toDispose = DisposeOnDetach ? Subscribers : _toDispose;
                 
@@ -56,8 +56,8 @@ namespace Game.DesignPatterns.Observers
                 }
             }
             
-            _toDispose.Clear();
-            Subscribers.Clear();
+            _toDispose?.Clear();
+            Subscribers?.Clear();
         }
 
         public virtual void Dispose()
