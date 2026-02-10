@@ -3,6 +3,8 @@ using System.Collections;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
 using Game.InputSystem;
+using Game.Levels;
+using Game.UI.StateMachine;
 using UnityEngine;
 
 namespace Game.LevelSelector
@@ -19,6 +21,7 @@ namespace Game.LevelSelector
         private ActionObserver _openObs;
         private ActionObserver _closeObs;
         private NullCheck<Coroutine> _coroutine;
+        private ActionObserver<GameModeSO, BaseLevelSO> _levelSelected;
 
         private void Awake()
         {
@@ -26,6 +29,9 @@ namespace Game.LevelSelector
             _closeObs = new ActionObserver(CloseLevelSelectorHandler);
             
             interactable.PlayerInteracted.Attach(_openObs);
+            
+            _levelSelected = new ActionObserver<GameModeSO, BaseLevelSO>(SetTargetSession);
+            LevelSelectorMediator.LevelSelected.Attach(_levelSelected);
         }
 
         private void Start()
@@ -34,6 +40,11 @@ namespace Game.LevelSelector
             {
                 Debug.LogError("[ERROR]: Couldn't assign the player as the target.", gameObject);
             }
+        }
+        
+        public void SetTargetSession(GameModeSO mode, BaseLevelSO level)
+        {
+            CloseLevelSelectorHandler();
         }
 
         private void OpenLevelSelectorHandler()

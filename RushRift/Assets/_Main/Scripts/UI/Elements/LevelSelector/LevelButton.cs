@@ -71,7 +71,7 @@ namespace Game.UI.StateMachine.Elements
 
         private void SetBorderColor(Color color)
         {
-            coverImage.color = color;
+            //coverImage.color = color;
             
             for (var i = 0; i < graphics.Length; i++)
             {

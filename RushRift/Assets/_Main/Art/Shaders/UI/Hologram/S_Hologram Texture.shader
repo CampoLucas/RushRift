@@ -20,8 +20,8 @@ Shader "S_Hologram Texture"
         _MainTex("_MainTex", 2D) = "white" {}
         _HologramColor("Hologram Color", Color) = (0,0,0,0)
         _TextureSample0("Texture Sample 0", 2D) = "white" {}
-        _Float2("Float 2", Float) = 0
-        _Float0("Float 0", Float) = 0
+        _Frequency("Frequency", Float) = 0
+        _Speed("Speed", Float) = 0
         [HideInInspector] _texcoord( "", 2D ) = "white" {}
 
     }
@@ -100,8 +100,8 @@ Shader "S_Hologram Texture"
 
             uniform float4 _HologramColor;
             uniform sampler2D _TextureSample0;
-            uniform float _Float2;
-            uniform float _Float0;
+            uniform float _Frequency;
+            uniform float _Speed;
 
 
             v2f vert(appdata_t v )
@@ -139,8 +139,8 @@ Shader "S_Hologram Texture"
                 const half invAlphaPrecision = half(1.0/alphaPrecision);
                 IN.color.a = round(IN.color.a * alphaPrecision)*invAlphaPrecision;
 
-                float2 appendResult144 = (float2(1.0 , _Float2));
-                float mulTime160 = _Time.y * _Float0;
+                float2 appendResult144 = (float2(1.0 , _Frequency));
+                float mulTime160 = _Time.y * _Speed;
                 float2 appendResult158 = (float2(1.0 , mulTime160));
                 float2 temp_output_4_0_g30 = ( ( IN.texcoord.xy * appendResult144 ) + appendResult158 );
                 float sinLines112 = tex2D( _TextureSample0, temp_output_4_0_g30 ).r;
@@ -175,9 +175,9 @@ Shader "S_Hologram Texture"
 /*ASEBEGIN
 Version=19801
 Node;AmplifyShaderEditor.CommentaryNode;145;-784,-2592;Inherit;False;1395.891;461.7256;Hologram Lines;9;161;160;158;144;112;129;131;133;143;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.RangedFloatNode;161;-752,-2304;Inherit;False;Property;_Float0;Float 0;4;0;Create;True;0;0;0;False;0;False;0;0.25;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;143;-592,-2400;Inherit;False;Property;_Float2;Float 2;3;0;Create;True;0;0;0;False;0;False;0;0.5;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;161;-752,-2304;Inherit;False;Property;_Speed;Speed;4;0;Create;True;0;0;0;False;0;False;0;0.25;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleTimeNode;160;-560,-2304;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;143;-592,-2400;Inherit;False;Property;_Frequency;Frequency;3;0;Create;True;0;0;0;False;0;False;0;0.5;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.TexCoordVertexDataNode;133;-432,-2544;Inherit;False;0;2;0;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.DynamicAppendNode;144;-368,-2416;Inherit;False;FLOAT2;4;0;FLOAT;1;False;1;FLOAT;1;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.DynamicAppendNode;158;-368,-2304;Inherit;False;FLOAT2;4;0;FLOAT;1;False;1;FLOAT;1;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
@@ -216,4 +216,4 @@ WireConnection;113;1;166;0
 WireConnection;113;2;14;4
 WireConnection;22;0;113;0
 ASEEND*/
-//CHKSM=6BD9D6FA651BEDED530D1A635D0F1FDA350F5100
+//CHKSM=DBA57CF89CFFD706FD630E152ED688E0FE8FBB11

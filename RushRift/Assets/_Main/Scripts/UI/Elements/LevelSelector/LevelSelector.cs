@@ -16,7 +16,6 @@ namespace Game.LevelSelector
         public Subject Opened { get; private set; } = new();
         public Subject Closed { get; private set; } = new();
         
-        [SerializeField] private PortalPrototype portal;
         [SerializeField] private SuperComputer computer;
         
         [Header("Game Mode")]
@@ -108,8 +107,6 @@ namespace Game.LevelSelector
             
             Closed?.Dispose();
             Closed = null;
-
-            portal = null;
             computer = null;
         }
     }
