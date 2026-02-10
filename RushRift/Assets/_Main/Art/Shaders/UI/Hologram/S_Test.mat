@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Hologram Texture
-  m_Shader: {fileID: 4800000, guid: d6816e8b096f63b43a0fc277a46b3e94, type: 3}
+  m_Name: S_Test
+  m_Shader: {fileID: 4800000, guid: 7d3eb0243b44fcd43bc20226190633d4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -28,10 +28,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TextureSample0:
-        m_Texture: {fileID: 2800000, guid: b6662a9cff1c7d345a378956d0faea28, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _texcoord:
+    - _TextureSample1:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -39,9 +39,9 @@ Material:
     m_Floats:
     - _BorderOffset: 1.38
     - _ColorMask: 15
-    - _Float0: 0.25
-    - _Float2: 0.5
-    - _Speed: 0
+    - _Float2: 1
+    - _Intensity: 1
+    - _Speed: 1
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -51,7 +51,7 @@ Material:
     - _Width: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Color1: {r: 0, g: 0, b: 0, a: 1}
-    - _Color2: {r: 0.93401086, g: 1.8443025, b: 0, a: 1}
+    - _Color1: {r: 0, g: 0, b: 0, a: 0}
+    - _Color2: {r: 0, g: 0, b: 0, a: 0}
     - _Scale: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
