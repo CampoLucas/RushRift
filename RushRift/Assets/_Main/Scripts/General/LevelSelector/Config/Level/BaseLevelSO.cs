@@ -15,6 +15,7 @@ namespace Game.Levels
         public bool UsesMedals => medals is { Count: > 0 };
         public UIStateCollection UI => overrideCollection;
         public virtual bool VariationsEnabled => false;
+        public LevelSelectorData LevelSelectData => levelSelectData;
 
         [Header("Settings")]
         [SerializeField] private int levelID;
@@ -29,6 +30,9 @@ namespace Game.Levels
 
         [Header("Arguments")]
         [SerializeField] private LevelArgument[] arguments;
+
+        [Header("Level Selector")]
+        [SerializeField] private LevelSelectorData levelSelectData;
 
         public abstract int LevelCount();
         public abstract SingleLevelSO GetLevel(int index);

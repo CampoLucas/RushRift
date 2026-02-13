@@ -14,10 +14,11 @@ namespace Game.UI.StateMachine.Elements
         
         [Header("References")]
         [SerializeField] private InteractiveButton button;
+        [SerializeField] private Sprite defaultPreview;
 
         [Header("Visuals")]
         [SerializeField] private TMP_Text[] titles;
-        [SerializeField] private Graphic coverImage;
+        [SerializeField] private Image coverImage;
         [SerializeField] private GameObject lockedVisual;
         [SerializeField] private Graphic[] graphics;
 
@@ -36,6 +37,8 @@ namespace Game.UI.StateMachine.Elements
         public void Init(BaseLevelSO level, bool unlocked)
         {
             _level = level;
+
+            coverImage.sprite = level.LevelSelectData.GetPreviewOrDefault(defaultPreview);
 
             if (!unlocked || !_level)
             {
