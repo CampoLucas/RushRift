@@ -21,6 +21,7 @@ namespace Game.UI
         [SerializeField] private Vector2 playPosition;
         [SerializeField] private float playRotation;
         [SerializeField] private float playScale;
+        [SerializeField] private bool playIgnoreZScale;
         [SerializeField] private Color playColor;
 
         [Header("References")]
@@ -85,14 +86,21 @@ namespace Game.UI
             targetRect.localRotation = Quaternion.Euler(rot.x, rot.y, rotation);
         }
 
-        public void SetScale(float scale)
+        public void SetScale(float scale, bool ignoreZ)
         {
             if (!targetRect)
             {
                 return;
             }
-            
-            targetRect.localScale = Vector3.one * scale;
+
+            if (!ignoreZ)
+            {
+                targetRect.localScale = Vector3.one * scale;
+            }
+            else
+            {
+                targetRect.localScale = new Vector3(scale, scale, targetRect.localScale.z);
+            }
         }
 
         public void SetColor(Color color)
@@ -116,12 +124,12 @@ namespace Game.UI
         {
             StopCoroutine();
             
-            _runnerCoroutine = StartCoroutine(DoAnim(playPosition, playRotation, playScale, playColor, delay));
+            _runnerCoroutine = StartCoroutine(DoAnim(playPosition, playRotation, playScale, playIgnoreZScale, playColor, delay));
         }
 
         public override IEnumerator PlayRoutine(float delay)
         {
-            yield return DoAnim(playPosition, playRotation, playScale, playColor, delay);
+            yield return DoAnim(playPosition, playRotation, playScale, playIgnoreZScale, playColor, delay);
         }
 
         private void OnLoadingHandler(bool isLoading)
@@ -134,11 +142,11 @@ namespace Game.UI
             }
         }
 
-        private IEnumerator DoAnim(Vector2 startPos, float startRot, float startScale, Color startColor, float delay)
+        private IEnumerator DoAnim(Vector2 startPos, float startRot, float startScale, bool ignoreZ, Color startColor, float delay)
         {
             SetPosition(startPos);
             SetRotation(startRot);
-            SetScale(startScale);
+            SetScale(startScale, ignoreZ);
             SetColor(startColor);
             
             onPlaySequences?.Invoke();
@@ -152,7 +160,7 @@ namespace Game.UI
             
             SetPosition(playPosition);
             SetRotation(playRotation);
-            SetScale(playScale);
+            SetScale(playScale, playIgnoreZScale);
             SetColor(playColor);
 
             onAllSequencesComplete?.Invoke();
@@ -229,7 +237,7 @@ namespace Game.UI
                     routine = MoveRoutine(anim.Duration, anim.Delay, targetRect.anchoredPosition, anim.TargetVector, anim.Curve2);
                     break;
                 case UIAnimType.Scale:
-                    routine = ScaleRoutine(anim.Duration, anim.Delay, targetRect.localScale.x, anim.TargetFloat, anim.Curve);
+                    routine = ScaleRoutine(anim.Duration, anim.Delay, targetRect.localScale.x, anim.TargetFloat, anim.IgnoreZ, anim.Curve);
                     break;
                 case UIAnimType.Rotate:
                     routine = RotateRoutine(anim.Duration, anim.Delay, targetRect.localRotation.eulerAngles.z, anim.TargetFloat, anim.Curve);
@@ -277,15 +285,15 @@ namespace Game.UI
             SetPosition(end);
         }
         
-        private IEnumerator ScaleRoutine(float duration, float delay, float start, float end, AnimationCurve curve)
+        private IEnumerator ScaleRoutine(float duration, float delay, float start, float end, bool ignoreZ, AnimationCurve curve)
         {
-            SetScale(start);
+            SetScale(start, ignoreZ);
             
             if (delay > 0) yield return new WaitForSeconds(delay);
             
             if (duration <= 0)
             {
-                SetScale(end);
+                SetScale(end, ignoreZ);
                 yield break;
             }
             
@@ -295,12 +303,12 @@ namespace Game.UI
                 time += Time.deltaTime;
                 var t = Mathf.Clamp01(time / duration);
                 
-                SetScale(Mathf.Lerp(start, end, curve.Evaluate(t)));
+                SetScale(Mathf.Lerp(start, end, curve.Evaluate(t)), ignoreZ);
                 
                 yield return null;
             }
             
-            SetScale(end);
+            SetScale(end, ignoreZ);
         }
         
         private IEnumerator RotateRoutine(float duration, float delay, float start, float end, AnimationCurve curve)

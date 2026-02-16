@@ -13,13 +13,17 @@ namespace Game.LevelSelector
     {
         public Subject OpenLevelSelector => _openLevelSelector;
         public Subject CloseLevelSelector => _closeLevelSelector;
+        public Subject<bool> PlayerInRange => _playerInRangeSubject;
+        public bool IsInRange => interactable.IsInRange;
         
         [SerializeField] private Interactable interactable;
 
         private Subject _openLevelSelector = new();
         private Subject _closeLevelSelector = new();
+        private Subject<bool> _playerInRangeSubject = new();
         private ActionObserver _openObs;
         private ActionObserver _closeObs;
+        private ActionObserver<bool> _playerInRange;
         private NullCheck<Coroutine> _coroutine;
         private ActionObserver<GameModeSO, BaseLevelSO> _levelSelected;
 
@@ -27,8 +31,10 @@ namespace Game.LevelSelector
         {
             _openObs = new ActionObserver(OpenLevelSelectorHandler);
             _closeObs = new ActionObserver(CloseLevelSelectorHandler);
+            _playerInRange = new ActionObserver<bool>(PlayerInRangeHandler);
             
             interactable.PlayerInteracted.Attach(_openObs);
+            interactable.PlayerInRange.Attach(_playerInRange);
             
             _levelSelected = new ActionObserver<GameModeSO, BaseLevelSO>(SetTargetSession);
             LevelSelectorMediator.LevelSelected.Attach(_levelSelected);
@@ -50,6 +56,7 @@ namespace Game.LevelSelector
         private void OpenLevelSelectorHandler()
         {
             interactable.PlayerInteracted.Detach(_openObs);
+            interactable.PlayerInRange.Detach(_playerInRange);
             interactable.PlayerInteracted.Attach(_closeObs);
             _openLevelSelector.NotifyAll();
         }
@@ -57,8 +64,14 @@ namespace Game.LevelSelector
         private void CloseLevelSelectorHandler()
         {
             interactable.PlayerInteracted.Detach(_closeObs);
+            interactable.PlayerInRange.Attach(_playerInRange);
             interactable.PlayerInteracted.Attach(_openObs);
             _closeLevelSelector.NotifyAll();
+        }
+
+        private void PlayerInRangeHandler(bool inRange)
+        {
+            _playerInRangeSubject.NotifyAll(inRange);
         }
 
         private Transform GetPlayerTransform()

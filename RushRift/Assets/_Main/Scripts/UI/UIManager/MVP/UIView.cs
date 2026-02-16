@@ -18,6 +18,10 @@ namespace Game.UI.StateMachine
         
         [Header("Events")]
         [SerializeField] protected UnityEvent onShow = new UnityEvent();
+
+        [Header("Animations")]
+        [SerializeField] private UIAnimationRunner showAnimation;
+        [SerializeField] private UIAnimationRunner hideAnimation;
         
         private bool _enabled;
         private bool _started;
@@ -38,7 +42,9 @@ namespace Game.UI.StateMachine
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
             }
-            
+
+            if (hideAnimation) hideAnimation.Stop();
+            if (showAnimation) showAnimation.Play();
             OnShow();
             
             onShow.Invoke();
@@ -50,6 +56,8 @@ namespace Game.UI.StateMachine
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
             
+            if (showAnimation) showAnimation.Stop();
+            if (hideAnimation) hideAnimation.Play();
             OnHide();
         }
         

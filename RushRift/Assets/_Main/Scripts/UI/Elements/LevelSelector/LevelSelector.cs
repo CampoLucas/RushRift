@@ -5,6 +5,8 @@ using Game.General;
 using Game.Levels;
 using Game.Saves;
 using Game.UI;
+using Game.UI.Mediator;
+using Game.UI.StateMachine;
 using Game.UI.StateMachine.Elements;
 using MyTools.Global;
 using UnityEngine;
@@ -17,21 +19,11 @@ namespace Game.LevelSelector
         public Subject Closed { get; private set; } = new();
         
         [SerializeField] private SuperComputer computer;
-        
-        [Header("Game Mode")]
-        [SerializeField] private Canvas gameModeCanvas;
-        [SerializeField] private List<GameModeButton> gameModes;
-        
+
         [Header("Level")]
-        [SerializeField] private Canvas levelCanvas;
-        [SerializeField] private LevelButton levelButtonPrefab;
-        [SerializeField] private Transform levelContainer;
+        [SerializeField] private UIMediator mediator;
 
-        [Header("Canvas")]
-        [SerializeField] private Canvas canvas;
-        [SerializeField] private UIAnimationRunner openAnimation;
-        [SerializeField] private UIAnimationRunner closeAnimation;
-
+        private ISubject<MenuState> _onMenuChanged = new Subject<MenuState>();
         private List<LevelButton> _spawnedLevelButtons = new();
         private NullCheck<GameModeSO> _currentMode;
         private NullCheck<BaseLevelSO> _currentLevel;
@@ -50,7 +42,8 @@ namespace Game.LevelSelector
             {
                 computer.OpenLevelSelector.Attach(observer);
             }
-            
+
+            _onMenuChanged.Attach(mediator);
             PopulateModes();
         }
 
@@ -68,6 +61,7 @@ namespace Game.LevelSelector
                 computer.CloseLevelSelector.Attach(observer);
             }
             
+            _onMenuChanged.NotifyAll(MenuState.GameModes);
             Opened.NotifyAll();
         }
 
@@ -85,19 +79,18 @@ namespace Game.LevelSelector
                 computer.OpenLevelSelector.Attach(observer);
             }
             
+            _onMenuChanged.NotifyAll(MenuState.Interact);
             Closed.NotifyAll();
         }
 
         private void PopulateModes()
         {
-            levelCanvas.enabled = false;
-            gameModeCanvas.enabled = true;
+            
         }
 
         public void BackToModeSelection()
         {
-            levelCanvas.enabled = false;
-            gameModeCanvas.enabled = true;
+            
         }
 
         private void OnDestroy()

@@ -21,6 +21,7 @@ namespace Game.UI.StateMachine
 
         protected override void InitActions(ref Dictionary<MenuState, Action> actions)
         {
+            actions.TryAdd(MenuState.Interact, () => SetState(UIScreen.Interact));
             actions.TryAdd(MenuState.Levels, () => SetState(UIScreen.Levels));
             actions.TryAdd(MenuState.GameModes, () => SetState(UIScreen.GameModes));
         }

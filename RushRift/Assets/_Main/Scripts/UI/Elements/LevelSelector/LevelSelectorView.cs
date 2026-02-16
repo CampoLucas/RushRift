@@ -9,6 +9,7 @@ namespace Game.LevelSelector
     public class LevelSelectorView : MonoBehaviour
     {
         [Header("References")]
+        [SerializeField] private SuperComputer computer;
         [SerializeField] private LevelSelector controller;
         [SerializeField] private PivotLookAt lookAt;
         
@@ -19,11 +20,13 @@ namespace Game.LevelSelector
         
         private NullCheck<ActionObserver> _openObs;
         private NullCheck<ActionObserver> _closeObs;
+        private NullCheck<ActionObserver<bool>> _showMenu;
 
         private void Awake()
         {
             _openObs = new ActionObserver(Open);
             _closeObs = new ActionObserver(Close);
+            _showMenu = new ActionObserver<bool>(ShowMenu);
             
             closeAnimation.OnAllSequencesComplete().AddListener(CloseAnimEnded);
             canvas.enabled = false;
@@ -40,6 +43,11 @@ namespace Game.LevelSelector
             {
                 controller.Closed.Attach(observer);
             }
+            
+            if (computer && _showMenu.TryGet(out var o))
+            {
+                computer.PlayerInRange.Attach(o);
+            }
 
             if (PlayerSpawner.Player.TryGet(out var player))
             {
@@ -49,19 +57,42 @@ namespace Game.LevelSelector
 
         private void Open()
         {
+            return;
             closeAnimation.Stop();
             openAnimation.Play();
         }
 
         private void Close()
         {
+            if (!computer.IsInRange)
+            {
+                openAnimation.Stop();
+                closeAnimation.Play();
+            }
+            return;
             openAnimation.Stop();
             closeAnimation.Play();
         }
 
+        private void ShowMenu(bool state)
+        {
+            if (state)
+            {
+                if (!canvas.enabled) canvas.enabled = true;
+                closeAnimation.Stop();
+                openAnimation.Play();
+            }
+            else
+            {
+                //canvas.enabled = false;
+                openAnimation.Stop();
+                closeAnimation.Play();
+            }
+        }
+
         private void CloseAnimEnded()
         {
-            canvas.enabled = false;
+            //canvas.enabled = false;
         }
 
         private void OnDisable()
