@@ -20,12 +20,13 @@ Shader "S_Hologram Border"
         _BorderScale("Border Scale", Vector) = (0,0,0,0)
         _BorderWidth("Border Width", Float) = 0
         _BorderOffset("BorderOffset", Float) = 1
-        _Color1("Color 1", Color) = (0,0,0,0)
         _MainTex("MainTex", 2D) = "white" {}
         _LinesScale("Lines Scale", Float) = 1
         _Intensity("Intensity", Float) = 1
+        [HDR]_BackgroundColor("Background Color", Color) = (0.0754717,0.03773584,0.03773584,0)
         _Speed("Speed", Float) = 0.25
-        _Vector2("Vector 0", Vector) = (0,0,0,0)
+        _LineIntensity("Line Intensity", Vector) = (0,0,0,0)
+        _VertexColorbginfluence("Vertex Color bg influence", Float) = 0
 
     }
 
@@ -101,9 +102,10 @@ Shader "S_Hologram Border"
             float _UIMaskSoftnessX;
             float _UIMaskSoftnessY;
 
-            uniform float4 _Color1;
+            uniform float _VertexColorbginfluence;
+            uniform float4 _BackgroundColor;
             uniform float _Intensity;
-            uniform float2 _Vector2;
+            uniform float2 _LineIntensity;
             uniform float _LinesScale;
             uniform float _Speed;
             uniform float _BorderOffset;
@@ -146,7 +148,9 @@ Shader "S_Hologram Border"
                 const half invAlphaPrecision = half(1.0/alphaPrecision);
                 IN.color.a = round(IN.color.a * alphaPrecision)*invAlphaPrecision;
 
-                float4 bgColor183 = _Color1;
+                float4 color206 = IsGammaSpace() ? float4(1,1,1,1) : float4(1,1,1,1);
+                float4 lerpResult205 = lerp( color206 , ( IN.color * _VertexColorbginfluence ) , ceil( _VertexColorbginfluence ));
+                float4 bgColor183 = ( lerpResult205 * _BackgroundColor );
                 float4 lightColor182 = ( IN.color * _Intensity );
                 float2 texCoord6_g30 = IN.texcoord.xy * float2( 1,1 ) + float2( 0,0 );
                 float2 appendResult144 = (float2(1.0 , _LinesScale));
@@ -154,12 +158,12 @@ Shader "S_Hologram Border"
                 float2 appendResult135 = (float2(0.0 , mulTime134));
                 float2 temp_output_4_0_g30 = ( ( texCoord6_g30 * appendResult144 ) + appendResult135 );
                 float2 temp_output_131_0 = temp_output_4_0_g30;
-                float smoothstepResult196 = smoothstep( _Vector2.x , _Vector2.y , tex2D( _MainTex, temp_output_131_0 ).r);
+                float smoothstepResult196 = smoothstep( _LineIntensity.x , _LineIntensity.y , tex2D( _MainTex, temp_output_131_0 ).r);
                 float sinLines_bg112 = smoothstepResult196;
                 float4 lerpResult123 = lerp( bgColor183 , lightColor182 , sinLines_bg112);
                 float2 appendResult140 = (float2(0.0 , _BorderOffset));
                 float2 temp_output_4_0_g31 = ( ( temp_output_131_0 * float2( 1,1 ) ) + appendResult140 );
-                float smoothstepResult198 = smoothstep( _Vector2.x , _Vector2.y , tex2D( _MainTex, temp_output_4_0_g31 ).r);
+                float smoothstepResult198 = smoothstep( _LineIntensity.x , _LineIntensity.y , tex2D( _MainTex, temp_output_4_0_g31 ).r);
                 float sinLines57 = smoothstepResult198;
                 float4 lerpResult126 = lerp( ( bgColor183 * 0.5 ) , lightColor182 , sinLines57);
                 float2 texCoord13_g32 = IN.texcoord.xy * float2( 1,1 ) + float2( 0,0 );
@@ -196,26 +200,34 @@ Shader "S_Hologram Border"
 }
 /*ASEBEGIN
 Version=19801
-Node;AmplifyShaderEditor.CommentaryNode;145;-1200,-2768;Inherit;False;1860.382;601.5271;Hologram Lines;15;57;112;139;129;138;131;140;142;135;144;134;143;137;196;198;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.RangedFloatNode;137;-1200,-2592;Inherit;False;Property;_Speed;Speed;7;0;Create;True;0;0;0;False;0;False;0.25;0.5;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.CommentaryNode;145;-1200,-2768;Inherit;False;1860.382;601.5271;Hologram Lines;16;57;112;139;129;138;131;140;142;135;144;134;143;137;196;198;195;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.RangedFloatNode;137;-1200,-2592;Inherit;False;Property;_Speed;Speed;8;0;Create;True;0;0;0;False;0;False;0.25;0.5;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;143;-1024,-2704;Inherit;False;Property;_LinesScale;Lines Scale;5;0;Create;True;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleTimeNode;134;-1024,-2592;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
 Node;AmplifyShaderEditor.DynamicAppendNode;144;-832,-2704;Inherit;False;FLOAT2;4;0;FLOAT;1;False;1;FLOAT;1;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.DynamicAppendNode;135;-832,-2592;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.RangedFloatNode;142;-928,-2464;Inherit;False;Property;_BorderOffset;BorderOffset;2;0;Create;True;0;0;0;False;0;False;1;-0.025;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.VertexColorNode;201;-2838.504,-2413.255;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode;202;-2902.504,-2237.255;Inherit;False;Property;_VertexColorbginfluence;Vertex Color bg influence;10;0;Create;True;0;0;0;False;0;False;0;1.21;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.DynamicAppendNode;140;-736,-2464;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.FunctionNode;131;-672,-2704;Inherit;False;F_TillingAndOffset;-1;;30;992a7dac1d94f9a47be7a2d63002dd82;0;3;1;FLOAT2;0,0;False;3;FLOAT2;1,1;False;5;FLOAT2;0,0;False;3;FLOAT2;0;FLOAT;7;FLOAT;10
+Node;AmplifyShaderEditor.ColorNode;199;-2678.504,-2157.255;Inherit;False;Property;_BackgroundColor;Background Color;7;1;[HDR];Create;True;0;0;0;False;0;False;0.0754717,0.03773584,0.03773584,0;0.0625,0.05592105,0,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.CeilOpNode;203;-2614.504,-2237.255;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;204;-2646.504,-2413.255;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.ColorNode;206;-2710.504,-2605.255;Inherit;False;Constant;_Color0;Color 0;18;0;Create;True;0;0;0;False;0;False;1,1,1,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.CommentaryNode;191;-1794,-2034;Inherit;False;1948.372;643.8335;Color;19;190;113;58;183;182;187;126;123;122;185;184;148;149;186;124;169;170;151;192;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode;147;-1088,-912;Inherit;False;891.5015;441.3077;Border;7;28;31;30;36;29;37;189;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.FunctionNode;138;-432,-2496;Inherit;False;F_TillingAndOffset;-1;;31;992a7dac1d94f9a47be7a2d63002dd82;0;3;1;FLOAT2;0,0;False;3;FLOAT2;1,1;False;5;FLOAT2;0,0;False;3;FLOAT2;0;FLOAT;7;FLOAT;10
+Node;AmplifyShaderEditor.LerpOp;205;-2454.504,-2605.255;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.WireNode;207;-2342.504,-2285.255;Inherit;False;1;0;COLOR;0,0,0,0;False;1;COLOR;0
 Node;AmplifyShaderEditor.VertexColorNode;151;-1744,-1728;Inherit;False;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RangedFloatNode;170;-1680,-1520;Inherit;False;Property;_Intensity;Intensity;6;0;Create;True;0;0;0;False;0;False;1;1.25;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;124;-1584,-1984;Inherit;False;Property;_Color1;Color 1;3;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0.04669766,0.06918191,0.6431373;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.RangedFloatNode;37;-1024,-864;Inherit;False;Property;_BorderWidth;Border Width;1;0;Create;True;0;0;0;False;0;False;0;1.01;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.Vector2Node;29;-1040,-784;Inherit;False;Property;_BorderScale;Border Scale;0;0;Create;True;0;0;0;False;0;False;0,0;1.02,1.08;0;3;FLOAT2;0;FLOAT;1;FLOAT;2
 Node;AmplifyShaderEditor.SamplerNode;129;-224,-2720;Inherit;True;Property;_MainTex;MainTex;4;0;Create;True;0;0;0;False;0;False;-1;None;310c09f0f0650f045b5ce1d0d2f2c0ca;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.SamplerNode;139;-224,-2496;Inherit;True;Property;_TextureSample1;Texture Sample 0;4;0;Create;True;0;0;0;False;0;False;-1;None;b6662a9cff1c7d345a378956d0faea28;True;0;False;white;Auto;False;Instance;129;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.Vector2Node;195;-112,-2208;Inherit;False;Property;_Vector2;Vector 0;8;0;Create;True;0;0;0;False;0;False;0,0;-0.04,1.31;0;3;FLOAT2;0;FLOAT;1;FLOAT;2
+Node;AmplifyShaderEditor.Vector2Node;195;-128,-2288;Inherit;False;Property;_LineIntensity;Line Intensity;9;0;Create;True;0;0;0;False;0;False;0,0;-0.04,1.31;0;3;FLOAT2;0;FLOAT;1;FLOAT;2
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;200;-2278.504,-2605.255;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;1;COLOR;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;36;-864,-864;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT2;0,0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;169;-1472,-1632;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT;0;False;1;COLOR;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;183;-1296,-1984;Inherit;False;bgColor;-1;True;1;0;COLOR;0,0,0,0;False;1;COLOR;0
@@ -241,6 +253,7 @@ Node;AmplifyShaderEditor.LerpOp;126;-560,-1680;Inherit;False;3;0;COLOR;0,0,0,0;F
 Node;AmplifyShaderEditor.GetLocalVarNode;190;-560,-1552;Inherit;False;189;borderMask;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.LerpOp;113;-320,-1840;Inherit;False;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;192;-128,-1840;Inherit;False;color;-1;True;1;0;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.ColorNode;124;-1696,-1984;Inherit;False;Property;_Color1;Color 1;3;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0.04669762,0.06918186,0.6431373;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.GetLocalVarNode;193;688,-1184;Inherit;False;192;color;1;0;OBJECT;;False;1;COLOR;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;181;896,-1184;Float;False;True;-1;3;AmplifyShaderEditor.MaterialInspector;0;3;S_Hologram Border;5056123faa0c79b47ab6ad7e8bf059a4;True;Default;0;0;Default;2;False;True;3;1;False;;10;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;False;True;True;True;True;True;0;True;_ColorMask;False;False;False;False;False;False;False;True;True;0;True;_Stencil;255;True;_StencilReadMask;255;True;_StencilWriteMask;0;True;_StencilComp;0;True;_StencilOp;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;2;False;;True;0;True;unity_GUIZTestMode;False;True;5;Queue=Transparent=Queue=0;IgnoreProjector=True;RenderType=Transparent=RenderType;PreviewType=Plane;CanUseSpriteAtlas=True;False;False;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;3;False;0;;0;0;Standard;0;0;1;True;False;;False;0
 WireConnection;134;0;137;0
@@ -249,15 +262,24 @@ WireConnection;135;1;134;0
 WireConnection;140;1;142;0
 WireConnection;131;3;144;0
 WireConnection;131;5;135;0
+WireConnection;203;0;202;0
+WireConnection;204;0;201;0
+WireConnection;204;1;202;0
 WireConnection;138;1;131;0
 WireConnection;138;5;140;0
+WireConnection;205;0;206;0
+WireConnection;205;1;204;0
+WireConnection;205;2;203;0
+WireConnection;207;0;199;0
 WireConnection;129;1;131;0
 WireConnection;139;1;138;0
+WireConnection;200;0;205;0
+WireConnection;200;1;207;0
 WireConnection;36;0;37;0
 WireConnection;36;1;29;0
 WireConnection;169;0;151;0
 WireConnection;169;1;170;0
-WireConnection;183;0;124;0
+WireConnection;183;0;200;0
 WireConnection;196;0;129;1
 WireConnection;196;1;195;1
 WireConnection;196;2;195;2
@@ -285,4 +307,4 @@ WireConnection;113;2;190;0
 WireConnection;192;0;113;0
 WireConnection;181;0;193;0
 ASEEND*/
-//CHKSM=766760CFE914B8C2D32C74516F5DAA5AA311C18F
+//CHKSM=D71FE9C3A7112FE2B3837B104A3517EECE6C8EF9

@@ -167,7 +167,7 @@ namespace Game.UI
         
         private Color GetColor()
         {
-            return (targetGraphic is TMP_Text tmp) ? tmp.color : targetGraphic.color;
+            return (targetGraphic is TMP_Text tmp) ? tmp.color : targetGraphic ? targetGraphic.color : Color.black;
         }
 
         private IEnumerator PlaySequences(float delay)
