@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: S_PixelScan
-  m_Shader: {fileID: 4800000, guid: 9dc629666973dd340aa59cbfc1bf6316, type: 3}
+  m_Name: M_Pixel Scan 2
+  m_Shader: {fileID: 4800000, guid: cb6578ed0a964a84da1557dcd1d7f6ce, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,20 +23,12 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Texture0:
+    - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Texture1:
-        m_Texture: {fileID: 2800000, guid: 4d9fd74bbf8eb4440af28bc6c475abb0, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _TextureSample0:
-        m_Texture: {fileID: 2800000, guid: b6662a9cff1c7d345a378956d0faea28, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _TextureSample1:
-        m_Texture: {fileID: 2800000, guid: cccc116a6334dc1428687697c5a11d58, type: 3}
+        m_Texture: {fileID: 2800000, guid: feace049a474eac41a1289b5d1ac909f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:
@@ -58,38 +50,53 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaCutoff: 0.5
-    - _Block: 5
+    - _BGAlpha: 0.97
+    - _BGOffset: 0.11
+    - _Blocks: 7
     - _ColorMask: 15
-    - _EnvironmentReflections: 1
-    - _Float0: 4.06
-    - _Float1: 4.27
-    - _Float2: 0.85
-    - _Float3: 1.5
-    - _Float4: 0.64
-    - _Float5: 3.25
-    - _Float7: 1.5
-    - _Float8: 0.09
+    - _DisplacementScale: 2.2
+    - _DisplacementStrength: 1
+    - _Falloff: 1.46
+    - _FalloffOffset: 0
+    - _Float0: 5.74
+    - _Float1: 0.11
+    - _Float2: 7.16
+    - _Float3: -0.025
+    - _Float4: 0.0085
+    - _Float5: -0.5
+    - _Float6: 0.19
+    - _LineSpeed: 0.25
+    - _LinesScale: 0.75
+    - _NoiseScale: 0.86
+    - _PixelFXSpeed: 0.25
+    - _PixelMappingOffset: -0.25
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _Radius: 2.58
+    - _RadiusOffset: 0
+    - _Range: 1.76
     - _ReceiveShadows: 1
-    - _SpecularHighlights: 1
+    - _ScanStrength: 0.793311
+    - _Speed: 0.25
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
+    - _TurbScale: 2.8
+    - _TurbStrength: 1
     - _UseUIAlphaClip: 0
-    - __dirty: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Color0: {r: 0.96855336, g: 0.39290345, b: 0.4083606, a: 0}
+    - _Color1: {r: 1, g: 1, b: 1, a: 1}
+    - _Color2: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Vector0: {r: -0.09, g: 0.93, b: 0, a: 0}
-    - _Vector1: {r: 0.45, g: 0.05, b: 0, a: 0}
-    - _Vector2: {r: -0.72, g: -0.27, b: 0, a: 0}
-    - _Vector3: {r: -0.18, g: 0.88, b: 0, a: 0}
-    - _Vector4: {r: 0, g: -2.25, b: 0, a: 0}
-    - _Vector5: {r: 1, g: 1.5, b: 1, a: 0}
-    - _Vector6: {r: -0.32, g: -2.23, b: 0, a: 0}
-    - _Vector7: {r: 1, g: 1, b: 1, a: 0}
+    - _LinesSmoothstep: {r: 0, g: 0.61, b: 0, a: 0}
+    - _PixelFXOffset: {r: 0, g: -2, b: 0, a: 0}
+    - _PixelFXScale: {r: 1, g: 1.5, b: 1, a: 0}
+    - _PixelMappingOffset: {r: -0.5, g: -0.5, b: -0.5, a: 0}
+    - _Steps: {r: 0.58, g: 0.41, b: 0.67, a: 0}
+    - _Vector0: {r: 0, g: 1, b: 0, a: 0}
+    - _Vector1: {r: 4.26, g: 1.04, b: 0, a: 0}
+    - _Vector2: {r: 0, g: -3.69, b: 0, a: 0}
   m_BuildTextureStacks: []
