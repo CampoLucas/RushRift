@@ -19,6 +19,9 @@ namespace Game.UI.StateMachine
         [Header("References")]
         [SerializeField] private Transform container;
         [SerializeField] private Button backButton;
+
+        [Header("Default Game Mode")]
+        [SerializeField] private GameModeSO gamemode;
         
 
         private List<LevelButton> _spawnedLevelButtons = new();
@@ -36,7 +39,7 @@ namespace Game.UI.StateMachine
             _onModeSelected = new ActionObserver<GameModeSO>(OnModeSelectedHandler);
             LevelSelectorMediator.GameModeSelected.Attach(_onModeSelected);
             
-            backButton.onClick.AddListener(OnBackHandler);
+            backButton?.onClick.AddListener(OnBackHandler);
         }
 
         public override void Begin()
@@ -86,7 +89,7 @@ namespace Game.UI.StateMachine
                 var unlocked = CheckIfUnlocked(levelSO, levels, i);
                 var medals = GetUnlockedMedals(levelSO);
 
-                button.Init(levelSO, unlocked, medals);
+                button.Init(levelSO, unlocked);
                 
                 if (!unlocked) continue;
 
@@ -156,7 +159,7 @@ namespace Game.UI.StateMachine
             buttonPrefab = null;
             container = null;
             
-            backButton.onClick.RemoveListener(OnBackHandler);
+            backButton?.onClick.RemoveListener(OnBackHandler);
             backButton = null;
             
             _spawnedLevelButtons.Clear();
