@@ -67,6 +67,11 @@ namespace Game.LevelSelector
             interactable.PlayerInRange.Attach(_playerInRange);
             interactable.PlayerInteracted.Attach(_openObs);
             _closeLevelSelector.NotifyAll();
+
+            if (!interactable.IsInRange)
+            {
+                _playerInRangeSubject.NotifyAll(false);
+            }
         }
 
         private void PlayerInRangeHandler(bool inRange)
