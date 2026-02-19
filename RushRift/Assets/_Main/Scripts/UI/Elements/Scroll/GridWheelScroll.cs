@@ -126,45 +126,37 @@ public class GridWheelScroll : MonoBehaviour
 
     private float GetMaxOffset()
     {
-        var viewportH = viewport.rect.height;
         var contentH = GetContentHeight();
+        var viewportH = viewport.rect.height;
         return Mathf.Max(0f, contentH - viewportH);
     }
 
     private float GetContentHeight()
     {
-        // Prefer container rect height after rebuild (includes layout sizing).
-        var h = container.rect.height;
-
-        // If something keeps it at 0, compute manually from child count and constraint count.
-        if (h > 0.01f) return h;
-
         var childCount = container.childCount;
-        if (childCount <= 0) return 0f;
+        if (childCount == 0)
+            return 0f;
 
-        var cols = GetColumnCountFallback();
-        var rows = Mathf.CeilToInt(childCount / (float)cols);
-        
+        var columns = GetColumnCount();
+        var rows = Mathf.CeilToInt(childCount / (float)columns);
+
+        var cellH = grid.cellSize.y;
+        var spacingH = grid.spacing.y;
         var padding = grid.padding.top + grid.padding.bottom;
 
-        // rows * cellHeight + (rows-1)*spacing
-        return padding + rows * grid.cellSize.y + Mathf.Max(0, rows - 1) * grid.spacing.y;
+        var total = padding + rows * cellH + Mathf.Max(0, rows - 1) * spacingH;
+
+        return total;
     }
 
-    private int GetColumnCountFallback()
+    private int GetColumnCount()
     {
-        // Best: use constraint count if FixedColumnCount.
-        if (grid.constraint == GridLayoutGroup.Constraint.FixedColumnCount && grid.constraintCount > 0)
-            return grid.constraintCount;
+        if (grid.constraint == GridLayoutGroup.Constraint.FixedColumnCount) return grid.constraintCount;
 
-        // Otherwise estimate from viewport width.
-        var viewportW = viewport.rect.width;
-        float pad = grid.padding.left + grid.padding.right;
-        var cellW = grid.cellSize.x;
-        var stepW = cellW + grid.spacing.x;
-
-        var cols = Mathf.FloorToInt((viewportW - pad + grid.spacing.x) / stepW);
-        return Mathf.Max(1, cols);
+        // If not fixed, compute from viewport width.
+        var available = viewport.rect.width - grid.padding.left - grid.padding.right;
+        var step = grid.cellSize.x + grid.spacing.x;
+        return Mathf.Max(1, Mathf.FloorToInt((available + grid.spacing.x) / step));
     }
 
     private bool IsPointerOverViewport()
