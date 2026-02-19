@@ -15,7 +15,6 @@ Shader "Game/FX/Pixel Scan v2"
 		_DisplacementScale("Displacement Scale", Float) = 0
 		_DisplacementStrength("Displacement Strength", Range( 0 , 1)) = 0
 		_Blocks("Blocks", Int) = 0
-		_Float5("Float 5", Float) = 0
 		_Float6("Float 6", Float) = 0.5
 		_Speed("Speed", Float) = 0
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
@@ -180,28 +179,25 @@ Shader "Game/FX/Pixel Scan v2"
 			HLSLPROGRAM
 
 			
-            #pragma multi_compile_fragment _ALPHATEST_ON
-            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-            #pragma multi_compile_instancing
-            #pragma instancing_options renderinglayer
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-            #pragma multi_compile_fog
-            #define ASE_FOG 1
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_VERSION 19801
-            #define ASE_SRP_VERSION 140012
+
+			#pragma multi_compile_fragment _ALPHATEST_ON
+			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+			#pragma multi_compile_instancing
+			#pragma instancing_options renderinglayer
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fog
+			#define ASE_FOG 1
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_VERSION 19801
+			#define ASE_SRP_VERSION 140012
 
 
 			
-            #pragma multi_compile _ DOTS_INSTANCING_ON
-		
 
 			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
 
 			
-            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
-		
 
 			#pragma multi_compile _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ LIGHTMAP_ON
@@ -214,8 +210,16 @@ Shader "Game/FX/Pixel Scan v2"
 			#define SHADERPASS SHADERPASS_UNLIT
 
 			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
 
 			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -225,10 +229,12 @@ Shader "Game/FX/Pixel Scan v2"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
 
 			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
 
 			
-			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-		
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
@@ -293,7 +299,6 @@ Shader "Game/FX/Pixel Scan v2"
 			float _DisplacementScale;
 			float _Speed;
 			float _DisplacementStrength;
-			float _Float5;
 			float _Float6;
 			float _Float0;
 			float _Float3;
@@ -509,83 +514,90 @@ Shader "Game/FX/Pixel Scan v2"
 					#endif
 				#endif
 
-				float2 break50_g90 = float2( -0.5,0.9 );
-				float temp_output_13_0_g94 = _Range;
+				float2 break50_g94 = float2( -0.5,0.9 );
+				float temp_output_13_0_g103 = _Range;
+				float3 temp_output_15_0_g95 = ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
 				float3 temp_cast_0 = _Blocks;
-				float3 blocks8_g91 = abs( temp_cast_0 );
-				float3 mosaicUV15_g91 = ( floor( ( ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g91 ) ) / blocks8_g91 );
-				float3 result17_g91 = mosaicUV15_g91;
-				float3 in_float3230_g95 = result17_g91;
-				float3 in232_g95 = in_float3230_g95;
-				float3 temp_cast_2 = (_DisplacementScale).xxx;
+				float3 blocks_amount22_g95 = temp_cast_0;
+				float3 blocks8_g98 = abs( blocks_amount22_g95 );
+				float3 mosaicUV15_g98 = ( floor( ( temp_output_15_0_g95 * blocks8_g98 ) ) / blocks8_g98 );
+				float3 result17_g98 = mosaicUV15_g98;
+				float3 in_float3230_g101 = result17_g98;
+				float3 in232_g101 = in_float3230_g101;
+				float3 temp_cast_1 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g95 = temp_cast_1;
 				float mulTime12 = _TimeParameters.x * _Speed;
-				float3 temp_cast_3 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g95 = (in_float3230_g95*temp_cast_2 + temp_cast_3);
-				float temp_output_156_0_g95 = 1.0;
-				float noise_scale205_g95 = temp_output_156_0_g95;
-				float simplePerlin2D150_g95 = snoise( (coords_mapped_float3177_g95).xy*noise_scale205_g95 );
-				simplePerlin2D150_g95 = simplePerlin2D150_g95*0.5 + 0.5;
-				float temp_output_154_0_g95 = saturate( simplePerlin2D150_g95 );
-				float simplePerlin2D161_g95 = snoise( (coords_mapped_float3177_g95).yz*noise_scale205_g95 );
-				simplePerlin2D161_g95 = simplePerlin2D161_g95*0.5 + 0.5;
-				float temp_output_165_0_g95 = saturate( simplePerlin2D161_g95 );
-				float simplePerlin2D170_g95 = snoise( (coords_mapped_float3177_g95).xz*noise_scale205_g95 );
-				simplePerlin2D170_g95 = simplePerlin2D170_g95*0.5 + 0.5;
-				float temp_output_171_0_g95 = saturate( simplePerlin2D170_g95 );
-				float4 appendResult244_g95 = (float4(temp_output_154_0_g95 , temp_output_165_0_g95 , temp_output_171_0_g95 , 0.0));
-				float4 temp_cast_4 = (1.0).xxxx;
-				float4 noise_3d194_g95 = ( ( appendResult244_g95 * 2.0 ) - temp_cast_4 );
-				float4 noise118_g95 = saturate( noise_3d194_g95 );
-				float4 distortion_map27_g95 = noise118_g95;
-				float4 temp_cast_5 = (-1.0).xxxx;
-				float temp_output_6_0_g95 = _DisplacementStrength;
-				float4 temp_cast_6 = (temp_output_6_0_g95).xxxx;
-				float temp_output_39_0 = ( _DisplacementStrength * _Float5 );
-				float3 temp_cast_7 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g95 = (( float4( in232_g95 , 0.0 ) + saturate( (( distortion_map27_g95 * temp_output_6_0_g95 ) + (distortion_map27_g95 - temp_cast_5) * (temp_cast_6 - ( distortion_map27_g95 * temp_output_6_0_g95 )) / (float4( 1,1,1,1 ) - temp_cast_5)) ) )*1.0 + float4( temp_cast_7 , 0.0 ));
+				float3 temp_cast_2 = (mulTime12).xxx;
+				float3 turb_offset24_g95 = temp_cast_2;
+				float3 coords_mapped_float3177_g101 = (in_float3230_g101*turb_scale23_g95 + turb_offset24_g95);
+				float3 coords26_g102 = coords_mapped_float3177_g101;
+				float noise_s26_g95 = 1.0;
+				float noise_scale205_g101 = noise_s26_g95;
+				float scale25_g102 = noise_scale205_g101;
+				float simplePerlin2D2_g102 = snoise( (coords26_g102).xy*scale25_g102 );
+				simplePerlin2D2_g102 = simplePerlin2D2_g102*0.5 + 0.5;
+				float simplePerlin2D5_g102 = snoise( (coords26_g102).yz*scale25_g102 );
+				simplePerlin2D5_g102 = simplePerlin2D5_g102*0.5 + 0.5;
+				float simplePerlin2D8_g102 = snoise( (coords26_g102).xz*scale25_g102 );
+				simplePerlin2D8_g102 = simplePerlin2D8_g102*0.5 + 0.5;
+				float3 appendResult23_g102 = (float3(simplePerlin2D2_g102 , simplePerlin2D5_g102 , simplePerlin2D8_g102));
+				float3 temp_output_248_0_g101 = appendResult23_g102;
+				float3 temp_cast_3 = (1.0).xxx;
+				float3 noise118_g101 = saturate( ( ( saturate( temp_output_248_0_g101 ) * 2.0 ) - temp_cast_3 ) );
+				float3 distortion_map27_g101 = noise118_g101;
+				float3 temp_cast_4 = (-1.0).xxx;
+				float turb_strenght25_g95 = _DisplacementStrength;
+				float temp_output_20_0_g95 = saturate( turb_strenght25_g95 );
+				float temp_output_6_0_g101 = temp_output_20_0_g95;
+				float3 temp_cast_5 = (temp_output_6_0_g101).xxx;
+				float3 distortedUV37_g101 = ( in232_g101 + saturate( (( distortion_map27_g101 * temp_output_6_0_g101 ) + (distortion_map27_g101 - temp_cast_4) * (temp_cast_5 - ( distortion_map27_g101 * temp_output_6_0_g101 )) / (float3( 1,1,1 ) - temp_cast_4)) ) );
 				float3 ase_objectPosition = GetAbsolutePositionWS( UNITY_MATRIX_M._m03_m13_m23 );
-				float dist19_g94 = distance( distortedUV37_g95.xyz , ase_objectPosition );
-				float smoothstepResult22_g94 = smoothstep( temp_output_13_0_g94 , ( temp_output_13_0_g94 + ( 1.0 - _Falloff ) ) , dist19_g94);
-				float mask29_g94 = ( 1.0 - smoothstepResult22_g94 );
-				float revealMaskRaw44_g90 = ( 1.0 - saturate( mask29_g94 ) );
-				float smoothstepResult48_g90 = smoothstep( break50_g90.x , break50_g90.y , revealMaskRaw44_g90);
-				float temp_output_28_0 = saturate( smoothstepResult48_g90 );
+				float dist19_g103 = distance( ( distortedUV37_g101 + ( temp_output_20_0_g95 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g103 = smoothstep( temp_output_13_0_g103 , ( temp_output_13_0_g103 + ( 1.0 - _Falloff ) ) , dist19_g103);
+				float mask29_g103 = ( 1.0 - smoothstepResult22_g103 );
+				float revealMaskRaw44_g94 = ( 1.0 - saturate( mask29_g103 ) );
+				float smoothstepResult48_g94 = smoothstep( break50_g94.x , break50_g94.y , revealMaskRaw44_g94);
+				float temp_output_28_0 = saturate( smoothstepResult48_g94 );
 				float2 break50_g84 = float2( -0.5,0.9 );
-				float temp_output_13_0_g88 = _Range;
-				float3 temp_cast_10 = _Blocks;
-				float3 blocks8_g85 = abs( temp_cast_10 );
-				float3 mosaicUV15_g85 = ( floor( ( ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g85 ) ) / blocks8_g85 );
-				float3 result17_g85 = mosaicUV15_g85;
-				float3 in_float3230_g89 = result17_g85;
-				float3 in232_g89 = in_float3230_g89;
-				float3 temp_cast_12 = (_DisplacementScale).xxx;
-				float3 temp_cast_13 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g89 = (in_float3230_g89*temp_cast_12 + temp_cast_13);
-				float temp_output_156_0_g89 = 1.0;
-				float noise_scale205_g89 = temp_output_156_0_g89;
-				float simplePerlin2D150_g89 = snoise( (coords_mapped_float3177_g89).xy*noise_scale205_g89 );
-				simplePerlin2D150_g89 = simplePerlin2D150_g89*0.5 + 0.5;
-				float temp_output_154_0_g89 = saturate( simplePerlin2D150_g89 );
-				float simplePerlin2D161_g89 = snoise( (coords_mapped_float3177_g89).yz*noise_scale205_g89 );
-				simplePerlin2D161_g89 = simplePerlin2D161_g89*0.5 + 0.5;
-				float temp_output_165_0_g89 = saturate( simplePerlin2D161_g89 );
-				float simplePerlin2D170_g89 = snoise( (coords_mapped_float3177_g89).xz*noise_scale205_g89 );
-				simplePerlin2D170_g89 = simplePerlin2D170_g89*0.5 + 0.5;
-				float temp_output_171_0_g89 = saturate( simplePerlin2D170_g89 );
-				float4 appendResult244_g89 = (float4(temp_output_154_0_g89 , temp_output_165_0_g89 , temp_output_171_0_g89 , 0.0));
-				float4 temp_cast_14 = (1.0).xxxx;
-				float4 noise_3d194_g89 = ( ( appendResult244_g89 * 2.0 ) - temp_cast_14 );
-				float4 noise118_g89 = saturate( noise_3d194_g89 );
-				float4 distortion_map27_g89 = noise118_g89;
-				float4 temp_cast_15 = (-1.0).xxxx;
-				float temp_output_6_0_g89 = _DisplacementStrength;
-				float4 temp_cast_16 = (temp_output_6_0_g89).xxxx;
-				float3 temp_cast_17 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g89 = (( float4( in232_g89 , 0.0 ) + saturate( (( distortion_map27_g89 * temp_output_6_0_g89 ) + (distortion_map27_g89 - temp_cast_15) * (temp_cast_16 - ( distortion_map27_g89 * temp_output_6_0_g89 )) / (float4( 1,1,1,1 ) - temp_cast_15)) ) )*1.0 + float4( temp_cast_17 , 0.0 ));
-				float dist19_g88 = distance( distortedUV37_g89.xyz , ase_objectPosition );
-				float smoothstepResult22_g88 = smoothstep( temp_output_13_0_g88 , ( temp_output_13_0_g88 + ( 1.0 - _Falloff ) ) , dist19_g88);
-				float mask29_g88 = ( 1.0 - smoothstepResult22_g88 );
-				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g88 ) );
+				float temp_output_13_0_g93 = _Range;
+				float3 temp_output_15_0_g85 = ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
+				float3 temp_cast_6 = _Blocks;
+				float3 blocks_amount22_g85 = temp_cast_6;
+				float3 blocks8_g88 = abs( blocks_amount22_g85 );
+				float3 mosaicUV15_g88 = ( floor( ( temp_output_15_0_g85 * blocks8_g88 ) ) / blocks8_g88 );
+				float3 result17_g88 = mosaicUV15_g88;
+				float3 in_float3230_g91 = result17_g88;
+				float3 in232_g91 = in_float3230_g91;
+				float3 temp_cast_7 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g85 = temp_cast_7;
+				float3 temp_cast_8 = (mulTime12).xxx;
+				float3 turb_offset24_g85 = temp_cast_8;
+				float3 coords_mapped_float3177_g91 = (in_float3230_g91*turb_scale23_g85 + turb_offset24_g85);
+				float3 coords26_g92 = coords_mapped_float3177_g91;
+				float noise_s26_g85 = 1.0;
+				float noise_scale205_g91 = noise_s26_g85;
+				float scale25_g92 = noise_scale205_g91;
+				float simplePerlin2D2_g92 = snoise( (coords26_g92).xy*scale25_g92 );
+				simplePerlin2D2_g92 = simplePerlin2D2_g92*0.5 + 0.5;
+				float simplePerlin2D5_g92 = snoise( (coords26_g92).yz*scale25_g92 );
+				simplePerlin2D5_g92 = simplePerlin2D5_g92*0.5 + 0.5;
+				float simplePerlin2D8_g92 = snoise( (coords26_g92).xz*scale25_g92 );
+				simplePerlin2D8_g92 = simplePerlin2D8_g92*0.5 + 0.5;
+				float3 appendResult23_g92 = (float3(simplePerlin2D2_g92 , simplePerlin2D5_g92 , simplePerlin2D8_g92));
+				float3 temp_output_248_0_g91 = appendResult23_g92;
+				float3 temp_cast_9 = (1.0).xxx;
+				float3 noise118_g91 = saturate( ( ( saturate( temp_output_248_0_g91 ) * 2.0 ) - temp_cast_9 ) );
+				float3 distortion_map27_g91 = noise118_g91;
+				float3 temp_cast_10 = (-1.0).xxx;
+				float turb_strenght25_g85 = _DisplacementStrength;
+				float temp_output_20_0_g85 = saturate( turb_strenght25_g85 );
+				float temp_output_6_0_g91 = temp_output_20_0_g85;
+				float3 temp_cast_11 = (temp_output_6_0_g91).xxx;
+				float3 distortedUV37_g91 = ( in232_g91 + saturate( (( distortion_map27_g91 * temp_output_6_0_g91 ) + (distortion_map27_g91 - temp_cast_10) * (temp_cast_11 - ( distortion_map27_g91 * temp_output_6_0_g91 )) / (float3( 1,1,1 ) - temp_cast_10)) ) );
+				float dist19_g93 = distance( ( distortedUV37_g91 + ( temp_output_20_0_g85 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g93 = smoothstep( temp_output_13_0_g93 , ( temp_output_13_0_g93 + ( 1.0 - _Falloff ) ) , dist19_g93);
+				float mask29_g93 = ( 1.0 - smoothstepResult22_g93 );
+				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g93 ) );
 				float smoothstepResult48_g84 = smoothstep( break50_g84.x , break50_g84.y , revealMaskRaw44_g84);
 				float temp_output_30_0 = saturate( smoothstepResult48_g84 );
 				float lerpResult52 = lerp( 1.0 , ( temp_output_28_0 - temp_output_30_0 ) , step( temp_output_28_0 , 0.8 ));
@@ -663,18 +675,17 @@ Shader "Game/FX/Pixel Scan v2"
 			HLSLPROGRAM
 
 			
-            #pragma multi_compile _ALPHATEST_ON
-            #pragma multi_compile_instancing
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-            #define ASE_FOG 1
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_VERSION 19801
-            #define ASE_SRP_VERSION 140012
+
+			#pragma multi_compile _ALPHATEST_ON
+			#pragma multi_compile_instancing
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+			#define ASE_FOG 1
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_VERSION 19801
+			#define ASE_SRP_VERSION 140012
 
 
 			
-            #pragma multi_compile _ DOTS_INSTANCING_ON
-		
 
 			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
@@ -684,6 +695,10 @@ Shader "Game/FX/Pixel Scan v2"
 			#define SHADERPASS SHADERPASS_SHADOWCASTER
 
 			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -736,7 +751,6 @@ Shader "Game/FX/Pixel Scan v2"
 			float _DisplacementScale;
 			float _Speed;
 			float _DisplacementStrength;
-			float _Float5;
 			float _Float6;
 			float _Float0;
 			float _Float3;
@@ -947,83 +961,90 @@ Shader "Game/FX/Pixel Scan v2"
 					#endif
 				#endif
 
-				float2 break50_g90 = float2( -0.5,0.9 );
-				float temp_output_13_0_g94 = _Range;
+				float2 break50_g94 = float2( -0.5,0.9 );
+				float temp_output_13_0_g103 = _Range;
+				float3 temp_output_15_0_g95 = ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
 				float3 temp_cast_0 = _Blocks;
-				float3 blocks8_g91 = abs( temp_cast_0 );
-				float3 mosaicUV15_g91 = ( floor( ( ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g91 ) ) / blocks8_g91 );
-				float3 result17_g91 = mosaicUV15_g91;
-				float3 in_float3230_g95 = result17_g91;
-				float3 in232_g95 = in_float3230_g95;
-				float3 temp_cast_2 = (_DisplacementScale).xxx;
+				float3 blocks_amount22_g95 = temp_cast_0;
+				float3 blocks8_g98 = abs( blocks_amount22_g95 );
+				float3 mosaicUV15_g98 = ( floor( ( temp_output_15_0_g95 * blocks8_g98 ) ) / blocks8_g98 );
+				float3 result17_g98 = mosaicUV15_g98;
+				float3 in_float3230_g101 = result17_g98;
+				float3 in232_g101 = in_float3230_g101;
+				float3 temp_cast_1 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g95 = temp_cast_1;
 				float mulTime12 = _TimeParameters.x * _Speed;
-				float3 temp_cast_3 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g95 = (in_float3230_g95*temp_cast_2 + temp_cast_3);
-				float temp_output_156_0_g95 = 1.0;
-				float noise_scale205_g95 = temp_output_156_0_g95;
-				float simplePerlin2D150_g95 = snoise( (coords_mapped_float3177_g95).xy*noise_scale205_g95 );
-				simplePerlin2D150_g95 = simplePerlin2D150_g95*0.5 + 0.5;
-				float temp_output_154_0_g95 = saturate( simplePerlin2D150_g95 );
-				float simplePerlin2D161_g95 = snoise( (coords_mapped_float3177_g95).yz*noise_scale205_g95 );
-				simplePerlin2D161_g95 = simplePerlin2D161_g95*0.5 + 0.5;
-				float temp_output_165_0_g95 = saturate( simplePerlin2D161_g95 );
-				float simplePerlin2D170_g95 = snoise( (coords_mapped_float3177_g95).xz*noise_scale205_g95 );
-				simplePerlin2D170_g95 = simplePerlin2D170_g95*0.5 + 0.5;
-				float temp_output_171_0_g95 = saturate( simplePerlin2D170_g95 );
-				float4 appendResult244_g95 = (float4(temp_output_154_0_g95 , temp_output_165_0_g95 , temp_output_171_0_g95 , 0.0));
-				float4 temp_cast_4 = (1.0).xxxx;
-				float4 noise_3d194_g95 = ( ( appendResult244_g95 * 2.0 ) - temp_cast_4 );
-				float4 noise118_g95 = saturate( noise_3d194_g95 );
-				float4 distortion_map27_g95 = noise118_g95;
-				float4 temp_cast_5 = (-1.0).xxxx;
-				float temp_output_6_0_g95 = _DisplacementStrength;
-				float4 temp_cast_6 = (temp_output_6_0_g95).xxxx;
-				float temp_output_39_0 = ( _DisplacementStrength * _Float5 );
-				float3 temp_cast_7 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g95 = (( float4( in232_g95 , 0.0 ) + saturate( (( distortion_map27_g95 * temp_output_6_0_g95 ) + (distortion_map27_g95 - temp_cast_5) * (temp_cast_6 - ( distortion_map27_g95 * temp_output_6_0_g95 )) / (float4( 1,1,1,1 ) - temp_cast_5)) ) )*1.0 + float4( temp_cast_7 , 0.0 ));
+				float3 temp_cast_2 = (mulTime12).xxx;
+				float3 turb_offset24_g95 = temp_cast_2;
+				float3 coords_mapped_float3177_g101 = (in_float3230_g101*turb_scale23_g95 + turb_offset24_g95);
+				float3 coords26_g102 = coords_mapped_float3177_g101;
+				float noise_s26_g95 = 1.0;
+				float noise_scale205_g101 = noise_s26_g95;
+				float scale25_g102 = noise_scale205_g101;
+				float simplePerlin2D2_g102 = snoise( (coords26_g102).xy*scale25_g102 );
+				simplePerlin2D2_g102 = simplePerlin2D2_g102*0.5 + 0.5;
+				float simplePerlin2D5_g102 = snoise( (coords26_g102).yz*scale25_g102 );
+				simplePerlin2D5_g102 = simplePerlin2D5_g102*0.5 + 0.5;
+				float simplePerlin2D8_g102 = snoise( (coords26_g102).xz*scale25_g102 );
+				simplePerlin2D8_g102 = simplePerlin2D8_g102*0.5 + 0.5;
+				float3 appendResult23_g102 = (float3(simplePerlin2D2_g102 , simplePerlin2D5_g102 , simplePerlin2D8_g102));
+				float3 temp_output_248_0_g101 = appendResult23_g102;
+				float3 temp_cast_3 = (1.0).xxx;
+				float3 noise118_g101 = saturate( ( ( saturate( temp_output_248_0_g101 ) * 2.0 ) - temp_cast_3 ) );
+				float3 distortion_map27_g101 = noise118_g101;
+				float3 temp_cast_4 = (-1.0).xxx;
+				float turb_strenght25_g95 = _DisplacementStrength;
+				float temp_output_20_0_g95 = saturate( turb_strenght25_g95 );
+				float temp_output_6_0_g101 = temp_output_20_0_g95;
+				float3 temp_cast_5 = (temp_output_6_0_g101).xxx;
+				float3 distortedUV37_g101 = ( in232_g101 + saturate( (( distortion_map27_g101 * temp_output_6_0_g101 ) + (distortion_map27_g101 - temp_cast_4) * (temp_cast_5 - ( distortion_map27_g101 * temp_output_6_0_g101 )) / (float3( 1,1,1 ) - temp_cast_4)) ) );
 				float3 ase_objectPosition = GetAbsolutePositionWS( UNITY_MATRIX_M._m03_m13_m23 );
-				float dist19_g94 = distance( distortedUV37_g95.xyz , ase_objectPosition );
-				float smoothstepResult22_g94 = smoothstep( temp_output_13_0_g94 , ( temp_output_13_0_g94 + ( 1.0 - _Falloff ) ) , dist19_g94);
-				float mask29_g94 = ( 1.0 - smoothstepResult22_g94 );
-				float revealMaskRaw44_g90 = ( 1.0 - saturate( mask29_g94 ) );
-				float smoothstepResult48_g90 = smoothstep( break50_g90.x , break50_g90.y , revealMaskRaw44_g90);
-				float temp_output_28_0 = saturate( smoothstepResult48_g90 );
+				float dist19_g103 = distance( ( distortedUV37_g101 + ( temp_output_20_0_g95 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g103 = smoothstep( temp_output_13_0_g103 , ( temp_output_13_0_g103 + ( 1.0 - _Falloff ) ) , dist19_g103);
+				float mask29_g103 = ( 1.0 - smoothstepResult22_g103 );
+				float revealMaskRaw44_g94 = ( 1.0 - saturate( mask29_g103 ) );
+				float smoothstepResult48_g94 = smoothstep( break50_g94.x , break50_g94.y , revealMaskRaw44_g94);
+				float temp_output_28_0 = saturate( smoothstepResult48_g94 );
 				float2 break50_g84 = float2( -0.5,0.9 );
-				float temp_output_13_0_g88 = _Range;
-				float3 temp_cast_10 = _Blocks;
-				float3 blocks8_g85 = abs( temp_cast_10 );
-				float3 mosaicUV15_g85 = ( floor( ( ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g85 ) ) / blocks8_g85 );
-				float3 result17_g85 = mosaicUV15_g85;
-				float3 in_float3230_g89 = result17_g85;
-				float3 in232_g89 = in_float3230_g89;
-				float3 temp_cast_12 = (_DisplacementScale).xxx;
-				float3 temp_cast_13 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g89 = (in_float3230_g89*temp_cast_12 + temp_cast_13);
-				float temp_output_156_0_g89 = 1.0;
-				float noise_scale205_g89 = temp_output_156_0_g89;
-				float simplePerlin2D150_g89 = snoise( (coords_mapped_float3177_g89).xy*noise_scale205_g89 );
-				simplePerlin2D150_g89 = simplePerlin2D150_g89*0.5 + 0.5;
-				float temp_output_154_0_g89 = saturate( simplePerlin2D150_g89 );
-				float simplePerlin2D161_g89 = snoise( (coords_mapped_float3177_g89).yz*noise_scale205_g89 );
-				simplePerlin2D161_g89 = simplePerlin2D161_g89*0.5 + 0.5;
-				float temp_output_165_0_g89 = saturate( simplePerlin2D161_g89 );
-				float simplePerlin2D170_g89 = snoise( (coords_mapped_float3177_g89).xz*noise_scale205_g89 );
-				simplePerlin2D170_g89 = simplePerlin2D170_g89*0.5 + 0.5;
-				float temp_output_171_0_g89 = saturate( simplePerlin2D170_g89 );
-				float4 appendResult244_g89 = (float4(temp_output_154_0_g89 , temp_output_165_0_g89 , temp_output_171_0_g89 , 0.0));
-				float4 temp_cast_14 = (1.0).xxxx;
-				float4 noise_3d194_g89 = ( ( appendResult244_g89 * 2.0 ) - temp_cast_14 );
-				float4 noise118_g89 = saturate( noise_3d194_g89 );
-				float4 distortion_map27_g89 = noise118_g89;
-				float4 temp_cast_15 = (-1.0).xxxx;
-				float temp_output_6_0_g89 = _DisplacementStrength;
-				float4 temp_cast_16 = (temp_output_6_0_g89).xxxx;
-				float3 temp_cast_17 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g89 = (( float4( in232_g89 , 0.0 ) + saturate( (( distortion_map27_g89 * temp_output_6_0_g89 ) + (distortion_map27_g89 - temp_cast_15) * (temp_cast_16 - ( distortion_map27_g89 * temp_output_6_0_g89 )) / (float4( 1,1,1,1 ) - temp_cast_15)) ) )*1.0 + float4( temp_cast_17 , 0.0 ));
-				float dist19_g88 = distance( distortedUV37_g89.xyz , ase_objectPosition );
-				float smoothstepResult22_g88 = smoothstep( temp_output_13_0_g88 , ( temp_output_13_0_g88 + ( 1.0 - _Falloff ) ) , dist19_g88);
-				float mask29_g88 = ( 1.0 - smoothstepResult22_g88 );
-				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g88 ) );
+				float temp_output_13_0_g93 = _Range;
+				float3 temp_output_15_0_g85 = ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
+				float3 temp_cast_6 = _Blocks;
+				float3 blocks_amount22_g85 = temp_cast_6;
+				float3 blocks8_g88 = abs( blocks_amount22_g85 );
+				float3 mosaicUV15_g88 = ( floor( ( temp_output_15_0_g85 * blocks8_g88 ) ) / blocks8_g88 );
+				float3 result17_g88 = mosaicUV15_g88;
+				float3 in_float3230_g91 = result17_g88;
+				float3 in232_g91 = in_float3230_g91;
+				float3 temp_cast_7 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g85 = temp_cast_7;
+				float3 temp_cast_8 = (mulTime12).xxx;
+				float3 turb_offset24_g85 = temp_cast_8;
+				float3 coords_mapped_float3177_g91 = (in_float3230_g91*turb_scale23_g85 + turb_offset24_g85);
+				float3 coords26_g92 = coords_mapped_float3177_g91;
+				float noise_s26_g85 = 1.0;
+				float noise_scale205_g91 = noise_s26_g85;
+				float scale25_g92 = noise_scale205_g91;
+				float simplePerlin2D2_g92 = snoise( (coords26_g92).xy*scale25_g92 );
+				simplePerlin2D2_g92 = simplePerlin2D2_g92*0.5 + 0.5;
+				float simplePerlin2D5_g92 = snoise( (coords26_g92).yz*scale25_g92 );
+				simplePerlin2D5_g92 = simplePerlin2D5_g92*0.5 + 0.5;
+				float simplePerlin2D8_g92 = snoise( (coords26_g92).xz*scale25_g92 );
+				simplePerlin2D8_g92 = simplePerlin2D8_g92*0.5 + 0.5;
+				float3 appendResult23_g92 = (float3(simplePerlin2D2_g92 , simplePerlin2D5_g92 , simplePerlin2D8_g92));
+				float3 temp_output_248_0_g91 = appendResult23_g92;
+				float3 temp_cast_9 = (1.0).xxx;
+				float3 noise118_g91 = saturate( ( ( saturate( temp_output_248_0_g91 ) * 2.0 ) - temp_cast_9 ) );
+				float3 distortion_map27_g91 = noise118_g91;
+				float3 temp_cast_10 = (-1.0).xxx;
+				float turb_strenght25_g85 = _DisplacementStrength;
+				float temp_output_20_0_g85 = saturate( turb_strenght25_g85 );
+				float temp_output_6_0_g91 = temp_output_20_0_g85;
+				float3 temp_cast_11 = (temp_output_6_0_g91).xxx;
+				float3 distortedUV37_g91 = ( in232_g91 + saturate( (( distortion_map27_g91 * temp_output_6_0_g91 ) + (distortion_map27_g91 - temp_cast_10) * (temp_cast_11 - ( distortion_map27_g91 * temp_output_6_0_g91 )) / (float3( 1,1,1 ) - temp_cast_10)) ) );
+				float dist19_g93 = distance( ( distortedUV37_g91 + ( temp_output_20_0_g85 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g93 = smoothstep( temp_output_13_0_g93 , ( temp_output_13_0_g93 + ( 1.0 - _Falloff ) ) , dist19_g93);
+				float mask29_g93 = ( 1.0 - smoothstepResult22_g93 );
+				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g93 ) );
 				float smoothstepResult48_g84 = smoothstep( break50_g84.x , break50_g84.y , revealMaskRaw44_g84);
 				float temp_output_30_0 = saturate( smoothstepResult48_g84 );
 				float lerpResult52 = lerp( 1.0 , ( temp_output_28_0 - temp_output_30_0 ) , step( temp_output_28_0 , 0.8 ));
@@ -1073,23 +1094,26 @@ Shader "Game/FX/Pixel Scan v2"
 			HLSLPROGRAM
 
 			
-            #pragma multi_compile _ALPHATEST_ON
-            #pragma multi_compile_instancing
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-            #define ASE_FOG 1
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_VERSION 19801
-            #define ASE_SRP_VERSION 140012
+
+			#pragma multi_compile _ALPHATEST_ON
+			#pragma multi_compile_instancing
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+			#define ASE_FOG 1
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_VERSION 19801
+			#define ASE_SRP_VERSION 140012
 
 
 			
-            #pragma multi_compile _ DOTS_INSTANCING_ON
-		
 
 			#pragma vertex vert
 			#pragma fragment frag
 
 			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -1142,7 +1166,6 @@ Shader "Game/FX/Pixel Scan v2"
 			float _DisplacementScale;
 			float _Speed;
 			float _DisplacementStrength;
-			float _Float5;
 			float _Float6;
 			float _Float0;
 			float _Float3;
@@ -1332,83 +1355,90 @@ Shader "Game/FX/Pixel Scan v2"
 					#endif
 				#endif
 
-				float2 break50_g90 = float2( -0.5,0.9 );
-				float temp_output_13_0_g94 = _Range;
+				float2 break50_g94 = float2( -0.5,0.9 );
+				float temp_output_13_0_g103 = _Range;
+				float3 temp_output_15_0_g95 = ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
 				float3 temp_cast_0 = _Blocks;
-				float3 blocks8_g91 = abs( temp_cast_0 );
-				float3 mosaicUV15_g91 = ( floor( ( ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g91 ) ) / blocks8_g91 );
-				float3 result17_g91 = mosaicUV15_g91;
-				float3 in_float3230_g95 = result17_g91;
-				float3 in232_g95 = in_float3230_g95;
-				float3 temp_cast_2 = (_DisplacementScale).xxx;
+				float3 blocks_amount22_g95 = temp_cast_0;
+				float3 blocks8_g98 = abs( blocks_amount22_g95 );
+				float3 mosaicUV15_g98 = ( floor( ( temp_output_15_0_g95 * blocks8_g98 ) ) / blocks8_g98 );
+				float3 result17_g98 = mosaicUV15_g98;
+				float3 in_float3230_g101 = result17_g98;
+				float3 in232_g101 = in_float3230_g101;
+				float3 temp_cast_1 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g95 = temp_cast_1;
 				float mulTime12 = _TimeParameters.x * _Speed;
-				float3 temp_cast_3 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g95 = (in_float3230_g95*temp_cast_2 + temp_cast_3);
-				float temp_output_156_0_g95 = 1.0;
-				float noise_scale205_g95 = temp_output_156_0_g95;
-				float simplePerlin2D150_g95 = snoise( (coords_mapped_float3177_g95).xy*noise_scale205_g95 );
-				simplePerlin2D150_g95 = simplePerlin2D150_g95*0.5 + 0.5;
-				float temp_output_154_0_g95 = saturate( simplePerlin2D150_g95 );
-				float simplePerlin2D161_g95 = snoise( (coords_mapped_float3177_g95).yz*noise_scale205_g95 );
-				simplePerlin2D161_g95 = simplePerlin2D161_g95*0.5 + 0.5;
-				float temp_output_165_0_g95 = saturate( simplePerlin2D161_g95 );
-				float simplePerlin2D170_g95 = snoise( (coords_mapped_float3177_g95).xz*noise_scale205_g95 );
-				simplePerlin2D170_g95 = simplePerlin2D170_g95*0.5 + 0.5;
-				float temp_output_171_0_g95 = saturate( simplePerlin2D170_g95 );
-				float4 appendResult244_g95 = (float4(temp_output_154_0_g95 , temp_output_165_0_g95 , temp_output_171_0_g95 , 0.0));
-				float4 temp_cast_4 = (1.0).xxxx;
-				float4 noise_3d194_g95 = ( ( appendResult244_g95 * 2.0 ) - temp_cast_4 );
-				float4 noise118_g95 = saturate( noise_3d194_g95 );
-				float4 distortion_map27_g95 = noise118_g95;
-				float4 temp_cast_5 = (-1.0).xxxx;
-				float temp_output_6_0_g95 = _DisplacementStrength;
-				float4 temp_cast_6 = (temp_output_6_0_g95).xxxx;
-				float temp_output_39_0 = ( _DisplacementStrength * _Float5 );
-				float3 temp_cast_7 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g95 = (( float4( in232_g95 , 0.0 ) + saturate( (( distortion_map27_g95 * temp_output_6_0_g95 ) + (distortion_map27_g95 - temp_cast_5) * (temp_cast_6 - ( distortion_map27_g95 * temp_output_6_0_g95 )) / (float4( 1,1,1,1 ) - temp_cast_5)) ) )*1.0 + float4( temp_cast_7 , 0.0 ));
+				float3 temp_cast_2 = (mulTime12).xxx;
+				float3 turb_offset24_g95 = temp_cast_2;
+				float3 coords_mapped_float3177_g101 = (in_float3230_g101*turb_scale23_g95 + turb_offset24_g95);
+				float3 coords26_g102 = coords_mapped_float3177_g101;
+				float noise_s26_g95 = 1.0;
+				float noise_scale205_g101 = noise_s26_g95;
+				float scale25_g102 = noise_scale205_g101;
+				float simplePerlin2D2_g102 = snoise( (coords26_g102).xy*scale25_g102 );
+				simplePerlin2D2_g102 = simplePerlin2D2_g102*0.5 + 0.5;
+				float simplePerlin2D5_g102 = snoise( (coords26_g102).yz*scale25_g102 );
+				simplePerlin2D5_g102 = simplePerlin2D5_g102*0.5 + 0.5;
+				float simplePerlin2D8_g102 = snoise( (coords26_g102).xz*scale25_g102 );
+				simplePerlin2D8_g102 = simplePerlin2D8_g102*0.5 + 0.5;
+				float3 appendResult23_g102 = (float3(simplePerlin2D2_g102 , simplePerlin2D5_g102 , simplePerlin2D8_g102));
+				float3 temp_output_248_0_g101 = appendResult23_g102;
+				float3 temp_cast_3 = (1.0).xxx;
+				float3 noise118_g101 = saturate( ( ( saturate( temp_output_248_0_g101 ) * 2.0 ) - temp_cast_3 ) );
+				float3 distortion_map27_g101 = noise118_g101;
+				float3 temp_cast_4 = (-1.0).xxx;
+				float turb_strenght25_g95 = _DisplacementStrength;
+				float temp_output_20_0_g95 = saturate( turb_strenght25_g95 );
+				float temp_output_6_0_g101 = temp_output_20_0_g95;
+				float3 temp_cast_5 = (temp_output_6_0_g101).xxx;
+				float3 distortedUV37_g101 = ( in232_g101 + saturate( (( distortion_map27_g101 * temp_output_6_0_g101 ) + (distortion_map27_g101 - temp_cast_4) * (temp_cast_5 - ( distortion_map27_g101 * temp_output_6_0_g101 )) / (float3( 1,1,1 ) - temp_cast_4)) ) );
 				float3 ase_objectPosition = GetAbsolutePositionWS( UNITY_MATRIX_M._m03_m13_m23 );
-				float dist19_g94 = distance( distortedUV37_g95.xyz , ase_objectPosition );
-				float smoothstepResult22_g94 = smoothstep( temp_output_13_0_g94 , ( temp_output_13_0_g94 + ( 1.0 - _Falloff ) ) , dist19_g94);
-				float mask29_g94 = ( 1.0 - smoothstepResult22_g94 );
-				float revealMaskRaw44_g90 = ( 1.0 - saturate( mask29_g94 ) );
-				float smoothstepResult48_g90 = smoothstep( break50_g90.x , break50_g90.y , revealMaskRaw44_g90);
-				float temp_output_28_0 = saturate( smoothstepResult48_g90 );
+				float dist19_g103 = distance( ( distortedUV37_g101 + ( temp_output_20_0_g95 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g103 = smoothstep( temp_output_13_0_g103 , ( temp_output_13_0_g103 + ( 1.0 - _Falloff ) ) , dist19_g103);
+				float mask29_g103 = ( 1.0 - smoothstepResult22_g103 );
+				float revealMaskRaw44_g94 = ( 1.0 - saturate( mask29_g103 ) );
+				float smoothstepResult48_g94 = smoothstep( break50_g94.x , break50_g94.y , revealMaskRaw44_g94);
+				float temp_output_28_0 = saturate( smoothstepResult48_g94 );
 				float2 break50_g84 = float2( -0.5,0.9 );
-				float temp_output_13_0_g88 = _Range;
-				float3 temp_cast_10 = _Blocks;
-				float3 blocks8_g85 = abs( temp_cast_10 );
-				float3 mosaicUV15_g85 = ( floor( ( ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g85 ) ) / blocks8_g85 );
-				float3 result17_g85 = mosaicUV15_g85;
-				float3 in_float3230_g89 = result17_g85;
-				float3 in232_g89 = in_float3230_g89;
-				float3 temp_cast_12 = (_DisplacementScale).xxx;
-				float3 temp_cast_13 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g89 = (in_float3230_g89*temp_cast_12 + temp_cast_13);
-				float temp_output_156_0_g89 = 1.0;
-				float noise_scale205_g89 = temp_output_156_0_g89;
-				float simplePerlin2D150_g89 = snoise( (coords_mapped_float3177_g89).xy*noise_scale205_g89 );
-				simplePerlin2D150_g89 = simplePerlin2D150_g89*0.5 + 0.5;
-				float temp_output_154_0_g89 = saturate( simplePerlin2D150_g89 );
-				float simplePerlin2D161_g89 = snoise( (coords_mapped_float3177_g89).yz*noise_scale205_g89 );
-				simplePerlin2D161_g89 = simplePerlin2D161_g89*0.5 + 0.5;
-				float temp_output_165_0_g89 = saturate( simplePerlin2D161_g89 );
-				float simplePerlin2D170_g89 = snoise( (coords_mapped_float3177_g89).xz*noise_scale205_g89 );
-				simplePerlin2D170_g89 = simplePerlin2D170_g89*0.5 + 0.5;
-				float temp_output_171_0_g89 = saturate( simplePerlin2D170_g89 );
-				float4 appendResult244_g89 = (float4(temp_output_154_0_g89 , temp_output_165_0_g89 , temp_output_171_0_g89 , 0.0));
-				float4 temp_cast_14 = (1.0).xxxx;
-				float4 noise_3d194_g89 = ( ( appendResult244_g89 * 2.0 ) - temp_cast_14 );
-				float4 noise118_g89 = saturate( noise_3d194_g89 );
-				float4 distortion_map27_g89 = noise118_g89;
-				float4 temp_cast_15 = (-1.0).xxxx;
-				float temp_output_6_0_g89 = _DisplacementStrength;
-				float4 temp_cast_16 = (temp_output_6_0_g89).xxxx;
-				float3 temp_cast_17 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g89 = (( float4( in232_g89 , 0.0 ) + saturate( (( distortion_map27_g89 * temp_output_6_0_g89 ) + (distortion_map27_g89 - temp_cast_15) * (temp_cast_16 - ( distortion_map27_g89 * temp_output_6_0_g89 )) / (float4( 1,1,1,1 ) - temp_cast_15)) ) )*1.0 + float4( temp_cast_17 , 0.0 ));
-				float dist19_g88 = distance( distortedUV37_g89.xyz , ase_objectPosition );
-				float smoothstepResult22_g88 = smoothstep( temp_output_13_0_g88 , ( temp_output_13_0_g88 + ( 1.0 - _Falloff ) ) , dist19_g88);
-				float mask29_g88 = ( 1.0 - smoothstepResult22_g88 );
-				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g88 ) );
+				float temp_output_13_0_g93 = _Range;
+				float3 temp_output_15_0_g85 = ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
+				float3 temp_cast_6 = _Blocks;
+				float3 blocks_amount22_g85 = temp_cast_6;
+				float3 blocks8_g88 = abs( blocks_amount22_g85 );
+				float3 mosaicUV15_g88 = ( floor( ( temp_output_15_0_g85 * blocks8_g88 ) ) / blocks8_g88 );
+				float3 result17_g88 = mosaicUV15_g88;
+				float3 in_float3230_g91 = result17_g88;
+				float3 in232_g91 = in_float3230_g91;
+				float3 temp_cast_7 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g85 = temp_cast_7;
+				float3 temp_cast_8 = (mulTime12).xxx;
+				float3 turb_offset24_g85 = temp_cast_8;
+				float3 coords_mapped_float3177_g91 = (in_float3230_g91*turb_scale23_g85 + turb_offset24_g85);
+				float3 coords26_g92 = coords_mapped_float3177_g91;
+				float noise_s26_g85 = 1.0;
+				float noise_scale205_g91 = noise_s26_g85;
+				float scale25_g92 = noise_scale205_g91;
+				float simplePerlin2D2_g92 = snoise( (coords26_g92).xy*scale25_g92 );
+				simplePerlin2D2_g92 = simplePerlin2D2_g92*0.5 + 0.5;
+				float simplePerlin2D5_g92 = snoise( (coords26_g92).yz*scale25_g92 );
+				simplePerlin2D5_g92 = simplePerlin2D5_g92*0.5 + 0.5;
+				float simplePerlin2D8_g92 = snoise( (coords26_g92).xz*scale25_g92 );
+				simplePerlin2D8_g92 = simplePerlin2D8_g92*0.5 + 0.5;
+				float3 appendResult23_g92 = (float3(simplePerlin2D2_g92 , simplePerlin2D5_g92 , simplePerlin2D8_g92));
+				float3 temp_output_248_0_g91 = appendResult23_g92;
+				float3 temp_cast_9 = (1.0).xxx;
+				float3 noise118_g91 = saturate( ( ( saturate( temp_output_248_0_g91 ) * 2.0 ) - temp_cast_9 ) );
+				float3 distortion_map27_g91 = noise118_g91;
+				float3 temp_cast_10 = (-1.0).xxx;
+				float turb_strenght25_g85 = _DisplacementStrength;
+				float temp_output_20_0_g85 = saturate( turb_strenght25_g85 );
+				float temp_output_6_0_g91 = temp_output_20_0_g85;
+				float3 temp_cast_11 = (temp_output_6_0_g91).xxx;
+				float3 distortedUV37_g91 = ( in232_g91 + saturate( (( distortion_map27_g91 * temp_output_6_0_g91 ) + (distortion_map27_g91 - temp_cast_10) * (temp_cast_11 - ( distortion_map27_g91 * temp_output_6_0_g91 )) / (float3( 1,1,1 ) - temp_cast_10)) ) );
+				float dist19_g93 = distance( ( distortedUV37_g91 + ( temp_output_20_0_g85 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g93 = smoothstep( temp_output_13_0_g93 , ( temp_output_13_0_g93 + ( 1.0 - _Falloff ) ) , dist19_g93);
+				float mask29_g93 = ( 1.0 - smoothstepResult22_g93 );
+				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g93 ) );
 				float smoothstepResult48_g84 = smoothstep( break50_g84.x , break50_g84.y , revealMaskRaw44_g84);
 				float temp_output_30_0 = saturate( smoothstepResult48_g84 );
 				float lerpResult52 = lerp( 1.0 , ( temp_output_28_0 - temp_output_30_0 ) , step( temp_output_28_0 , 0.8 ));
@@ -1452,15 +1482,14 @@ Shader "Game/FX/Pixel Scan v2"
 			HLSLPROGRAM
 
 			
-            #define ASE_FOG 1
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_VERSION 19801
-            #define ASE_SRP_VERSION 140012
+
+			#define ASE_FOG 1
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_VERSION 19801
+			#define ASE_SRP_VERSION 140012
 
 
 			
-            #pragma multi_compile _ DOTS_INSTANCING_ON
-		
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -1470,8 +1499,16 @@ Shader "Game/FX/Pixel Scan v2"
 			#define SHADERPASS SHADERPASS_DEPTHONLY
 
 			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
 
 			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -1480,10 +1517,12 @@ Shader "Game/FX/Pixel Scan v2"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
 
 			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
 
 			
-			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-		
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
@@ -1514,7 +1553,6 @@ Shader "Game/FX/Pixel Scan v2"
 			float _DisplacementScale;
 			float _Speed;
 			float _DisplacementStrength;
-			float _Float5;
 			float _Float6;
 			float _Float0;
 			float _Float3;
@@ -1691,84 +1729,91 @@ Shader "Game/FX/Pixel Scan v2"
 			{
 				SurfaceDescription surfaceDescription = (SurfaceDescription)0;
 
-				float2 break50_g90 = float2( -0.5,0.9 );
-				float temp_output_13_0_g94 = _Range;
+				float2 break50_g94 = float2( -0.5,0.9 );
+				float temp_output_13_0_g103 = _Range;
 				float3 ase_positionWS = input.ase_texcoord.xyz;
+				float3 temp_output_15_0_g95 = ( ( ase_positionWS * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
 				float3 temp_cast_0 = _Blocks;
-				float3 blocks8_g91 = abs( temp_cast_0 );
-				float3 mosaicUV15_g91 = ( floor( ( ( ( ase_positionWS * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g91 ) ) / blocks8_g91 );
-				float3 result17_g91 = mosaicUV15_g91;
-				float3 in_float3230_g95 = result17_g91;
-				float3 in232_g95 = in_float3230_g95;
-				float3 temp_cast_2 = (_DisplacementScale).xxx;
+				float3 blocks_amount22_g95 = temp_cast_0;
+				float3 blocks8_g98 = abs( blocks_amount22_g95 );
+				float3 mosaicUV15_g98 = ( floor( ( temp_output_15_0_g95 * blocks8_g98 ) ) / blocks8_g98 );
+				float3 result17_g98 = mosaicUV15_g98;
+				float3 in_float3230_g101 = result17_g98;
+				float3 in232_g101 = in_float3230_g101;
+				float3 temp_cast_1 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g95 = temp_cast_1;
 				float mulTime12 = _TimeParameters.x * _Speed;
-				float3 temp_cast_3 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g95 = (in_float3230_g95*temp_cast_2 + temp_cast_3);
-				float temp_output_156_0_g95 = 1.0;
-				float noise_scale205_g95 = temp_output_156_0_g95;
-				float simplePerlin2D150_g95 = snoise( (coords_mapped_float3177_g95).xy*noise_scale205_g95 );
-				simplePerlin2D150_g95 = simplePerlin2D150_g95*0.5 + 0.5;
-				float temp_output_154_0_g95 = saturate( simplePerlin2D150_g95 );
-				float simplePerlin2D161_g95 = snoise( (coords_mapped_float3177_g95).yz*noise_scale205_g95 );
-				simplePerlin2D161_g95 = simplePerlin2D161_g95*0.5 + 0.5;
-				float temp_output_165_0_g95 = saturate( simplePerlin2D161_g95 );
-				float simplePerlin2D170_g95 = snoise( (coords_mapped_float3177_g95).xz*noise_scale205_g95 );
-				simplePerlin2D170_g95 = simplePerlin2D170_g95*0.5 + 0.5;
-				float temp_output_171_0_g95 = saturate( simplePerlin2D170_g95 );
-				float4 appendResult244_g95 = (float4(temp_output_154_0_g95 , temp_output_165_0_g95 , temp_output_171_0_g95 , 0.0));
-				float4 temp_cast_4 = (1.0).xxxx;
-				float4 noise_3d194_g95 = ( ( appendResult244_g95 * 2.0 ) - temp_cast_4 );
-				float4 noise118_g95 = saturate( noise_3d194_g95 );
-				float4 distortion_map27_g95 = noise118_g95;
-				float4 temp_cast_5 = (-1.0).xxxx;
-				float temp_output_6_0_g95 = _DisplacementStrength;
-				float4 temp_cast_6 = (temp_output_6_0_g95).xxxx;
-				float temp_output_39_0 = ( _DisplacementStrength * _Float5 );
-				float3 temp_cast_7 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g95 = (( float4( in232_g95 , 0.0 ) + saturate( (( distortion_map27_g95 * temp_output_6_0_g95 ) + (distortion_map27_g95 - temp_cast_5) * (temp_cast_6 - ( distortion_map27_g95 * temp_output_6_0_g95 )) / (float4( 1,1,1,1 ) - temp_cast_5)) ) )*1.0 + float4( temp_cast_7 , 0.0 ));
+				float3 temp_cast_2 = (mulTime12).xxx;
+				float3 turb_offset24_g95 = temp_cast_2;
+				float3 coords_mapped_float3177_g101 = (in_float3230_g101*turb_scale23_g95 + turb_offset24_g95);
+				float3 coords26_g102 = coords_mapped_float3177_g101;
+				float noise_s26_g95 = 1.0;
+				float noise_scale205_g101 = noise_s26_g95;
+				float scale25_g102 = noise_scale205_g101;
+				float simplePerlin2D2_g102 = snoise( (coords26_g102).xy*scale25_g102 );
+				simplePerlin2D2_g102 = simplePerlin2D2_g102*0.5 + 0.5;
+				float simplePerlin2D5_g102 = snoise( (coords26_g102).yz*scale25_g102 );
+				simplePerlin2D5_g102 = simplePerlin2D5_g102*0.5 + 0.5;
+				float simplePerlin2D8_g102 = snoise( (coords26_g102).xz*scale25_g102 );
+				simplePerlin2D8_g102 = simplePerlin2D8_g102*0.5 + 0.5;
+				float3 appendResult23_g102 = (float3(simplePerlin2D2_g102 , simplePerlin2D5_g102 , simplePerlin2D8_g102));
+				float3 temp_output_248_0_g101 = appendResult23_g102;
+				float3 temp_cast_3 = (1.0).xxx;
+				float3 noise118_g101 = saturate( ( ( saturate( temp_output_248_0_g101 ) * 2.0 ) - temp_cast_3 ) );
+				float3 distortion_map27_g101 = noise118_g101;
+				float3 temp_cast_4 = (-1.0).xxx;
+				float turb_strenght25_g95 = _DisplacementStrength;
+				float temp_output_20_0_g95 = saturate( turb_strenght25_g95 );
+				float temp_output_6_0_g101 = temp_output_20_0_g95;
+				float3 temp_cast_5 = (temp_output_6_0_g101).xxx;
+				float3 distortedUV37_g101 = ( in232_g101 + saturate( (( distortion_map27_g101 * temp_output_6_0_g101 ) + (distortion_map27_g101 - temp_cast_4) * (temp_cast_5 - ( distortion_map27_g101 * temp_output_6_0_g101 )) / (float3( 1,1,1 ) - temp_cast_4)) ) );
 				float3 ase_objectPosition = GetAbsolutePositionWS( UNITY_MATRIX_M._m03_m13_m23 );
-				float dist19_g94 = distance( distortedUV37_g95.xyz , ase_objectPosition );
-				float smoothstepResult22_g94 = smoothstep( temp_output_13_0_g94 , ( temp_output_13_0_g94 + ( 1.0 - _Falloff ) ) , dist19_g94);
-				float mask29_g94 = ( 1.0 - smoothstepResult22_g94 );
-				float revealMaskRaw44_g90 = ( 1.0 - saturate( mask29_g94 ) );
-				float smoothstepResult48_g90 = smoothstep( break50_g90.x , break50_g90.y , revealMaskRaw44_g90);
-				float temp_output_28_0 = saturate( smoothstepResult48_g90 );
+				float dist19_g103 = distance( ( distortedUV37_g101 + ( temp_output_20_0_g95 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g103 = smoothstep( temp_output_13_0_g103 , ( temp_output_13_0_g103 + ( 1.0 - _Falloff ) ) , dist19_g103);
+				float mask29_g103 = ( 1.0 - smoothstepResult22_g103 );
+				float revealMaskRaw44_g94 = ( 1.0 - saturate( mask29_g103 ) );
+				float smoothstepResult48_g94 = smoothstep( break50_g94.x , break50_g94.y , revealMaskRaw44_g94);
+				float temp_output_28_0 = saturate( smoothstepResult48_g94 );
 				float2 break50_g84 = float2( -0.5,0.9 );
-				float temp_output_13_0_g88 = _Range;
-				float3 temp_cast_10 = _Blocks;
-				float3 blocks8_g85 = abs( temp_cast_10 );
-				float3 mosaicUV15_g85 = ( floor( ( ( ( (ase_positionWS*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g85 ) ) / blocks8_g85 );
-				float3 result17_g85 = mosaicUV15_g85;
-				float3 in_float3230_g89 = result17_g85;
-				float3 in232_g89 = in_float3230_g89;
-				float3 temp_cast_12 = (_DisplacementScale).xxx;
-				float3 temp_cast_13 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g89 = (in_float3230_g89*temp_cast_12 + temp_cast_13);
-				float temp_output_156_0_g89 = 1.0;
-				float noise_scale205_g89 = temp_output_156_0_g89;
-				float simplePerlin2D150_g89 = snoise( (coords_mapped_float3177_g89).xy*noise_scale205_g89 );
-				simplePerlin2D150_g89 = simplePerlin2D150_g89*0.5 + 0.5;
-				float temp_output_154_0_g89 = saturate( simplePerlin2D150_g89 );
-				float simplePerlin2D161_g89 = snoise( (coords_mapped_float3177_g89).yz*noise_scale205_g89 );
-				simplePerlin2D161_g89 = simplePerlin2D161_g89*0.5 + 0.5;
-				float temp_output_165_0_g89 = saturate( simplePerlin2D161_g89 );
-				float simplePerlin2D170_g89 = snoise( (coords_mapped_float3177_g89).xz*noise_scale205_g89 );
-				simplePerlin2D170_g89 = simplePerlin2D170_g89*0.5 + 0.5;
-				float temp_output_171_0_g89 = saturate( simplePerlin2D170_g89 );
-				float4 appendResult244_g89 = (float4(temp_output_154_0_g89 , temp_output_165_0_g89 , temp_output_171_0_g89 , 0.0));
-				float4 temp_cast_14 = (1.0).xxxx;
-				float4 noise_3d194_g89 = ( ( appendResult244_g89 * 2.0 ) - temp_cast_14 );
-				float4 noise118_g89 = saturate( noise_3d194_g89 );
-				float4 distortion_map27_g89 = noise118_g89;
-				float4 temp_cast_15 = (-1.0).xxxx;
-				float temp_output_6_0_g89 = _DisplacementStrength;
-				float4 temp_cast_16 = (temp_output_6_0_g89).xxxx;
-				float3 temp_cast_17 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g89 = (( float4( in232_g89 , 0.0 ) + saturate( (( distortion_map27_g89 * temp_output_6_0_g89 ) + (distortion_map27_g89 - temp_cast_15) * (temp_cast_16 - ( distortion_map27_g89 * temp_output_6_0_g89 )) / (float4( 1,1,1,1 ) - temp_cast_15)) ) )*1.0 + float4( temp_cast_17 , 0.0 ));
-				float dist19_g88 = distance( distortedUV37_g89.xyz , ase_objectPosition );
-				float smoothstepResult22_g88 = smoothstep( temp_output_13_0_g88 , ( temp_output_13_0_g88 + ( 1.0 - _Falloff ) ) , dist19_g88);
-				float mask29_g88 = ( 1.0 - smoothstepResult22_g88 );
-				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g88 ) );
+				float temp_output_13_0_g93 = _Range;
+				float3 temp_output_15_0_g85 = ( ( (ase_positionWS*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
+				float3 temp_cast_6 = _Blocks;
+				float3 blocks_amount22_g85 = temp_cast_6;
+				float3 blocks8_g88 = abs( blocks_amount22_g85 );
+				float3 mosaicUV15_g88 = ( floor( ( temp_output_15_0_g85 * blocks8_g88 ) ) / blocks8_g88 );
+				float3 result17_g88 = mosaicUV15_g88;
+				float3 in_float3230_g91 = result17_g88;
+				float3 in232_g91 = in_float3230_g91;
+				float3 temp_cast_7 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g85 = temp_cast_7;
+				float3 temp_cast_8 = (mulTime12).xxx;
+				float3 turb_offset24_g85 = temp_cast_8;
+				float3 coords_mapped_float3177_g91 = (in_float3230_g91*turb_scale23_g85 + turb_offset24_g85);
+				float3 coords26_g92 = coords_mapped_float3177_g91;
+				float noise_s26_g85 = 1.0;
+				float noise_scale205_g91 = noise_s26_g85;
+				float scale25_g92 = noise_scale205_g91;
+				float simplePerlin2D2_g92 = snoise( (coords26_g92).xy*scale25_g92 );
+				simplePerlin2D2_g92 = simplePerlin2D2_g92*0.5 + 0.5;
+				float simplePerlin2D5_g92 = snoise( (coords26_g92).yz*scale25_g92 );
+				simplePerlin2D5_g92 = simplePerlin2D5_g92*0.5 + 0.5;
+				float simplePerlin2D8_g92 = snoise( (coords26_g92).xz*scale25_g92 );
+				simplePerlin2D8_g92 = simplePerlin2D8_g92*0.5 + 0.5;
+				float3 appendResult23_g92 = (float3(simplePerlin2D2_g92 , simplePerlin2D5_g92 , simplePerlin2D8_g92));
+				float3 temp_output_248_0_g91 = appendResult23_g92;
+				float3 temp_cast_9 = (1.0).xxx;
+				float3 noise118_g91 = saturate( ( ( saturate( temp_output_248_0_g91 ) * 2.0 ) - temp_cast_9 ) );
+				float3 distortion_map27_g91 = noise118_g91;
+				float3 temp_cast_10 = (-1.0).xxx;
+				float turb_strenght25_g85 = _DisplacementStrength;
+				float temp_output_20_0_g85 = saturate( turb_strenght25_g85 );
+				float temp_output_6_0_g91 = temp_output_20_0_g85;
+				float3 temp_cast_11 = (temp_output_6_0_g91).xxx;
+				float3 distortedUV37_g91 = ( in232_g91 + saturate( (( distortion_map27_g91 * temp_output_6_0_g91 ) + (distortion_map27_g91 - temp_cast_10) * (temp_cast_11 - ( distortion_map27_g91 * temp_output_6_0_g91 )) / (float3( 1,1,1 ) - temp_cast_10)) ) );
+				float dist19_g93 = distance( ( distortedUV37_g91 + ( temp_output_20_0_g85 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g93 = smoothstep( temp_output_13_0_g93 , ( temp_output_13_0_g93 + ( 1.0 - _Falloff ) ) , dist19_g93);
+				float mask29_g93 = ( 1.0 - smoothstepResult22_g93 );
+				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g93 ) );
 				float smoothstepResult48_g84 = smoothstep( break50_g84.x , break50_g84.y , revealMaskRaw44_g84);
 				float temp_output_30_0 = saturate( smoothstepResult48_g84 );
 				float lerpResult52 = lerp( 1.0 , ( temp_output_28_0 - temp_output_30_0 ) , step( temp_output_28_0 , 0.8 ));
@@ -1804,15 +1849,14 @@ Shader "Game/FX/Pixel Scan v2"
 			HLSLPROGRAM
 
 			
-            #define ASE_FOG 1
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_VERSION 19801
-            #define ASE_SRP_VERSION 140012
+
+			#define ASE_FOG 1
+			#define _SURFACE_TYPE_TRANSPARENT 1
+			#define ASE_VERSION 19801
+			#define ASE_SRP_VERSION 140012
 
 
 			
-            #pragma multi_compile _ DOTS_INSTANCING_ON
-		
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -1823,8 +1867,16 @@ Shader "Game/FX/Pixel Scan v2"
 			#define SHADERPASS SHADERPASS_DEPTHONLY
 
 			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
 
 			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -1833,10 +1885,12 @@ Shader "Game/FX/Pixel Scan v2"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
 
 			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
 
 			
-			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-		
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
@@ -1871,7 +1925,6 @@ Shader "Game/FX/Pixel Scan v2"
 			float _DisplacementScale;
 			float _Speed;
 			float _DisplacementStrength;
-			float _Float5;
 			float _Float6;
 			float _Float0;
 			float _Float3;
@@ -2045,84 +2098,91 @@ Shader "Game/FX/Pixel Scan v2"
 			{
 				SurfaceDescription surfaceDescription = (SurfaceDescription)0;
 
-				float2 break50_g90 = float2( -0.5,0.9 );
-				float temp_output_13_0_g94 = _Range;
+				float2 break50_g94 = float2( -0.5,0.9 );
+				float temp_output_13_0_g103 = _Range;
 				float3 ase_positionWS = input.ase_texcoord.xyz;
+				float3 temp_output_15_0_g95 = ( ( ase_positionWS * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
 				float3 temp_cast_0 = _Blocks;
-				float3 blocks8_g91 = abs( temp_cast_0 );
-				float3 mosaicUV15_g91 = ( floor( ( ( ( ase_positionWS * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g91 ) ) / blocks8_g91 );
-				float3 result17_g91 = mosaicUV15_g91;
-				float3 in_float3230_g95 = result17_g91;
-				float3 in232_g95 = in_float3230_g95;
-				float3 temp_cast_2 = (_DisplacementScale).xxx;
+				float3 blocks_amount22_g95 = temp_cast_0;
+				float3 blocks8_g98 = abs( blocks_amount22_g95 );
+				float3 mosaicUV15_g98 = ( floor( ( temp_output_15_0_g95 * blocks8_g98 ) ) / blocks8_g98 );
+				float3 result17_g98 = mosaicUV15_g98;
+				float3 in_float3230_g101 = result17_g98;
+				float3 in232_g101 = in_float3230_g101;
+				float3 temp_cast_1 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g95 = temp_cast_1;
 				float mulTime12 = _TimeParameters.x * _Speed;
-				float3 temp_cast_3 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g95 = (in_float3230_g95*temp_cast_2 + temp_cast_3);
-				float temp_output_156_0_g95 = 1.0;
-				float noise_scale205_g95 = temp_output_156_0_g95;
-				float simplePerlin2D150_g95 = snoise( (coords_mapped_float3177_g95).xy*noise_scale205_g95 );
-				simplePerlin2D150_g95 = simplePerlin2D150_g95*0.5 + 0.5;
-				float temp_output_154_0_g95 = saturate( simplePerlin2D150_g95 );
-				float simplePerlin2D161_g95 = snoise( (coords_mapped_float3177_g95).yz*noise_scale205_g95 );
-				simplePerlin2D161_g95 = simplePerlin2D161_g95*0.5 + 0.5;
-				float temp_output_165_0_g95 = saturate( simplePerlin2D161_g95 );
-				float simplePerlin2D170_g95 = snoise( (coords_mapped_float3177_g95).xz*noise_scale205_g95 );
-				simplePerlin2D170_g95 = simplePerlin2D170_g95*0.5 + 0.5;
-				float temp_output_171_0_g95 = saturate( simplePerlin2D170_g95 );
-				float4 appendResult244_g95 = (float4(temp_output_154_0_g95 , temp_output_165_0_g95 , temp_output_171_0_g95 , 0.0));
-				float4 temp_cast_4 = (1.0).xxxx;
-				float4 noise_3d194_g95 = ( ( appendResult244_g95 * 2.0 ) - temp_cast_4 );
-				float4 noise118_g95 = saturate( noise_3d194_g95 );
-				float4 distortion_map27_g95 = noise118_g95;
-				float4 temp_cast_5 = (-1.0).xxxx;
-				float temp_output_6_0_g95 = _DisplacementStrength;
-				float4 temp_cast_6 = (temp_output_6_0_g95).xxxx;
-				float temp_output_39_0 = ( _DisplacementStrength * _Float5 );
-				float3 temp_cast_7 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g95 = (( float4( in232_g95 , 0.0 ) + saturate( (( distortion_map27_g95 * temp_output_6_0_g95 ) + (distortion_map27_g95 - temp_cast_5) * (temp_cast_6 - ( distortion_map27_g95 * temp_output_6_0_g95 )) / (float4( 1,1,1,1 ) - temp_cast_5)) ) )*1.0 + float4( temp_cast_7 , 0.0 ));
+				float3 temp_cast_2 = (mulTime12).xxx;
+				float3 turb_offset24_g95 = temp_cast_2;
+				float3 coords_mapped_float3177_g101 = (in_float3230_g101*turb_scale23_g95 + turb_offset24_g95);
+				float3 coords26_g102 = coords_mapped_float3177_g101;
+				float noise_s26_g95 = 1.0;
+				float noise_scale205_g101 = noise_s26_g95;
+				float scale25_g102 = noise_scale205_g101;
+				float simplePerlin2D2_g102 = snoise( (coords26_g102).xy*scale25_g102 );
+				simplePerlin2D2_g102 = simplePerlin2D2_g102*0.5 + 0.5;
+				float simplePerlin2D5_g102 = snoise( (coords26_g102).yz*scale25_g102 );
+				simplePerlin2D5_g102 = simplePerlin2D5_g102*0.5 + 0.5;
+				float simplePerlin2D8_g102 = snoise( (coords26_g102).xz*scale25_g102 );
+				simplePerlin2D8_g102 = simplePerlin2D8_g102*0.5 + 0.5;
+				float3 appendResult23_g102 = (float3(simplePerlin2D2_g102 , simplePerlin2D5_g102 , simplePerlin2D8_g102));
+				float3 temp_output_248_0_g101 = appendResult23_g102;
+				float3 temp_cast_3 = (1.0).xxx;
+				float3 noise118_g101 = saturate( ( ( saturate( temp_output_248_0_g101 ) * 2.0 ) - temp_cast_3 ) );
+				float3 distortion_map27_g101 = noise118_g101;
+				float3 temp_cast_4 = (-1.0).xxx;
+				float turb_strenght25_g95 = _DisplacementStrength;
+				float temp_output_20_0_g95 = saturate( turb_strenght25_g95 );
+				float temp_output_6_0_g101 = temp_output_20_0_g95;
+				float3 temp_cast_5 = (temp_output_6_0_g101).xxx;
+				float3 distortedUV37_g101 = ( in232_g101 + saturate( (( distortion_map27_g101 * temp_output_6_0_g101 ) + (distortion_map27_g101 - temp_cast_4) * (temp_cast_5 - ( distortion_map27_g101 * temp_output_6_0_g101 )) / (float3( 1,1,1 ) - temp_cast_4)) ) );
 				float3 ase_objectPosition = GetAbsolutePositionWS( UNITY_MATRIX_M._m03_m13_m23 );
-				float dist19_g94 = distance( distortedUV37_g95.xyz , ase_objectPosition );
-				float smoothstepResult22_g94 = smoothstep( temp_output_13_0_g94 , ( temp_output_13_0_g94 + ( 1.0 - _Falloff ) ) , dist19_g94);
-				float mask29_g94 = ( 1.0 - smoothstepResult22_g94 );
-				float revealMaskRaw44_g90 = ( 1.0 - saturate( mask29_g94 ) );
-				float smoothstepResult48_g90 = smoothstep( break50_g90.x , break50_g90.y , revealMaskRaw44_g90);
-				float temp_output_28_0 = saturate( smoothstepResult48_g90 );
+				float dist19_g103 = distance( ( distortedUV37_g101 + ( temp_output_20_0_g95 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g103 = smoothstep( temp_output_13_0_g103 , ( temp_output_13_0_g103 + ( 1.0 - _Falloff ) ) , dist19_g103);
+				float mask29_g103 = ( 1.0 - smoothstepResult22_g103 );
+				float revealMaskRaw44_g94 = ( 1.0 - saturate( mask29_g103 ) );
+				float smoothstepResult48_g94 = smoothstep( break50_g94.x , break50_g94.y , revealMaskRaw44_g94);
+				float temp_output_28_0 = saturate( smoothstepResult48_g94 );
 				float2 break50_g84 = float2( -0.5,0.9 );
-				float temp_output_13_0_g88 = _Range;
-				float3 temp_cast_10 = _Blocks;
-				float3 blocks8_g85 = abs( temp_cast_10 );
-				float3 mosaicUV15_g85 = ( floor( ( ( ( (ase_positionWS*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g85 ) ) / blocks8_g85 );
-				float3 result17_g85 = mosaicUV15_g85;
-				float3 in_float3230_g89 = result17_g85;
-				float3 in232_g89 = in_float3230_g89;
-				float3 temp_cast_12 = (_DisplacementScale).xxx;
-				float3 temp_cast_13 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g89 = (in_float3230_g89*temp_cast_12 + temp_cast_13);
-				float temp_output_156_0_g89 = 1.0;
-				float noise_scale205_g89 = temp_output_156_0_g89;
-				float simplePerlin2D150_g89 = snoise( (coords_mapped_float3177_g89).xy*noise_scale205_g89 );
-				simplePerlin2D150_g89 = simplePerlin2D150_g89*0.5 + 0.5;
-				float temp_output_154_0_g89 = saturate( simplePerlin2D150_g89 );
-				float simplePerlin2D161_g89 = snoise( (coords_mapped_float3177_g89).yz*noise_scale205_g89 );
-				simplePerlin2D161_g89 = simplePerlin2D161_g89*0.5 + 0.5;
-				float temp_output_165_0_g89 = saturate( simplePerlin2D161_g89 );
-				float simplePerlin2D170_g89 = snoise( (coords_mapped_float3177_g89).xz*noise_scale205_g89 );
-				simplePerlin2D170_g89 = simplePerlin2D170_g89*0.5 + 0.5;
-				float temp_output_171_0_g89 = saturate( simplePerlin2D170_g89 );
-				float4 appendResult244_g89 = (float4(temp_output_154_0_g89 , temp_output_165_0_g89 , temp_output_171_0_g89 , 0.0));
-				float4 temp_cast_14 = (1.0).xxxx;
-				float4 noise_3d194_g89 = ( ( appendResult244_g89 * 2.0 ) - temp_cast_14 );
-				float4 noise118_g89 = saturate( noise_3d194_g89 );
-				float4 distortion_map27_g89 = noise118_g89;
-				float4 temp_cast_15 = (-1.0).xxxx;
-				float temp_output_6_0_g89 = _DisplacementStrength;
-				float4 temp_cast_16 = (temp_output_6_0_g89).xxxx;
-				float3 temp_cast_17 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g89 = (( float4( in232_g89 , 0.0 ) + saturate( (( distortion_map27_g89 * temp_output_6_0_g89 ) + (distortion_map27_g89 - temp_cast_15) * (temp_cast_16 - ( distortion_map27_g89 * temp_output_6_0_g89 )) / (float4( 1,1,1,1 ) - temp_cast_15)) ) )*1.0 + float4( temp_cast_17 , 0.0 ));
-				float dist19_g88 = distance( distortedUV37_g89.xyz , ase_objectPosition );
-				float smoothstepResult22_g88 = smoothstep( temp_output_13_0_g88 , ( temp_output_13_0_g88 + ( 1.0 - _Falloff ) ) , dist19_g88);
-				float mask29_g88 = ( 1.0 - smoothstepResult22_g88 );
-				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g88 ) );
+				float temp_output_13_0_g93 = _Range;
+				float3 temp_output_15_0_g85 = ( ( (ase_positionWS*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
+				float3 temp_cast_6 = _Blocks;
+				float3 blocks_amount22_g85 = temp_cast_6;
+				float3 blocks8_g88 = abs( blocks_amount22_g85 );
+				float3 mosaicUV15_g88 = ( floor( ( temp_output_15_0_g85 * blocks8_g88 ) ) / blocks8_g88 );
+				float3 result17_g88 = mosaicUV15_g88;
+				float3 in_float3230_g91 = result17_g88;
+				float3 in232_g91 = in_float3230_g91;
+				float3 temp_cast_7 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g85 = temp_cast_7;
+				float3 temp_cast_8 = (mulTime12).xxx;
+				float3 turb_offset24_g85 = temp_cast_8;
+				float3 coords_mapped_float3177_g91 = (in_float3230_g91*turb_scale23_g85 + turb_offset24_g85);
+				float3 coords26_g92 = coords_mapped_float3177_g91;
+				float noise_s26_g85 = 1.0;
+				float noise_scale205_g91 = noise_s26_g85;
+				float scale25_g92 = noise_scale205_g91;
+				float simplePerlin2D2_g92 = snoise( (coords26_g92).xy*scale25_g92 );
+				simplePerlin2D2_g92 = simplePerlin2D2_g92*0.5 + 0.5;
+				float simplePerlin2D5_g92 = snoise( (coords26_g92).yz*scale25_g92 );
+				simplePerlin2D5_g92 = simplePerlin2D5_g92*0.5 + 0.5;
+				float simplePerlin2D8_g92 = snoise( (coords26_g92).xz*scale25_g92 );
+				simplePerlin2D8_g92 = simplePerlin2D8_g92*0.5 + 0.5;
+				float3 appendResult23_g92 = (float3(simplePerlin2D2_g92 , simplePerlin2D5_g92 , simplePerlin2D8_g92));
+				float3 temp_output_248_0_g91 = appendResult23_g92;
+				float3 temp_cast_9 = (1.0).xxx;
+				float3 noise118_g91 = saturate( ( ( saturate( temp_output_248_0_g91 ) * 2.0 ) - temp_cast_9 ) );
+				float3 distortion_map27_g91 = noise118_g91;
+				float3 temp_cast_10 = (-1.0).xxx;
+				float turb_strenght25_g85 = _DisplacementStrength;
+				float temp_output_20_0_g85 = saturate( turb_strenght25_g85 );
+				float temp_output_6_0_g91 = temp_output_20_0_g85;
+				float3 temp_cast_11 = (temp_output_6_0_g91).xxx;
+				float3 distortedUV37_g91 = ( in232_g91 + saturate( (( distortion_map27_g91 * temp_output_6_0_g91 ) + (distortion_map27_g91 - temp_cast_10) * (temp_cast_11 - ( distortion_map27_g91 * temp_output_6_0_g91 )) / (float3( 1,1,1 ) - temp_cast_10)) ) );
+				float dist19_g93 = distance( ( distortedUV37_g91 + ( temp_output_20_0_g85 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g93 = smoothstep( temp_output_13_0_g93 , ( temp_output_13_0_g93 + ( 1.0 - _Falloff ) ) , dist19_g93);
+				float mask29_g93 = ( 1.0 - smoothstepResult22_g93 );
+				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g93 ) );
 				float smoothstepResult48_g84 = smoothstep( break50_g84.x , break50_g84.y , revealMaskRaw44_g84);
 				float temp_output_30_0 = saturate( smoothstepResult48_g84 );
 				float lerpResult52 = lerp( 1.0 , ( temp_output_28_0 - temp_output_30_0 ) , step( temp_output_28_0 , 0.8 ));
@@ -2162,24 +2222,21 @@ Shader "Game/FX/Pixel Scan v2"
 			HLSLPROGRAM
 
 			
-            #pragma multi_compile _ALPHATEST_ON
-            #pragma multi_compile_instancing
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-            #define ASE_FOG 1
-            #define _SURFACE_TYPE_TRANSPARENT 1
-            #define ASE_VERSION 19801
-            #define ASE_SRP_VERSION 140012
+
+        	#pragma multi_compile _ALPHATEST_ON
+        	#pragma multi_compile_instancing
+        	#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+        	#define ASE_FOG 1
+        	#define _SURFACE_TYPE_TRANSPARENT 1
+        	#define ASE_VERSION 19801
+        	#define ASE_SRP_VERSION 140012
 
 
 			
-            #pragma multi_compile _ DOTS_INSTANCING_ON
-		
 
         	#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 
 			
-            #pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
-		
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -2191,8 +2248,16 @@ Shader "Game/FX/Pixel Scan v2"
 			#define SHADERPASS SHADERPASS_DEPTHNORMALSONLY
 
 			
+            #if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#endif
+		
 
 			
+			#if ASE_SRP_VERSION >=140007
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+			#endif
+		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -2201,10 +2266,12 @@ Shader "Game/FX/Pixel Scan v2"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
 
 			
+			#if ASE_SRP_VERSION >=140010
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#endif
+		
 
 			
-			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-		
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
@@ -2251,7 +2318,6 @@ Shader "Game/FX/Pixel Scan v2"
 			float _DisplacementScale;
 			float _Speed;
 			float _DisplacementStrength;
-			float _Float5;
 			float _Float6;
 			float _Float0;
 			float _Float3;
@@ -2434,83 +2500,90 @@ Shader "Game/FX/Pixel Scan v2"
 				float4 ClipPos = input.clipPosV;
 				float4 ScreenPos = ComputeScreenPos( input.clipPosV );
 
-				float2 break50_g90 = float2( -0.5,0.9 );
-				float temp_output_13_0_g94 = _Range;
+				float2 break50_g94 = float2( -0.5,0.9 );
+				float temp_output_13_0_g103 = _Range;
+				float3 temp_output_15_0_g95 = ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
 				float3 temp_cast_0 = _Blocks;
-				float3 blocks8_g91 = abs( temp_cast_0 );
-				float3 mosaicUV15_g91 = ( floor( ( ( ( WorldPosition * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g91 ) ) / blocks8_g91 );
-				float3 result17_g91 = mosaicUV15_g91;
-				float3 in_float3230_g95 = result17_g91;
-				float3 in232_g95 = in_float3230_g95;
-				float3 temp_cast_2 = (_DisplacementScale).xxx;
+				float3 blocks_amount22_g95 = temp_cast_0;
+				float3 blocks8_g98 = abs( blocks_amount22_g95 );
+				float3 mosaicUV15_g98 = ( floor( ( temp_output_15_0_g95 * blocks8_g98 ) ) / blocks8_g98 );
+				float3 result17_g98 = mosaicUV15_g98;
+				float3 in_float3230_g101 = result17_g98;
+				float3 in232_g101 = in_float3230_g101;
+				float3 temp_cast_1 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g95 = temp_cast_1;
 				float mulTime12 = _TimeParameters.x * _Speed;
-				float3 temp_cast_3 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g95 = (in_float3230_g95*temp_cast_2 + temp_cast_3);
-				float temp_output_156_0_g95 = 1.0;
-				float noise_scale205_g95 = temp_output_156_0_g95;
-				float simplePerlin2D150_g95 = snoise( (coords_mapped_float3177_g95).xy*noise_scale205_g95 );
-				simplePerlin2D150_g95 = simplePerlin2D150_g95*0.5 + 0.5;
-				float temp_output_154_0_g95 = saturate( simplePerlin2D150_g95 );
-				float simplePerlin2D161_g95 = snoise( (coords_mapped_float3177_g95).yz*noise_scale205_g95 );
-				simplePerlin2D161_g95 = simplePerlin2D161_g95*0.5 + 0.5;
-				float temp_output_165_0_g95 = saturate( simplePerlin2D161_g95 );
-				float simplePerlin2D170_g95 = snoise( (coords_mapped_float3177_g95).xz*noise_scale205_g95 );
-				simplePerlin2D170_g95 = simplePerlin2D170_g95*0.5 + 0.5;
-				float temp_output_171_0_g95 = saturate( simplePerlin2D170_g95 );
-				float4 appendResult244_g95 = (float4(temp_output_154_0_g95 , temp_output_165_0_g95 , temp_output_171_0_g95 , 0.0));
-				float4 temp_cast_4 = (1.0).xxxx;
-				float4 noise_3d194_g95 = ( ( appendResult244_g95 * 2.0 ) - temp_cast_4 );
-				float4 noise118_g95 = saturate( noise_3d194_g95 );
-				float4 distortion_map27_g95 = noise118_g95;
-				float4 temp_cast_5 = (-1.0).xxxx;
-				float temp_output_6_0_g95 = _DisplacementStrength;
-				float4 temp_cast_6 = (temp_output_6_0_g95).xxxx;
-				float temp_output_39_0 = ( _DisplacementStrength * _Float5 );
-				float3 temp_cast_7 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g95 = (( float4( in232_g95 , 0.0 ) + saturate( (( distortion_map27_g95 * temp_output_6_0_g95 ) + (distortion_map27_g95 - temp_cast_5) * (temp_cast_6 - ( distortion_map27_g95 * temp_output_6_0_g95 )) / (float4( 1,1,1,1 ) - temp_cast_5)) ) )*1.0 + float4( temp_cast_7 , 0.0 ));
+				float3 temp_cast_2 = (mulTime12).xxx;
+				float3 turb_offset24_g95 = temp_cast_2;
+				float3 coords_mapped_float3177_g101 = (in_float3230_g101*turb_scale23_g95 + turb_offset24_g95);
+				float3 coords26_g102 = coords_mapped_float3177_g101;
+				float noise_s26_g95 = 1.0;
+				float noise_scale205_g101 = noise_s26_g95;
+				float scale25_g102 = noise_scale205_g101;
+				float simplePerlin2D2_g102 = snoise( (coords26_g102).xy*scale25_g102 );
+				simplePerlin2D2_g102 = simplePerlin2D2_g102*0.5 + 0.5;
+				float simplePerlin2D5_g102 = snoise( (coords26_g102).yz*scale25_g102 );
+				simplePerlin2D5_g102 = simplePerlin2D5_g102*0.5 + 0.5;
+				float simplePerlin2D8_g102 = snoise( (coords26_g102).xz*scale25_g102 );
+				simplePerlin2D8_g102 = simplePerlin2D8_g102*0.5 + 0.5;
+				float3 appendResult23_g102 = (float3(simplePerlin2D2_g102 , simplePerlin2D5_g102 , simplePerlin2D8_g102));
+				float3 temp_output_248_0_g101 = appendResult23_g102;
+				float3 temp_cast_3 = (1.0).xxx;
+				float3 noise118_g101 = saturate( ( ( saturate( temp_output_248_0_g101 ) * 2.0 ) - temp_cast_3 ) );
+				float3 distortion_map27_g101 = noise118_g101;
+				float3 temp_cast_4 = (-1.0).xxx;
+				float turb_strenght25_g95 = _DisplacementStrength;
+				float temp_output_20_0_g95 = saturate( turb_strenght25_g95 );
+				float temp_output_6_0_g101 = temp_output_20_0_g95;
+				float3 temp_cast_5 = (temp_output_6_0_g101).xxx;
+				float3 distortedUV37_g101 = ( in232_g101 + saturate( (( distortion_map27_g101 * temp_output_6_0_g101 ) + (distortion_map27_g101 - temp_cast_4) * (temp_cast_5 - ( distortion_map27_g101 * temp_output_6_0_g101 )) / (float3( 1,1,1 ) - temp_cast_4)) ) );
 				float3 ase_objectPosition = GetAbsolutePositionWS( UNITY_MATRIX_M._m03_m13_m23 );
-				float dist19_g94 = distance( distortedUV37_g95.xyz , ase_objectPosition );
-				float smoothstepResult22_g94 = smoothstep( temp_output_13_0_g94 , ( temp_output_13_0_g94 + ( 1.0 - _Falloff ) ) , dist19_g94);
-				float mask29_g94 = ( 1.0 - smoothstepResult22_g94 );
-				float revealMaskRaw44_g90 = ( 1.0 - saturate( mask29_g94 ) );
-				float smoothstepResult48_g90 = smoothstep( break50_g90.x , break50_g90.y , revealMaskRaw44_g90);
-				float temp_output_28_0 = saturate( smoothstepResult48_g90 );
+				float dist19_g103 = distance( ( distortedUV37_g101 + ( temp_output_20_0_g95 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g103 = smoothstep( temp_output_13_0_g103 , ( temp_output_13_0_g103 + ( 1.0 - _Falloff ) ) , dist19_g103);
+				float mask29_g103 = ( 1.0 - smoothstepResult22_g103 );
+				float revealMaskRaw44_g94 = ( 1.0 - saturate( mask29_g103 ) );
+				float smoothstepResult48_g94 = smoothstep( break50_g94.x , break50_g94.y , revealMaskRaw44_g94);
+				float temp_output_28_0 = saturate( smoothstepResult48_g94 );
 				float2 break50_g84 = float2( -0.5,0.9 );
-				float temp_output_13_0_g88 = _Range;
-				float3 temp_cast_10 = _Blocks;
-				float3 blocks8_g85 = abs( temp_cast_10 );
-				float3 mosaicUV15_g85 = ( floor( ( ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) ) * blocks8_g85 ) ) / blocks8_g85 );
-				float3 result17_g85 = mosaicUV15_g85;
-				float3 in_float3230_g89 = result17_g85;
-				float3 in232_g89 = in_float3230_g89;
-				float3 temp_cast_12 = (_DisplacementScale).xxx;
-				float3 temp_cast_13 = (mulTime12).xxx;
-				float3 coords_mapped_float3177_g89 = (in_float3230_g89*temp_cast_12 + temp_cast_13);
-				float temp_output_156_0_g89 = 1.0;
-				float noise_scale205_g89 = temp_output_156_0_g89;
-				float simplePerlin2D150_g89 = snoise( (coords_mapped_float3177_g89).xy*noise_scale205_g89 );
-				simplePerlin2D150_g89 = simplePerlin2D150_g89*0.5 + 0.5;
-				float temp_output_154_0_g89 = saturate( simplePerlin2D150_g89 );
-				float simplePerlin2D161_g89 = snoise( (coords_mapped_float3177_g89).yz*noise_scale205_g89 );
-				simplePerlin2D161_g89 = simplePerlin2D161_g89*0.5 + 0.5;
-				float temp_output_165_0_g89 = saturate( simplePerlin2D161_g89 );
-				float simplePerlin2D170_g89 = snoise( (coords_mapped_float3177_g89).xz*noise_scale205_g89 );
-				simplePerlin2D170_g89 = simplePerlin2D170_g89*0.5 + 0.5;
-				float temp_output_171_0_g89 = saturate( simplePerlin2D170_g89 );
-				float4 appendResult244_g89 = (float4(temp_output_154_0_g89 , temp_output_165_0_g89 , temp_output_171_0_g89 , 0.0));
-				float4 temp_cast_14 = (1.0).xxxx;
-				float4 noise_3d194_g89 = ( ( appendResult244_g89 * 2.0 ) - temp_cast_14 );
-				float4 noise118_g89 = saturate( noise_3d194_g89 );
-				float4 distortion_map27_g89 = noise118_g89;
-				float4 temp_cast_15 = (-1.0).xxxx;
-				float temp_output_6_0_g89 = _DisplacementStrength;
-				float4 temp_cast_16 = (temp_output_6_0_g89).xxxx;
-				float3 temp_cast_17 = (temp_output_39_0).xxx;
-				float4 distortedUV37_g89 = (( float4( in232_g89 , 0.0 ) + saturate( (( distortion_map27_g89 * temp_output_6_0_g89 ) + (distortion_map27_g89 - temp_cast_15) * (temp_cast_16 - ( distortion_map27_g89 * temp_output_6_0_g89 )) / (float4( 1,1,1,1 ) - temp_cast_15)) ) )*1.0 + float4( temp_cast_17 , 0.0 ));
-				float dist19_g88 = distance( distortedUV37_g89.xyz , ase_objectPosition );
-				float smoothstepResult22_g88 = smoothstep( temp_output_13_0_g88 , ( temp_output_13_0_g88 + ( 1.0 - _Falloff ) ) , dist19_g88);
-				float mask29_g88 = ( 1.0 - smoothstepResult22_g88 );
-				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g88 ) );
+				float temp_output_13_0_g93 = _Range;
+				float3 temp_output_15_0_g85 = ( ( (WorldPosition*1.0 + _Float6) * float3( 1,1,1 ) ) + float3( 0,0,0 ) );
+				float3 temp_cast_6 = _Blocks;
+				float3 blocks_amount22_g85 = temp_cast_6;
+				float3 blocks8_g88 = abs( blocks_amount22_g85 );
+				float3 mosaicUV15_g88 = ( floor( ( temp_output_15_0_g85 * blocks8_g88 ) ) / blocks8_g88 );
+				float3 result17_g88 = mosaicUV15_g88;
+				float3 in_float3230_g91 = result17_g88;
+				float3 in232_g91 = in_float3230_g91;
+				float3 temp_cast_7 = (_DisplacementScale).xxx;
+				float3 turb_scale23_g85 = temp_cast_7;
+				float3 temp_cast_8 = (mulTime12).xxx;
+				float3 turb_offset24_g85 = temp_cast_8;
+				float3 coords_mapped_float3177_g91 = (in_float3230_g91*turb_scale23_g85 + turb_offset24_g85);
+				float3 coords26_g92 = coords_mapped_float3177_g91;
+				float noise_s26_g85 = 1.0;
+				float noise_scale205_g91 = noise_s26_g85;
+				float scale25_g92 = noise_scale205_g91;
+				float simplePerlin2D2_g92 = snoise( (coords26_g92).xy*scale25_g92 );
+				simplePerlin2D2_g92 = simplePerlin2D2_g92*0.5 + 0.5;
+				float simplePerlin2D5_g92 = snoise( (coords26_g92).yz*scale25_g92 );
+				simplePerlin2D5_g92 = simplePerlin2D5_g92*0.5 + 0.5;
+				float simplePerlin2D8_g92 = snoise( (coords26_g92).xz*scale25_g92 );
+				simplePerlin2D8_g92 = simplePerlin2D8_g92*0.5 + 0.5;
+				float3 appendResult23_g92 = (float3(simplePerlin2D2_g92 , simplePerlin2D5_g92 , simplePerlin2D8_g92));
+				float3 temp_output_248_0_g91 = appendResult23_g92;
+				float3 temp_cast_9 = (1.0).xxx;
+				float3 noise118_g91 = saturate( ( ( saturate( temp_output_248_0_g91 ) * 2.0 ) - temp_cast_9 ) );
+				float3 distortion_map27_g91 = noise118_g91;
+				float3 temp_cast_10 = (-1.0).xxx;
+				float turb_strenght25_g85 = _DisplacementStrength;
+				float temp_output_20_0_g85 = saturate( turb_strenght25_g85 );
+				float temp_output_6_0_g91 = temp_output_20_0_g85;
+				float3 temp_cast_11 = (temp_output_6_0_g91).xxx;
+				float3 distortedUV37_g91 = ( in232_g91 + saturate( (( distortion_map27_g91 * temp_output_6_0_g91 ) + (distortion_map27_g91 - temp_cast_10) * (temp_cast_11 - ( distortion_map27_g91 * temp_output_6_0_g91 )) / (float3( 1,1,1 ) - temp_cast_10)) ) );
+				float dist19_g93 = distance( ( distortedUV37_g91 + ( temp_output_20_0_g85 * -0.5 ) ) , ase_objectPosition );
+				float smoothstepResult22_g93 = smoothstep( temp_output_13_0_g93 , ( temp_output_13_0_g93 + ( 1.0 - _Falloff ) ) , dist19_g93);
+				float mask29_g93 = ( 1.0 - smoothstepResult22_g93 );
+				float revealMaskRaw44_g84 = ( 1.0 - saturate( mask29_g93 ) );
 				float smoothstepResult48_g84 = smoothstep( break50_g84.x , break50_g84.y , revealMaskRaw44_g84);
 				float temp_output_30_0 = saturate( smoothstepResult48_g84 );
 				float lerpResult52 = lerp( 1.0 , ( temp_output_28_0 - temp_output_30_0 ) , step( temp_output_28_0 , 0.8 ));
@@ -2565,44 +2638,49 @@ Shader "Game/FX/Pixel Scan v2"
 }
 /*ASEBEGIN
 Version=19801
-Node;AmplifyShaderEditor.RangedFloatNode;23;-1568,0;Inherit;False;Property;_DisplacementStrength;Displacement Strength;10;0;Create;True;0;0;0;False;0;False;0;1;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;40;-1360,224;Inherit;False;Property;_Float5;Float 5;13;0;Create;True;0;0;0;False;0;False;0;-0.5;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.WorldPosInputsNode;29;-1008,-560;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
-Node;AmplifyShaderEditor.RangedFloatNode;43;-1024,-288;Inherit;False;Property;_Float6;Float 6;14;0;Create;True;0;0;0;False;0;False;0.5;0.19;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;58;-1216,32;Inherit;False;Property;_Speed;Speed;16;0;Create;True;0;0;0;False;0;False;0;0.25;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;14;-1040,480;Inherit;False;Property;_Falloff;Falloff;4;0;Create;True;0;0;0;False;0;False;4.94;3.34;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;13;-1040,400;Inherit;False;Property;_Range;Range;3;0;Create;True;0;0;0;False;0;False;4.94;3.24;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.IntNode;32;-1024,-176;Inherit;False;Property;_Blocks;Blocks;12;0;Create;True;0;0;0;False;0;False;0;15;False;0;1;INT;0
-Node;AmplifyShaderEditor.RangedFloatNode;21;-1104,-96;Inherit;False;Property;_DisplacementScale;Displacement Scale;9;0;Create;True;0;0;0;False;0;False;0;2.2;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;39;-1184,160;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;43;-1024,-288;Inherit;False;Property;_Float6;Float 6;17;0;Create;True;0;0;0;False;0;False;0.5;0.19;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;58;-1216,32;Inherit;False;Property;_Speed;Speed;19;0;Create;True;0;0;0;False;0;False;0;0.25;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;23;-1568,0;Inherit;False;Property;_DisplacementStrength;Displacement Strength;13;0;Create;True;0;0;0;False;0;False;0;1;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;14;-1040,480;Inherit;False;Property;_Falloff;Falloff;7;0;Create;True;0;0;0;False;0;False;4.94;3.34;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;13;-1040,400;Inherit;False;Property;_Range;Range;6;0;Create;True;0;0;0;False;0;False;4.94;2;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.IntNode;32;-1024,-176;Inherit;False;Property;_Blocks;Blocks;15;0;Create;True;0;0;0;False;0;False;0;15;False;0;1;INT;0
+Node;AmplifyShaderEditor.RangedFloatNode;21;-1104,-96;Inherit;False;Property;_DisplacementScale;Displacement Scale;12;0;Create;True;0;0;0;False;0;False;0;2.2;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.ScaleAndOffsetNode;42;-832,-336;Inherit;False;3;0;FLOAT3;0,0,0;False;1;FLOAT;1;False;2;FLOAT;0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.SimpleTimeNode;12;-1040,32;Inherit;False;1;0;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;30;-496,240;Inherit;True;Pixel Reveal Sphere Mask;0;;84;b4ad8d98449f2b5438a9ad59308576c2;0;13;51;FLOAT3;0,0,0;False;3;FLOAT3;1,1,1;False;13;FLOAT3;0,0,0;False;16;FLOAT3;5,5,5;False;26;FLOAT3;1.4,1.4,1.4;False;34;FLOAT3;0,0,0;False;35;FLOAT;0.005;False;55;FLOAT3;0,0,0;False;28;FLOAT;1;False;39;FLOAT3;0,0,0;False;41;FLOAT;4;False;42;FLOAT;4.4;False;49;FLOAT2;-0.5,0.9;False;2;FLOAT;0;FLOAT;47
-Node;AmplifyShaderEditor.FunctionNode;28;-448,-256;Inherit;True;Pixel Reveal Sphere Mask;0;;90;b4ad8d98449f2b5438a9ad59308576c2;0;13;51;FLOAT3;0,0,0;False;3;FLOAT3;1,1,1;False;13;FLOAT3;0,0,0;False;16;FLOAT3;5,5,5;False;26;FLOAT3;1.4,1.4,1.4;False;34;FLOAT3;0,0,0;False;35;FLOAT;0.005;False;55;FLOAT3;0,0,0;False;28;FLOAT;1;False;39;FLOAT3;0,0,0;False;41;FLOAT;4;False;42;FLOAT;4.4;False;49;FLOAT2;-0.5,0.9;False;2;FLOAT;0;FLOAT;47
+Node;AmplifyShaderEditor.FunctionNode;30;-496,240;Inherit;True;Pixel Reveal Sphere Mask;0;;84;b4ad8d98449f2b5438a9ad59308576c2;0;12;51;FLOAT3;0,0,0;False;3;FLOAT3;1,1,1;False;13;FLOAT3;0,0,0;False;16;FLOAT3;5,5,5;False;26;FLOAT3;1.4,1.4,1.4;False;34;FLOAT3;0,0,0;False;35;FLOAT;0.005;False;28;FLOAT;1;False;39;FLOAT3;0,0,0;False;41;FLOAT;4;False;42;FLOAT;4.4;False;49;FLOAT2;-0.5,0.9;False;2;FLOAT;0;FLOAT;47
+Node;AmplifyShaderEditor.FunctionNode;28;-448,-256;Inherit;True;Pixel Reveal Sphere Mask;0;;94;b4ad8d98449f2b5438a9ad59308576c2;0;12;51;FLOAT3;0,0,0;False;3;FLOAT3;1,1,1;False;13;FLOAT3;0,0,0;False;16;FLOAT3;5,5,5;False;26;FLOAT3;1.4,1.4,1.4;False;34;FLOAT3;0,0,0;False;35;FLOAT;0.005;False;28;FLOAT;1;False;39;FLOAT3;0,0,0;False;41;FLOAT;4;False;42;FLOAT;4.4;False;49;FLOAT2;-0.5,0.9;False;2;FLOAT;0;FLOAT;47
 Node;AmplifyShaderEditor.SimpleSubtractOpNode;51;-16,-176;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.StepOpNode;56;-80,320;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0.8;False;1;FLOAT;0
 Node;AmplifyShaderEditor.LerpOp;52;304,336;Inherit;False;3;0;FLOAT;1;False;1;FLOAT;1;False;2;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;44;576,352;Inherit;False;pixel_effect;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;50;1024,368;Inherit;False;44;pixel_effect;1;0;OBJECT;;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;22;-1072,320;Inherit;False;Property;_NoiseScale;Noise Scale;11;0;Create;True;0;0;0;False;0;False;0;0.86;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.Vector3Node;55;-1152,-384;Inherit;False;Property;_Vector0;Vector 0;15;0;Create;True;0;0;0;False;0;False;0.01,-0.01,0.02;0.01,-0.01,0.03;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.RangedFloatNode;40;-1360,224;Inherit;False;Property;_Float5;Float 5;16;0;Create;True;0;0;0;False;0;False;0;-0.5;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;39;-1184,160;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;22;-1072,320;Inherit;False;Property;_NoiseScale;Noise Scale;14;0;Create;True;0;0;0;False;0;False;0;0.86;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.Vector3Node;55;-1152,-384;Inherit;False;Property;_Vector0;Vector 0;18;0;Create;True;0;0;0;False;0;False;0.01,-0.01,0.02;0.01,-0.01,0.03;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;53;-31.698,18.06372;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.LerpOp;16;1288,0;Inherit;False;3;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0.1,0,0,0;False;2;FLOAT;0;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.StepOpNode;18;624,-288;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0.11;False;1;FLOAT;0
 Node;AmplifyShaderEditor.StepOpNode;33;640,-128;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0.11;False;1;FLOAT;0
 Node;AmplifyShaderEditor.StepOpNode;35;672,0;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0.11;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;19;432,-208;Inherit;False;Property;_Float0;Float 0;6;0;Create;True;0;0;0;False;0;False;0;0.001;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;34;448,-32;Inherit;False;Property;_Float3;Float 0;7;0;Create;True;0;0;0;False;0;False;0;0.005;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;19;432,-208;Inherit;False;Property;_Float0;Float 0;9;0;Create;True;0;0;0;False;0;False;0;0.001;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;34;448,-32;Inherit;False;Property;_Float3;Float 0;10;0;Create;True;0;0;0;False;0;False;0;0.005;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;46;416,-112;Inherit;False;44;pixel_effect;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;47;416,48;Inherit;False;44;pixel_effect;1;0;OBJECT;;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;36;448,128;Inherit;False;Property;_Float4;Float 0;8;0;Create;True;0;0;0;False;0;False;0;0.0085;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;36;448,128;Inherit;False;Property;_Float4;Float 0;11;0;Create;True;0;0;0;False;0;False;0;0.0085;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;45;400,-288;Inherit;False;44;pixel_effect;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;49;976,208;Inherit;False;44;pixel_effect;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;54;-752,-560;Inherit;False;pos;-1;True;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.CeilOpNode;57;1241.614,413.8865;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;17;864,0;Inherit;True;Property;_TextureSample0;Texture Sample 0;5;0;Create;True;0;0;0;False;0;False;-1;None;feace049a474eac41a1289b5d1ac909f;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;59;1104,-416;Inherit;True;Property;_TextureSample1;Texture Sample 0;5;0;Create;True;0;0;0;False;0;False;-1;None;feace049a474eac41a1289b5d1ac909f;True;0;False;white;Auto;False;Instance;17;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.DynamicAppendNode;37;864,-272;Inherit;True;FLOAT4;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT4;0
+Node;AmplifyShaderEditor.SamplerNode;17;864,0;Inherit;True;Property;_TextureSample0;Texture Sample 0;8;0;Create;True;0;0;0;False;0;False;-1;None;feace049a474eac41a1289b5d1ac909f;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.DynamicAppendNode;37;832,-288;Inherit;True;FLOAT4;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT4;0
+Node;AmplifyShaderEditor.SamplerNode;59;1392,-416;Inherit;True;Property;_TextureSample1;Texture Sample 0;5;0;Create;True;0;0;0;False;0;False;-1;None;feace049a474eac41a1289b5d1ac909f;True;0;False;white;Auto;False;Instance;17;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.LerpOp;60;896,-496;Inherit;False;3;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0,0,0,0;False;2;FLOAT;0;False;1;FLOAT4;0
+Node;AmplifyShaderEditor.RangedFloatNode;62;1361.597,231.9557;Inherit;False;Constant;_Float7;Float 7;22;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;61;528,-560;Inherit;False;Grid;-1;;104;cb0ff472f8979c34babf314eeb6506a3;0;6;35;FLOAT4;5,0,0,1;False;36;FLOAT4;255,255,255,255;False;37;FLOAT;0.05;False;38;FLOAT;5;False;39;FLOAT3;0,0,0;False;40;FLOAT3;0,0,0;False;1;FLOAT4;0
+Node;AmplifyShaderEditor.ColorNode;63;224,-704;Inherit;False;Constant;_Color0;Color 0;22;0;Create;True;0;0;0;False;0;False;1,1,1,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode;64;224,-512;Inherit;False;Constant;_Color1;Color 1;22;0;Create;True;0;0;0;False;0;False;0.2970481,1,0,1;0,0,0,0;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;2;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphUnlitGUI;0;1;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;3;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphUnlitGUI;0;1;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;True;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;4;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphUnlitGUI;0;1;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;;0;0;Standard;0;False;0
@@ -2613,8 +2691,6 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;8;0,0;Float;False;False;-1;
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;9;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphUnlitGUI;0;1;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;DepthNormalsOnly;0;9;DepthNormalsOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=DepthNormalsOnly;False;True;9;d3d11;metal;vulkan;xboxone;xboxseries;playstation;ps4;ps5;switch;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;0;528,-272;Float;False;False;-1;3;UnityEditor.ShaderGraphUnlitGUI;0;1;New Amplify Shader;2992e84f91cbeb14eab234972e07ea9d;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;1520,0;Float;False;True;-1;3;UnityEditor.ShaderGraphUnlitGUI;0;13;Game/FX/Pixel Scan v2;2992e84f91cbeb14eab234972e07ea9d;True;Forward;0;1;Forward;9;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Transparent=RenderType;Queue=Transparent=Queue=0;UniversalMaterialType=Unlit;True;5;True;12;all;0;False;True;1;5;False;;10;False;;1;1;False;;10;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;2;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForwardOnly;False;False;0;;0;0;Standard;25;Surface;1;639069608146019339;  Blend;0;0;Two Sided;1;0;Alpha Clipping;1;0;  Use Shadow Threshold;0;0;Forward Only;0;0;Cast Shadows;1;0;Receive Shadows;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;Meta Pass;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;0;10;False;True;True;True;False;False;True;True;True;False;False;;False;0
-WireConnection;39;0;23;0
-WireConnection;39;1;40;0
 WireConnection;42;0;29;0
 WireConnection;42;2;43;0
 WireConnection;12;0;58;0
@@ -2623,7 +2699,6 @@ WireConnection;30;16;32;0
 WireConnection;30;26;21;0
 WireConnection;30;34;12;0
 WireConnection;30;35;23;0
-WireConnection;30;55;39;0
 WireConnection;30;41;13;0
 WireConnection;30;42;14;0
 WireConnection;28;51;29;0
@@ -2631,7 +2706,6 @@ WireConnection;28;16;32;0
 WireConnection;28;26;21;0
 WireConnection;28;34;12;0
 WireConnection;28;35;23;0
-WireConnection;28;55;39;0
 WireConnection;28;41;13;0
 WireConnection;28;42;14;0
 WireConnection;51;0;28;0
@@ -2640,6 +2714,8 @@ WireConnection;56;0;28;0
 WireConnection;52;1;51;0
 WireConnection;52;2;56;0
 WireConnection;44;0;52;0
+WireConnection;39;0;23;0
+WireConnection;39;1;40;0
 WireConnection;53;0;28;0
 WireConnection;53;1;30;0
 WireConnection;16;0;37;0
@@ -2653,11 +2729,15 @@ WireConnection;35;0;47;0
 WireConnection;35;1;36;0
 WireConnection;54;0;29;0
 WireConnection;57;0;50;0
-WireConnection;59;1;37;0
 WireConnection;37;0;18;0
 WireConnection;37;1;33;0
 WireConnection;37;2;35;0
+WireConnection;59;1;37;0
+WireConnection;60;0;61;0
+WireConnection;60;2;45;0
+WireConnection;61;35;63;0
+WireConnection;61;36;64;0
 WireConnection;1;2;16;0
 WireConnection;1;3;57;0
 ASEEND*/
-//CHKSM=DE15489632AE7E3E207F0437D9805B44EE9AACB5
+//CHKSM=C8345E9008A0C43DB2FBE9D8FD0A5C2DE3B97F3D
