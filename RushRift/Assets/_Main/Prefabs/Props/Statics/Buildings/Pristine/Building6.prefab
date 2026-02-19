@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5125661640106964811}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Building6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,8 +44,8 @@ GameObject:
   - component: {fileID: 5704669949846644761}
   - component: {fileID: 4405205299559228712}
   - component: {fileID: 4981530544924229566}
-  - component: {fileID: 688004864499359995}
-  m_Layer: 0
+  - component: {fileID: 3769055382022355626}
+  m_Layer: 3
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,8 +119,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &688004864499359995
-BoxCollider:
+--- !u!64 &3769055382022355626
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -137,9 +137,10 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.5308024, y: 1.7065238, z: 4.8565235}
-  m_Center: {x: 0.018773198, y: -0.002416074, z: 2.4210954}
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3622506363279768795, guid: ae044dff367c41d4283b7b1a4de0bded, type: 3}
 --- !u!1 &4201851529501174732
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +152,7 @@ GameObject:
   - component: {fileID: 5582446625340234380}
   - component: {fileID: 3872074778040259854}
   - component: {fileID: 6019287820127637862}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Windows
   m_TagString: Untagged
   m_Icon: {fileID: 0}
