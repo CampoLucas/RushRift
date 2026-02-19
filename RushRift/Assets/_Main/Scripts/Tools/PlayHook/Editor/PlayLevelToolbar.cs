@@ -334,7 +334,7 @@ namespace Tools.PlayHook
             {
                 var level = _selectedLevel.GetLevel(i);
 
-                if (level.IsNullOrMissingReference())
+                if (level.IsNullOrMissing())
                 {
                     entries.Add(new MenuItem("Null level", null, false, DisabledEntry));
                     continue;

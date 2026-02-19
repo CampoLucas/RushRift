@@ -44,13 +44,44 @@ namespace BehaviourTreeAsset.Runtime.Nodes
 
             protected void Play(string animation, int layer)
             {
+                if (!HasState(animation, layer)) return;
                 _animator.Play(animation, layer);
             }
             
             protected void Play(string animation)
             {
+                if (!HasState(animation)) return;
                 _animator.Play(animation);
             }
+            
+            protected bool HasState(string stateName)
+            {
+                return TryGetStateLayer(stateName, out _);
+            }
+            
+            protected bool HasState(string stateName, int layer)
+            {
+                return _animator.HasState(layer, Animator.StringToHash(stateName));
+            }
+
+            protected bool TryGetStateLayer(string stateName, out int layer)
+            {
+                layer = -1;
+                var layers = _animator.layerCount;
+                var stateID = Animator.StringToHash(stateName);
+                
+                for (var i = 0; i < layers; i++)
+                {
+                    if (!_animator.HasState(i, stateID)) continue;
+
+                    layer = i;
+                    return true;
+                }
+
+                return false;
+            }
+            
+            
         }
 
         public bool SearchInChildren => searchInChildren;

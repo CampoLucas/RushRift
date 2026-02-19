@@ -41,7 +41,7 @@ namespace Game.VFX
         {
             var start = Vector3.zero;
             
-            if (_duration > 0 && !_snapPos.IsNullOrMissingReference())
+            if (_duration > 0 && !_snapPos.IsNullOrMissing())
             {
                 
                 _start = _snapPos.position;

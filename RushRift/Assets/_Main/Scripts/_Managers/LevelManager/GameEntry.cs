@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
 using Game.Utils;
+using MyTools.Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -51,8 +52,8 @@ namespace Game
             bool mainSceneAdditive = false,
             CancellationToken ct = default)
         {
-            if (session.IsNullOrMissingReference()) return LoadResult.InvalidSession;
-            if (session.Level.IsNullOrMissingReference()) return LoadResult.MissingLevel;
+            if (session.IsNullOrMissing()) return LoadResult.InvalidSession;
+            if (session.Level.IsNullOrMissing()) return LoadResult.MissingLevel;
 
             return await TryAwaitLoad(session, session.Level, mainSceneAdditive, ct);
         }
@@ -294,7 +295,7 @@ namespace Game
 
             try
             {
-                if (GlobalLevelManager.Instance.TryGet(out var manager) && !manager.IsNullOrMissingReference())
+                if (GlobalLevelManager.Instance.TryGet(out var manager) && !manager.IsNullOrMissing())
                 {
                     manager.ClearLoadedLevelTracking();
                 }
@@ -405,7 +406,7 @@ namespace Game
         /// <param name="observer"></param>
         /// <param name="disposeOnDetach"></param>
         /// <returns></returns>
-        public bool AttachOnLoad(DesignPatterns.Observers.IObserver<BaseLevelSO> observer, bool disposeOnDetach = false)
+        public bool AttachOnLoaded(DesignPatterns.Observers.IObserver<BaseLevelSO> observer, bool disposeOnDetach = false)
         {
             return _onLevelLoaded.Attach(observer, disposeOnDetach);
         }

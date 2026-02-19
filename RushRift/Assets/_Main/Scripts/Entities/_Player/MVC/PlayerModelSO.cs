@@ -12,16 +12,17 @@ namespace Game.Entities
     [CreateAssetMenu(menuName = "Game/Entities/Player/Model")]
     public class PlayerModelSO : EntityModelSO
     {
-        public JumpData Jump => jumpOld;
         public HealthComponentData Health => health;
         public EnergyComponentData Energy => energy;
-        public DashData DashOld => dashOld;
 
-        [FormerlySerializedAs("jump")]
-        [Header("Movement Stats Old")]
-        [SerializeField] private JumpData jumpOld;
-        [FormerlySerializedAs("dash")] [SerializeField] private DashData dashOld;
+        // [FormerlySerializedAs("jump")]
+        // [Header("Movement Stats Old")]
+        // [SerializeField] private JumpData jumpOld;
+        // [FormerlySerializedAs("dash")] [SerializeField] private DashData dashOld;
 
+        [Header("Target Detection")]
+        [SerializeField] private TargetDetectConfig targetDetection;
+        
         [Header("Movement Stats New")]
         [SerializeField] private MovementConfig movement;
         [SerializeField] private AirResistanceConfig airResistance;
@@ -47,6 +48,9 @@ namespace Game.Entities
                 { "Heavy", HeavyAttack },
                 { "HeavyCancel", HeavyAttackCancel },
                 { "Secondary", SecondaryAttack },
+                { "SecondaryTap", SecondaryAttackTap },
+                { "SecondaryHold", SecondaryAttackHold },
+                { "SecondaryCancel", SecondaryAttackCancel },
                 { "Blink", Blink },
             });
         }
@@ -69,11 +73,10 @@ namespace Game.Entities
         private bool LightAttack() => InputManager.GetActionPerformed(InputManager.Input.PrimaryTap);
         private bool HeavyAttack() => InputManager.GetActionPerformed(InputManager.Input.PrimaryHold);
         private bool HeavyAttackCancel() => InputManager.GetActionCanceled(InputManager.Input.PrimaryHold);
-        private bool SecondaryAttack()
-        {
-            var input = GlobalLevelManager.Blink ? InputManager.Input.SecondaryTap : InputManager.Input.Secondary;
-            return InputManager.GetActionPerformed(InputManager.Input.Secondary);
-        }
+        private bool SecondaryAttack() => InputManager.GetActionPerformed(InputManager.Input.Secondary);
+        private bool SecondaryAttackTap() => InputManager.GetActionPerformed(InputManager.Input.SecondaryTap);
+        private bool SecondaryAttackHold() => InputManager.GetActionPerformed(InputManager.Input.SecondaryHold);
+        private bool SecondaryAttackCancel() => InputManager.GetActionCanceled(InputManager.Input.SecondaryHold);
         private bool Blink() => InputManager.GetActionPerformed(InputManager.Input.Blink);
 
 
@@ -91,12 +94,14 @@ namespace Game.Entities
                 model.TryAddComponent(() => GetMotionController(rigidBody, collider, c.Origin, c.Joints.GetJoint(EntityJoint.Eyes)));
             }
 
-            model.TryAddComponent(() => GetComboComponent(c));
             model.TryAddComponent(HealthComponentFactory); 
             model.TryAddComponent(EnergyComponentFactory);
+            model.TryAddComponent(() => targetDetection.InstantiateComponent(c.Origin, Camera.main.transform));
+            model.TryAddComponent(() => GetComboComponent(c));
         }
 
         private HealthComponent HealthComponentFactory() => Health.GetComponent();
         private EnergyComponent EnergyComponentFactory() => Energy.GetComponent();
+        
     }
 }

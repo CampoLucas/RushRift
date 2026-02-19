@@ -252,7 +252,7 @@ namespace Game
                 return 0;
             }
 
-            if (_value == null || (_isObject && _value.IsNullOrMissingReference()))
+            if (_value == null || (_isObject && _value.IsNullOrMissing()))
             {
                 return 0;
             }
