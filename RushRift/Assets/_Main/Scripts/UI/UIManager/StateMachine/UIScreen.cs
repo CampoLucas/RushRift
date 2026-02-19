@@ -11,5 +11,6 @@ namespace Game.UI.StateMachine
         Credits,
         GameModes,
         Levels,
+        Interact,
     }
 }

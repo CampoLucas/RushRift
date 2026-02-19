@@ -67,6 +67,7 @@ namespace Game.UI.StateMachine
 
         public bool TransitionTo(UIScreen to, float fadeOut, float fadeIn, float fadeInStartTime)
         {
+            Debug.Log($"Transition to {to}");
             if (!_states.TryGetValue(to, out var state) || _current == state) return false;
 
             _timer = 0;
