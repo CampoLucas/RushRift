@@ -14,10 +14,12 @@ public class CheckInputChange : MonoBehaviour
     private InputDevice _lastDeviceUsed;
     private bool _onSubMenu;
 
+   
 
     private void OnEnable()
     {
         _m_EventListener = InputSystem.onAnyButtonPress.Call(OnButtonPressed);
+
     }
 
     private void OnDisable()
@@ -43,8 +45,6 @@ public class CheckInputChange : MonoBehaviour
     {
         var device = button.device;
 
-        if (device == _lastDeviceUsed) return;
-
         _lastDeviceUsed = device;
 
         // Ignore presses on devices that are already used by a player.
@@ -57,6 +57,7 @@ public class CheckInputChange : MonoBehaviour
         {
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
+            if (device == _lastDeviceUsed) return;
 
             if (current)
             {
@@ -75,23 +76,20 @@ public class CheckInputChange : MonoBehaviour
         {
             CursorHandler.lockState = CursorLockMode.None;
             CursorHandler.visible = true;
-            //if (_onSubMenu)
-            //{
-            //}
             if (current)
             {
                 _lastSelectableUsed = EventSystem.current.currentSelectedGameObject;
                 Debug.Log("mouse");
-                
+
             }
+            //if (_onSubMenu)
+            //{
+            //}
         }
         if (device is Keyboard)
         {
             CursorHandler.lockState = CursorLockMode.None;
             CursorHandler.visible = true;
-            //if (_onSubMenu)
-            //{  
-            //}
             if (current)
             {
                 if (_lastSelectableUsed)
