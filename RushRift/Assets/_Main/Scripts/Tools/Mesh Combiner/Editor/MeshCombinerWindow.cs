@@ -42,6 +42,8 @@ namespace Game.Tools.MeshCombiner.Editor
         private SerializedProperty _meshFiltersProp;
         
         private Vector2 _scroll;
+        private bool _savedMesh;
+        private bool _combinedMesh;
 
         #region Debug
 
@@ -149,7 +151,7 @@ namespace Game.Tools.MeshCombiner.Editor
                 GUILayout.Label("Pivot", EditorStyles.boldLabel);
                 GUILayout.FlexibleSpace();
 
-                EditorGUI.BeginDisabledGroup(!SelectionIsGameObject());
+                EditorGUI.BeginDisabledGroup(!SelectionIsGameObject() || _sameAsTarget);
                 if (GUILayout.Button("Selection", EditorStyles.toolbarButton))
                 {
                     GetPivotFromSelection();
@@ -281,34 +283,16 @@ namespace Game.Tools.MeshCombiner.Editor
                 }
                 EditorGUI.EndDisabledGroup();
             }
+
+            if (MeshCombined() && !AssetSaved())
+            {
+                EditorGUILayout.HelpBox("The combined mesh has not been saved yet!", MessageType.Warning, true);
+            }
             
             EditorGUILayout.EndScrollView();
             _serializedObject.ApplyModifiedProperties();
-        }
-
-        private Transform GetPivot()
-        {
-            return _sameAsTarget ? _meshFilter ? _meshFilter.transform : null : _pivot;
-        }
-
-        private bool SelectionIsGameObject()
-        {
-            return Selection.activeGameObject == true;
-        }
-        
-        private bool IsPivotOptionsDefault()
-        {
-            return _pivotApply == McPivotApply.MoveToPivot && _pivot == null && _pivotOffset == Vector3.zero &&
-                   _pivotRotationOffset == Vector3.zero && _sameAsTarget == false;
-        }
-
-        private void ClearPivotOptions()
-        {
-            _pivotApply = McPivotApply.MoveToPivot;
-            _pivot = null;
-            _pivotOffset = Vector3.zero;
-            _pivotRotationOffset = Vector3.zero;
-            _sameAsTarget = false;
+            
+            
         }
         
         private void OnSceneGUI(SceneView sceneView)
@@ -350,6 +334,31 @@ namespace Game.Tools.MeshCombiner.Editor
             Handles.zTest = oldZ;
         }
 
+        private Transform GetPivot()
+        {
+            return _sameAsTarget ? _meshFilter ? _meshFilter.transform : null : _pivot;
+        }
+
+        private bool SelectionIsGameObject()
+        {
+            return Selection.activeGameObject == true;
+        }
+        
+        private bool IsPivotOptionsDefault()
+        {
+            return _pivotApply == McPivotApply.MoveToPivot && _pivot == null && _pivotOffset == Vector3.zero &&
+                   _pivotRotationOffset == Vector3.zero && _sameAsTarget == false;
+        }
+
+        private void ClearPivotOptions()
+        {
+            _pivotApply = McPivotApply.MoveToPivot;
+            _pivot = null;
+            _pivotOffset = Vector3.zero;
+            _pivotRotationOffset = Vector3.zero;
+            _sameAsTarget = false;
+        }
+
         public void PivotGizmosOptions(Rect position)
         {
             _pivotSphereSize = EditorGUILayout.Slider("Marker Size", _pivotSphereSize, 0.01f, 2f);
@@ -370,6 +379,7 @@ namespace Game.Tools.MeshCombiner.Editor
         private void ClearMeshes()
         {
             meshFilters.Clear();
+            _combinedMesh = false;
         }
 
         private void GetMeshesFromSelection()
@@ -400,7 +410,11 @@ namespace Game.Tools.MeshCombiner.Editor
         {
             var active = Selection.activeGameObject;
 
-            if (!EditorUtility.DisplayDialog("Add MeshFilter and MeshRenderer",
+            var hasFilter = active.TryGetComponent<MeshFilter>(out var filter);
+            var hasRenderer = active.TryGetComponent<MeshRenderer>(out var renderer);
+            
+            if ((!hasFilter || !hasRenderer) && !EditorUtility.DisplayDialog(
+                    "Add MeshFilter and MeshRenderer", 
                     $"You are about to add a MeshFilter and MeshRenderer to {active.name}.\n\nAre you sure?", "Yes",
                     "Cancel"))
             {
@@ -411,14 +425,14 @@ namespace Game.Tools.MeshCombiner.Editor
             {
                 return;
             }
-            if (!active.TryGetComponent<MeshFilter>(out var filter))
+            if (!hasFilter)
             {
                 filter = active.AddComponent<MeshFilter>();
             }
 
             _meshFilter = filter;
 
-            if (!active.TryGetComponent<MeshRenderer>(out var renderer))
+            if (!hasRenderer)
             {
                 renderer = active.AddComponent<MeshRenderer>();
             }
@@ -513,7 +527,11 @@ namespace Game.Tools.MeshCombiner.Editor
             if (MeshCombinerTool.TryCombineMesh(ref _meshFilter, ref _meshRenderer, combineArgs) != MeshCombinerTool.CombineResult.Successful)
             {
                 Debug.LogError("ERROR: [MeshCombinerWindow] Couldn't combine the meshes");
+                return;
             }
+
+            _savedMesh = false;
+            _combinedMesh = true;
         }
 
         private void EnsureFolderExists()
@@ -553,9 +571,21 @@ namespace Game.Tools.MeshCombiner.Editor
             AssetDatabase.CreateAsset(savedMesh, filePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+            _savedMesh = true;
+            _combinedMesh = false;
 
             _meshFilter.sharedMesh = savedMesh;
             Debug.Log("Combined mesh saved at: " + filePath);
+        }
+
+        private bool AssetSaved()
+        {
+            return _savedMesh;
+        }
+
+        private bool MeshCombined()
+        {
+            return _combinedMesh;
         }
         
         private int ConfirmOverwrite(Object assetToOverwrite)
