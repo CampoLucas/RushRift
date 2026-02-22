@@ -1,31 +1,33 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Game.Utils;
+using MyTools.Global;
 using UnityEditor;
 using UnityEngine;
 
 namespace Game.Tools.MeshCombiner.Editor
 {
-    public enum McMaterial {
-        First, PreserveAll, SkipDuplicates
-    }
-    
     public class MeshCombinerWindow : EditorWindow
     {
         private static GUIContent _gizmosIcon;
         private static GUIContent _focusIcon;
-        private static GUIContent _clearMeshesIcon;
         private static GUIContent _localSpaceIcon;
         private static GUIContent _globalSpaceIcon;
+        private static GUIContent _clearIcon;
         
         private const int LabelMaxWidth = 149;
         
         [SerializeField] private List<MeshFilter> meshFilters = new();
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
-        private Transform _pivot;
+        
+        // Pivot
+        private McPivotApply _pivotApply = McPivotApply.MoveToPivot;
         private bool _localPivotOffset = true;
+        private Transform _pivot;
         private Vector3 _pivotOffset;
+        private Vector3 _pivotRotationOffset;
 
         private McMaterial _material;
         private bool _replaceSelected = false;
@@ -58,7 +60,7 @@ namespace Game.Tools.MeshCombiner.Editor
             // Icon names are internal, so use fallbacks
             _gizmosIcon ??= Icon("d_GizmosToggle", "GizmosToggle", "Show pivot gizmo");
             _focusIcon ??= Icon("d_SceneViewCamera", "SceneViewCamera", "Focus Scene View on pivot");
-            _clearMeshesIcon ??= Icon("d_TreeEditor.Trash", "TreeEditor.Trash", "Focus Scene View on pivot");
+            _clearIcon ??= Icon("d_TreeEditor.Trash", "TreeEditor.Trash", "Clear");
             _localSpaceIcon ??= Icon("d_ToolHandleLocal", "ToolHandleLocal", "Offset is in pivot local space");
             _globalSpaceIcon ??= Icon("d_ToolHandleGlobal", "ToolHandleGlobal", "Offset is in global space");
             
@@ -91,8 +93,8 @@ namespace Game.Tools.MeshCombiner.Editor
                 {
                     GetMeshFilterFromSelection();
                 }
-                EditorGUI.BeginDisabledGroup(_meshFilter.IsNullOrMissing() || _meshRenderer.IsNullOrMissing());
-                if (GUILayout.Button(_clearMeshesIcon, EditorStyles.toolbarButton, GUILayout.Width(28)))
+                EditorGUI.BeginDisabledGroup(_meshFilter == null && _meshRenderer == null);
+                if (GUILayout.Button(_clearIcon, EditorStyles.toolbarButton, GUILayout.Width(28)))
                 {
                     _meshRenderer = null;
                     _meshFilter = null;
@@ -107,18 +109,14 @@ namespace Game.Tools.MeshCombiner.Editor
             
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
-                GUILayout.Label("Meshes To combine", EditorStyles.boldLabel);
+                GUILayout.Label("Meshes To Combine", EditorStyles.boldLabel);
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("To Selection", GUILayout.Width(70)))
-                {
-                    GetMeshFilterFromSelection();
-                }
                 if (GUILayout.Button("From Selection", EditorStyles.toolbarButton))
                 {
                     GetMeshesFromSelection();
                 }
                 EditorGUI.BeginDisabledGroup(meshFilters == null || meshFilters.Count == 0);
-                if (GUILayout.Button(_clearMeshesIcon, EditorStyles.toolbarButton, GUILayout.Width(28)))
+                if (GUILayout.Button(_clearIcon, EditorStyles.toolbarButton, GUILayout.Width(28)))
                 {
                     ClearMeshes();
                 }
@@ -142,12 +140,20 @@ namespace Game.Tools.MeshCombiner.Editor
                 EditorGUI.BeginDisabledGroup(_pivot == null);
                 
                 // icon + text that changes depending on current mode
-                var spaceContent = _localPivotOffset
+                var spaceContent = _pivot && _localPivotOffset
                     ? new GUIContent(" Local", _localSpaceIcon.image, "Offset is in pivot local space")
                     : new GUIContent(" Global", _globalSpaceIcon.image, "Offset is in global space");
 
                 // Draw as a pressed/unpressed toolbar button
-                _localPivotOffset = GUILayout.Toggle(_localPivotOffset, spaceContent, EditorStyles.toolbarButton, GUILayout.Width(70));
+                if (!_pivot)
+                {
+                    GUILayout.Toggle(false, spaceContent, EditorStyles.toolbarButton, GUILayout.Width(70));
+                }
+                else
+                {
+                    _localPivotOffset = GUILayout.Toggle(_localPivotOffset, spaceContent, EditorStyles.toolbarButton, GUILayout.Width(70));
+                }
+                EditorGUI.EndDisabledGroup();
                 
 
                 if (GUILayout.Button(_focusIcon, EditorStyles.toolbarButton, GUILayout.Width(28)))
@@ -170,23 +176,32 @@ namespace Game.Tools.MeshCombiner.Editor
                     
                     PopupWindow.Show(anchor, new PivotOptionsPopup(this));
                 }
+                
+                EditorGUI.BeginDisabledGroup(IsPivotOptionsDefault());
+                if (GUILayout.Button(_clearIcon, EditorStyles.toolbarButton, GUILayout.Width(28)))
+                {
+                    ClearPivotOptions();
+                }
                 EditorGUI.EndDisabledGroup();
             }
+            
+            _pivotApply = (McPivotApply)EditorGUILayout.EnumPopup("Apply Pivot", _pivotApply);
             using (new EditorGUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField("New Mesh Pivot", GUILayout.MaxWidth(LabelMaxWidth));
                 _pivot = (Transform)EditorGUILayout.ObjectField(GUIContent.none, _pivot, typeof(Transform), true, GUILayout.MinWidth(30));
             }
 
-            if (_pivot)
+            using (new EditorGUILayout.HorizontalScope())
             {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField("Offset", GUILayout.MaxWidth(LabelMaxWidth));
-                    _pivotOffset = EditorGUILayout.Vector3Field(GUIContent.none, _pivotOffset);
-                }
+                EditorGUILayout.LabelField("Offset", GUILayout.MaxWidth(LabelMaxWidth));
+                _pivotOffset = EditorGUILayout.Vector3Field(GUIContent.none, _pivotOffset);
+            }
 
-                //_pivotSphereSize = EditorGUILayout.Slider("Marker Size", _pivotSphereSize, 0.01f, 2f);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("Rotation", GUILayout.MaxWidth(LabelMaxWidth));
+                _pivotRotationOffset = EditorGUILayout.Vector3Field(GUIContent.none, _pivotRotationOffset);
             }
             
             EditorGUILayout.Space(10);
@@ -244,19 +259,57 @@ namespace Game.Tools.MeshCombiner.Editor
                 EditorGUI.EndDisabledGroup();
             }
         }
+
+        private bool IsPivotOptionsDefault()
+        {
+            return _pivotApply == McPivotApply.MoveToPivot && _pivot == null && _pivotOffset == Vector3.zero &&
+                   _pivotRotationOffset == Vector3.zero;
+        }
+
+        private void ClearPivotOptions()
+        {
+            _pivotApply = McPivotApply.MoveToPivot;
+            _pivot = null;
+            _pivotOffset = Vector3.zero;
+            _pivotRotationOffset = Vector3.zero;
+        }
         
         private void OnSceneGUI(SceneView sceneView)
         {
-            if (!_showPivot || !_pivot) return;
+            if (!_showPivot) return;
 
             var p = GetPivotWorldPosition();
+            var r = GetPivotWorldRotation();
 
+            var size = HandleUtility.GetHandleSize(p) * _pivotSphereSize;
+            
             var oldZ = Handles.zTest;
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+            
+            // Sphere
+            Handles.color = Color.white;
+            Handles.SphereHandleCap(0, p, Quaternion.identity, size * 0.2f, EventType.Repaint);
+            
+            // Axis Lines
+            var xDir = r * Vector3.right;
+            var yDir = r * Vector3.up;
+            var zDir = r * Vector3.forward;
 
-            // sphere marker
-            Handles.SphereHandleCap(0, p, Quaternion.identity, HandleUtility.GetHandleSize(p) * _pivotSphereSize, EventType.Repaint);
+            Handles.color = Color.red;
+            Handles.DrawLine(p, p + xDir * size);
+            Handles.ConeHandleCap(0, p + xDir * size, r * Quaternion.LookRotation(Vector3.right), size * 0.15f, EventType.Repaint);
+
+            Handles.color = Color.green;
+            Handles.DrawLine(p, p + yDir * size);
+            Handles.ConeHandleCap(0, p + yDir * size, r * Quaternion.LookRotation(Vector3.up), size * 0.15f, EventType.Repaint);
+
+            Handles.color = Color.blue;
+            Handles.DrawLine(p, p + zDir * size);
+            Handles.ConeHandleCap(0, p + zDir * size, r * Quaternion.LookRotation(Vector3.forward), size * 0.15f, EventType.Repaint);
+
+            Handles.color = Color.white;
             Handles.Label(p, "Pivot");
+            
             Handles.zTest = oldZ;
         }
 
@@ -314,7 +367,7 @@ namespace Game.Tools.MeshCombiner.Editor
         
         private Vector3 GetPivotWorldPosition()
         {
-            if (!_pivot) return Vector3.zero;
+            if (!_pivot) return _pivotOffset;
 
             // Offset in local space
             if (_localPivotOffset)
@@ -324,6 +377,24 @@ namespace Game.Tools.MeshCombiner.Editor
 
             // Offset in world space
             return _pivot.position + _pivotOffset;
+        }
+
+        private Quaternion GetPivotWorldRotation()
+        {
+            var offset = Quaternion.Euler(_pivotRotationOffset);
+
+            // If no pivot assigned, just use the offset as world rotation
+            if (!_pivot)
+                return offset;
+
+            var baseRot = _pivot.rotation;
+
+            // If is local then offset in local space
+            if (_localPivotOffset)
+                return baseRot * offset;
+
+            // If is world then offset in world space
+            return offset * baseRot;
         }
         
         private void FocusSceneViewOnPivot()
@@ -336,26 +407,6 @@ namespace Game.Tools.MeshCombiner.Editor
             // keep current rotation and size, just move to pivot
             sv.LookAt(p, sv.rotation, sv.size);
             sv.Repaint();
-        }
-        
-        private Rect GetScreenRectFromGUIRect(Rect guiRect)
-        {
-            // IMGUI rect -> UIElements panel coords
-            var world = GUIUtility.GUIToScreenPoint(new Vector2(guiRect.x, guiRect.y));
-
-            // The above can still be wrong in docked layouts on some versions.
-            // This one is the most reliable when available:
-            if (rootVisualElement != null && rootVisualElement.panel != null)
-            {
-                // guiRect.position is IMGUI local. Convert to panel/world, then to screen.
-                Vector2 panelPos = guiRect.position;
-                // IMGUI is inside the window. Offset by window position in screen space.
-                panelPos += position.position;
-
-                return new Rect(panelPos.x, panelPos.y, guiRect.width, guiRect.height);
-            }
-
-            return new Rect(world.x, world.y, guiRect.width, guiRect.height);
         }
         
         private void PickFolderInsideAssets()
@@ -376,50 +427,38 @@ namespace Game.Tools.MeshCombiner.Editor
             if (!Directory.Exists(_folderPath))
                 Directory.CreateDirectory(_folderPath);
         }
-        
+
         public void CombineMeshes()
         {
-            _combine = new CombineInstance[meshFilters.Count];
-
-            var i = 0;
-            while (i < meshFilters.Count)
+            var combineArgs = new MeshCombinerTool.CombineArguments
             {
-                _combine[i].mesh = meshFilters[i].sharedMesh;
-                _combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-                meshFilters[i].gameObject.SetActive(false);
-
-                i++;
-            }
-
-            _meshFilter ??= meshFilters[0];
-            _meshRenderer ??= meshFilters[0].GetComponent<MeshRenderer>();
+                MeshName = _fileName,
+                MeshFilters = meshFilters,
+                GetPosition = GetPivotWorldPosition,
+                GetRotation = GetPivotWorldRotation,
+                PivotApply = _pivotApply,
+                MaterialOption = _material
+            };
             
-            var mesh = new Mesh();
-            _meshFilter.mesh = mesh;
-            _meshFilter.sharedMesh = mesh;
-            _meshFilter.sharedMesh.CombineMeshes(_combine);
+            if (MeshCombinerTool.TryCombineMesh(ref _meshFilter, ref _meshRenderer, combineArgs) != MeshCombinerTool.CombineResult.Successful)
+            {
+                Debug.LogError("ERROR: [MeshCombinerWindow] Couldn't combine the meshes");
+            }
+        }
 
+        private void EnsureFolderExists()
+        {
             if (!Directory.Exists(_folderPath))
-            {
                 Directory.CreateDirectory(_folderPath);
-            }
-
-            if (meshFilters.Count > 0)
-            {
-                _meshRenderer.sharedMaterial = meshFilters[0].GetComponent<MeshRenderer>().sharedMaterial;
-            }
-
         }
         
-        public void SaveMesh()
+        private void SaveMesh()
         {
-#if UNITY_EDITOR
             var filePath = _folderPath + "/" + _fileName + ".asset";
             AssetDatabase.CreateAsset(_meshFilter.sharedMesh, filePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("Combined mesh saved at: " + filePath);
-#endif
         }
     }
 }
