@@ -190,16 +190,18 @@ namespace Game.Tools.MeshCombiner.Editor
             }
 
             var result = CombineResult.Successful;
+            var name = $"{args.MeshName} (Not Saved)";
+            
             switch (args.MaterialOption)
             {
                 case McMaterial.First:
-                    result = CombineFirst(args.MeshName, ref meshFilter, ref meshRenderer, combineList, firstMaterial);
+                    result = CombineFirst(name, ref meshFilter, ref meshRenderer, combineList, firstMaterial);
                     break;
                 case McMaterial.PreserveAll:
-                    result = CombinePreserveAll(args.MeshName, ref meshFilter, ref meshRenderer, combineList, materialsList);
+                    result = CombinePreserveAll(name, ref meshFilter, ref meshRenderer, combineList, materialsList);
                     break;
                 case McMaterial.SkipDuplicates:
-                    result = CombineSkipDuplicates(args.MeshName, ref meshFilter, ref meshRenderer, materialDict);
+                    result = CombineSkipDuplicates(name, ref meshFilter, ref meshRenderer, materialDict);
                     break;
                 default:
                     result = Fail(CombineResult.OutOfRangeException, "Combine Material Option is out of exception.");
