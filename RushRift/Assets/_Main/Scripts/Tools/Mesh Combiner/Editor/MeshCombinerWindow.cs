@@ -247,6 +247,10 @@ namespace Game.Tools.MeshCombiner.Editor
             using (new EditorGUILayout.HorizontalScope())
             {
                 _fileName = EditorGUILayout.TextField("File Name", _fileName);
+                if (GUILayout.Button("Auto", GUILayout.Width(70)))
+                {
+                    SetNameAsMeshFilter();
+                }
             }
             
             
@@ -491,6 +495,12 @@ namespace Game.Tools.MeshCombiner.Editor
             // keep current rotation and size, just move to pivot
             sv.LookAt(p, sv.rotation, sv.size);
             sv.Repaint();
+        }
+
+        private void SetNameAsMeshFilter()
+        {
+            var name = _meshFilter ? _meshFilter.gameObject.name : "Combined_Mesh";
+            _fileName = $"M_{name}";
         }
         
         private void PickFolderInsideAssets()
