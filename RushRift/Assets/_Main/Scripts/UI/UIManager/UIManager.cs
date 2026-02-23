@@ -53,11 +53,11 @@ namespace Game.UI
             
             _onHealthChanged = new ActionObserver<float, float, float>(OnHealthChangedHandler);
             _onGameOver = new ActionObserver<bool>(OnGameOverHandler);
-            
+
 
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
-            
+
             Debug.Log("Set Loading screen update");
             loadingScreen.SetActive(true);
 
