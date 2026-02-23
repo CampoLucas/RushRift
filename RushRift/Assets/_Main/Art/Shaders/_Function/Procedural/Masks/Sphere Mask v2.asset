@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
+  m_Name: Sphere Mask v2
+  m_EditorClassIdentifier: 
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.8.1\n// Available at the
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19801\nNode;AmplifyShaderEditor.CommentaryNode;30;-1762,-130;Inherit;False;1236;362.3333;Apply
+    radius and hardness;10;13;23;22;25;27;28;26;16;21;29;;1,1,1,1;0;0\nNode;AmplifyShaderEditor.CommentaryNode;20;-1447.337,-800;Inherit;False;825.337;252.2324;Distance
+    from center;5;14;8;9;19;10;;1,1,1,1;0;0\nNode;AmplifyShaderEditor.DistanceOpNode;10;-1026,-720;Inherit;False;2;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.RegisterLocalVarNode;19;-866,-720;Inherit;False;dist;-1;True;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput;13;-1552,0;Inherit;False;Radius;1;2;False;1;0;FLOAT;1.5;False;1;FLOAT;0\nNode;AmplifyShaderEditor.GetLocalVarNode;23;-1584,-80;Inherit;False;19;dist;1;0;OBJECT;;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SmoothstepOpNode;22;-1200,-80;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SimpleAddOpNode;25;-1344,48;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.WireNode;27;-1408,-16;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.WireNode;28;-1264,-16;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SimpleSubtractOpNode;26;-1552,96;Inherit;False;2;0;FLOAT;1;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SimpleSubtractOpNode;21;-960,-80;Inherit;False;2;0;FLOAT;1;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.RegisterLocalVarNode;29;-768,-80;Inherit;False;mask;-1;True;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SaturateNode;31;-112,-288;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.GetLocalVarNode;32;-368,-288;Inherit;False;29;mask;1;0;OBJECT;;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput;9;-1184,-656;Inherit;False;Center;3;1;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.FunctionInput;8;-1216,-736;Inherit;False;World
+    Position;3;0;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0\nNode;AmplifyShaderEditor.ObjectPositionNode;33;-1348.205,-395.9202;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3\nNode;AmplifyShaderEditor.FunctionInput;16;-1712,112;Inherit;False;Hardness;1;3;False;1;0;FLOAT;1.5;False;1;FLOAT;0\nNode;AmplifyShaderEditor.WorldPosInputsNode;14;-1408,-736;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3\nNode;AmplifyShaderEditor.FunctionOutput;0;48,-288;Inherit;False;True;-1;Output;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;10;0;8;0\nWireConnection;10;1;9;0\nWireConnection;19;0;10;0\nWireConnection;22;0;23;0\nWireConnection;22;1;28;0\nWireConnection;22;2;25;0\nWireConnection;25;0;13;0\nWireConnection;25;1;26;0\nWireConnection;27;0;13;0\nWireConnection;28;0;27;0\nWireConnection;26;1;16;0\nWireConnection;21;1;22;0\nWireConnection;29;0;21;0\nWireConnection;31;0;32;0\nWireConnection;9;0;33;0\nWireConnection;8;0;14;0\nWireConnection;0;0;31;0\nASEEND*/\n//CHKSM=00FBB2D0D2CC9FF5BCA3060C067DFF96E96A45BA"
+  m_functionName: 
+  m_description: 
+  m_additionalIncludes:
+    m_additionalIncludes: []
+    m_outsideIncludes: []
+  m_additionalPragmas:
+    m_additionalPragmas: []
+    m_outsidePragmas: []
+  m_additionalDirectives:
+    m_validData: 0
+    m_isDirty: 0
+    m_moduleName: ' Additional Directives'
+    m_independentModule: 1
+    m_customEdited: 0
+    m_additionalDirectives: []
+    m_shaderFunctionDirectives: []
+    m_nativeDirectives: []
+    m_nativeDirectivesIndex: -1
+    m_nativeDirectivesFoldout: 0
+    m_directivesSaveItems: []
+  m_nodeCategory: 0
+  m_headerStyle: 2
+  m_headerColor: {r: 0.09411765, g: 0, b: 0.5803922, a: 1}
+  m_customNodeCategory: Procedural
+  m_previewPosition: 0
+  m_hidden: 0
+  m_url: 

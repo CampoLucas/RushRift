@@ -20,6 +20,7 @@ namespace Game.UI.Animations
         public UIAnimType Type => type;
         public Vector2 TargetVector => moveAnim.Pos;
         public Vector2Curve Curve2 => moveAnim.Curve;
+        public bool IgnoreZ => scaleAnim.IgnoreZ;
 
         public AnimationCurve Curve => type switch
         {
@@ -67,9 +68,11 @@ namespace Game.UI.Animations
     public struct UIScaleAnim
     {
         public float Scale => endScale;
+        public bool IgnoreZ => ignoreZ;
         public AnimationCurve Curve => curve;
 
         [SerializeField] private float endScale;
+        [SerializeField] private bool ignoreZ;
         [SerializeField] private AnimationCurve curve;
     }
 

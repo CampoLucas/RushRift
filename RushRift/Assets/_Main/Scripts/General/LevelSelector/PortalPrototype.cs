@@ -18,6 +18,7 @@ public class PortalPrototype : MonoBehaviour
 
     [SerializeField] private GameModeSO defaultModeToLoad;
     [SerializeField] private BaseLevelSO defaultLevelToLoad;
+    
     private NullCheck<BaseLevelSO> _levelToLoad;
     private NullCheck<GameModeSO> _modeToLoad;
     private NullCheck<Volume> _globalVolume;

@@ -11,7 +11,7 @@ namespace Game.UI.StateMachine
 {
     public enum MenuState
     {
-        NewGame, Continue, Options, Credits, Quit, Back, MainMenu, HUB, Restart, GameModes, Levels
+        NewGame, Continue, Options, Credits, Quit, Back, MainMenu, HUB, Restart, GameModes, Levels, Interact
     }
 
     /// <summary>
