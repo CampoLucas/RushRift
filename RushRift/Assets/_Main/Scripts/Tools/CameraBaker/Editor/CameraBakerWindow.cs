@@ -160,10 +160,21 @@ namespace Game.Tools.CameraBaker.Editor
                 }
             }
 
+            EditorGUILayout.LabelField("Quick Instructions");
+            EditorGUILayout.HelpBox("Use the prefab 'P_Baking Camera'.", MessageType.Info);
+            EditorGUILayout.HelpBox("When the camera is selected, press CTRL + SHIFT + F to change the position and rotation to the scene's view.", MessageType.Info);
+            
+            EditorGUILayout.LabelField("Instrucciones rápidas");
+            EditorGUILayout.HelpBox("Usar la cámara prefabricada 'P_Baking Camera'.", MessageType.Info);
+            EditorGUILayout.HelpBox("Cuando la cámara esté seleccionada, presione CTRL + MAYÚS + F para cambiar la posición y la rotación a la vista de la escena.", MessageType.Info);
+            
+            EditorGUILayout.Space(10);
+            
             if (!CanBake())
             {
-                EditorGUILayout.HelpBox("Assign a Camera and choose a folder inside Assets.", MessageType.Info);
+                EditorGUILayout.HelpBox("Assign a Camera and choose a folder inside Assets.", MessageType.Warning);
             }
+            
         }
 
         private bool CanBake()
