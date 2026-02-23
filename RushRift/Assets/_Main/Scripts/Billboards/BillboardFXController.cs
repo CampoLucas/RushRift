@@ -27,6 +27,7 @@ public class BillboardFXController : MonoBehaviour
 
     [Header("Glitch (sacudidas UV)")]
     [Range(0f, 0.2f)] public float glitchMaxOffsetX = 0.02f;
+    [Range(0f, 0.2f)] public float glitchMaxOffsetY = 0.01f;
     [Range(0f, 30f)] public float glitchBurstPerMin = 12f;
     [Range(0.01f, 0.5f)] public float glitchBurstDuration = 0.12f;
 
@@ -41,6 +42,23 @@ public class BillboardFXController : MonoBehaviour
     public bool applyWorldOffset = false;
     public Vector3 worldOffset = Vector3.zero;
 
+    // ---------------- NUEVO: Estado roto / gastado ----------------
+    [Header("Damage / Estado roto")]
+    [Tooltip("0 = nuevo, 1 = muy roto y quemado")]
+    [Range(0f, 1f)] public float damage = 0.7f;
+
+    [Tooltip("Tint cuando está muy roto (óxido / quemado / grisáceo).")]
+    public Color damagedTint = new Color(0.4f, 0.4f, 0.4f, 1f);
+
+    [Tooltip("Probabilidad por segundo de que, estando muy roto, haga un apagón fuerte.")]
+    [Range(0f, 1f)] public float blackoutChancePerSecond = 0.25f;
+
+    [Tooltip("Duración base de los apagones fuertes (se randomiza un poco).")]
+    [Range(0.05f, 3f)] public float blackoutDuration = 0.4f;
+
+    [Tooltip("Cuánto se amplifica el flicker cuando está roto.")]
+    [Range(0f, 3f)] public float extraFlickerByDamage = 1.5f;
+
     // Internos
     MaterialPropertyBlock _mpb;
     int _baseMapId, _baseColorId;
@@ -49,6 +67,10 @@ public class BillboardFXController : MonoBehaviour
     float _glitchUntil;
     Texture2D _scanlineTex;
     Vector3 _initialLocalPos;
+
+    // Internos estado roto
+    bool _inBlackout;
+    float _blackoutUntil;
 
     void Reset()
     {
@@ -64,11 +86,12 @@ public class BillboardFXController : MonoBehaviour
         if (!targetRenderer)
         {
             Debug.LogError("[BillboardFX] No hay Renderer. Agregá MeshRenderer o SpriteRenderer.");
-            enabled = false; return;
+            enabled = false;
+            return;
         }
 
         _mpb = new MaterialPropertyBlock();
-        _baseMapId = Shader.PropertyToID("_BaseMap");     // URP/Unlit
+        _baseMapId = Shader.PropertyToID("_BaseMap");       // URP/Unlit
         _baseColorId = Shader.PropertyToID("_BaseColor");   // URP/Unlit
 
         if (enableScanlines)
@@ -95,36 +118,91 @@ public class BillboardFXController : MonoBehaviour
         _uvScrollAccum += scrollSpeed * Time.deltaTime;
 
         // --- Flicker ---
-        float flicker = 1f + (Mathf.Sin(t * flickerSpeed) * 0.5f + 0.5f) * flickerAmount;
+        // Base flicker (0..1 aprox)
+        float flickerBase = 1f + (Mathf.Sin(t * flickerSpeed) * 0.5f + 0.5f) * flickerAmount;
+
+        // El daño aumenta el flicker, como si parpadeara más feo.
+        float damageFlickerBoost = 1f + damage * extraFlickerByDamage;
+        float flicker = flickerBase * damageFlickerBoost;
 
         // --- Glitch bursts ---
         if (!_glitchActive)
         {
             float p = glitchBurstPerMin / 60f * Time.deltaTime;
-            if (Random.value < p) { _glitchActive = true; _glitchUntil = t + glitchBurstDuration; }
+
+            // Con más daño, aparecen más glitches
+            p *= Mathf.Lerp(1f, 2.5f, damage);
+
+            if (Random.value < p)
+            {
+                _glitchActive = true;
+                float durRandom = blackoutDuration * Random.Range(0.75f, 1.25f);
+                _glitchUntil = t + Mathf.Max(glitchBurstDuration, 0.05f) + durRandom * 0.15f;
+            }
         }
+
         float glitchOffsetX = 0f;
+        float glitchOffsetY = 0f;
+
         if (_glitchActive)
         {
-            glitchOffsetX = Random.Range(-glitchMaxOffsetX, glitchMaxOffsetX);
-            if (t >= _glitchUntil) _glitchActive = false;
+            float dmgGlitchMult = Mathf.Lerp(1f, 3f, damage);
+
+            glitchOffsetX = Random.Range(-glitchMaxOffsetX * dmgGlitchMult, glitchMaxOffsetX * dmgGlitchMult);
+            glitchOffsetY = Random.Range(-glitchMaxOffsetY * dmgGlitchMult, glitchMaxOffsetY * dmgGlitchMult);
+
+            if (t >= _glitchUntil)
+                _glitchActive = false;
+        }
+
+        // --- Apagones fuertes por daño ---
+        if (!_inBlackout && damage > 0.3f && blackoutChancePerSecond > 0f)
+        {
+            float pBlackout = blackoutChancePerSecond * damage * Time.deltaTime;
+            if (Random.value < pBlackout)
+            {
+                _inBlackout = true;
+                float baseDur = blackoutDuration * Mathf.Lerp(0.7f, 1.4f, Random.value);
+                _blackoutUntil = t + baseDur;
+            }
+        }
+        if (_inBlackout && t >= _blackoutUntil)
+        {
+            _inBlackout = false;
         }
 
         // --- MPB para material base ---
         targetRenderer.GetPropertyBlock(_mpb);
 
         // _BaseMap_ST = (scaleX, scaleY, offsetX, offsetY)
-        // Tiling y offset combinando: uvTiling + (uvOffset + scroll + glitchX)
+        // Tiling y offset combinando: uvTiling + (uvOffset + scroll + glitch)
         Vector4 st = _mpb.GetVector("_BaseMap_ST");
         if (st == Vector4.zero) st = new Vector4(1, 1, 0, 0);
         st.x = Mathf.Approximately(uvTiling.x, 0f) ? 1f : uvTiling.x;
         st.y = Mathf.Approximately(uvTiling.y, 0f) ? 1f : uvTiling.y;
         st.z = uvOffset.x + _uvScrollAccum.x + glitchOffsetX; // offset X
-        st.w = uvOffset.y + _uvScrollAccum.y;                 // offset Y
+        st.w = uvOffset.y + _uvScrollAccum.y + glitchOffsetY; // offset Y
         _mpb.SetVector("_BaseMap_ST", st);
 
-        // Color “emisión” simulado
-        Color baseCol = baseTint * EmissionToColor(emissionStrength * flicker);
+        // --- Color / Emisión simulada con daño ---
+        // health = 1 significa nuevo, 0 significa completamente roto
+        float health = 1f - Mathf.Clamp01(damage);
+
+        // Tint se mezcla entre baseTint y damagedTint según el daño
+        Color tintBlended = Color.Lerp(damagedTint, baseTint, health);
+
+        // La emisión baja con el daño (no brilla tanto si está quemado)
+        float emissionScaleByDamage = Mathf.Lerp(0.2f, 1f, health);
+
+        // Si está en apagón, tirar la emisión casi a cero
+        if (_inBlackout)
+        {
+            emissionScaleByDamage *= 0.05f;
+            // Además, forzar el tint más apagado
+            tintBlended = Color.Lerp(tintBlended, damagedTint * 0.5f, 0.8f);
+        }
+
+        Color baseCol = tintBlended * EmissionToColor(emissionStrength * flicker * emissionScaleByDamage);
         _mpb.SetColor(_baseColorId, baseCol);
 
         if (baseTexture) _mpb.SetTexture(_baseMapId, baseTexture);
@@ -141,7 +219,9 @@ public class BillboardFXController : MonoBehaviour
             st2.w += scanlineScrollSpeed * Time.deltaTime; // mover líneas
             mpb2.SetVector("_BaseMap_ST", st2);
 
-            float intensity = Mathf.Lerp(0.25f, 1.25f, scanlineContrast);
+            // Las scanlines también pierden fuerza con el daño
+            float intensityBase = Mathf.Lerp(0.25f, 1.25f, scanlineContrast);
+            float intensity = intensityBase * Mathf.Lerp(0.4f, 1f, health);
             mpb2.SetColor("_BaseColor", new Color(intensity, intensity, intensity, 1));
             mpb2.SetTexture("_BaseMap", _scanlineTex);
 
@@ -213,10 +293,22 @@ public class BillboardFXController : MonoBehaviour
         byte dark = (byte)Mathf.RoundToInt(Mathf.Lerp(10, 60, scanlineContrast));
         byte bright = (byte)Mathf.RoundToInt(Mathf.Lerp(120, 255, scanlineContrast));
 
+        // Con daño alto, algunas filas quedan MUERTAS (negro) simulando LEDs quemados.
+        float deadRowChance = Mathf.Lerp(0f, 0.45f, damage);
+
         for (int y = 0; y < height; y++)
         {
-            byte v = (y % 2 == 0) ? bright : dark;
-            for (int x = 0; x < width; x++) cols[y * width + x] = new Color32(v, v, v, 255);
+            bool isBrightRow = (y % 2 == 0);
+            byte v = isBrightRow ? bright : dark;
+
+            // Con cierta probabilidad, esa fila queda casi apagada.
+            if (Random.value < deadRowChance)
+            {
+                v = (byte)Mathf.RoundToInt(dark * 0.25f);
+            }
+
+            for (int x = 0; x < width; x++)
+                cols[y * width + x] = new Color32(v, v, v, 255);
         }
         _scanlineTex.SetPixels32(cols);
         _scanlineTex.Apply(true, false);
