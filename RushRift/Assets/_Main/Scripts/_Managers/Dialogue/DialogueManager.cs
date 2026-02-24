@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game.Utils;
+using MyTools.Global;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
@@ -13,7 +15,7 @@ public class DialogueManager : MonoBehaviour
 	public TMP_Text dialogueArea;
 	public GameObject dialogueBox;
 
-	private Queue<DialogueLineSO> lines;
+	private Queue<Line> lines;
 
 	public bool isDialogueActive = false;
 
@@ -26,23 +28,51 @@ public class DialogueManager : MonoBehaviour
 		if (Instance == null)
 			Instance = this;
 
-		lines = new Queue<DialogueLineSO>();
+		lines = new Queue<Line>();
 	}
 
-	public void StartDialogue(DialogueListSO dialogue)
+	public bool StartDialogue(DialogueContainerSO container)
 	{
-		Debug.Log("Llame al dialogo");
+		if (container.IsNullOrMissing())
+		{
+			this.Log("Trying to execute a dialogue from a null or missing container.", LogType.Error);
+		}
+		
+		this.Log("Call the dialogue");
 		dialogueBox.SetActive(true);
 		isDialogueActive = true;
 
 		lines.Clear();
 
-		foreach (DialogueLineSO dialogueLine in dialogue.dialogueLines)
+		var dialogues = container.Dialogues;
+		DialogueSO dialogue = default;
+		
+		// Has to find the dialogue it can produce
+		foreach (var d in dialogues)
 		{
-			lines.Enqueue(dialogueLine);
+			if (d != null && d.CanExecute())
+			{
+				dialogue = (DialogueSO)d;
+				break;
+			}
+		}
+
+		if (dialogue == null)
+		{
+			return false;
+		}
+
+		for (var i = 0; i < dialogue.Lines.Length; i++)
+		{
+			var line = dialogue.Lines[i];
+
+			if (line == null) continue;
+			
+			lines.Enqueue(line);
 		}
 
 		DisplayNextDialogueLine();
+		return true;
 	}
 
 	public void DisplayNextDialogueLine()
@@ -53,23 +83,23 @@ public class DialogueManager : MonoBehaviour
 			return;
 		}
 
-		DialogueLineSO currentLine = lines.Dequeue();
+		var current = lines.Dequeue();
 
 		//characterIcon.sprite = currentLine.characterIcon;
-		characterName.text = currentLine.characterName;
+		characterName.text = "[Delete this]";
 
 		StopAllCoroutines();
 
-		StartCoroutine(TypeSentence(currentLine));
+		StartCoroutine(TypeSentence(current));
 		//StartCoroutine(PlayAudio(currentLine));
 
 		
 	}
 
-	IEnumerator TypeSentence(DialogueLineSO dialogueLine)
+	IEnumerator TypeSentence(Line line)
 	{
 		dialogueArea.text = "";
-		foreach (char letter in dialogueLine.line.ToCharArray())
+		foreach (char letter in line.Text.ToCharArray())
 		{
 			dialogueArea.text += letter;
 			yield return new WaitForSeconds(typingSpeed);
@@ -78,10 +108,10 @@ public class DialogueManager : MonoBehaviour
 		DisplayNextDialogueLine();
 	}
 
-	IEnumerator PlayAudio(DialogueLineSO dialogueLine)
+	IEnumerator PlayAudio(Line line)
 	{
 		//play audio
-		yield return new WaitForSeconds(dialogueLine.spokenLine.length);
+		yield return new WaitForSeconds(line.Clip.length);
 	}
 
 

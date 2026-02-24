@@ -5,12 +5,15 @@ using UnityEngine;
 public class DialogueTrigger : MonoBehaviour
 {
     public string triggerTag = "Player";
-    public DialogueListSO dialogue;
+    public DialogueContainerSO dialogue;
 
 
     public void TriggerDialogue()
     {
-        DialogueManager.Instance.StartDialogue(dialogue);
+        if (DialogueManager.Instance.StartDialogue(dialogue))
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
