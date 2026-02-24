@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Game.UI
 {
     public abstract class UIAnimation : MonoBehaviour, IObserver
     {
+        public abstract UnityEvent OnPlaySequences();
+        public abstract UnityEvent OnAllSequencesComplete();
+        
         public void OnNotify()
         {
             Play();
@@ -26,6 +30,13 @@ namespace Game.UI
         public void Dispose()
         {
             
+        }
+
+        [ContextMenu("Editor Play"), System.Diagnostics.Conditional("UNITY_EDITOR")]
+        private void EditorPlay()
+        {
+            if (!Application.isPlaying) return;
+            Play();
         }
     }
 }

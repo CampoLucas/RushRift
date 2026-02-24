@@ -21,11 +21,11 @@ namespace Game.UI.StateMachine
             {
                 PauseHandler.Pause(false);
             }
-            
+
             // Set cursor
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
-            
+
             // other presenters
             healthBarBaseUIPresenter.Begin();
             energyBarBaseUIPresenter.Begin();

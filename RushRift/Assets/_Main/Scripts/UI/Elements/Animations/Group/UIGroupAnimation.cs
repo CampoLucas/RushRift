@@ -26,6 +26,16 @@ namespace Game.UI.Group
             }
         }
 
+        public override UnityEvent OnPlaySequences()
+        {
+            return onPlaySequences;
+        }
+
+        public override UnityEvent OnAllSequencesComplete()
+        {
+            return onAllSequencesComplete;
+        }
+
         public override void Reset()
         {
             if (canvas)
