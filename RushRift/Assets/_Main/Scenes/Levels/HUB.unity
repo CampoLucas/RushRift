@@ -8468,6 +8468,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2841258430261275551}
     m_Modifications:
+    - target: {fileID: 44794017219129255, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 57723662970235646, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -8688,6 +8692,14 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 8558674343945136949, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9012454464928689226, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+      propertyPath: defaultLevelToLoad
+      value: 
+      objectReference: {fileID: 11400000, guid: bc796eedeb612f04fa6b2ccb93729e97, type: 2}
     - target: {fileID: 9093009287379761104, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -8695,8 +8707,108 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1623108021313005435, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1263609218620922595}
   m_SourcePrefab: {fileID: 100100000, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+--- !u!114 &1263609218620922592 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9012454464928689226, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+  m_PrefabInstance: {fileID: 1263609218620922591}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da476c96e49fa464b821f744fe8870bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!23 &1263609218620922593 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 44794017219129255, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+  m_PrefabInstance: {fileID: 1263609218620922591}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1263609218620922594 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1623108021313005435, guid: 4e8334e89a671bc46bb4da144a31b7e9, type: 3}
+  m_PrefabInstance: {fileID: 1263609218620922591}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1263609218620922595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263609218620922594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c06e4e0bc83447f8ef380c1e569c313, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleState:
+    transitionDur: 0.3
+    transitionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    distortion: 5
+    speed: 0.28
+    color: {r: 0, g: 0, b: 0, a: 1}
+    isLevelColor: 1
+    hdrIntensity: 4.5
+  selectedState:
+    transitionDur: 0.2
+    transitionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    distortion: 15
+    speed: 0.28
+    color: {r: 0.53144646, g: 0.8998644, b: 1, a: 1}
+    isLevelColor: 0
+    hdrIntensity: 6.5
+  renderer: {fileID: 1263609218620922593}
+  controller: {fileID: 1263609218620922592}
 --- !u!1 &1314284252788767536
 GameObject:
   m_ObjectHideFlags: 0
