@@ -21,13 +21,13 @@ namespace Game.Entities.Components
         
         #region Subjects
 
-        public Subject OnTargetFound { get; } = new();
-        public Subject OnTargetChanged { get; } = new();
-        public Subject OnTargetLost { get; } = new();
-        public Subject<float> OnProgressUpdated { get; } = new();
-        public Subject OnBlinkStart { get; } = new();
-        public Subject OnBlinkEnd { get; } = new();
-        public Subject OnBlinkCanceled { get; } = new();
+        public NullCheck<Subject> TargetFound { get; } = new Subject();
+        public NullCheck<Subject> TargetChanged { get; } = new Subject();
+        public NullCheck<Subject> TargetLost { get; } = new Subject();
+        public NullCheck<Subject<float>> ProgressUpdated { get; } = new Subject<float>();
+        public NullCheck<Subject> BlinkStart { get; } = new Subject();
+        public NullCheck<Subject> BlinkEnd { get; } = new Subject();
+        public NullCheck<Subject> BlinkCanceled { get; } = new Subject();
 
         #endregion
 
@@ -76,8 +76,20 @@ namespace Game.Entities.Components
             if (_newTarget.TryGet(out var newT) && !newT.IsNullOrMissing() && InRange(newT))
             {
                 StopGrace();
-                SetTarget(newT);
-                _newTarget.Set(null);
+                if (newT is null)
+                {
+                    Debug.LogError("newT is null");
+                }
+                else if (newT.IsNullOrMissing())
+                {
+                    Debug.LogError("newT is null or missing");
+                }
+                else
+                {
+                    SetTarget(newT);
+                    _newTarget.Set(null);
+                }
+                
             }
             
             if (!_currentTarget.TryGet(out var t)) return;
@@ -123,7 +135,11 @@ namespace Game.Entities.Components
                     State = BlinkState.Charged;
                     
                     SetProgress(1f);
-                    OnBlinkEnd.NotifyAll(); // finished charging
+
+                    if (BlinkEnd.TryGet(out var subject))
+                    {
+                        subject.NotifyAll(); // finished charging
+                    }
                     return;
                 }
                 
@@ -135,6 +151,9 @@ namespace Game.Entities.Components
             this.Log("Reset Blink On Load");
             HardReset();
             _executedCount = 0;
+
+            _newTarget = new NullCheck<Transform>();
+            _currentTarget = new NullCheck<Transform>();
         }
 
         #region Grace Methods
@@ -223,7 +242,12 @@ namespace Game.Entities.Components
 
             State = BlinkState.Charging;
             SetProgress(0f);
-            OnBlinkStart.NotifyAll();
+
+            if (BlinkStart.TryGet(out var subject))
+            {
+                subject.NotifyAll();
+            }
+            
             return true;
         }
 
@@ -239,8 +263,10 @@ namespace Game.Entities.Components
             State = BlinkState.Idle;
             SetProgress(0f);
 
-            if (wasCanceled)
-                OnBlinkCanceled.NotifyAll();
+            if (wasCanceled && BlinkCanceled.TryGet(out var subject))
+            {
+                subject.NotifyAll();
+            }
 
             if (hard)
             {
@@ -265,7 +291,11 @@ namespace Game.Entities.Components
         private void SetProgress(float progress)
         {
             BlinkProgress = Mathf.Clamp01(progress);
-            OnProgressUpdated.NotifyAll(progress);
+
+            if (ProgressUpdated.TryGet(out var subject))
+            {
+                subject.NotifyAll(progress);
+            }
         }
 
         public void ConfirmCooldown(float seconds)
@@ -282,21 +312,37 @@ namespace Game.Entities.Components
             if (!_currentTarget) return;
 
             _currentTarget.Set(null);
-            OnTargetLost.NotifyAll();
+
+            if (TargetLost.TryGet(out var subject))
+            {
+                subject.NotifyAll();
+            }
         }
         
         private void SetTarget(Transform t)
         {
-            if (_currentTarget.TryGet(out var curr) && curr != null)
+            if (t.IsNullOrMissing())
+            {
+                Debug.LogError("Trying to set as null or missing");
+            }
+            
+            if (_currentTarget.TryGet(out var curr) && !curr.IsNullOrMissing())
             {
                 if (curr == t) return;
                 _currentTarget.Set(t);
-                OnTargetChanged.NotifyAll();
+
+                if (TargetChanged.TryGet(out var subject))
+                {
+                    subject.NotifyAll();
+                }
             }
             else
             {
                 _currentTarget.Set(t);
-                OnTargetFound.NotifyAll();
+                if (TargetFound.TryGet(out var subject))
+                {
+                    subject.NotifyAll();
+                }
             }
         }
 
@@ -373,6 +419,15 @@ namespace Game.Entities.Components
                 if (_onAimLost != null) detector.OnTargetLost.Detach(_onAimLost);
                 if (_onAimChanged != null) detector.OnTargetChanged.Detach(_onAimChanged);
             }
+
+            TargetFound.Dispose();
+            TargetChanged.Dispose();
+            TargetLost.Dispose();
+            ProgressUpdated.Dispose();
+            BlinkStart.Dispose();
+            BlinkEnd.Dispose();
+            BlinkCanceled.Dispose();
+            
             
             _onAimFound?.Dispose(); 
             _onAimFound = null;

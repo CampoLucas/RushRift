@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
 using UnityEngine;
@@ -28,6 +29,7 @@ namespace Game.Entities.Components
         private RaycastHit[] _hits;
         private Collider[] _overlaps;
         private ActionObserver<float> _updateObserver;
+        private ActionObserver<bool> _onLoadingObserver;
 
         public TargetDetectComp(TargetDetectConfig config, Transform origin, Transform forward)
         {
@@ -43,7 +45,9 @@ namespace Game.Entities.Components
 
         private void OnLoadingHandler(bool state)
         {
-            HardReset();
+            _currentTarget = new NullCheck<Transform>();
+            Array.Clear(_hits, 0, _hits.Length);
+            Array.Clear(_overlaps, 0, _overlaps.Length);
         }
 
         private void Update(float delta)
@@ -185,7 +189,7 @@ namespace Game.Entities.Components
             }
         }
 
-        public override bool TryGetUpdate(out IObserver<float> observer)
+        public override bool TryGetUpdate(out DesignPatterns.Observers.IObserver<float> observer)
         {
             _updateObserver ??= new ActionObserver<float>(Update);
             observer = _updateObserver;
