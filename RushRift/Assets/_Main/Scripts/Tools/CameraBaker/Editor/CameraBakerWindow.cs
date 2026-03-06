@@ -16,7 +16,7 @@ namespace Game.Tools.CameraBaker.Editor
         private Vector2 _aspectRatio = Vector2.one;
         private float _aspect;
         
-        private string _folderPath = "Assets/_LevelPreview";
+        private string _folderPath = "Assets/_Generated/Level Preview";
         private string _fileName = "Preview.png";
 
         private bool _importAsSprite = true;
@@ -24,7 +24,7 @@ namespace Game.Tools.CameraBaker.Editor
         private bool _srgb = true;
         private bool _alphaIsTransparency = true;
         
-        [MenuItem("Tools/Level Previews/Baker Window")]
+        [MenuItem("Tools/Generated/Level Previews/Baker Window")]
         public static void Open()
         {
             GetWindow<CameraBakerWindow>("Camera Baker");

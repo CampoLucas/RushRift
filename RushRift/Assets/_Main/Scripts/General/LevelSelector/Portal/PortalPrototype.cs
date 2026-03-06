@@ -13,6 +13,8 @@ using UnityEngine.Rendering;
 /// </summary>
 public class PortalPrototype : MonoBehaviour
 {
+    public Subject<GameModeSO, BaseLevelSO> OnLevelSelected { get; private set; } = new();
+    
     [SerializeField] private VolumeProfile hubVolume;
     [SerializeField] private VolumeProfile gameVolume;
 
@@ -41,12 +43,16 @@ public class PortalPrototype : MonoBehaviour
         {
             _globalVolume.Get().profile = hubVolume;
         }
+        
+        SetTargetSession(defaultModeToLoad, defaultLevelToLoad);
     }
 
     public void SetTargetSession(GameModeSO mode, BaseLevelSO level)
     {
         _levelToLoad = level;
         _modeToLoad = mode;
+        
+        OnLevelSelected.NotifyAll(mode, level);
     }
 
     private void OnTriggerEnter(Collider other)
