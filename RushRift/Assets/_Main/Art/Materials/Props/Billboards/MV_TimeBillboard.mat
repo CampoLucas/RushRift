@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_FadeScreen
-  m_Shader: {fileID: -6465566751694194690, guid: d54fbd337806d314f95aae6c36a348e5, type: 3}
-  m_Parent: {fileID: 0}
+  m_Name: MV_TimeBillboard
+  m_Shader: {fileID: 4800000, guid: 0803d076d18246e498a85e2235f715cf, type: 3}
+  m_Parent: {fileID: 2100000, guid: f259e374bb2ef2f4fbd345cd4f2b11f2, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -22,22 +22,14 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - unity_Lightmaps:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_LightmapsInd:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - unity_ShadowMasks:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _FadeAmount: 0
-    - _FadeTime: 0
-    m_Colors: []
+    - _Frequency1: 5.11
+    - _Speed: 0.01
+    - _Speed1: 2
+    m_Colors:
+    - _BackgroundColor: {r: 0.1509434, g: 0.1509434, b: 0.1509434, a: 1}
+    - _Line1: {r: 0.31446534, g: 0.31446534, b: 0.31446534, a: 1}
+    - _Line2: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 1}
   m_BuildTextureStacks: []
