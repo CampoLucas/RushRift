@@ -140,6 +140,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 0
   playScale: 1
+  playIgnoreZScale: 0
   playColor: {r: 1, g: 1, b: 1, a: 1}
   canvas: {fileID: 227642295738462936}
   targetRect: {fileID: 7842001813829630957}
@@ -170,6 +171,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve: []
@@ -233,6 +235,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve: []
@@ -554,7 +557,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '[Hold shift]'
+  m_text: '[Hold DASH]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 57f730d93fd0a0244b5c7271a4d087e8, type: 2}
   m_sharedMaterial: {fileID: -2558005828014544900, guid: 57f730d93fd0a0244b5c7271a4d087e8, type: 2}

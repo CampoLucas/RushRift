@@ -30,6 +30,21 @@ MonoBehaviour:
   invert: 0
   input: 8
   action: 0
+--- !u!114 &-6647725196232021582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53a0900f06f4591958f87e645d00947, type: 3}
+  m_Name: UIOnButtonPredicate
+  m_EditorClassIdentifier: 
+  invert: 0
+  input: 10
+  action: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,6 +113,13 @@ MonoBehaviour:
     conditions:
       collection:
       - {fileID: -7424686025611740569}
+  - from: 2
+    screenTransition: 0
+    to: 0
+    scene: 0
+    conditions:
+      collection:
+      - {fileID: -6647725196232021582}
 --- !u!114 &2436592221502691944
 MonoBehaviour:
   m_ObjectHideFlags: 0
