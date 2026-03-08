@@ -17,6 +17,7 @@ namespace RushRift.Environment
         public float Progress { get; private set; }
         public bool IsRunning { get; private set; }
         public bool IsInverse { get; private set; }
+        public float StartProgress => startProgress;
 
         [Header("Animation Settings")]
         [SerializeField] private bool instant;

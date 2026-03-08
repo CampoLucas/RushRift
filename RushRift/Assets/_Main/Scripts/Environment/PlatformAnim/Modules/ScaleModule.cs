@@ -43,7 +43,7 @@ namespace RushRift.Environment
             // We must record where the pivot is relative to the target 
             _localPivot = target.InverseTransformPoint(worldPivot);
 
-            target.localScale = startScale;
+            target.localScale = EvaluateScale(controller.StartProgress);
         }
         
         public void OnUpdate(float progress, bool inverse, float delta)
@@ -66,13 +66,14 @@ namespace RushRift.Environment
             progress = Mathf.Clamp01(progress);
             
             var start = startScale;
+            var curr = target.localScale;
             var end = endScale;
 
             return scaleAxis switch
             {
-                1 => new Vector3(Mathf.LerpUnclamped(start.x, end.x, progress), start.y, start.z),
-                2 => new Vector3(start.x, Mathf.LerpUnclamped(start.y, end.y, progress), start.z),
-                3 => new Vector3(start.x, start.y, Mathf.LerpUnclamped(start.z, end.z, progress)),
+                1 => new Vector3(Mathf.LerpUnclamped(start.x, end.x, progress), curr.y, curr.z),
+                2 => new Vector3(curr.x, Mathf.LerpUnclamped(start.y, end.y, progress), curr.z),
+                3 => new Vector3(curr.x, curr.y, Mathf.LerpUnclamped(start.z, end.z, progress)),
                 _ => Vector3.LerpUnclamped(start, end, progress)
             };
         }
