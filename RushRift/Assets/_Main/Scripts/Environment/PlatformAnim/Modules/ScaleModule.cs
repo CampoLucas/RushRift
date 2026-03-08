@@ -28,87 +28,78 @@ namespace RushRift.Environment
         private Vector3 _cachedPivotWorld;
         private Quaternion _cachedPivotRotation;
         private Vector3 _catchLocalPivot;
+        private Vector3 _localPivot;
         
         public override void Initialize(PlatformController controller)
         {
             base.Initialize(controller);
 
-            if (!target)
-                target = controller.transform;
+            if (!target) target = controller.transform;
 
+            // Get the Pivot in World Space once
             var pivotTransform = pivot ? pivot : transform;
+            var worldPivot = pivotTransform.position + (pivotTransform.rotation * pivotOffset);
+
+            // We must record where the pivot is relative to the target 
+            _localPivot = target.InverseTransformPoint(worldPivot);
 
             target.localScale = startScale;
-
-            _cachedPivotRotation = GetRotPivot(false);
-            _cachedPivotWorld = GetWorldPivot(false);
-            _catchLocalPivot = GetLocalPivot(false);
         }
         
         public void OnUpdate(float progress, bool inverse, float delta)
         {
-            if (!target)
-                return;
+            if (!target) return;
 
             var currentScale = EvaluateScale(progress);
+        
+            // Apply scale first
             target.localScale = currentScale;
+
+            // Update position so the pivot point appears stationary in local space
             target.localPosition = ComputeLocalPosition(currentScale);
-        }
-
-        private Quaternion GetRotPivot(bool useCached)
-        {
-            return useCached ? _cachedPivotRotation : (pivot ? pivot : transform).rotation;
-        }
-
-        private Vector3 GetWorldPivot(bool useCached)
-        {
-            return useCached
-                ? _cachedPivotWorld
-                : (pivot ? pivot : transform).position + (GetRotPivot(false) * pivotOffset);
-        }
-
-        private Vector3 GetLocalPivot(bool useCached)
-        {
-            return useCached ? _catchLocalPivot : target.InverseTransformPoint(GetWorldPivot(false));
+            
+            Debug.LogError("Moving platform");
         }
         
         private Vector3 EvaluateScale(float progress)
         {
             progress = Mathf.Clamp01(progress);
+            
+            var start = startScale;
+            var end = endScale;
 
-            if (scaleAxis <= 0)
-                return Vector3.LerpUnclamped(startScale, endScale, progress);
-
-            var scale = startScale;
-
-            switch (scaleAxis)
+            return scaleAxis switch
             {
-                case 1:
-                    scale.x = Mathf.LerpUnclamped(startScale.x, endScale.x, progress);
-                    break;
-
-                case 2:
-                    scale.y = Mathf.LerpUnclamped(startScale.y, endScale.y, progress);
-                    break;
-
-                default:
-                    scale.z = Mathf.LerpUnclamped(startScale.z, endScale.z, progress);
-                    break;
-            }
-
-            return scale;
+                1 => new Vector3(Mathf.LerpUnclamped(start.x, end.x, progress), start.y, start.z),
+                2 => new Vector3(start.x, Mathf.LerpUnclamped(start.y, end.y, progress), start.z),
+                3 => new Vector3(start.x, start.y, Mathf.LerpUnclamped(start.z, end.z, progress)),
+                _ => Vector3.LerpUnclamped(start, end, progress)
+            };
         }
 
         private Vector3 ComputeLocalPosition(Vector3 scale)
         {
-            var pivotInParentSpace = target.parent
-                ? target.parent.InverseTransformPoint(GetWorldPivot(catchTransform))
-                : GetWorldPivot(catchTransform);
+            // Calculate where the pivot is in the target's local space right now
+            var scaledLocalP = Vector3.Scale(scale, _localPivot);
+        
+            // Convert to the parent's space
+            var rotScaledP = target.localRotation * scaledLocalP;
+        
+            // If the pivot is a child of the same platform, its localPosition is constant
+            var p = GetWorldPivot(catchTransform);
+            if (target.parent)
+            {
+                p = target.parent.InverseTransformPoint(p);
+            }
 
-            var scaledLocalPivot = Vector3.Scale(scale, GetLocalPivot(catchTransform));
-            var rotatedScaledPivot = target.localRotation * scaledLocalPivot;
+            return p - rotScaledP;
+        }
 
-            return pivotInParentSpace - rotatedScaledPivot;
+        private Vector3 GetWorldPivot(bool useCached)
+        {
+            // If moving, always fetch the live position of the pivot transform
+            var p = (pivot ? pivot : transform);
+            return p.position + (p.rotation * pivotOffset);
         }
 
 #if UNITY_EDITOR
@@ -167,44 +158,21 @@ namespace RushRift.Environment
 
         private Vector3 GetPreviewScale(float progress)
         {
-            if (scaleAxis <= 0)
-                return Vector3.LerpUnclamped(startScale, endScale, progress);
-
-            var scale = startScale;
-
-            switch (scaleAxis)
-            {
-                case 1:
-                    scale.x = Mathf.LerpUnclamped(startScale.x, endScale.x, progress);
-                    break;
-
-                case 2:
-                    scale.y = Mathf.LerpUnclamped(startScale.y, endScale.y, progress);
-                    break;
-
-                default:
-                    scale.z = Mathf.LerpUnclamped(startScale.z, endScale.z, progress);
-                    break;
-            }
-
-            return scale;
+            return EvaluateScale(progress);
         }
 
-        private static Vector3 ComputePreviewLocalPosition(
-            Transform target,
-            Vector3 pivotWorld,
-            Vector3 pivotLocalOnTarget,
-            Vector3 scale)
+        private static Vector3 ComputePreviewLocalPosition(Transform target, Vector3 pivotWorld, Vector3 pivotLocalOnTarget, Vector3 scale)
         {
-            Vector3 pivotInParentSpace = target.parent
-                ? target.parent.InverseTransformPoint(pivotWorld)
-                : pivotWorld;
+            if (!target) return Vector3.zero;
+            
+            var p = target.parent ? target.parent.InverseTransformPoint(pivotWorld) : pivotWorld;
 
-            Vector3 scaledLocalPivot = Vector3.Scale(scale, pivotLocalOnTarget);
-            Vector3 rotatedScaledPivot = target.localRotation * scaledLocalPivot;
+            var scaledLocalPivot = Vector3.Scale(scale, pivotLocalOnTarget);
+            var rotatedScaledPivot = target.localRotation * scaledLocalPivot;
 
-            return pivotInParentSpace - rotatedScaledPivot;
+            return p - rotatedScaledPivot;
         }
 #endif
+        
     }
 }

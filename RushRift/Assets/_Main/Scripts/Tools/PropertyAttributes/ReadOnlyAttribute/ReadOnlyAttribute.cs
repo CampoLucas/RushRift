@@ -21,12 +21,18 @@ namespace Tools.Scripts.PropertyAttributes
     
     public class HideIfAttribute : PropertyAttribute
     {
-        public readonly string BoolFieldName;
+        public readonly string[] BoolFieldNames;
         public readonly bool Value;
 
-        public HideIfAttribute(string boolFieldName, bool value = false)
+        public HideIfAttribute(string boolField, bool value = false)
         {
-            BoolFieldName = boolFieldName;
+            BoolFieldNames = new[] { boolField };
+            Value = value;
+        }
+
+        public HideIfAttribute(string[] boolFields, bool value = false)
+        {
+            BoolFieldNames = boolFields;
             Value = value;
         }
     }

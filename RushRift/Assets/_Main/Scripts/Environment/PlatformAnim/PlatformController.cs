@@ -17,16 +17,18 @@ namespace RushRift.Environment
         public float Progress { get; private set; }
         public bool IsRunning { get; private set; }
         public bool IsInverse { get; private set; }
-        
+
         [Header("Animation Settings")]
-        [SerializeField] private float duration = 1f;
-        [SerializeField] private bool useCurve = true;
-        [SerializeField, HideIf(nameof(useCurve), false)] private AnimationCurve curve = AnimationCurve.Linear(0, 0, 1, 1);
+        [SerializeField] private bool instant;
+        [SerializeField, ReadOnlyIf(nameof(instant), true)] private float duration = 1f;
+        [SerializeField, ReadOnlyIf(nameof(instant), true)] private bool useCurve = true;
+        [SerializeField, ReadOnlyIf(nameof(instant), true), HideIf(nameof(useCurve), false)] private AnimationCurve curve = AnimationCurve.Linear(0, 0, 1, 1);
         
         [Header("Animation Modules")]
         [SerializeField] private PlatformModule[] modules;
 
         [Header("Activation Settings")]
+        [SerializeField] private bool invertStartDir = false;
         [SerializeField] private float startProgress = 0;
         [SerializeField] private bool isToggle = false;
         [SerializeField, HideIf(nameof(isToggle), true)] private bool overrideArgs = false;
@@ -37,19 +39,27 @@ namespace RushRift.Environment
         private List<IPlatEndModule> _endModules = new();
 
         private float _direction;
-
-        
         
         private void Awake()
         {
             if (modules == null || modules.Length == 0) return;
+            
             _startModules.AddRange(modules.OfType<IPlatStartModule>());
             _updateModules.AddRange(modules.OfType<IPlatUpdateModule>());
             _endModules.AddRange(modules.OfType<IPlatEndModule>());
 
             for (var i = 0; i < modules.Length; i++)
             {
-                modules[i].Initialize(this);
+                modules[i]?.Initialize(this);
+            }
+
+            if (startProgress <= 0)
+            {
+                invertStartDir = true;
+            }
+            else if (startProgress >= 1)
+            {
+                invertStartDir = false;
             }
             
         }
@@ -58,7 +68,7 @@ namespace RushRift.Environment
         {
             if (startProgress >= 0)
             {
-                StartPlatform(false, startProgress);
+                StartPlatform(false, startProgress, direction: invertStartDir);
             }
         }
 
@@ -69,74 +79,76 @@ namespace RushRift.Environment
 
         public void Open()
         {
-            StartPlatform(false);
+            StartPlatform(false, isInstant: instant, direction: !IsInverse);
         }
 
         public void Close()
         {
-            StartPlatform(true);
+            StartPlatform(true, isInstant: instant, direction: !IsInverse);
         }
 
-        private void StartPlatform(bool inverse, float startProgress = -1)
+        private void StartPlatform(bool inverse, float sProgress = -1, bool isInstant = false, bool direction = false)
         {
-            IsInverse = inverse;
-            _direction = inverse ? -1f : 1f;
-            IsRunning = true;
+            IsInverse = direction;
+            _direction = direction ? -1f : 1f;
 
-            if (startProgress >= 0)
+            if (sProgress >= 0)
             {
-                Progress = Mathf.Clamp01(startProgress);
+                Progress = Mathf.Clamp01(sProgress);
             }
 
+            // Trigger Start Modules
             for (var i = 0; i < _startModules.Count; i++)
             {
-                var m = _startModules[i];
-                if (m == null)
-                {
-                    this.Log("Trying to call a null start module.", LogType.Warning);
-                    continue;
-                }
-                
-                m.OnStart(inverse);
+                _startModules[i]?.OnStart(inverse);
             }
+
+            if (isInstant)
+            {
+                Progress = direction ? 0f : 1f; // Set to final state immediately
+                Finish();
+                return;
+            }
+            
+            IsRunning = true;
         }
 
         private void UpdatePlatform(float delta)
         {
-            if (!IsRunning) return;
+            if (!IsRunning || instant) return;
 
-            Progress += _direction * (delta / duration);
-            Progress = Mathf.Clamp01(Progress);
-
+            var rawProgress = Progress + (_direction * (delta / duration));
+            Progress = Mathf.Clamp01(rawProgress);
+            
+            var evaluatedProgress = useCurve && curve != null ? curve.Evaluate(Progress) : Progress;
+            
             for (var i = 0; i < _updateModules.Count; i++)
             {
-                var m = _updateModules[i];
-                if (m == null)
-                {
-                    this.Log("Trying to call a null update module.", LogType.Warning);
-                    continue;
-                }
-                
-                m.OnUpdate(Progress, IsInverse, delta);
+                _updateModules[i]?.OnUpdate(evaluatedProgress, IsInverse, delta);
             }
 
-            var finished = (IsInverse && Progress >= 1f) || (!IsInverse && Progress <= 0f);
+            var finished = (IsInverse && Progress <= 0f) || (!IsInverse && Progress >= 1f);
 
             if (finished)
             {
-                IsRunning = false;
+                Finish();
+            }
+        }
 
-                for (var i = 0; i < _endModules.Count; i++)
-                {
-                    var m = _endModules[i];
-                    if (m == null)
-                    {
-                        this.Log("Trying to call a null end module.", LogType.Warning);
-                        continue;
-                    }
-                    
-                    m.OnEnd(IsInverse);
-                }
+        private void Finish()
+        {
+            IsRunning = false;
+            
+            // Ensure update modules get the absolute final value (0 or 1)
+            var finalValue = IsInverse ? 0f : 1f;
+            for (var i = 0; i < _updateModules.Count; i++)
+            {
+                _updateModules[i]?.OnUpdate(finalValue, IsInverse, 0);
+            }
+
+            for (var i = 0; i < _endModules.Count; i++)
+            {
+                _endModules[i]?.OnEnd(IsInverse);
             }
         }
 
@@ -148,7 +160,7 @@ namespace RushRift.Environment
                 {
                     Open();
                 }
-                else
+                else if (arg == CloseArg())
                 {
                     Close();
                 }
@@ -168,5 +180,18 @@ namespace RushRift.Environment
 
         private string OpenArg() => overrideArgs ? openArg : Terminal.ON_ARGUMENT;
         private string CloseArg() => overrideArgs ? closeArg : Terminal.OFF_ARGUMENT;
+        
+        private void OnDestroy()
+        {
+            _startModules?.Clear();
+            _updateModules?.Clear();
+            _endModules?.Clear();
+            
+            _startModules = null;
+            _updateModules = null;
+            _endModules = null;
+
+            modules = null;
+        }
     }
 }

@@ -78,7 +78,7 @@ namespace Tools.Scripts.PropertyAttributes
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = (HideIfAttribute)attribute;
-            var shouldShow = GetBoolValue(property, attr.BoolFieldName, attr.Value);
+            var shouldShow = GetBoolValue(property, attr.BoolFieldNames, attr.Value);
 
             if (!shouldShow)
                 return;
@@ -89,7 +89,7 @@ namespace Tools.Scripts.PropertyAttributes
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var attr = (HideIfAttribute)attribute;
-            var shouldShow = GetBoolValue(property, attr.BoolFieldName, attr.Value);
+            var shouldShow = GetBoolValue(property, attr.BoolFieldNames, attr.Value);
 
             if (!shouldShow)
                 return 0f;
@@ -97,6 +97,19 @@ namespace Tools.Scripts.PropertyAttributes
             return EditorGUI.GetPropertyHeight(property, label, true);
         }
 
+        private bool GetBoolValue(SerializedProperty property, string[] boolFieldNames, bool value)
+        {
+            for (var i = 0; i < boolFieldNames.Length; i++)
+            {
+                if (!GetBoolValue(property, boolFieldNames[i], value))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        
         private bool GetBoolValue(SerializedProperty property, string boolFieldName, bool value)
         {
             var boolProp = FindRelativeProperty(property, boolFieldName);
