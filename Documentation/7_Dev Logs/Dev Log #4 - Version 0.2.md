@@ -1,0 +1,57 @@
+- Reworked the lock on blink: it consumes 1 of energy and now it has a max distance that is boosted by the amount of energy that the player has by a small percentage. It is dysplayed in the crosshair as a number.
+- new 5 levels
+- The level 1 is now the level 3.
+- The level 2 is now  the level 4.
+- The level 3 is now the level 8.
+- Text to teach how to use the lock on blink, that says "Hold Dash" on the level 4.
+- new Level mutations system: Levels change layout with each medal you unlock. (its not procedural)
+- Fixed mouse disapearing on the menues
+- Fixed the medal pannel's icon only appearing in the level 1: the medal icons that indicates the unlocked medals when playing the level.
+- New level selector with a hologram look.
+- Game over screen.
+- New slidding metal door in the level 3.
+- New texture for the tutorial.
+- New Layout for the tutorial.
+- The portal changes color when selecting levels.
+- The player can restart presing "R" on the level won screen.
+- New tile textures for the platforms.
+- New textures for the background platform.
+- New textures for the player's hand.
+- Removed the left hand of the player.
+
+## Mechanics and Gameplay
+- **Lock-on Blink Overhaul:** 
+	- Consumes 1 energy per use.
+	- Has a max blink distance.
+	- Added a scaling mechanic: total distance is boosted by a percentage of the player's current energy.
+	- The boost is displayed in the crosshair.
+- **Level Mutation System:**
+	- Introduced a non-procedural system, that changes the layout of the level based on the number of medals unlocked.
+- **Player Controls:**
+	- Now by pressing the "R" key on the "Level Won" screen, the level is reseted.
+- **Character Model:**
+	- Removed the player's left hand.
+## Level Design and Progression
+- **Content Expansion:** Added 5 new levels.
+- **Level Reordering:**
+	- Original Level 1 is now the Level 3.
+	- Original Level 2 is now the Level 4.
+	- Original Level 3 is now the Level 8.
+- **Tutorial Upgrades:**
+	- Rework of the tutorial layout and textures.
+	- Added a "Hold Dash" instructional prompt specifically for Level 4 to introduce the Lock-on Blink mechanic.
+- **Environment:**
+	- Added a sliding metal door asset to the Level 3.
+## Visual and User Interface (UI)
+- **Level Selection:** 
+	- Implemented a new hologram-style level selector.
+	- The portal now changes color when selecting levels.
+- **Asset Upgrades:**
+	- New tiles textures for the platforms.
+	- New background building textures.
+	- New texture for the player's hand.
+- **New Screen:** Added a dedicated "Game Over" screen.
+## Bug Fixes
+- **UI/UX:**
+	- Resolved an issue where the mouse cursor would disappear while navigating menus.
+	- Fixed a bug where medal icons (indicating progress during gameplay) were only visible on Level 1.

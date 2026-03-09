@@ -13,46 +13,46 @@ namespace Game.Levels
     [CreateAssetMenu(menuName = "Game/Levels/Rush", fileName = "New Rush Config")]
     public class LevelRushSO : CompositeLevelSO
     {
-        public override async UniTask LoadFirstAsync(GlobalLevelManager manager)
-        {
-            if (LevelCount() == 0)
-            {
-                this.Log("RushSO has no levels", LogType.Warning);
-                return;
-            }
-
-            var first = Levels[0];
-            await manager.AwaitLoadLevelScene(first.SceneName);
-            manager.LevelIndex = 0;
-        }
-        
-        public override async UniTask LoadNextAsync(GlobalLevelManager manager)
-        {
-            var index = manager.LevelIndex;
-            if (index >= LevelCount() - 1)
-            {
-                this.Log("Rush finished!");
-                return;
-            }
-
-            var current = Levels[index];
-
-            var nextIndex = index + 1;
-            var next = Levels[nextIndex];
-            
-            // Preload next scene when triggered
-            await manager.AwaitLoadLevelScene(next.SceneName, preloaded: true);
-
-            // Wait until current level signals “end gate reached”
-            await UniTask.WaitUntil(() => manager.ReachedNextZone);
-
-            // Unload current, promote next
-            await manager.WaitUnloadScene(current.SceneName);
-            manager.LevelIndex = nextIndex;
-
-            // Reset trigger
-            manager.ReachedNextZone = false;
-        }
+        // public override async UniTask LoadFirstAsync(GlobalLevelManager manager)
+        // {
+        //     if (LevelCount() == 0)
+        //     {
+        //         this.Log("RushSO has no levels", LogType.Warning);
+        //         return;
+        //     }
+        //
+        //     var first = Levels[0];
+        //     await manager.AwaitLoadLevelScene(first.SceneName);
+        //     manager.LevelIndex = 0;
+        // }
+        //
+        // public override async UniTask LoadNextAsync(GlobalLevelManager manager)
+        // {
+        //     var index = manager.LevelIndex;
+        //     if (index >= LevelCount() - 1)
+        //     {
+        //         this.Log("Rush finished!");
+        //         return;
+        //     }
+        //
+        //     var current = Levels[index];
+        //
+        //     var nextIndex = index + 1;
+        //     var next = Levels[nextIndex];
+        //     
+        //     // Preload next scene when triggered
+        //     await manager.AwaitLoadLevelScene(next.SceneName, preloaded: true);
+        //
+        //     // Wait until current level signals “end gate reached”
+        //     await UniTask.WaitUntil(() => manager.ReachedNextZone);
+        //
+        //     // Unload current, promote next
+        //     await manager.WaitUnloadScene(current.SceneName);
+        //     manager.LevelIndex = nextIndex;
+        //
+        //     // Reset trigger
+        //     manager.ReachedNextZone = false;
+        // }
 
         public override bool IsUnlocked(List<BaseLevelSO> levelsList, int currIndex)
         {

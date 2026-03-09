@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using MyTools.Global;
 using UnityEngine;
@@ -20,11 +21,18 @@ namespace Game.Levels
 
             return Levels[index];
         }
-
-        public sealed override async UniTask LoadAsync(GlobalLevelManager manager)
+        
+        public sealed override IReadOnlyList<LevelSceneRequest> GetSceneLoadRequests()
+        {
+            // ToDo: check the index and get the next scene instead.
+            var level = GetLevel(0);
+            return !level ? System.Array.Empty<LevelSceneRequest>() : level.GetSceneLoadRequests();
+        }
+        
+        public override UniTask OnScenesLoadedAsync(GlobalLevelManager manager, CancellationToken ct = default)
         {
             manager.LevelIndex = 0;
-            await LoadFirstAsync(manager);
+            return UniTask.CompletedTask;
         }
     }
 }
