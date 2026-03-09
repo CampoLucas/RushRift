@@ -23,6 +23,7 @@ Shader "Game/S_TileArray"
 		_TileIsetTexels( "Tile Iset Texels", Range( 0, 2 ) ) = 0
 		_Seed( "Seed", Float ) = 0
 		[Toggle] _InvertRoughness( "Invert", Float ) = 0
+		_UseWorldPosAsUV( "UseWorldPosAsUV", Float ) = 0
 
 
 		//_TransmissionShadow( "Transmission Shadow", Range( 0, 1 ) ) = 0.5
@@ -354,26 +355,28 @@ Shader "Game/S_TileArray"
 					float2 dynamicLightmapUV : TEXCOORD5;
 				#endif
 				float4 ase_texcoord6 : TEXCOORD6;
+				float4 ase_texcoord7 : TEXCOORD7;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -422,6 +425,7 @@ Shader "Game/S_TileArray"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 				output.ase_texcoord6.xy = input.texcoord.xy;
+				output.ase_texcoord7 = input.positionOS;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				output.ase_texcoord6.zw = 0;
@@ -629,70 +633,71 @@ Shader "Game/S_TileArray"
 					BitangentWS = cross(NormalWS, -TangentWS);
 				#endif
 
-				float localtile_array_compute_uv1_g26 = ( 0.0 );
+				float localtile_array_compute_uv1_g29 = ( 0.0 );
 				float2 texCoord224 = input.ase_texcoord6.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 base_uv1_g26 = texCoord224;
+				float2 lerpResult253 = lerp( texCoord224 , (input.ase_texcoord7.xyz).xy , _UseWorldPosAsUV);
+				float2 base_uv1_g29 = lerpResult253;
 				float slice_count16 = _SliceCount;
-				float slice_count1_g26 = slice_count16;
+				float slice_count1_g29 = slice_count16;
 				float use_random_slice19 = saturate( ceil( _RandomSlice ) );
-				float use_random_slice1_g26 = (float)(int)use_random_slice19;
+				float use_random_slice1_g29 = (float)(int)use_random_slice19;
 				int slice_index22 = _SliceIndex;
-				float manual_slice_index1_g26 = (float)slice_index22;
+				float manual_slice_index1_g29 = (float)slice_index22;
 				float use_random_rotation26 = saturate( ceil( _RandomRotation ) );
-				float use_random_rotation1_g26 = (float)(int)use_random_rotation26;
+				float use_random_rotation1_g29 = (float)(int)use_random_rotation26;
 				float rotation29 = _Rotation;
-				float manual_rotation1_g26 = (float)(int)rotation29;
+				float manual_rotation1_g29 = (float)(int)rotation29;
 				float4 tiling34 = ( _Tiling * _TilingScale );
-				float4 tiling1_g26 = tiling34;
+				float4 tiling1_g29 = tiling34;
 				float tile_inset36 = _TileIsetTexels;
-				float tile_inset1_g26 = tile_inset36;
+				float tile_inset1_g29 = tile_inset36;
 				float seed39 = _Seed;
-				float seed50_g26 = seed39;
-				float seed1_g26 = seed50_g26;
-				float2 uv_slice1_g26 = float2( 0,0 );
-				int slice1_g26 = 0;
-				float2 ddx_rot1_g26 = float2( 0,0 );
-				float2 ddy_rot1_g26 = float2( 0,0 );
-				float2 tile_id1_g26 = float2( 0,0 );
-				tile_array_compute_uv( base_uv1_g26 , slice_count1_g26 , use_random_slice1_g26 , manual_slice_index1_g26 , use_random_rotation1_g26 , manual_rotation1_g26 , tiling1_g26 , tile_inset1_g26 , seed1_g26 , uv_slice1_g26 , slice1_g26 , ddx_rot1_g26 , ddy_rot1_g26 , tile_id1_g26 );
-				float2 uv_slice3_g26 = uv_slice1_g26;
-				int slice4_g26 = slice1_g26;
-				float2 ddx_rot5_g26 = ddx_rot1_g26;
-				float2 ddy_rot6_g26 = ddy_rot1_g26;
-				float4 tex2DArrayNode26_g26 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g26,(float)slice4_g26, ddx_rot5_g26, ddy_rot6_g26 );
+				float seed50_g29 = seed39;
+				float seed1_g29 = seed50_g29;
+				float2 uv_slice1_g29 = float2( 0,0 );
+				int slice1_g29 = 0;
+				float2 ddx_rot1_g29 = float2( 0,0 );
+				float2 ddy_rot1_g29 = float2( 0,0 );
+				float2 tile_id1_g29 = float2( 0,0 );
+				tile_array_compute_uv( base_uv1_g29 , slice_count1_g29 , use_random_slice1_g29 , manual_slice_index1_g29 , use_random_rotation1_g29 , manual_rotation1_g29 , tiling1_g29 , tile_inset1_g29 , seed1_g29 , uv_slice1_g29 , slice1_g29 , ddx_rot1_g29 , ddy_rot1_g29 , tile_id1_g29 );
+				float2 uv_slice3_g29 = uv_slice1_g29;
+				int slice4_g29 = slice1_g29;
+				float2 ddx_rot5_g29 = ddx_rot1_g29;
+				float2 ddy_rot6_g29 = ddy_rot1_g29;
+				float4 tex2DArrayNode26_g29 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g29,(float)slice4_g29, ddx_rot5_g29, ddy_rot6_g29 );
 				float4 base_color221 = _BaseColor;
-				float4 temp_output_2_0_g27 = base_color221;
-				float2 tile_id7_g26 = tile_id1_g26;
-				float2 title_id38_g26 = tile_id7_g26;
+				float4 temp_output_2_0_g30 = base_color221;
+				float2 tile_id7_g29 = tile_id1_g29;
+				float2 title_id38_g29 = tile_id7_g29;
 				float brightness_variation31 = _BrightnessVariation;
-				float brightness_variance38_g26 = brightness_variation31;
-				float seed38_g26 = seed50_g26;
-				float localbrightness_variance38_g26 = brightness_variance( title_id38_g26 , brightness_variance38_g26 , seed38_g26 );
-				float bright_variant39_g26 = localbrightness_variance38_g26;
-				float4 appendResult4_g28 = (float4(( ( tex2DArrayNode26_g26.rgb * (temp_output_2_0_g27).rgb ) * bright_variant39_g26 ) , ( tex2DArrayNode26_g26.a * (temp_output_2_0_g27).a )));
+				float brightness_variance38_g29 = brightness_variation31;
+				float seed38_g29 = seed50_g29;
+				float localbrightness_variance38_g29 = brightness_variance( title_id38_g29 , brightness_variance38_g29 , seed38_g29 );
+				float bright_variant39_g29 = localbrightness_variance38_g29;
+				float4 appendResult4_g31 = (float4(( ( tex2DArrayNode26_g29.rgb * (temp_output_2_0_g30).rgb ) * bright_variant39_g29 ) , ( tex2DArrayNode26_g29.a * (temp_output_2_0_g30).a )));
 				
-				float4 tex2DArrayNode24_g26 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArrayARME, sampler_TexArrayARME, uv_slice3_g26,(float)slice4_g26, ddx_rot5_g26, ddy_rot6_g26 );
-				float metalic_map61_g26 = tex2DArrayNode24_g26.b;
-				float temp_output_104_0_g26 = _MetalicIntensity;
-				float lerpResult81_g26 = lerp( 0.0 , ( metalic_map61_g26 * temp_output_104_0_g26 ) , ceil( temp_output_104_0_g26 ));
+				float4 tex2DArrayNode24_g29 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArrayARME, sampler_TexArrayARME, uv_slice3_g29,(float)slice4_g29, ddx_rot5_g29, ddy_rot6_g29 );
+				float metalic_map61_g29 = tex2DArrayNode24_g29.b;
+				float temp_output_104_0_g29 = _MetalicIntensity;
+				float lerpResult81_g29 = lerp( 0.0 , ( metalic_map61_g29 * temp_output_104_0_g29 ) , ceil( temp_output_104_0_g29 ));
 				
-				float roughness_map60_g26 = tex2DArrayNode24_g26.g;
-				float lerpResult82_g26 = lerp( ( 1.0 - roughness_map60_g26 ) , roughness_map60_g26 , (float)saturate( (int)_InvertRoughness ));
-				float temp_output_106_0_g26 = _RoughnessIntensity;
-				float lerpResult90_g26 = lerp( 0.0 , ( lerpResult82_g26 * temp_output_106_0_g26 ) , ceil( temp_output_106_0_g26 ));
+				float roughness_map60_g29 = tex2DArrayNode24_g29.g;
+				float lerpResult82_g29 = lerp( ( 1.0 - roughness_map60_g29 ) , roughness_map60_g29 , (float)saturate( (int)_InvertRoughness ));
+				float temp_output_106_0_g29 = _RoughnessIntensity;
+				float lerpResult90_g29 = lerp( 0.0 , ( lerpResult82_g29 * temp_output_106_0_g29 ) , ceil( temp_output_106_0_g29 ));
 				
-				float emissive_map62_g26 = tex2DArrayNode24_g26.a;
-				float temp_output_103_0_g26 = _EmisiveIntensity;
-				float4 lerpResult71_g26 = lerp( float4( 0,0,0,0 ) , ( emissive_map62_g26 * _EmisiveColor * temp_output_103_0_g26 ) , ceil( saturate( temp_output_103_0_g26 ) ));
+				float emissive_map62_g29 = tex2DArrayNode24_g29.r;
+				float temp_output_103_0_g29 = _EmisiveIntensity;
+				float4 lerpResult71_g29 = lerp( float4( 0,0,0,0 ) , ( emissive_map62_g29 * _EmisiveColor * temp_output_103_0_g29 ) , ceil( saturate( temp_output_103_0_g29 ) ));
 				
 
-				float3 BaseColor = appendResult4_g28.xyz;
+				float3 BaseColor = appendResult4_g31.xyz;
 				float3 Normal = float3(0, 0, 1);
 				float3 Specular = 0.5;
-				float Metallic = lerpResult81_g26;
-				float Smoothness = lerpResult90_g26;
+				float Metallic = lerpResult81_g29;
+				float Smoothness = lerpResult90_g29;
 				float Occlusion = 1;
-				float3 Emission = lerpResult71_g26.rgb;
+				float3 Emission = lerpResult71_g29.rgb;
 				float Alpha = 1;
 				#if defined( _ALPHATEST_ON )
 					float AlphaClipThreshold = _Cutoff;
@@ -1037,21 +1042,22 @@ Shader "Game/S_TileArray"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -1375,21 +1381,22 @@ Shader "Game/S_TileArray"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -1670,26 +1677,28 @@ Shader "Game/S_TileArray"
 					float4 LightCoord : TEXCOORD2;
 				#endif
 				float4 ase_texcoord3 : TEXCOORD3;
+				float4 ase_texcoord4 : TEXCOORD4;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -1738,6 +1747,7 @@ Shader "Game/S_TileArray"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 				output.ase_texcoord3.xy = input.texcoord.xy;
+				output.ase_texcoord4 = input.positionOS;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				output.ase_texcoord3.zw = 0;
@@ -1878,56 +1888,57 @@ Shader "Game/S_TileArray"
 				float3 PositionRWS = GetCameraRelativePositionWS( input.positionWS );
 				float4 ShadowCoord = shadowCoord;
 
-				float localtile_array_compute_uv1_g26 = ( 0.0 );
+				float localtile_array_compute_uv1_g29 = ( 0.0 );
 				float2 texCoord224 = input.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 base_uv1_g26 = texCoord224;
+				float2 lerpResult253 = lerp( texCoord224 , (input.ase_texcoord4.xyz).xy , _UseWorldPosAsUV);
+				float2 base_uv1_g29 = lerpResult253;
 				float slice_count16 = _SliceCount;
-				float slice_count1_g26 = slice_count16;
+				float slice_count1_g29 = slice_count16;
 				float use_random_slice19 = saturate( ceil( _RandomSlice ) );
-				float use_random_slice1_g26 = (float)(int)use_random_slice19;
+				float use_random_slice1_g29 = (float)(int)use_random_slice19;
 				int slice_index22 = _SliceIndex;
-				float manual_slice_index1_g26 = (float)slice_index22;
+				float manual_slice_index1_g29 = (float)slice_index22;
 				float use_random_rotation26 = saturate( ceil( _RandomRotation ) );
-				float use_random_rotation1_g26 = (float)(int)use_random_rotation26;
+				float use_random_rotation1_g29 = (float)(int)use_random_rotation26;
 				float rotation29 = _Rotation;
-				float manual_rotation1_g26 = (float)(int)rotation29;
+				float manual_rotation1_g29 = (float)(int)rotation29;
 				float4 tiling34 = ( _Tiling * _TilingScale );
-				float4 tiling1_g26 = tiling34;
+				float4 tiling1_g29 = tiling34;
 				float tile_inset36 = _TileIsetTexels;
-				float tile_inset1_g26 = tile_inset36;
+				float tile_inset1_g29 = tile_inset36;
 				float seed39 = _Seed;
-				float seed50_g26 = seed39;
-				float seed1_g26 = seed50_g26;
-				float2 uv_slice1_g26 = float2( 0,0 );
-				int slice1_g26 = 0;
-				float2 ddx_rot1_g26 = float2( 0,0 );
-				float2 ddy_rot1_g26 = float2( 0,0 );
-				float2 tile_id1_g26 = float2( 0,0 );
-				tile_array_compute_uv( base_uv1_g26 , slice_count1_g26 , use_random_slice1_g26 , manual_slice_index1_g26 , use_random_rotation1_g26 , manual_rotation1_g26 , tiling1_g26 , tile_inset1_g26 , seed1_g26 , uv_slice1_g26 , slice1_g26 , ddx_rot1_g26 , ddy_rot1_g26 , tile_id1_g26 );
-				float2 uv_slice3_g26 = uv_slice1_g26;
-				int slice4_g26 = slice1_g26;
-				float2 ddx_rot5_g26 = ddx_rot1_g26;
-				float2 ddy_rot6_g26 = ddy_rot1_g26;
-				float4 tex2DArrayNode26_g26 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g26,(float)slice4_g26, ddx_rot5_g26, ddy_rot6_g26 );
+				float seed50_g29 = seed39;
+				float seed1_g29 = seed50_g29;
+				float2 uv_slice1_g29 = float2( 0,0 );
+				int slice1_g29 = 0;
+				float2 ddx_rot1_g29 = float2( 0,0 );
+				float2 ddy_rot1_g29 = float2( 0,0 );
+				float2 tile_id1_g29 = float2( 0,0 );
+				tile_array_compute_uv( base_uv1_g29 , slice_count1_g29 , use_random_slice1_g29 , manual_slice_index1_g29 , use_random_rotation1_g29 , manual_rotation1_g29 , tiling1_g29 , tile_inset1_g29 , seed1_g29 , uv_slice1_g29 , slice1_g29 , ddx_rot1_g29 , ddy_rot1_g29 , tile_id1_g29 );
+				float2 uv_slice3_g29 = uv_slice1_g29;
+				int slice4_g29 = slice1_g29;
+				float2 ddx_rot5_g29 = ddx_rot1_g29;
+				float2 ddy_rot6_g29 = ddy_rot1_g29;
+				float4 tex2DArrayNode26_g29 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g29,(float)slice4_g29, ddx_rot5_g29, ddy_rot6_g29 );
 				float4 base_color221 = _BaseColor;
-				float4 temp_output_2_0_g27 = base_color221;
-				float2 tile_id7_g26 = tile_id1_g26;
-				float2 title_id38_g26 = tile_id7_g26;
+				float4 temp_output_2_0_g30 = base_color221;
+				float2 tile_id7_g29 = tile_id1_g29;
+				float2 title_id38_g29 = tile_id7_g29;
 				float brightness_variation31 = _BrightnessVariation;
-				float brightness_variance38_g26 = brightness_variation31;
-				float seed38_g26 = seed50_g26;
-				float localbrightness_variance38_g26 = brightness_variance( title_id38_g26 , brightness_variance38_g26 , seed38_g26 );
-				float bright_variant39_g26 = localbrightness_variance38_g26;
-				float4 appendResult4_g28 = (float4(( ( tex2DArrayNode26_g26.rgb * (temp_output_2_0_g27).rgb ) * bright_variant39_g26 ) , ( tex2DArrayNode26_g26.a * (temp_output_2_0_g27).a )));
+				float brightness_variance38_g29 = brightness_variation31;
+				float seed38_g29 = seed50_g29;
+				float localbrightness_variance38_g29 = brightness_variance( title_id38_g29 , brightness_variance38_g29 , seed38_g29 );
+				float bright_variant39_g29 = localbrightness_variance38_g29;
+				float4 appendResult4_g31 = (float4(( ( tex2DArrayNode26_g29.rgb * (temp_output_2_0_g30).rgb ) * bright_variant39_g29 ) , ( tex2DArrayNode26_g29.a * (temp_output_2_0_g30).a )));
 				
-				float4 tex2DArrayNode24_g26 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArrayARME, sampler_TexArrayARME, uv_slice3_g26,(float)slice4_g26, ddx_rot5_g26, ddy_rot6_g26 );
-				float emissive_map62_g26 = tex2DArrayNode24_g26.a;
-				float temp_output_103_0_g26 = _EmisiveIntensity;
-				float4 lerpResult71_g26 = lerp( float4( 0,0,0,0 ) , ( emissive_map62_g26 * _EmisiveColor * temp_output_103_0_g26 ) , ceil( saturate( temp_output_103_0_g26 ) ));
+				float4 tex2DArrayNode24_g29 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArrayARME, sampler_TexArrayARME, uv_slice3_g29,(float)slice4_g29, ddx_rot5_g29, ddy_rot6_g29 );
+				float emissive_map62_g29 = tex2DArrayNode24_g29.r;
+				float temp_output_103_0_g29 = _EmisiveIntensity;
+				float4 lerpResult71_g29 = lerp( float4( 0,0,0,0 ) , ( emissive_map62_g29 * _EmisiveColor * temp_output_103_0_g29 ) , ceil( saturate( temp_output_103_0_g29 ) ));
 				
 
-				float3 BaseColor = appendResult4_g28.xyz;
-				float3 Emission = lerpResult71_g26.rgb;
+				float3 BaseColor = appendResult4_g31.xyz;
+				float3 Emission = lerpResult71_g29.rgb;
 				float Alpha = 1;
 				#if defined( _ALPHATEST_ON )
 					float AlphaClipThreshold = _Cutoff;
@@ -2025,26 +2036,28 @@ Shader "Game/S_TileArray"
 				float4 positionCS : SV_POSITION;
 				float3 positionWS : TEXCOORD0;
 				float4 ase_texcoord1 : TEXCOORD1;
+				float4 ase_texcoord2 : TEXCOORD2;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -2091,6 +2104,7 @@ Shader "Game/S_TileArray"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( output );
 
 				output.ase_texcoord1.xy = input.ase_texcoord.xy;
+				output.ase_texcoord2 = input.positionOS;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				output.ase_texcoord1.zw = 0;
@@ -2217,50 +2231,51 @@ Shader "Game/S_TileArray"
 				float3 PositionRWS = GetCameraRelativePositionWS( input.positionWS );
 				float4 ShadowCoord = shadowCoord;
 
-				float localtile_array_compute_uv1_g26 = ( 0.0 );
+				float localtile_array_compute_uv1_g29 = ( 0.0 );
 				float2 texCoord224 = input.ase_texcoord1.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 base_uv1_g26 = texCoord224;
+				float2 lerpResult253 = lerp( texCoord224 , (input.ase_texcoord2.xyz).xy , _UseWorldPosAsUV);
+				float2 base_uv1_g29 = lerpResult253;
 				float slice_count16 = _SliceCount;
-				float slice_count1_g26 = slice_count16;
+				float slice_count1_g29 = slice_count16;
 				float use_random_slice19 = saturate( ceil( _RandomSlice ) );
-				float use_random_slice1_g26 = (float)(int)use_random_slice19;
+				float use_random_slice1_g29 = (float)(int)use_random_slice19;
 				int slice_index22 = _SliceIndex;
-				float manual_slice_index1_g26 = (float)slice_index22;
+				float manual_slice_index1_g29 = (float)slice_index22;
 				float use_random_rotation26 = saturate( ceil( _RandomRotation ) );
-				float use_random_rotation1_g26 = (float)(int)use_random_rotation26;
+				float use_random_rotation1_g29 = (float)(int)use_random_rotation26;
 				float rotation29 = _Rotation;
-				float manual_rotation1_g26 = (float)(int)rotation29;
+				float manual_rotation1_g29 = (float)(int)rotation29;
 				float4 tiling34 = ( _Tiling * _TilingScale );
-				float4 tiling1_g26 = tiling34;
+				float4 tiling1_g29 = tiling34;
 				float tile_inset36 = _TileIsetTexels;
-				float tile_inset1_g26 = tile_inset36;
+				float tile_inset1_g29 = tile_inset36;
 				float seed39 = _Seed;
-				float seed50_g26 = seed39;
-				float seed1_g26 = seed50_g26;
-				float2 uv_slice1_g26 = float2( 0,0 );
-				int slice1_g26 = 0;
-				float2 ddx_rot1_g26 = float2( 0,0 );
-				float2 ddy_rot1_g26 = float2( 0,0 );
-				float2 tile_id1_g26 = float2( 0,0 );
-				tile_array_compute_uv( base_uv1_g26 , slice_count1_g26 , use_random_slice1_g26 , manual_slice_index1_g26 , use_random_rotation1_g26 , manual_rotation1_g26 , tiling1_g26 , tile_inset1_g26 , seed1_g26 , uv_slice1_g26 , slice1_g26 , ddx_rot1_g26 , ddy_rot1_g26 , tile_id1_g26 );
-				float2 uv_slice3_g26 = uv_slice1_g26;
-				int slice4_g26 = slice1_g26;
-				float2 ddx_rot5_g26 = ddx_rot1_g26;
-				float2 ddy_rot6_g26 = ddy_rot1_g26;
-				float4 tex2DArrayNode26_g26 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g26,(float)slice4_g26, ddx_rot5_g26, ddy_rot6_g26 );
+				float seed50_g29 = seed39;
+				float seed1_g29 = seed50_g29;
+				float2 uv_slice1_g29 = float2( 0,0 );
+				int slice1_g29 = 0;
+				float2 ddx_rot1_g29 = float2( 0,0 );
+				float2 ddy_rot1_g29 = float2( 0,0 );
+				float2 tile_id1_g29 = float2( 0,0 );
+				tile_array_compute_uv( base_uv1_g29 , slice_count1_g29 , use_random_slice1_g29 , manual_slice_index1_g29 , use_random_rotation1_g29 , manual_rotation1_g29 , tiling1_g29 , tile_inset1_g29 , seed1_g29 , uv_slice1_g29 , slice1_g29 , ddx_rot1_g29 , ddy_rot1_g29 , tile_id1_g29 );
+				float2 uv_slice3_g29 = uv_slice1_g29;
+				int slice4_g29 = slice1_g29;
+				float2 ddx_rot5_g29 = ddx_rot1_g29;
+				float2 ddy_rot6_g29 = ddy_rot1_g29;
+				float4 tex2DArrayNode26_g29 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g29,(float)slice4_g29, ddx_rot5_g29, ddy_rot6_g29 );
 				float4 base_color221 = _BaseColor;
-				float4 temp_output_2_0_g27 = base_color221;
-				float2 tile_id7_g26 = tile_id1_g26;
-				float2 title_id38_g26 = tile_id7_g26;
+				float4 temp_output_2_0_g30 = base_color221;
+				float2 tile_id7_g29 = tile_id1_g29;
+				float2 title_id38_g29 = tile_id7_g29;
 				float brightness_variation31 = _BrightnessVariation;
-				float brightness_variance38_g26 = brightness_variation31;
-				float seed38_g26 = seed50_g26;
-				float localbrightness_variance38_g26 = brightness_variance( title_id38_g26 , brightness_variance38_g26 , seed38_g26 );
-				float bright_variant39_g26 = localbrightness_variance38_g26;
-				float4 appendResult4_g28 = (float4(( ( tex2DArrayNode26_g26.rgb * (temp_output_2_0_g27).rgb ) * bright_variant39_g26 ) , ( tex2DArrayNode26_g26.a * (temp_output_2_0_g27).a )));
+				float brightness_variance38_g29 = brightness_variation31;
+				float seed38_g29 = seed50_g29;
+				float localbrightness_variance38_g29 = brightness_variance( title_id38_g29 , brightness_variance38_g29 , seed38_g29 );
+				float bright_variant39_g29 = localbrightness_variance38_g29;
+				float4 appendResult4_g31 = (float4(( ( tex2DArrayNode26_g29.rgb * (temp_output_2_0_g30).rgb ) * bright_variant39_g29 ) , ( tex2DArrayNode26_g29.a * (temp_output_2_0_g30).a )));
 				
 
-				float3 BaseColor = appendResult4_g28.xyz;
+				float3 BaseColor = appendResult4_g31.xyz;
 				float Alpha = 1;
 				#if defined( _ALPHATEST_ON )
 					float AlphaClipThreshold = _Cutoff;
@@ -2396,21 +2411,22 @@ Shader "Game/S_TileArray"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -2821,26 +2837,28 @@ Shader "Game/S_TileArray"
 					float2 dynamicLightmapUV : TEXCOORD5;
 				#endif
 				float4 ase_texcoord6 : TEXCOORD6;
+				float4 ase_texcoord7 : TEXCOORD7;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -2891,6 +2909,7 @@ Shader "Game/S_TileArray"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
 				output.ase_texcoord6.xy = input.texcoord.xy;
+				output.ase_texcoord7 = input.positionOS;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
 				output.ase_texcoord6.zw = 0;
@@ -3089,70 +3108,71 @@ Shader "Game/S_TileArray"
 					BitangentWS = cross(NormalWS, -TangentWS);
 				#endif
 
-				float localtile_array_compute_uv1_g26 = ( 0.0 );
+				float localtile_array_compute_uv1_g29 = ( 0.0 );
 				float2 texCoord224 = input.ase_texcoord6.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 base_uv1_g26 = texCoord224;
+				float2 lerpResult253 = lerp( texCoord224 , (input.ase_texcoord7.xyz).xy , _UseWorldPosAsUV);
+				float2 base_uv1_g29 = lerpResult253;
 				float slice_count16 = _SliceCount;
-				float slice_count1_g26 = slice_count16;
+				float slice_count1_g29 = slice_count16;
 				float use_random_slice19 = saturate( ceil( _RandomSlice ) );
-				float use_random_slice1_g26 = (float)(int)use_random_slice19;
+				float use_random_slice1_g29 = (float)(int)use_random_slice19;
 				int slice_index22 = _SliceIndex;
-				float manual_slice_index1_g26 = (float)slice_index22;
+				float manual_slice_index1_g29 = (float)slice_index22;
 				float use_random_rotation26 = saturate( ceil( _RandomRotation ) );
-				float use_random_rotation1_g26 = (float)(int)use_random_rotation26;
+				float use_random_rotation1_g29 = (float)(int)use_random_rotation26;
 				float rotation29 = _Rotation;
-				float manual_rotation1_g26 = (float)(int)rotation29;
+				float manual_rotation1_g29 = (float)(int)rotation29;
 				float4 tiling34 = ( _Tiling * _TilingScale );
-				float4 tiling1_g26 = tiling34;
+				float4 tiling1_g29 = tiling34;
 				float tile_inset36 = _TileIsetTexels;
-				float tile_inset1_g26 = tile_inset36;
+				float tile_inset1_g29 = tile_inset36;
 				float seed39 = _Seed;
-				float seed50_g26 = seed39;
-				float seed1_g26 = seed50_g26;
-				float2 uv_slice1_g26 = float2( 0,0 );
-				int slice1_g26 = 0;
-				float2 ddx_rot1_g26 = float2( 0,0 );
-				float2 ddy_rot1_g26 = float2( 0,0 );
-				float2 tile_id1_g26 = float2( 0,0 );
-				tile_array_compute_uv( base_uv1_g26 , slice_count1_g26 , use_random_slice1_g26 , manual_slice_index1_g26 , use_random_rotation1_g26 , manual_rotation1_g26 , tiling1_g26 , tile_inset1_g26 , seed1_g26 , uv_slice1_g26 , slice1_g26 , ddx_rot1_g26 , ddy_rot1_g26 , tile_id1_g26 );
-				float2 uv_slice3_g26 = uv_slice1_g26;
-				int slice4_g26 = slice1_g26;
-				float2 ddx_rot5_g26 = ddx_rot1_g26;
-				float2 ddy_rot6_g26 = ddy_rot1_g26;
-				float4 tex2DArrayNode26_g26 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g26,(float)slice4_g26, ddx_rot5_g26, ddy_rot6_g26 );
+				float seed50_g29 = seed39;
+				float seed1_g29 = seed50_g29;
+				float2 uv_slice1_g29 = float2( 0,0 );
+				int slice1_g29 = 0;
+				float2 ddx_rot1_g29 = float2( 0,0 );
+				float2 ddy_rot1_g29 = float2( 0,0 );
+				float2 tile_id1_g29 = float2( 0,0 );
+				tile_array_compute_uv( base_uv1_g29 , slice_count1_g29 , use_random_slice1_g29 , manual_slice_index1_g29 , use_random_rotation1_g29 , manual_rotation1_g29 , tiling1_g29 , tile_inset1_g29 , seed1_g29 , uv_slice1_g29 , slice1_g29 , ddx_rot1_g29 , ddy_rot1_g29 , tile_id1_g29 );
+				float2 uv_slice3_g29 = uv_slice1_g29;
+				int slice4_g29 = slice1_g29;
+				float2 ddx_rot5_g29 = ddx_rot1_g29;
+				float2 ddy_rot6_g29 = ddy_rot1_g29;
+				float4 tex2DArrayNode26_g29 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArray, sampler_TexArray, uv_slice3_g29,(float)slice4_g29, ddx_rot5_g29, ddy_rot6_g29 );
 				float4 base_color221 = _BaseColor;
-				float4 temp_output_2_0_g27 = base_color221;
-				float2 tile_id7_g26 = tile_id1_g26;
-				float2 title_id38_g26 = tile_id7_g26;
+				float4 temp_output_2_0_g30 = base_color221;
+				float2 tile_id7_g29 = tile_id1_g29;
+				float2 title_id38_g29 = tile_id7_g29;
 				float brightness_variation31 = _BrightnessVariation;
-				float brightness_variance38_g26 = brightness_variation31;
-				float seed38_g26 = seed50_g26;
-				float localbrightness_variance38_g26 = brightness_variance( title_id38_g26 , brightness_variance38_g26 , seed38_g26 );
-				float bright_variant39_g26 = localbrightness_variance38_g26;
-				float4 appendResult4_g28 = (float4(( ( tex2DArrayNode26_g26.rgb * (temp_output_2_0_g27).rgb ) * bright_variant39_g26 ) , ( tex2DArrayNode26_g26.a * (temp_output_2_0_g27).a )));
+				float brightness_variance38_g29 = brightness_variation31;
+				float seed38_g29 = seed50_g29;
+				float localbrightness_variance38_g29 = brightness_variance( title_id38_g29 , brightness_variance38_g29 , seed38_g29 );
+				float bright_variant39_g29 = localbrightness_variance38_g29;
+				float4 appendResult4_g31 = (float4(( ( tex2DArrayNode26_g29.rgb * (temp_output_2_0_g30).rgb ) * bright_variant39_g29 ) , ( tex2DArrayNode26_g29.a * (temp_output_2_0_g30).a )));
 				
-				float4 tex2DArrayNode24_g26 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArrayARME, sampler_TexArrayARME, uv_slice3_g26,(float)slice4_g26, ddx_rot5_g26, ddy_rot6_g26 );
-				float metalic_map61_g26 = tex2DArrayNode24_g26.b;
-				float temp_output_104_0_g26 = _MetalicIntensity;
-				float lerpResult81_g26 = lerp( 0.0 , ( metalic_map61_g26 * temp_output_104_0_g26 ) , ceil( temp_output_104_0_g26 ));
+				float4 tex2DArrayNode24_g29 = SAMPLE_TEXTURE2D_ARRAY_GRAD( _TexArrayARME, sampler_TexArrayARME, uv_slice3_g29,(float)slice4_g29, ddx_rot5_g29, ddy_rot6_g29 );
+				float metalic_map61_g29 = tex2DArrayNode24_g29.b;
+				float temp_output_104_0_g29 = _MetalicIntensity;
+				float lerpResult81_g29 = lerp( 0.0 , ( metalic_map61_g29 * temp_output_104_0_g29 ) , ceil( temp_output_104_0_g29 ));
 				
-				float roughness_map60_g26 = tex2DArrayNode24_g26.g;
-				float lerpResult82_g26 = lerp( ( 1.0 - roughness_map60_g26 ) , roughness_map60_g26 , (float)saturate( (int)_InvertRoughness ));
-				float temp_output_106_0_g26 = _RoughnessIntensity;
-				float lerpResult90_g26 = lerp( 0.0 , ( lerpResult82_g26 * temp_output_106_0_g26 ) , ceil( temp_output_106_0_g26 ));
+				float roughness_map60_g29 = tex2DArrayNode24_g29.g;
+				float lerpResult82_g29 = lerp( ( 1.0 - roughness_map60_g29 ) , roughness_map60_g29 , (float)saturate( (int)_InvertRoughness ));
+				float temp_output_106_0_g29 = _RoughnessIntensity;
+				float lerpResult90_g29 = lerp( 0.0 , ( lerpResult82_g29 * temp_output_106_0_g29 ) , ceil( temp_output_106_0_g29 ));
 				
-				float emissive_map62_g26 = tex2DArrayNode24_g26.a;
-				float temp_output_103_0_g26 = _EmisiveIntensity;
-				float4 lerpResult71_g26 = lerp( float4( 0,0,0,0 ) , ( emissive_map62_g26 * _EmisiveColor * temp_output_103_0_g26 ) , ceil( saturate( temp_output_103_0_g26 ) ));
+				float emissive_map62_g29 = tex2DArrayNode24_g29.r;
+				float temp_output_103_0_g29 = _EmisiveIntensity;
+				float4 lerpResult71_g29 = lerp( float4( 0,0,0,0 ) , ( emissive_map62_g29 * _EmisiveColor * temp_output_103_0_g29 ) , ceil( saturate( temp_output_103_0_g29 ) ));
 				
 
-				float3 BaseColor = appendResult4_g28.xyz;
+				float3 BaseColor = appendResult4_g31.xyz;
 				float3 Normal = float3(0, 0, 1);
 				float3 Specular = 0.5;
-				float Metallic = lerpResult81_g26;
-				float Smoothness = lerpResult90_g26;
+				float Metallic = lerpResult81_g29;
+				float Smoothness = lerpResult90_g29;
 				float Occlusion = 1;
-				float3 Emission = lerpResult71_g26.rgb;
+				float3 Emission = lerpResult71_g29.rgb;
 				float Alpha = 1;
 				#if defined( _ALPHATEST_ON )
 					float AlphaClipThreshold = _Cutoff;
@@ -3364,21 +3384,22 @@ Shader "Game/S_TileArray"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -3672,21 +3693,22 @@ Shader "Game/S_TileArray"
 			};
 
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Tiling;
 			float4 _BaseColor;
+			float4 _Tiling;
 			float4 _EmisiveColor;
-			float _SliceCount;
-			float _RandomSlice;
-			int _SliceIndex;
-			float _RandomRotation;
-			float _Rotation;
-			float _TilingScale;
-			float _TileIsetTexels;
-			float _Seed;
-			float _BrightnessVariation;
-			float _MetalicIntensity;
-			float _InvertRoughness;
+			float _UseWorldPosAsUV;
 			float _RoughnessIntensity;
+			float _InvertRoughness;
+			float _MetalicIntensity;
+			float _BrightnessVariation;
+			float _Seed;
+			float _TileIsetTexels;
+			float _Rotation;
+			float _RandomRotation;
+			int _SliceIndex;
+			float _RandomSlice;
+			float _SliceCount;
+			float _TilingScale;
 			float _EmisiveIntensity;
 			float _AlphaClip;
 			float _Cutoff;
@@ -3893,7 +3915,7 @@ Shader "Game/S_TileArray"
 
 /*ASEBEGIN
 Version=19908
-Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;247;-3264,-2096;Inherit;False;1060;2354.667;Tile Array;19;241;240;239;238;224;225;226;227;228;229;230;231;232;233;243;244;242;245;246;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;247;-3264,-2096;Inherit;False;1060;2354.667;Tile Array;21;241;240;239;238;224;225;226;227;228;229;230;231;232;233;243;244;242;245;246;253;255;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;241;-3216,-736;Inherit;False;356;345;Emision;2;60;56;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;240;-3216,-368;Inherit;False;356;162.6667;Metalic;1;236;;1,1,1,1;0;0
 Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;239;-3216,-160;Inherit;False;356;226.6667;Roughness;2;79;237;;1,1,1,1;0;0
@@ -3910,7 +3932,7 @@ Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.
 Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;34;-7312,-272;Inherit;False;tiling;-1;True;1;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;15;-7648,-880;Inherit;False;Property;_SliceCount;Slice Count;10;1;[Header];Create;True;1;Slice Settings;0;0;False;0;False;1;9.1;1;64;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;28;-7632,-464;Inherit;False;Property;_Rotation;Rotation;13;1;[Header];Create;True;1;Rotation Settings;0;0;False;0;False;0;0;0;3;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;30;-7632,-368;Inherit;False;Property;_BrightnessVariation;Brightness Variation;15;1;[Header];Create;True;1;Tile Settings;0;0;False;0;False;0;0.2831537;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;30;-7632,-368;Inherit;False;Property;_BrightnessVariation;Brightness Variation;15;1;[Header];Create;True;1;Tile Settings;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;26;-7328,-576;Inherit;False;use_random_rotation;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;129;-7888,-768;Inherit;False;Property;_RandomSlice;Random Slice;11;1;[Toggle];Create;True;0;0;0;False;0;False;0.5;1;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.CeilOpNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;130;-7680,-768;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
@@ -3926,7 +3948,7 @@ Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, 
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;41;-7584,80;Inherit;False;Property;_ColorSpaceComp;Color Space Comp;18;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.Vector4Node, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;142;-7904,-272;Inherit;False;Property;_Tiling;Tiling;2;0;Create;True;0;0;0;False;0;False;1,1,1,1;1,1,1,1;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;143;-7584,-272;Inherit;False;2;2;0;FLOAT4;0,0,0,0;False;1;FLOAT;0;False;1;FLOAT4;0
-Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;144;-7904,-96;Inherit;False;Property;_TilingScale;Tiling Scale;3;0;Create;True;0;0;0;False;0;False;0;0.05;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;144;-7904,-96;Inherit;False;Property;_TilingScale;Tiling Scale;3;0;Create;True;0;0;0;False;0;False;0;0.1;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.CeilOpNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;134;-8448,80;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;135;-8288,80;Inherit;False;apply_fog;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;133;-8752,80;Inherit;False;Property;_ApplyFog;Apply Fog;19;2;[Header];[Toggle];Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
@@ -3935,7 +3957,7 @@ Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, 
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;79;-3168,-112;Inherit;False;Property;_RoughnessIntensity;Intensity;6;1;[Header];Create;False;1;Roughness;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;236;-3168,-320;Inherit;False;Property;_MetalicIntensity;Intensity;9;1;[Header];Create;False;1;Metalic;0;0;False;0;False;1;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;60;-3168,-688;Inherit;False;Property;_EmisiveIntensity;Intensity;7;1;[Header];Create;False;1;Emisive;0;0;False;0;False;1;1;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;56;-3104,-624;Inherit;False;Property;_EmisiveColor;Color;8;1;[HDR];Create;False;0;0;0;False;0;False;0,0,0,0;0,0.5019608,0.1716649,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;56;-3104,-624;Inherit;False;Property;_EmisiveColor;Color;8;1;[HDR];Create;False;0;0;0;False;0;False;0,0,0,0;0,0.4086066,0.5296369,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.TextureCoordinatesNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;224;-3152,-2048;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.GetLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;225;-3136,-1936;Inherit;False;19;use_random_slice;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;226;-3168,-1872;Inherit;False;26;use_random_rotation;1;0;OBJECT;;False;1;FLOAT;0
@@ -3956,12 +3978,18 @@ Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.
 Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;223;-7408,-1440;Inherit;False;tex_array_ss;-1;True;1;0;SAMPLERSTATE;0,0,0,0;False;1;SAMPLERSTATE;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;234;-7424,-1280;Inherit;False;tex_array_arme;-1;True;1;0;SAMPLER2DARRAY;0,0,0,0;False;1;SAMPLER2DARRAY;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;235;-7424,-1216;Inherit;False;tex_array_ss_arme;-1;True;1;0;SAMPLERSTATE;0,0,0,0;False;1;SAMPLERSTATE;0
-Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;10;-7696,-1744;Inherit;False;Property;_BaseColor;Color;0;0;Create;False;0;0;0;False;0;False;1,1,1,1;0.7798742,0.7798742,0.7798742,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.ColorNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;10;-7696,-1744;Inherit;False;Property;_BaseColor;Color;0;0;Create;False;0;0;0;False;0;False;1,1,1,1;0.2641509,0.2641509,0.2641509,1;True;True;0;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
 Node;AmplifyShaderEditor.CustomExpressionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;217;-2976,528;Inherit;False; ;4;File;14;True;base_uv;FLOAT2;0,0;In;;Inherit;False;True;slice_count;FLOAT;0;In;;Inherit;False;True;use_random_slice;FLOAT;0;In;;Inherit;False;True;manual_slice_index;FLOAT;0;In;;Inherit;False;True;use_random_rotation;FLOAT;0;In;;Inherit;False;True;manual_rotation;FLOAT;0;In;;Inherit;False;True;tiling;FLOAT4;0,0,0,0;In;;Inherit;False;True;tile_inset;FLOAT;0;In;;Inherit;False;True;seed;FLOAT;0;In;;Inherit;False;True;uv_slice;FLOAT2;0,0;Out;;Inherit;False;True;slice;INT;0;Out;;Inherit;False;True;ddx_rot;FLOAT2;0,0;Out;;Inherit;False;True;ddy_rot;FLOAT2;0,0;Out;;Inherit;False;True;tile_id;FLOAT2;0,0;Out;;Inherit;False;tile_array_compute_uv;False;False;0;214002b5550e4934ae75fa5482f876c5;False;14;0;FLOAT2;0,0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT4;0,0,0,0;False;7;FLOAT;0;False;8;FLOAT;0;False;9;FLOAT2;0,0;False;10;INT;0;False;11;FLOAT2;0,0;False;12;FLOAT2;0,0;False;13;FLOAT2;0,0;False;6;FLOAT4;0;FLOAT2;10;INT;11;FLOAT2;12;FLOAT2;13;FLOAT2;14
 Node;AmplifyShaderEditor.CustomExpressionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;218;-2320,512;Inherit;False; ;4;File;11;True;tex_array;OBJECT;0;In;Texture2DArray;Inherit;False;True;samp;SAMPLERSTATE;;In;;Inherit;False;True;uv_slice;FLOAT2;0,0;In;;Inherit;False;True;slice;FLOAT;0;In;;Inherit;False;True;ddx_rot;FLOAT2;0,0;In;;Inherit;False;True;ddy_rot;FLOAT2;0,0;In;;Inherit;False;True;base_color;FLOAT4;0,0,0,0;In;;Inherit;False;True;tile_id;FLOAT2;0,0;In;;Inherit;False;True;brigtness_variance;FLOAT;0;In;;Inherit;False;True;seed;FLOAT;0;In;;Inherit;False;True;color_space;FLOAT;0;In;;Inherit;False;tile_array_sample_color;False;False;0;214002b5550e4934ae75fa5482f876c5;False;11;0;OBJECT;0;False;1;SAMPLERSTATE;;False;2;FLOAT2;0,0;False;3;FLOAT;0;False;4;FLOAT2;0,0;False;5;FLOAT2;0,0;False;6;FLOAT4;0,0,0,0;False;7;FLOAT2;0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;52;-7728,-1280;Inherit;True;Property;_TexArrayARME;ARME;4;1;[Header];Create;False;1;ARME Texture;0;0;False;1;Texture2DArray;False;013dd5340f863b247a73b639f5b9ddc5;c275635c24dbfd043b09d14d46a6964c;False;black;Auto;Texture2DArray;False;-1;0;2;SAMPLER2DARRAY;0;SAMPLERSTATE;1
-Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;53;-7696,-1536;Inherit;True;Property;_TexArray;Texture;1;1;[Header];Create;False;1;Base Texture;0;0;False;1;Texture2DArray;False;111b98630446ffa4d88626e727012f97;111b98630446ffa4d88626e727012f97;False;white;Auto;Texture2DArray;False;-1;0;2;SAMPLER2DARRAY;0;SAMPLERSTATE;1
-Node;AmplifyShaderEditor.FunctionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;250;-2576,-1536;Inherit;False;Tile Array;-1;;26;1aadc3e5646c7914d9b0f94d4c05d19c;0;21;41;FLOAT2;0,0;False;43;INT;0;False;44;INT;0;False;42;FLOAT;0;False;45;INT;0;False;46;INT;0;False;47;FLOAT4;0,0,0,0;False;48;FLOAT;0;False;49;FLOAT;0;False;52;FLOAT;0;False;27;SAMPLER2DARRAY;0;False;28;SAMPLERSTATE;0;False;33;COLOR;1,1,1,1;False;16;SAMPLER2DARRAY;0;False;15;SAMPLERSTATE;0;False;103;FLOAT;0;False;102;COLOR;0,0,0,0;False;104;FLOAT;0;False;106;FLOAT;0;False;107;INT;0;False;108;FLOAT;0;False;5;FLOAT4;0;COLOR;98;FLOAT;99;FLOAT;100;FLOAT;101
+Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;53;-7696,-1536;Inherit;True;Property;_TexArray;Texture;1;1;[Header];Create;False;1;Base Texture;0;0;False;1;Texture2DArray;False;111b98630446ffa4d88626e727012f97;a564d664ad35cb44f8af88cd205af15a;False;white;Auto;Texture2DArray;False;-1;0;2;SAMPLER2DARRAY;0;SAMPLERSTATE;1
+Node;AmplifyShaderEditor.WorldSpaceCameraPos, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;251;-3488,-2048;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.LerpOp, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;253;-2704,-2016;Inherit;False;3;0;FLOAT2;0,0;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;255;-2800,-1872;Inherit;False;Property;_UseWorldPosAsUV;UseWorldPosAsUV;21;0;Create;True;0;0;0;False;0;False;0;1;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.PosVertexDataNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;258;-3424,-2432;Inherit;False;0;0;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.ComponentMaskNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;254;-2944,-2288;Inherit;False;True;True;False;True;1;0;FLOAT3;0,0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.LerpOp, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;259;-1968,-1376;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;260;-2576,-1536;Inherit;False;Tile Array;-1;;29;1aadc3e5646c7914d9b0f94d4c05d19c;0;21;41;FLOAT2;0,0;False;43;INT;0;False;44;INT;0;False;42;FLOAT;0;False;45;INT;0;False;46;INT;0;False;47;FLOAT4;0,0,0,0;False;48;FLOAT;0;False;49;FLOAT;0;False;52;FLOAT;0;False;27;SAMPLER2DARRAY;0;False;28;SAMPLERSTATE;0;False;33;COLOR;1,1,1,1;False;16;SAMPLER2DARRAY;0;False;15;SAMPLERSTATE;0;False;103;FLOAT;0;False;102;COLOR;0,0,0,0;False;104;FLOAT;0;False;106;FLOAT;0;False;107;INT;0;False;108;FLOAT;0;False;5;FLOAT4;0;COLOR;98;FLOAT;99;FLOAT;100;FLOAT;101
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;102;-416,480;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;6;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;104;272,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;105;272,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;True;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
@@ -3971,7 +3999,7 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Versi
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;109;272,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalGBuffer;False;True;10;d3d11;gles;metal;vulkan;xboxone;xboxseries;playstation;ps4;ps5;switch;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;110;272,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;111;272,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;103;-1936,-1536;Float;False;True;-1;3;UnityEditor.ShaderGraphLitGUI;0;15;Game/S_TileArray;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForward;False;False;0;;1;#pragma require(2darray)=;0;Standard;48;Category;0;0;  Instanced Terrain Normals;1;0;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Keep Alpha;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Fragment Normal Space;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;Receive Shadows;2;0;Specular Highlights;2;0;Environment Reflections;2;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;Debug Display;1;0;Clear Coat;0;0;0;10;False;True;True;True;True;True;True;True;True;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;103;-1652,-1536;Float;False;True;-1;3;UnityEditor.ShaderGraphLitGUI;0;15;Game/S_TileArray;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;False;True;1;LightMode=UniversalForward;False;False;0;;1;#pragma require(2darray)=;0;Standard;48;Category;0;0;  Instanced Terrain Normals;1;0;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Keep Alpha;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;0;  Use Shadow Threshold;0;0;Fragment Normal Space;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;Receive Shadows;2;0;Specular Highlights;2;0;Environment Reflections;2;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position;1;0;Debug Display;1;0;Clear Coat;0;0;0;10;False;True;True;True;True;True;True;True;True;True;False;;False;0
 WireConnection;22;0;21;0
 WireConnection;16;0;15;0
 WireConnection;20;0;130;0
@@ -4001,30 +4029,34 @@ WireConnection;218;3;217;11
 WireConnection;218;4;217;12
 WireConnection;218;5;217;13
 WireConnection;218;7;217;14
-WireConnection;250;41;224;0
-WireConnection;250;43;225;0
-WireConnection;250;44;226;0
-WireConnection;250;42;227;0
-WireConnection;250;45;228;0
-WireConnection;250;46;229;0
-WireConnection;250;47;230;0
-WireConnection;250;48;231;0
-WireConnection;250;49;232;0
-WireConnection;250;52;233;0
-WireConnection;250;27;242;0
-WireConnection;250;28;243;0
-WireConnection;250;33;244;0
-WireConnection;250;16;245;0
-WireConnection;250;15;246;0
-WireConnection;250;103;60;0
-WireConnection;250;102;56;0
-WireConnection;250;104;236;0
-WireConnection;250;106;79;0
-WireConnection;250;107;237;0
-WireConnection;250;108;85;0
-WireConnection;103;0;250;0
-WireConnection;103;3;250;99
-WireConnection;103;4;250;100
-WireConnection;103;2;250;98
+WireConnection;253;0;224;0
+WireConnection;253;1;254;0
+WireConnection;253;2;255;0
+WireConnection;254;0;258;0
+WireConnection;260;41;253;0
+WireConnection;260;43;225;0
+WireConnection;260;44;226;0
+WireConnection;260;42;227;0
+WireConnection;260;45;228;0
+WireConnection;260;46;229;0
+WireConnection;260;47;230;0
+WireConnection;260;48;231;0
+WireConnection;260;49;232;0
+WireConnection;260;52;233;0
+WireConnection;260;27;242;0
+WireConnection;260;28;243;0
+WireConnection;260;33;244;0
+WireConnection;260;16;245;0
+WireConnection;260;15;246;0
+WireConnection;260;103;60;0
+WireConnection;260;102;56;0
+WireConnection;260;104;236;0
+WireConnection;260;106;79;0
+WireConnection;260;107;237;0
+WireConnection;260;108;85;0
+WireConnection;103;0;260;0
+WireConnection;103;3;260;99
+WireConnection;103;4;260;100
+WireConnection;103;2;260;98
 ASEEND*/
-//CHKSM=1A95AA17A1D3A45566F80EDF085FEE4542402A06
+//CHKSM=E71E471133B035E12DEEA7FDC7102E887D5C7224
