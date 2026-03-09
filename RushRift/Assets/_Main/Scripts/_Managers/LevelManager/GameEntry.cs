@@ -99,6 +99,11 @@ namespace Game
                         return Fail(lr, "Failed to load MainScene.");
                     }
                 }
+
+                if (mainScene.IsValid() && mainScene.isLoaded)
+                {
+                    SceneHandler.SetActiveScene(mainScene);
+                }
                 
                 Debug.Log("[GameEntry] Scene list after main scene load: " +
                           string.Join(", ", Enumerable.Range(0, SceneManager.sceneCount)
@@ -308,9 +313,6 @@ namespace Game
                 return LoadResult.MissingLevel;
             }
 
-            Scene activeScene = default;
-            var hasActiveScene = false;
-
             for (var i = 0; i < requests.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -336,21 +338,6 @@ namespace Game
                 }
                 
                 _loadedScenes.Add(loadedScene);
-
-                if (request.SetActive && !hasActiveScene)
-                {
-                    activeScene = loadedScene;
-                    hasActiveScene = true;
-                }
-            }
-
-            if (hasActiveScene)
-            {
-                SceneManager.SetActiveScene(activeScene);
-            }
-            else if (_loadedScenes.Count > 0)
-            {
-                SceneManager.SetActiveScene(_loadedScenes[0]);
             }
 
             return LoadResult.Ok;
@@ -375,13 +362,48 @@ namespace Game
             if (additive)
             {
                 var op = SceneHandler.LoadSceneAsync(MAIN_SCENE, LoadSceneMode.Additive);
-                if (op == null) return LoadResult.SceneLoadFailed;
+                if (op == null)
+                {
+                    return LoadResult.SceneLoadFailed;
+                }
 
                 await op.ToUniTask(cancellationToken: ct);
-                return LoadResult.Ok;
+            }
+            else
+            {
+                SceneHandler.LoadScene(MAIN_SCENE);
+                await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            }
+
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
+
+            try
+            {
+                await UniTask.WaitUntil(() =>
+                {
+                    var scene = SceneHandler.GetSceneByName(MAIN_SCENE);
+                    return scene.IsValid() && scene.isLoaded;
+                }, cancellationToken: linkedCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                if (ct.IsCancellationRequested)
+                {
+                    return LoadResult.Cancelled;
+                }
+                
+                Debug.LogError($"[GameEntry] Timed out waiting for scene '{MAIN_SCENE}' to load.");
+                return LoadResult.SceneLoadFailed;
+            }
+
+            var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
+            if (!mainScene.IsValid() || !mainScene.isLoaded)
+            {
+                return LoadResult.SceneLoadFailed;
             }
             
-            SceneHandler.LoadScene(MAIN_SCENE);
+            SceneHandler.SetActiveScene(mainScene);
             return LoadResult.Ok;
         }
 
