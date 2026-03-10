@@ -29,6 +29,11 @@ Shader "Custom/URP/PrecipiceDepthFixed"
         [Header(Fake Depth)]
         _StepCount ("Step Count", Float) = 6
         _StepStrength ("Step Strength", Range(0,1)) = 1
+        _StepCurvePower ("Step Curve Power", Float) = 2
+        
+        [Header(Curve)]
+        _CurveMode ("Curve Mode", Float) = 0 //0 = linear 1 = smoothstep 2 = ease in 3 = ease out 4 = ease in out
+        _CurvePower ("Curve Power", Float) = 2
     }
 
     SubShader
@@ -72,6 +77,10 @@ Shader "Custom/URP/PrecipiceDepthFixed"
 
                 float _StepCount;
                 float _StepStrength;
+                float _StepCurvePower;
+
+                float _CurveMode;
+                float _CurvePower;
             CBUFFER_END
 
             struct Attributes
@@ -85,7 +94,7 @@ Shader "Custom/URP/PrecipiceDepthFixed"
                 float2 uv : TEXCOORD0;
             };
 
-            Varyings Vert(Attributes input)
+            Varyings Vert(const Attributes input)
             {
                 Varyings output;
 
@@ -101,7 +110,7 @@ Shader "Custom/URP/PrecipiceDepthFixed"
                 return output;
             }
 
-            float3 ReconstructWorldPos(float2 uv, float depth)
+            float3 reconstruct_world_pos(const float2 uv, const float depth)
             {
                 #if !UNITY_REVERSED_Z
                     depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, depth);
@@ -110,7 +119,7 @@ Shader "Custom/URP/PrecipiceDepthFixed"
                 return ComputeWorldSpacePosition(uv, depth, UNITY_MATRIX_I_VP);
             }
 
-            float4 SampleGradient(float t)
+            float4 sample_gradient(const float t)
             {
                 float4 col;
 
@@ -128,24 +137,57 @@ Shader "Custom/URP/PrecipiceDepthFixed"
                 return col;
             }
 
-            half4 Frag(Varyings input) : SV_Target
+            float apply_curve(const float t, const float mode, const float power)
+            {
+                const float x = saturate(t);
+
+                const float l = x;
+                const float smooth = x * x * (3.0 - 2.0 * x);
+                const float ease_in = pow(x, max(power, 0.0001));
+                const float ease_out = 1.0 - pow(1.0 - x, max(power, 0.0001));
+
+                float ease_in_out;
+                if (x < 0.5)
+                {
+                    ease_in_out = 0.5 * pow(x * 2.0, max(power, 0.0001));
+                }
+                else
+                {
+                    ease_in_out = 1.0 - 0.5 * pow((1.0 - x) * 2.0, max(power, 0.0001));
+                }
+
+                float result = l;
+                result = lerp(result, smooth, step(0.5, mode) * (1.0 - step(1.5, mode)));
+                result = lerp(result, ease_in, step(1.5, mode) * (1.0 - step(2.5, mode)));
+                result = lerp(result, ease_out, step(2.5, mode) * (1.0 - step(3.5, mode)));
+                result = lerp(result, ease_in_out, step(3.5, mode));
+
+                return result;
+            }
+
+            half4 Frag(const Varyings input) : SV_Target
             {
                 const float4 scene_color = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_BlitTexture, input.uv);
 
                 const float depth = SampleSceneDepth(input.uv);
-                float3 world_pos = ReconstructWorldPos(input.uv, depth);
+                float3 world_pos = reconstruct_world_pos(input.uv, depth);
 
                 const float drop = _YOffset - world_pos.y;                
                 const float fade = saturate((drop - _Start) / max(_End - _Start, 0.001));
 
-                float steppedFade = floor(fade * _StepCount) / max(_StepCount - 1.0, 1.0);
-                float gradientFade = lerp(fade, steppedFade, _StepStrength);
+                const float stepped_fade = floor(fade * _StepCount) / max(_StepCount - 1.0, 1.0);
+                const float gradient_fade = lerp(fade, stepped_fade, _StepStrength);
+
+                // const float curved_fade = pow(fade, max(_StepCurvePower, 0.0001));
+                // const float stepped_curved = floor(curved_fade * _StepCount) / max(_StepCount - 1.0, 1.0);
+                // const float stepped_fade = pow(stepped_curved, 1.0 / max(_StepCurvePower, 0.0001));
+                // const float gradient_fade = lerp(fade, stepped_fade, _StepStrength);
 
                 // choose between modes
                 const float4 final_color = lerp(
                     lerp(_SolidColor,// Solid Color
-                        lerp(_ColorA, _ColorB, gradientFade), _ModeGradient2),// Gradient 2 Colors
-                    SampleGradient(gradientFade), _ModeGradientTex);//Gradient 3 Colors
+                        lerp(_ColorA, _ColorB, gradient_fade), _ModeGradient2),// Gradient 2 Colors
+                    sample_gradient(gradient_fade), _ModeGradientTex);//Gradient 3 Colors
                 
                 return lerp(scene_color, final_color, fade);
             }
