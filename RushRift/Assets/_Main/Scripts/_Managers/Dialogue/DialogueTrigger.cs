@@ -10,7 +10,7 @@ public class DialogueTrigger : MonoBehaviour
 
     public void TriggerDialogue()
     {
-        if (DialogueManager.Instance.StartDialogue(dialogue))
+        if (DialogueManager.Instance.ExecuteDialogue(dialogue))
         {
             gameObject.SetActive(false);
         }

@@ -15,7 +15,7 @@ public class DialogueManager : MonoBehaviour
 	public TMP_Text dialogueArea;
 	public GameObject dialogueBox;
 
-	private Queue<Line> lines;
+	public Queue<Line> lines;
 
 	public bool isDialogueActive = false;
 
@@ -31,28 +31,23 @@ public class DialogueManager : MonoBehaviour
 		lines = new Queue<Line>();
 	}
 
-	public bool StartDialogue(DialogueContainerSO container)
+	public bool ExecuteDialogue(DialogueContainerSO container)
 	{
 		if (container.IsNullOrMissing())
 		{
 			this.Log("Trying to execute a dialogue from a null or missing container.", LogType.Error);
 		}
-		
-		this.Log("Call the dialogue");
-		dialogueBox.SetActive(true);
-		isDialogueActive = true;
-
-		lines.Clear();
 
 		var dialogues = container.Dialogues;
 		DialogueSO dialogue = default;
-		
+
 		// Has to find the dialogue it can produce
 		foreach (var d in dialogues)
 		{
 			if (d != null && d.CanExecute())
 			{
 				dialogue = (DialogueSO)d;
+				dialogue.Execute(this);
 				break;
 			}
 		}
@@ -62,16 +57,6 @@ public class DialogueManager : MonoBehaviour
 			return false;
 		}
 
-		for (var i = 0; i < dialogue.Lines.Length; i++)
-		{
-			var line = dialogue.Lines[i];
-
-			if (line == null) continue;
-			
-			lines.Enqueue(line);
-		}
-
-		DisplayNextDialogueLine();
 		return true;
 	}
 
