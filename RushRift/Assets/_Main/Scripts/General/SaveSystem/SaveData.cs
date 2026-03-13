@@ -37,15 +37,15 @@ namespace Game.Saves
             set => _levelsMedalsTimes = value;
         }
 
-        private List<int> GameDialogues
+        private List<string> GameDialogues
         {
-            get => _gameDialogues ??= new List<int>();
+            get => _gameDialogues ??= new List<string>();
             set => _gameDialogues = value;
         }
 
         private Dictionary<int, float> _bestTimes = new();
         private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
-        private List<int> _gameDialogues = new();
+        private List<string> _gameDialogues = new();
 
         public SaveData()
         {
@@ -92,15 +92,15 @@ namespace Game.Saves
             };
         }
 
-        public void SetDialogueHeard(int id)
+        public void SetDialogueHeard(string dialogueName)
         {
             //check if dictionary is better
-            GameDialogues.Add(id);
+            GameDialogues.Add(dialogueName);
         }
 
-        public bool CheckDialogueHeard(int id)
+        public bool CheckDialogueHeard(string dialogueName)
         {
-            return GameDialogues.Contains(id);
+            return GameDialogues.Contains(dialogueName);
         }
 
         public int TryGetUnlockedEffects(int levelID, out Effect[] unlockedEffects)

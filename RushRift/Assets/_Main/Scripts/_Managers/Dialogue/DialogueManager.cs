@@ -5,6 +5,7 @@ using MyTools.Global;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using Game;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -48,6 +49,7 @@ public class DialogueManager : MonoBehaviour
 			{
 				dialogue = (DialogueSO)d;
 				dialogue.Execute(this);
+				AudioManager.Play(container.DialogueName);
 				break;
 			}
 		}

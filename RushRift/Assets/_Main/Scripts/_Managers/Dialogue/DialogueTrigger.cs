@@ -21,9 +21,9 @@ public class DialogueTrigger : MonoBehaviour
     {
         var data = SaveSystem.LoadGame();
         if (!other.CompareTag(triggerTag)) return;
-        if (data.CheckDialogueHeard(dialogue.DialogueId)) return;
+        if (data.CheckDialogueHeard(dialogue.DialogueName)) return;
         TriggerDialogue();
-        data.SetDialogueHeard(dialogue.DialogueId);
+        data.SetDialogueHeard(dialogue.DialogueName);
         data.SaveGame();
 
         gameObject.SetActive(false);
