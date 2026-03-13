@@ -7,9 +7,10 @@ using UnityEngine.Serialization;
 
 public class DialogueSO : BaseDialogueSO
 {
-    public Line[] Lines => lines;
+	public Line[] Lines => lines;
     
     [SerializeField] private Line[] lines;
+    
     
     public override void Execute(DialogueManager manager)
     {

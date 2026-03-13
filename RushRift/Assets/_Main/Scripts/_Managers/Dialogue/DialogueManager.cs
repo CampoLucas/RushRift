@@ -49,7 +49,7 @@ public class DialogueManager : MonoBehaviour
 			{
 				dialogue = (DialogueSO)d;
 				dialogue.Execute(this);
-				AudioManager.Play(container.DialogueName);
+				AudioManager.Play(dialogue.DialogueName);
 				break;
 			}
 		}

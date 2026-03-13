@@ -21,10 +21,17 @@ public class DialogueTrigger : MonoBehaviour
     {
         var data = SaveSystem.LoadGame();
         if (!other.CompareTag(triggerTag)) return;
-        if (data.CheckDialogueHeard(dialogue.DialogueName)) return;
-        TriggerDialogue();
-        data.SetDialogueHeard(dialogue.DialogueName);
-        data.SaveGame();
+        foreach (var item in dialogue.Dialogues)
+        {
+            if (item.CanExecute())
+            {
+                if (data.CheckDialogueHeard(item.DialogueName)) return;
+                TriggerDialogue();
+                data.SetDialogueHeard(item.DialogueName);
+                data.SaveGame();
+            }
+        }
+        
 
         gameObject.SetActive(false);
     }
