@@ -19,7 +19,7 @@ namespace Game.UI.Elements.Crosshair
                 return null;
             }
             
-            return new Trigger(subject, null, true);
+            return new Trigger(subject, null, false);
         }
 
         private bool TryGetSubject(out ISubject subject)
@@ -35,16 +35,32 @@ namespace Game.UI.Elements.Crosshair
             switch (blinkEvent)
             {
                 case BlinkEvent.TargetFound:
-                    subject = blink.OnTargetFound;
+                    if (!blink.TargetFound.TryGet(out var s))
+                    {
+                        return false;
+                    }
+                    subject = s;
                     break;
                 case BlinkEvent.TargetLost:
-                    subject = blink.OnTargetLost;
+                    if (!blink.TargetLost.TryGet(out s))
+                    {
+                        return false;
+                    }
+                    subject = s;
                     break;
                 case BlinkEvent.BlinkStart:
-                    subject = blink.OnBlinkStart;
+                    if (!blink.BlinkStart.TryGet(out s))
+                    {
+                        return false;
+                    }
+                    subject = s;
                     break;
                 case BlinkEvent.BlinkEnd:
-                    subject = blink.OnBlinkEnd;
+                    if (!blink.BlinkEnd.TryGet(out s))
+                    {
+                        return false;
+                    }
+                    subject = s;
                     break;
                 default:
                     this.Log("Argument Out Of Exception", LogType.Warning);

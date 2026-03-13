@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Entities;
 using Game.UI.StateMachine;
@@ -36,9 +37,12 @@ namespace Game.Levels
 
         public abstract int LevelCount();
         public abstract SingleLevelSO GetLevel(int index);
-        public abstract UniTask LoadAsync(GlobalLevelManager manager);
-        public virtual UniTask LoadFirstAsync(GlobalLevelManager manager) => UniTask.CompletedTask;
-        public virtual UniTask LoadNextAsync(GlobalLevelManager manager) => UniTask.CompletedTask;
+        public abstract IReadOnlyList<LevelSceneRequest> GetSceneLoadRequests();
+        
+        public virtual UniTask OnScenesLoadedAsync(GlobalLevelManager manager, CancellationToken ct = default)
+        {
+            return UniTask.CompletedTask;
+        }
         public abstract bool IsUnlocked(List<BaseLevelSO> levelsList, int currIndex);
         
         public Medal GetMedal(MedalType type)

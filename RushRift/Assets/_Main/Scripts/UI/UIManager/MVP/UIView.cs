@@ -18,6 +18,7 @@ namespace Game.UI.StateMachine
         
         [Header("Events")]
         [SerializeField] protected UnityEvent onShow = new UnityEvent();
+        [SerializeField] protected UnityEvent onHide = new UnityEvent();
 
         [Header("Animations")]
         [SerializeField] private UIAnimationRunner showAnimation;
@@ -59,6 +60,8 @@ namespace Game.UI.StateMachine
             if (showAnimation) showAnimation.Stop();
             if (hideAnimation) hideAnimation.Play();
             OnHide();
+            
+            onHide.Invoke();
         }
         
         public void FadeIn(float t, float startTime, float duration, ref ISubject onStart, ref ISubject onEnd)

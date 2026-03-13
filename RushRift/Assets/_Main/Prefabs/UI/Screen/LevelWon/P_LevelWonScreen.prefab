@@ -152,6 +152,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 15
   playScale: 0.75
+  playIgnoreZScale: 0
   playColor: {r: 0, g: 0, b: 0, a: 0}
   canvas: {fileID: 2901506203512523040}
   targetRect: {fileID: 1175113902472211798}
@@ -218,6 +219,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 2
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -353,6 +355,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -454,6 +457,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -517,6 +521,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0.75
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -582,6 +587,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -663,6 +669,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0.75
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -1409,6 +1416,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 0
   playScale: 0
+  playIgnoreZScale: 0
   playColor: {r: 0, g: 0, b: 0, a: 0}
   canvas: {fileID: 4237780366606504018}
   targetRect: {fileID: 3701617291684902382}
@@ -1439,6 +1447,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.2
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -1502,6 +1511,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0.75
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -1565,6 +1575,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -1762,6 +1773,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 0
   playScale: 0
+  playIgnoreZScale: 0
   playColor: {r: 1, g: 1, b: 1, a: 1}
   canvas: {fileID: 0}
   targetRect: {fileID: 1983400809866583708}
@@ -1792,6 +1804,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.5
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -1855,6 +1868,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0.7
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -1918,6 +1932,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -1983,6 +1998,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.5
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -2064,6 +2080,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.5
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -2147,6 +2164,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.5
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -2246,6 +2264,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.5
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -2473,7 +2492,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2772955003143742399}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 2
   m_Camera: {fileID: 0}
@@ -2733,6 +2752,35 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  onHide:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5674272994487635780}
+        m_TargetAssemblyTypeName: Game.UI.Group.UIGroupAnimation, Assembly-CSharp
+        m_MethodName: Stop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 5674272994487635780}
+        m_TargetAssemblyTypeName: Game.UI.Group.UIGroupAnimation, Assembly-CSharp
+        m_MethodName: Reset
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  showAnimation: {fileID: 0}
+  hideAnimation: {fileID: 0}
 --- !u!114 &5674272994487635780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3447,6 +3495,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 0
   playScale: 0
+  playIgnoreZScale: 0
   playColor: {r: 0, g: 0, b: 0, a: 0}
   canvas: {fileID: 8484130762464975490}
   targetRect: {fileID: 8366404529135467595}
@@ -3477,6 +3526,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.2
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -3540,6 +3590,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0.75
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -3603,6 +3654,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -3782,6 +3834,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 0
   playScale: 0
+  playIgnoreZScale: 0
   playColor: {r: 1, g: 0, b: 0.5254902, a: 1}
   canvas: {fileID: 2689322760797115282}
   targetRect: {fileID: 644536383175026439}
@@ -3812,6 +3865,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -3875,6 +3929,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0.75
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -3938,6 +3993,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:

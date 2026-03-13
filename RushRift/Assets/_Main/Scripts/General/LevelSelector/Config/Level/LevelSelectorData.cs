@@ -5,6 +5,8 @@ namespace Game.Levels
     [System.Serializable]
     public class LevelSelectorData
     {
+        public Color Color => color;
+        
         [SerializeField] private Sprite previewImage;
         [SerializeField] private Color color;
 

@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Entities;
 using Game.Saves;
-using Game.Utils;
 using MyTools.Global;
-using Tools.Scripts.PropertyAttributes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,10 +15,19 @@ namespace Game.Levels
         public override bool VariationsEnabled => levelVariationsEnabled;
         [SerializeField] private bool levelVariationsEnabled = false;
         
-        public sealed override async UniTask LoadAsync(GlobalLevelManager manager)
+        
+        public sealed override IReadOnlyList<LevelSceneRequest> GetSceneLoadRequests()
         {
-            await manager.AwaitLoadLevelScene(SceneName);
-            manager.LevelIndex = 0; // normal levels always at index 0
+            return new[]
+            {
+                new LevelSceneRequest(SceneName, LoadSceneMode.Additive, true)
+            };
+        }
+        
+        public override UniTask OnScenesLoadedAsync(GlobalLevelManager manager, CancellationToken ct = default)
+        {
+            manager.LevelIndex = 0;
+            return UniTask.CompletedTask;
         }
 
         public override bool IsUnlocked(List<BaseLevelSO> levelsList, int currIndex)

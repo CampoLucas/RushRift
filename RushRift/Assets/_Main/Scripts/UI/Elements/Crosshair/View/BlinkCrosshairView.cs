@@ -74,32 +74,34 @@ namespace Game.UI.Elements.Crosshair
             {
                 energy.OnValueChanged.Attach(valueObs);
             }
+
+            if (!PlayerSpawner.Player.TryGet(out var player) ||
+                !player.GetModel().TryGetComponent<BlinkComponent>(out var blink) ||
+                !blink.ProgressUpdated.TryGet(out var subject) ||
+                !_onChargeObserver.TryGet(out var observer, () => new ActionObserver<float>(OnChargeHandler))) return;
             
-            if (_onChargeObserver.TryGet(out var observer, () => new ActionObserver<float>(OnChargeHandler)))
-            {
-                PlayerSpawner.Player.Get().GetModel().TryGetComponent<BlinkComponent>(out var blink);
-                blink.OnProgressUpdated.Attach(observer);
-                //LockOnBlink.ChargeAmount.Attach(observer);
+            subject.Attach(observer);
                 
-                // Show the key tutorial
-                _showTutorial = blink.ExecutedCount() < 1 && tutorial &&
-                                GlobalLevelManager.CurrentLevel.TryGet(out var levelSo) &&
-                                levelSo.HasArgument(LevelArgument.BlinkTutorial);
-                if (_showTutorial && hasEnergy && !_energy.Get().IsEmpty())
-                {
-                    ShowTutorial();
-                }
+            // Show the key tutorial
+            _showTutorial = blink.ExecutedCount() < 1 && 
+                            tutorial &&
+                            GlobalLevelManager.CurrentLevel.TryGet(out var levelSo) &&
+                            levelSo.HasArgument(LevelArgument.BlinkTutorial);
+            if (_showTutorial && hasEnergy && !_energy.Get().IsEmpty())
+            {
+                ShowTutorial();
             }
-            
+
         }
 
         protected override void OnHide()
         {
             if (_onChargeObserver.TryGet(out var observer) && 
                 PlayerSpawner.Player.TryGet(out var player) && 
-                player.GetModel().TryGetComponent<BlinkComponent>(out var blink))
+                player.GetModel().TryGetComponent<BlinkComponent>(out var blink) &&
+                blink.ProgressUpdated.TryGet(out var subject))
             {
-                blink.OnProgressUpdated.Detach(observer);
+                subject.Detach(observer);
             }
             
             if (_energy.TryGet(out var energy) && _valueObserver.TryGet(out var valueObs, GetValueObserver))
@@ -181,9 +183,10 @@ namespace Game.UI.Elements.Crosshair
             
             if (_onChargeObserver.TryGet(out var observer) && 
                 PlayerSpawner.Player.TryGet(out var player) && 
-                player.GetModel().TryGetComponent<BlinkComponent>(out var blink))
+                player.GetModel().TryGetComponent<BlinkComponent>(out var blink) &&
+                blink.ProgressUpdated.TryGet(out var subject))
             {
-                blink.OnProgressUpdated.Detach(observer);
+                subject.Detach(observer);
             }
             
             _onChargeObserver.Dispose();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Levels;
@@ -7,7 +8,6 @@ using Tools.PlayHook.Elements;
 using Tools.PlayHook.Elements.Menu;
 using Tools.PlayHook.Utils;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEditor.Toolbars;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -23,12 +23,11 @@ namespace Tools.PlayHook
         Window
     }
     
-    
     [EditorToolbarElement(ID, typeof(SceneView))]
 
     public class PlayLevelToolbar : VisualElement
     {
-        public const string DebugSpawnSymbol = "DEBUG_SPAWN";
+        private const string DebugSpawnSymbol = "DEBUG_SPAWN";
         public const string CheatsEnabledSymbol = "CHEATS_ENABLED";
         public const string ID = "CustomToolbar/PlayLevel";
         public static readonly string DisabledFlag = "__NONE__";
@@ -38,9 +37,10 @@ namespace Tools.PlayHook
         private static readonly string MainScenePath = "Assets/_Main/Scenes/MainScene.unity";
         private static readonly string MainMenuPath = "Assets/_Main/Scenes/Main Menu.unity";
 
-        public readonly VariantDropdownButton _levelDropdown;
-        public readonly EditorToolbarButton _playButton;
-        public readonly VariantDropdownButton MoreVariantDropdown;
+        private readonly VariantDropdownButton _levelDropdown;
+        private readonly EditorToolbarButton _playButton;
+        //private readonly VariantDropdownButton _moreVariantDropdown;
+        private readonly VariantDropdownButton _moreVariantDropdown;
         
         private static List<GameModeSO> _gameModes = new();
         private static List<BaseLevelSO> _levels = new();
@@ -90,13 +90,13 @@ namespace Tools.PlayHook
             Add(_playButton);
             
             // More options button
-            MoreVariantDropdown = new VariantDropdownButton("…", "options-menu", variant)
+            _moreVariantDropdown = new VariantDropdownButton("…", "options-menu", variant)
             {
                 tooltip = "More options menu"
             };
-            MoreVariantDropdown.RegisterCallback(OnOpenMenuHandler, GetOptionsHandler);
+            _moreVariantDropdown.RegisterCallback(OnOpenMenuHandler, GetOptionsHandler);
             
-            Add(MoreVariantDropdown);
+            Add(_moreVariantDropdown);
 
             RefreshAssets();
             RestoreSelection();
@@ -254,7 +254,7 @@ namespace Tools.PlayHook
             EditorPrefs.SetString(LevelPrefKey, DisabledFlag);
 
             // Clear playModeStartScene so regular play uses active scene
-            EditorSceneManager.playModeStartScene = null;
+            UnityEditor.SceneManagement.EditorSceneManager.playModeStartScene = null;
 
             SaveSelection();
             UpdateLevelButtonText();
@@ -390,9 +390,19 @@ namespace Tools.PlayHook
 
         private bool ToggleMainSceneOptions(ref List<MenuEntry> entries)
         {
+            // if (!_selectedLevel) return false;
+            // entries.Add(new MenuSeparator());
+            // entries.Add(new MenuItem("Add Main Scene [DEBUG]", OnAddMainSceneClicked, IsMainSceneLoaded, OpenMainSceneDisabled));
+            // return true;
+
             if (!_selectedLevel) return false;
+            
             entries.Add(new MenuSeparator());
-            entries.Add(new MenuItem("Add Main Scene [DEBUG]", OnAddMainSceneClicked, IsMainSceneLoaded, OpenMainSceneDisabled));
+
+            var isLoaded = IsSceneLoaded(MainScenePath);
+            var label = isLoaded ? "Remove Main Scene [DEBUG]" : "Add Main Scene [DEBUG]";
+            
+            entries.Add(new MenuItem(label, ToggleMainScene, false, OpenMainSceneDisabled));
             return true;
         }
 
@@ -426,60 +436,42 @@ namespace Tools.PlayHook
         {
             if (Application.isPlaying) return true;
             
-            var scene = EditorSceneManager.GetSceneByPath(path);
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByPath(path);
             return scene.isLoaded;
-        }
-
-        private bool IsMainSceneLoaded()
-        {
-            return OpenSceneDisabled(MainScenePath);
         }
 
         private bool OpenMainSceneDisabled()
         {
             return Application.isPlaying;
         }
-        
-        private void OnAddMainSceneClicked()
+
+        private void ToggleMainScene()
         {
-            // Only works for LevelSO (single-level scenes)
-            var path = PlayLevelSelectionBridge.GetLevelPath();
-            if (string.IsNullOrEmpty(path))
+            if (Application.isPlaying)
             {
-                EditorUtility.DisplayDialog("No Level Selected", "Please select a LevelSO first.", "OK");
                 return;
             }
 
-            var levelAsset = AssetDatabase.LoadAssetAtPath<BaseLevelSO>(path);
-            if (levelAsset is not LevelSO level)
+            if (!IsSceneLoaded(MainScenePath))
             {
-                EditorUtility.DisplayDialog("Unsupported Type", 
-                    "You can only use 'Add Main Scene' with a LevelSO that represents a single scene.", "OK");
+                AddScene(MainScenePath);
+                Debug.Log("[PlayLevelToolbar] Main Scene loaded additively and set active.");
                 return;
             }
 
-            var levelScenePath = $"Assets/_Main/Scenes/Levels/{level.SceneName}.unity";
-            var mainSceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(MainScenePath);
-
-            if (mainSceneAsset == null)
+            var otherScene = GetFirstScene(excludeScene: MainScenePath);
+            if (!otherScene.IsValid())
             {
-                EditorUtility.DisplayDialog("Main Scene Missing", 
-                    $"The main scene at '{MainScenePath}' could not be found.", "OK");
+                EditorUtility.DisplayDialog("Cannot Remove Main Scene",
+                    "Main Scene cannot be removed because there is no other loaded scene to keep open.", "OK");
                 return;
             }
-
-            // Check if main scene already open
-            var mainScene = EditorSceneManager.GetSceneByPath(MainScenePath);
-            if (mainScene.isLoaded)
-            {
-                EditorUtility.DisplayDialog("Main Scene Already Open",
-                    "The MainScene is already loaded.", "OK");
-                return;
-            }
-
-            // Open additively
-            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(MainScenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
-            Debug.Log($"[PlayLevelToolbar] Main Scene loaded additively into editor for preview with '{level.SceneName}'.");
+            
+            UnityEditor.SceneManagement.EditorSceneManager.SetActiveScene(otherScene);
+            var mainScene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByPath(MainScenePath);
+            UnityEditor.SceneManagement.EditorSceneManager.CloseScene(mainScene, true);
+            
+            Debug.Log($"[PlayLevelToolbar] Main Scene removed. Active scene is now '{otherScene.name}'.");
         }
 
         private void PingSceneAtPath(string path)
@@ -510,7 +502,7 @@ namespace Tools.PlayHook
                 return;
             }
 
-            EditorSceneManager.OpenScene(path);
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(path);
         }
 
         private void OpenLevelScene(SingleLevelSO level)
@@ -526,111 +518,6 @@ namespace Tools.PlayHook
             //RefreshAssets();
             RestoreSelection();
             UpdateLevelButtonText();
-        }
-
-        private void ShowLevelMenu()
-        {
-            RefreshAssets();
-            var menu = new GenericMenu();
-
-            // None option (disables tool)
-            menu.AddItem(new GUIContent("Nothing"), !_isSceneOnly && _selectedLevel == null, () =>
-            {
-                _selectedLevel = null;
-                _isSceneOnly = false;
-
-                // Save persistent flag that means "disabled"
-                EditorPrefs.SetString(LevelPrefKey, DisabledFlag);
-
-                // Clear playModeStartScene so regular play uses active scene
-                EditorSceneManager.playModeStartScene = null;
-
-                SaveSelection();
-                UpdateLevelButtonText();
-            });
-
-            menu.AddSeparator("");
-
-            // Game modes
-            if (_gameModes.Count > 0)
-            {
-                foreach (var mode in _gameModes)
-                {
-                    // Try to get levels for mode
-                    var modeLevels = mode.Levels;
-                    if (modeLevels == null || modeLevels.Count == 0)
-                    {
-                        menu.AddDisabledItem(new GUIContent($"{mode.DisplayName}/Empty"));
-                        continue;
-                    }
-
-                    foreach (var lvl in modeLevels)
-                    {
-                        var label = $"{mode.DisplayName}/{lvl.LevelID:D2}: {lvl.LevelName} ({lvl.GetType().Name})";
-                        var selected = !_isSceneOnly && (_selectedMode == mode && _selectedLevel == lvl);
-
-                        menu.AddItem(new GUIContent(label), selected, () =>
-                        {
-                            _selectedMode = mode;
-                            _selectedLevel = lvl;
-                            _isSceneOnly = false;
-                            SaveSelection();
-                            UpdateLevelButtonText();
-                        });
-                    }
-                }
-            }
-            else
-            {
-                menu.AddDisabledItem(new GUIContent("No GameModes found"));
-            }
-
-            // All Levels
-            menu.AddSeparator("");
-            if (_levels.Count == 0)
-            {
-                menu.AddDisabledItem(new GUIContent("No levels found"));
-            }
-            else
-            {
-                foreach (var lvl in _levels)
-                {
-                    var label = $"All Levels/{lvl.LevelID:D2}: {lvl.LevelName} ({lvl.GetType().Name})";
-                    var isSel = !_isSceneOnly && _selectedMode == null && _selectedLevel == lvl;
-                    menu.AddItem(new GUIContent(label), isSel, () =>
-                    {
-                        _selectedMode = null;
-                        _selectedLevel = lvl;
-                        _isSceneOnly = false;
-                        SaveSelection();
-                        UpdateLevelButtonText();
-                    });
-                }
-            }
-
-            // Scenes
-            menu.AddSeparator("");
-            menu.AddItem(new GUIContent("Scenes/Main Scene"), _isSceneOnly && _selectedScenePath == MainScenePath, () =>
-            {
-                _isSceneOnly = true;
-                _selectedScenePath = MainScenePath;
-                _selectedLevel = null;
-                SaveSelection();
-                UpdateLevelButtonText();
-            });
-
-            menu.AddItem(new GUIContent("Scenes/Main Menu"), _isSceneOnly && _selectedScenePath == MainMenuPath, () =>
-            {
-                _isSceneOnly = true;
-                _selectedScenePath = MainMenuPath;
-                _selectedLevel = null;
-                SaveSelection();
-                UpdateLevelButtonText();
-            });
-
-            // Show under dropdown text
-            var world = _levelDropdown.worldBound;
-            menu.DropDown(new Rect(world.xMin, world.yMax, 0, 0));
         }
 
         private void RefreshAssets()
@@ -788,7 +675,7 @@ namespace Tools.PlayHook
             if (_isSceneOnly)
             {
                 var scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(_selectedScenePath);
-                EditorSceneManager.playModeStartScene = scene;
+                UnityEditor.SceneManagement.EditorSceneManager.playModeStartScene = scene;
                 EditorApplication.isPlaying = true;
                 return;
             }
@@ -803,7 +690,7 @@ namespace Tools.PlayHook
 
             // Always start from MainScene
             var mainScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(MainScenePath);
-            if (mainScene) EditorSceneManager.playModeStartScene = mainScene;
+            if (mainScene) UnityEditor.SceneManagement.EditorSceneManager.playModeStartScene = mainScene;
 
             // handoff to runtime bridge
             PlayLevelHandler.SetSelectedLevel(_selectedLevel);
@@ -824,7 +711,7 @@ namespace Tools.PlayHook
                     return;
                 }
 
-                EditorSceneManager.OpenScene(_selectedScenePath);
+                UnityEditor.SceneManagement.EditorSceneManager.OpenScene(_selectedScenePath);
                 return;
             }
 
@@ -850,37 +737,7 @@ namespace Tools.PlayHook
                     return;
                 }
 
-                EditorSceneManager.OpenScene(path);
-            }
-        }
-
-        private void OnSelectClicked()
-        {
-            if (_isSceneOnly)
-            {
-                var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(_selectedScenePath);
-                if (sceneAsset)
-                {
-                    Selection.activeObject = sceneAsset;
-                    EditorGUIUtility.PingObject(sceneAsset);
-                }
-                else
-                {
-                    EditorUtility.DisplayDialog("Cannot Select Scene",
-                        $"The Scene at the path: '{_selectedScenePath}' was not found", "OK");
-                }
-
-                return;
-            }
-
-            if (_selectedLevel)
-            {
-                Selection.activeObject = _selectedLevel;
-                EditorGUIUtility.PingObject(_selectedLevel);
-            }
-            else
-            {
-                EditorUtility.DisplayDialog("Cannot Select Level", $"The Level was not found", "OK");
+                UnityEditor.SceneManagement.EditorSceneManager.OpenScene(path);
             }
         }
 
@@ -904,6 +761,58 @@ namespace Tools.PlayHook
                 //_openSceneButton.SetEnabled(true);
                 //_selectButton.SetEnabled(true);
             }
+        }
+
+        private static bool IsSceneLoaded(string path)
+        {
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByPath(path);
+            return scene.IsValid() && scene.isLoaded;
+        }
+
+        private static UnityEngine.SceneManagement.Scene GetFirstScene(string excludeScene = null)
+        {
+            for (var i = 0; i < UnityEditor.SceneManagement.EditorSceneManager.sceneCount; i++)
+            {
+                var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i);
+                if (!scene.IsValid() || !scene.isLoaded)
+                {
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(excludeScene) && scene.path == excludeScene)
+                {
+                    continue;
+                }
+
+                return scene;
+            }
+
+            return default;
+        }
+
+        private static bool AddScene(string path, bool additive = true, bool setActive = true)
+        {
+            var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
+            if (!sceneAsset)
+            {
+                EditorUtility.DisplayDialog("Cannot Open Scene",
+                    $"The Scene at the path: '{path}' was not found", "OK");
+                return false;
+            }
+
+            var loadedScene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByPath(path);
+            if (!loadedScene.IsValid() || !loadedScene.isLoaded)
+            {
+                loadedScene =
+                    UnityEditor.SceneManagement.EditorSceneManager.OpenScene(path, additive ? UnityEditor.SceneManagement.OpenSceneMode.Additive : UnityEditor.SceneManagement.OpenSceneMode.Single);
+            }
+
+            if (setActive && loadedScene.IsValid() && loadedScene.isLoaded)
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.SetActiveScene(loadedScene);
+            }
+
+            return loadedScene.IsValid() && loadedScene.isLoaded;
         }
     }
 }
