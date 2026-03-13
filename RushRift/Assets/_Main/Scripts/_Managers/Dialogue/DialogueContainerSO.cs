@@ -6,9 +6,13 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Dialogue Container", menuName = "Game/Dialogue System/Dialogue Container")]
 public class DialogueContainerSO : ScriptableObject
 {
+    public int DialogueId => dialogueId;
     public string Name => speakerName;
     public List<BaseDialogueSO> Dialogues => dialogues.Get();
-    
+
+    [Header("ID")]
+    [SerializeField] private int dialogueId;
+
     [Header("Speaker")]
     [SerializeField] private string speakerName;
     

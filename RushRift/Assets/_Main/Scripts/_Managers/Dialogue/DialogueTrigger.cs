@@ -1,3 +1,4 @@
+using Game.Saves;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,8 +19,12 @@ public class DialogueTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        var data = SaveSystem.LoadGame();
         if (!other.CompareTag(triggerTag)) return;
+        if (data.CheckDialogueHeard(dialogue.DialogueId)) return;
         TriggerDialogue();
+        data.SetDialogueHeard(dialogue.DialogueId);
+        data.SaveGame();
 
         gameObject.SetActive(false);
     }

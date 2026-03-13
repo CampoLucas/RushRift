@@ -37,8 +37,15 @@ namespace Game.Saves
             set => _levelsMedalsTimes = value;
         }
 
+        private List<int> GameDialogues
+        {
+            get => _gameDialogues ??= new List<int>();
+            set => _gameDialogues = value;
+        }
+
         private Dictionary<int, float> _bestTimes = new();
         private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
+        private List<int> _gameDialogues = new();
 
         public SaveData()
         {
@@ -83,6 +90,17 @@ namespace Game.Saves
                 MedalType.Gold => saveData.goldUnlocked,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
+        }
+
+        public void SetDialogueHeard(int id)
+        {
+            //check if dictionary is better
+            GameDialogues.Add(id);
+        }
+
+        public bool CheckDialogueHeard(int id)
+        {
+            return GameDialogues.Contains(id);
         }
 
         public int TryGetUnlockedEffects(int levelID, out Effect[] unlockedEffects)
