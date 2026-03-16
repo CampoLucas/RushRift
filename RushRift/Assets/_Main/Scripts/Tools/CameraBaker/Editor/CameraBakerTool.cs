@@ -28,17 +28,47 @@ namespace Game.Tools.CameraBaker.Editor
             var cam = Selection.activeGameObject ? Selection.activeGameObject.GetComponent<Camera>() : null;
             if (!cam)
             {
+                EditorUtility.DisplayDialog("Cannot Bake", "Select a GameObject with a Camera component.", "OK"); 
                 Debug.LogError("Select a GameObject with a Camera component.");
                 return;
             }
 
-            Bake(cam, width, height, FolderPath, cam.gameObject.scene.name + "(" + width + "x" + height + ")" + ".png");
+            var path = Bake(cam, width, height, FolderPath, cam.gameObject.scene.name + "(" + width + "x" + height + ")" + ".png",
+                true, false, true, true);
+            
+            if (!string.IsNullOrEmpty(path))
+            {
+                CameraBakerPreviewWindow.ShowPreview(path);
+            }
         }
 
-        public static void Bake(Camera cam, int width, int height, string folderPath, string fileName)
+        public static string Bake(
+            Camera cam,
+            int width,
+            int height,
+            string folderPath,
+            string fileName,
+            bool importAsSprite,
+            bool mipmaps,
+            bool srgb,
+            bool alphaIsTransparency)
         {
+            if (!cam)
+            {
+                Debug.LogError("Camera is null.");
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(folderPath))
+            {
+                Debug.LogError("Folder path is empty.");
+                return null;
+            }
+
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
+
+            var fullPath = Path.Combine(folderPath, fileName).Replace('\\', '/');
 
             var rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32)
             {
@@ -52,63 +82,6 @@ namespace Game.Tools.CameraBaker.Editor
             {
                 cam.targetTexture = rt;
                 RenderTexture.active = rt;
-
-                // Render in edit mode too.
-                cam.Render();
-
-                var tex = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
-                tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-                tex.Apply(false, false);
-
-                var bytes = tex.EncodeToPNG();
-                Object.DestroyImmediate(tex);
-
-                var fullPath = Path.Combine(folderPath, fileName);
-                File.WriteAllBytes(fullPath, bytes);
-
-                AssetDatabase.ImportAsset(fullPath, ImportAssetOptions.ForceUpdate);
-
-                // Optional: set import settings for UI thumbnails
-                var importer = (TextureImporter)AssetImporter.GetAtPath(fullPath);
-                if (importer != null)
-                {
-                    importer.textureType = TextureImporterType.Sprite;
-                    importer.mipmapEnabled = false;
-                    importer.sRGBTexture = true;
-                    importer.alphaIsTransparency = true;
-                    importer.SaveAndReimport();
-                }
-
-                Debug.Log($"Saved preview: {fullPath}");
-            }
-            finally
-            {
-                cam.targetTexture = prevTarget;
-                RenderTexture.active = prevActive;
-                rt.Release();
-                Object.DestroyImmediate(rt);
-            }
-        }
-        
-        public static void Bake(Camera cam, int width, int height, string folderPath, string fileName, bool importAsSprite,
-            bool mipmaps, bool srgb, bool alphaIsTransparency)
-        {
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
-
-            var rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32)
-            {
-                antiAliasing = 1
-            };
-
-            var prevTarget = cam.targetTexture;
-            var prevActive = RenderTexture.active;
-
-            try
-            {
-                cam.targetTexture = rt;
-                RenderTexture.active = rt;
-
                 cam.Render();
 
                 var tex = new Texture2D(width, height, TextureFormat.RGBA32, mipmaps, !srgb);
@@ -118,30 +91,28 @@ namespace Game.Tools.CameraBaker.Editor
                 var bytes = tex.EncodeToPNG();
                 Object.DestroyImmediate(tex);
 
-                var fullPath = Path.Combine(folderPath, fileName).Replace('\\', '/');
                 File.WriteAllBytes(fullPath, bytes);
-
                 AssetDatabase.ImportAsset(fullPath, ImportAssetOptions.ForceUpdate);
+                AssetDatabase.Refresh();
 
-                if (importAsSprite)
+                var importer = AssetImporter.GetAtPath(fullPath) as TextureImporter;
+                if (importer != null)
                 {
-                    var importer = (TextureImporter)AssetImporter.GetAtPath(fullPath);
-                    if (importer != null)
-                    {
-                        importer.textureType = TextureImporterType.Sprite;
-                        importer.mipmapEnabled = mipmaps;
-                        importer.sRGBTexture = srgb;
-                        importer.alphaIsTransparency = alphaIsTransparency;
-                        importer.SaveAndReimport();
-                    }
+                    importer.textureType = importAsSprite ? TextureImporterType.Sprite : TextureImporterType.Default;
+                    importer.mipmapEnabled = mipmaps;
+                    importer.sRGBTexture = srgb;
+                    importer.alphaIsTransparency = alphaIsTransparency;
+                    importer.SaveAndReimport();
                 }
 
                 Debug.Log($"Saved preview: {fullPath}");
+                return fullPath;
             }
             finally
             {
                 cam.targetTexture = prevTarget;
                 RenderTexture.active = prevActive;
+
                 rt.Release();
                 Object.DestroyImmediate(rt);
             }

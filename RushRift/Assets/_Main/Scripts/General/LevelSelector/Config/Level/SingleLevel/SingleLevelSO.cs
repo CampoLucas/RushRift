@@ -33,7 +33,7 @@ namespace Game.Levels
 
         public override SingleLevelSO GetLevel(int index)
         {
-            if (index < 0 && index >= LevelCount())
+            if (index < 0 || index >= LevelCount())
             {
                 this.Log("Level Index out of exception", LogType.Error);
                 return null;

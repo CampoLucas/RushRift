@@ -124,6 +124,7 @@ namespace Game.UI
         {
             StopCoroutine();
             
+            if (!gameObject.activeSelf || !gameObject.activeInHierarchy || !enabled) return;
             _runnerCoroutine = StartCoroutine(DoAnim(playPosition, playRotation, playScale, playIgnoreZScale, playColor, delay));
         }
 

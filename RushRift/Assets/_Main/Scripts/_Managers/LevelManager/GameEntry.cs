@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
 using Game.Utils;
-using MyTools.Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,7 +19,7 @@ namespace Game
         MissingLevel = 404,
         ManagersNotFound = 503,
         SceneLoadFailed = 520,
-        Exception = 500,
+        Exception = 500
     }
     
     public static class GameEntry
@@ -28,6 +28,8 @@ namespace Game
         public const string MAIN_SCENE = "MainScene";
 
         private static CancellationTokenSource _cts;
+        private static bool _isLoadRunning;
+        private static readonly List<Scene> _loadedScenes = new();
 
         public static async void LoadSessionAsync(GameSessionSO session, bool mainSceneAdditive = false)
         {
@@ -42,9 +44,9 @@ namespace Game
             await TryAwaitLoadSessionAsync(session, mainSceneAdditive);
         }
 
-        public static async void LoadLevelAsync(BaseLevelSO level, bool mainSceneAdditive = false)
+        public static UniTask<LoadResult> LoadLevelAsync(BaseLevelSO level, bool mainSceneAdditive = false)
         {
-            await TryAwaitLoadLevelAsync(level, mainSceneAdditive);
+            return TryAwaitLoadLevelAsync(level, mainSceneAdditive);
         }
         
         public static async UniTask<LoadResult> TryAwaitLoadSessionAsync(
@@ -64,19 +66,24 @@ namespace Game
             return await TryAwaitLoadSessionAsync(session, mainSceneAdditive);
         }
 
-        private static async UniTask<LoadResult> TryAwaitLoad(
-            GameSessionSO session, 
-            BaseLevelSO level, 
-            bool mainSceneAdditive = false,
-            CancellationToken ct = default)
+        private static async UniTask<LoadResult> TryAwaitLoad(GameSessionSO session, BaseLevelSO level, 
+            bool mainSceneAdditive = false, CancellationToken ct = default)
         {
+            if (_isLoadRunning)
+            {
+                Debug.LogWarning("[GameEntry] Load request ignored, another load is already running.");
+                return LoadResult.Cancelled;
+            }
+
+            _isLoadRunning = true;
+            
             // Set up a linked CTS so we can cancel it
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct);
             _cts = linked;
-            
-            Debug.Log($"[GameEntry] Scene list before load: " +
-                      string.Join(", ", Enumerable.Range(0, SceneManager.sceneCount)
-                          .Select(i => SceneManager.GetSceneAt(i).name)));
+
+            var sceneListBeforeLoad = string.Join(", ",
+                Enumerable.Range(0, SceneManager.sceneCount).Select(i => SceneManager.GetSceneAt(i).name));
+            Debug.Log($"[GameEntry] Scene list before load: {sceneListBeforeLoad}");
 
             try
             {
@@ -87,36 +94,67 @@ namespace Game
                 if (!mainScene.isLoaded)
                 {
                     var lr = await LoadMainSceneAsync(mainSceneAdditive, linked.Token);
-                    if (lr != LoadResult.Ok) return Fail(lr, "Failed to load MainScene.");
+                    if (lr != LoadResult.Ok)
+                    {
+                        return Fail(lr, "Failed to load MainScene.");
+                    }
+                }
+
+                if (mainScene.IsValid() && mainScene.isLoaded)
+                {
+                    SceneHandler.SetActiveScene(mainScene);
                 }
                 
-                Debug.Log($"[GameEntry] Scene list after main scene load: " +
+                Debug.Log("[GameEntry] Scene list after main scene load: " +
                           string.Join(", ", Enumerable.Range(0, SceneManager.sceneCount)
                               .Select(i => SceneManager.GetSceneAt(i).name)));
 
                 // Wait until critical managers are ready
                 var readyManagers = await EnsureManagersReadyAsync(linked.Token);
-                if (!readyManagers) return Fail(LoadResult.ManagersNotFound, "Managers not ready.");
+                if (!readyManagers)
+                {
+                    return Fail(LoadResult.ManagersNotFound, "Managers not ready.");
+                }
 
                 // Only after mangers are ready, notify about preload 
                 NotifyPreload(level);
 
                 // Bind session & Load
-                var sessionRes = await TryAwaitLoadSession(session, linked.Token);
-                if (sessionRes != LoadResult.Ok) return Fail(sessionRes, "Failed to bind session.");
+                var sessionRes = await TryAwaitBindSession(session, linked.Token);
+                if (sessionRes != LoadResult.Ok)
+                {
+                    return Fail(sessionRes, "Failed to bind session.");
+                }
 
-                // Call the event when the level is loaded.
-                NotifyLoaded(level);
+                
+                // Unload old gameplay scenes first
+                await UnloadTrackedScenesAsync(linked.Token);
+                
+                // Load the new gameplay scenes
+                var targetLevel = GetLevelToLoad(session);
+                var loadRes = await LoadLevelScenesAsync(targetLevel, linked.Token);
+                if (loadRes != LoadResult.Ok)
+                {
+                    return Fail(loadRes, "Failed to load level scenes.");
+                }
+
+                var managerValue = await GlobalLevelManager.GetAsync(linked.Token);
+                if (!managerValue.TryGet(out var manager))
+                {
+                    return Fail(LoadResult.ManagersNotFound, "Level Manager not found after scene load.");
+                }
+
+                await targetLevel.OnScenesLoadedAsync(manager, linked.Token);
+                
+                // Notify loaded
+                NotifyLoaded(targetLevel);
 
                 // Respawn the player
-                linked.Token.ThrowIfCancellationRequested();
-                await PlayerSpawner.RespawnPlayerAsync(ct);
-
-                // Unload any previous scenes
-                await AwaitUnloadPrevScene(linked.Token);
+                //linked.Token.ThrowIfCancellationRequested();
+                await PlayerSpawner.RespawnPlayerAsync(linked.Token);
 
                 SetLoading(false);
-                NotifyReady(level);
+                NotifyReady(targetLevel);
                 return LoadResult.Ok;
             }
             catch (OperationCanceledException)
@@ -131,6 +169,7 @@ namespace Game
             finally
             {
                 _cts = null;
+                _isLoadRunning = false;
             }
             
             LoadResult Fail(LoadResult code, string msg)
@@ -142,6 +181,21 @@ namespace Game
         }
 
         #region Try Catch tests
+        
+        private static BaseLevelSO GetLevelToLoad(GameSessionSO session)
+        {
+            if (session == null || session.Level == null)
+                return null;
+
+            var rootLevel = session.Level;
+            var index = Mathf.Max(0, session.CurrIndex);
+
+            if (rootLevel.LevelCount() <= 1)
+                return rootLevel;
+
+            var childLevel = rootLevel.GetLevel(index);
+            return childLevel ? childLevel : rootLevel;
+        }
 
         private static void SetLoading(bool isLoading)
         {
@@ -226,32 +280,80 @@ namespace Game
             return true;
         }
         
-        private static async UniTask AwaitUnloadPrevScene(CancellationToken ct)
+        private static async UniTask UnloadTrackedScenesAsync(CancellationToken ct)
         {
-            // Unload the previous scene (Hub, menu, etc.)
-            var active = SceneHandler.GetActiveScene();
-            if (active.name == MAIN_SCENE) return;
-            
-            var unloadPrev = SceneHandler.UnloadSceneAsync(active);
-            if (unloadPrev != null)
+            for (var i = _loadedScenes.Count - 1; i >= 0; i--)
             {
-                await unloadPrev.ToUniTask(cancellationToken: ct);
+                ct.ThrowIfCancellationRequested();
+
+                var scene = _loadedScenes[i];
+                if (!scene.IsValid() || !scene.isLoaded)
+                    continue;
+
+                var unloadOp = SceneHandler.UnloadSceneAsync(scene);
+                if (unloadOp != null)
+                {
+                    await unloadOp.ToUniTask(cancellationToken: ct);
+                }
             }
+
+            _loadedScenes.Clear();
         }
 
-        private static async UniTask<LoadResult> TryAwaitLoadSession(GameSessionSO session, CancellationToken ct)
+        private static async UniTask<LoadResult> LoadLevelScenesAsync(BaseLevelSO level, CancellationToken ct)
+        {
+            if (level.IsNullOrMissing())
+            {
+                return LoadResult.MissingLevel;
+            }
+
+            var requests = level.GetSceneLoadRequests();
+            if (requests == null || requests.Count == 0)
+            {
+                return LoadResult.MissingLevel;
+            }
+
+            for (var i = 0; i < requests.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                var request = requests[i];
+                if (string.IsNullOrWhiteSpace(request.SceneName))
+                {
+                    return LoadResult.MissingLevel;
+                }
+
+                var op = SceneHandler.LoadSceneAsync(request.SceneName, request.LoadMode);
+                if (op == null)
+                {
+                    return LoadResult.SceneLoadFailed;
+                }
+
+                await op.ToUniTask(cancellationToken: ct);
+
+                var loadedScene = SceneHandler.GetSceneByName(request.SceneName);
+                if (!loadedScene.IsValid() || !loadedScene.isLoaded)
+                {
+                    return LoadResult.SceneLoadFailed;
+                }
+                
+                _loadedScenes.Add(loadedScene);
+            }
+
+            return LoadResult.Ok;
+        }
+
+        private static async UniTask<LoadResult> TryAwaitBindSession(GameSessionSO session, CancellationToken ct)
         {
             var managerValue = await GlobalLevelManager.GetAsync(ct);
             if (!managerValue.TryGet(out var manager))
             {
                 return LoadResult.ManagersNotFound;
             }
-
-            manager.SetSession(session);
             
             // Tell the manager which level to load
             ct.ThrowIfCancellationRequested();
-            await manager.WaitLoadLevel(session.Level);
+            manager.SetSession(session);
             return LoadResult.Ok;
         }
 
@@ -260,13 +362,48 @@ namespace Game
             if (additive)
             {
                 var op = SceneHandler.LoadSceneAsync(MAIN_SCENE, LoadSceneMode.Additive);
-                if (op == null) return LoadResult.SceneLoadFailed;
+                if (op == null)
+                {
+                    return LoadResult.SceneLoadFailed;
+                }
 
                 await op.ToUniTask(cancellationToken: ct);
-                return LoadResult.Ok;
+            }
+            else
+            {
+                SceneHandler.LoadScene(MAIN_SCENE);
+                await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            }
+
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
+
+            try
+            {
+                await UniTask.WaitUntil(() =>
+                {
+                    var scene = SceneHandler.GetSceneByName(MAIN_SCENE);
+                    return scene.IsValid() && scene.isLoaded;
+                }, cancellationToken: linkedCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                if (ct.IsCancellationRequested)
+                {
+                    return LoadResult.Cancelled;
+                }
+                
+                Debug.LogError($"[GameEntry] Timed out waiting for scene '{MAIN_SCENE}' to load.");
+                return LoadResult.SceneLoadFailed;
+            }
+
+            var mainScene = SceneHandler.GetSceneByName(MAIN_SCENE);
+            if (!mainScene.IsValid() || !mainScene.isLoaded)
+            {
+                return LoadResult.SceneLoadFailed;
             }
             
-            SceneHandler.LoadScene(MAIN_SCENE);
+            SceneHandler.SetActiveScene(mainScene);
             return LoadResult.Ok;
         }
 
@@ -276,33 +413,47 @@ namespace Game
             LoadingState.DetachAll();
             
             // Cancel anything still running
-            try { _cts?.Cancel(); } catch { /* ignore */ }
+            try
+            {
+                _cts?.Cancel();
+            }
+            catch
+            {
+                // Ignore
+            }
             
             // Ensure we’re on main thread
             await UniTask.SwitchToMainThread();
             
-            // Best effort: close loading UI
-            try { LoadingState.SetLoading(false); } catch { /* ignore */ }
+            // Close loading UI
+            try
+            {
+                LoadingState.SetLoading(false);
+            }
+            catch
+            {
+                // Ignore
+            }
             
-            // Unload any additive gameplay scenes (keep it simple/safe)
+            // Unload any additive gameplay scenes
             try
             {
                 // If you have a central place that knows loaded scenes, use that.
                 // Otherwise, unload everything except the menu we’re about to load.
                 // (If your SceneHandler can list LoadedScenes, iterate and unload.)
             }
-            catch (Exception ex) { Debug.LogWarning($"[GameEntry] Unload before menu: {ex}"); }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[GameEntry] Unload before menu: {ex}");
+            }
 
             try
             {
-                if (GlobalLevelManager.Instance.TryGet(out var manager) && !manager.IsNullOrMissing())
-                {
-                    manager.ClearLoadedLevelTracking();
-                }
+                await UnloadTrackedScenesAsync(CancellationToken.None);
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[GameEntry] Could not clear level tracking: {ex}");
+                Debug.LogWarning($"[GameEntry] Could not unload tracked gameplay scenes: {ex}");
             }
             
             // Load menu, then set it active
@@ -320,6 +471,9 @@ namespace Game
             }
             
             // ToDo: show pop up.
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.DisplayDialog($"Loading Error {code}", reason, "OK");
+#endif
         }
     }
 

@@ -8,8 +8,10 @@ namespace Game.Entities.AttackSystem
 {
     public class BlinkModule : StaticModuleData
     {
+        public int Cost => cost;
         public BlinkConfig BlinkConfig => config;
         [SerializeField] private BlinkConfig config;
+        [SerializeField] private int cost = 1;
         
         public override IModuleProxy GetProxy(IController controller, bool disposeData = false)
         {
@@ -71,7 +73,7 @@ namespace Game.Entities.AttackSystem
                 _energy.TryGet(out var energy, GetEnergyComponent))
             {
                 blink.IncreaseExecutedCount();
-                energy.Decrease(energy.Value);
+                energy.Decrease(Data.Cost > 0 ? Data.Cost : energy.Value);
             }
                 
             blink.FinishCharge();

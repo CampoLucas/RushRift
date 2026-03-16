@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
 using Game.Saves;
 using Game.UI.StateMachine;
-using Game.Utils;
 using MyTools.Global;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Game
 {
@@ -41,9 +37,7 @@ namespace Game
         private LevelFlags Flags;
 
         #endregion
-
-        private readonly List<string> _loadedLevels = new();
-        private readonly Dictionary<string, Scene> _loadedLevelsDict = new();
+        
         private TimerHandler _levelTimer = new();
         private ActionObserver<bool> _gameOverObserver;
         private ActionObserver<bool> _loadingObserver;
@@ -77,23 +71,6 @@ namespace Game
             {
                 _levelTimer.DoUpdate(Time.deltaTime);
             }
-        }
-        
-        public async UniTask<bool> WaitLoadLevel(BaseLevelSO level)
-        {
-            if (level == null)
-            {
-                this.Log("LevelSO is null");
-                return false;
-            }
-
-            // Unload previously loaded levels
-            
-            await WaitUnloadAllLevels();
-            
-            // Load the new level additively
-            await level.LoadAsync(this);
-            return true;
         }
 
         public void SetSession(GameSessionSO session)
@@ -151,111 +128,9 @@ namespace Game
             this.Log("There is no next level", LogType.Error);
             return false;
         }
-
-        public async UniTask AwaitLoadLevelScene(string sceneName, bool preloaded = false)
-        {
-            if (string.IsNullOrEmpty(sceneName))
-            {
-                this.Log("Invalid scene name");
-                return;
-            }
-
-            if (_loadedLevelsDict.ContainsKey(sceneName))
-            {
-                return;
-            }
-            
-            var op = SceneHandler.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            
-            if (!preloaded)
-            {
-                await op.ToUniTask();
-            }
-
-            var scene = SceneHandler.GetSceneByName(sceneName);
-            if (!_loadedLevelsDict.ContainsKey(sceneName))
-            {
-                _loadedLevels.Add(sceneName);
-                _loadedLevelsDict[sceneName] = scene;
-            }
-        }
-
-        public async UniTask WaitUnloadScene(string sceneName)
-        {
-#if true
-            if (!_loadedLevelsDict.TryGetValue(sceneName, out var scene))
-                return;
-
-            if (!scene.IsValid() || !scene.isLoaded)
-            {
-                _loadedLevelsDict.Remove(sceneName);
-                _loadedLevels.Remove(sceneName);
-                return;
-            }
-
-            await SceneHandler.UnloadSceneAsync(scene);
-            _loadedLevelsDict.Remove(sceneName);
-            _loadedLevels.Remove(sceneName);
-#else
-            if (!_loadedLevelsDict.TryGetValue(sceneName, out var scene))
-            {
-                return;
-            }
-
-            await SceneHandler.UnloadSceneAsync(scene);
-            _loadedLevelsDict.Remove(sceneName);
-            _loadedLevels.Remove(sceneName);
-#endif
-        }
-        
-        public async UniTask WaitUnloadAllLevels()
-        {
-#if true
-            for (var i = _loadedLevels.Count - 1; i >= 0; i--)
-            {
-                var n = _loadedLevels[i];
-
-                if (!_loadedLevelsDict.TryGetValue(n, out var scene))
-                    continue;
-                
-                if (!scene.IsValid() || !scene.isLoaded)
-                {
-                    _loadedLevelsDict.Remove(n);
-                    _loadedLevels.RemoveAt(i);
-                    continue;
-                }
-
-                try
-                {
-                    await SceneHandler.UnloadSceneAsync(scene);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning($"[GlobalLevelManager] Failed to unload scene '{n}': {ex.Message}");
-                }
-
-                _loadedLevelsDict.Remove(n);
-                _loadedLevels.RemoveAt(i);
-            }
-
-            LevelIndex = -1;
-#else
-            for (var i = 0; i < _loadedLevels.Count; i++)
-            {
-                var loadedScenes = _loadedLevelsDict[_loadedLevels[i]];
-                await SceneHandler.UnloadSceneAsync(loadedScenes);
-            }
-
-            _loadedLevels.Clear();
-            _loadedLevelsDict.Clear();
-            LevelIndex = -1;
-#endif
-        }
         
         public void ClearLoadedLevelTracking()
         {
-            _loadedLevels.Clear();
-            _loadedLevelsDict.Clear();
             LevelIndex = -1;
         }
         

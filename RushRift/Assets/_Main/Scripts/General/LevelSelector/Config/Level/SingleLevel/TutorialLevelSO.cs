@@ -13,7 +13,6 @@ namespace Game.Levels
         public override int TryGetEffects(out Effect[] effect)
         {
             effect = effectsToAdd.ToArray();
-            
             return effect.Length;
         }
     }
