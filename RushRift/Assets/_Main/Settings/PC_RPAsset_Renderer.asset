@@ -80,9 +80,8 @@ MonoBehaviour:
   - {fileID: 4347957266383954688}
   - {fileID: -9210912439033467535}
   - {fileID: -1075911351702848304}
-  - {fileID: 461945680248568294}
-  - {fileID: 4493583003812071555}
-  m_RendererFeatureMap: 98ff926f804fd59b00e364e9180c573c71ed2e2ef0432c80d0fcf077539811f1e6f9bd10262969068388f316ef695c3e
+  - {fileID: 1395581594033059434}
+  m_RendererFeatureMap: 98ff926f804fd59b00e364e9180c573c71ed2e2ef0432c80d0fcf077539811f16af669cf101a5e13
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -124,7 +123,7 @@ MonoBehaviour:
   m_CopyDepthMode: 1
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
---- !u!114 &461945680248568294
+--- !u!114 &1395581594033059434
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -133,17 +132,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d613f08f173d4dd895bb07b3230baa9, type: 3}
-  m_Name: FullScreenPassRendererFeature
+  m_Script: {fileID: 11500000, guid: 3118bed3054740b7aeee89d34d04f850, type: 3}
+  m_Name: DepthFeature
   m_EditorClassIdentifier: 
-  m_Active: 0
-  injectionPoint: 600
-  fetchColorBuffer: 1
-  requirements: 0
-  passMaterial: {fileID: 2100000, guid: 9a3c084fc6b4feb4692e4076f4bac5dd, type: 2}
-  passIndex: 0
-  bindDepthStencilAttachment: 0
-  m_Version: 1
+  m_Active: 1
+  settings:
+    material: {fileID: 2100000, guid: 9a3c084fc6b4feb4692e4076f4bac5dd, type: 2}
+    passEvent: 450
 --- !u!114 &4347957266383954688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164,18 +159,3 @@ MonoBehaviour:
   passIndex: 0
   bindDepthStencilAttachment: 0
   m_Version: 1
---- !u!114 &4493583003812071555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3118bed3054740b7aeee89d34d04f850, type: 3}
-  m_Name: DepthFeature
-  m_EditorClassIdentifier: 
-  m_Active: 1
-  settings:
-    material: {fileID: 2100000, guid: 9a3c084fc6b4feb4692e4076f4bac5dd, type: 2}
