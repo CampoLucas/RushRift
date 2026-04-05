@@ -811,11 +811,53 @@ PrefabInstance:
       propertyPath: m_Name
       value: HandElectricityFX
       objectReference: {fileID: 0}
+    - target: {fileID: 8593702106494926842, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+      propertyPath: ShapeModule.radiusThickness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8593702106494926842, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8593702106494926842, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+      propertyPath: InitialModule.startSize.minScalar
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 8593702106494926842, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+      propertyPath: ShapeModule.m_SkinnedMeshRenderer
+      value: 
+      objectReference: {fileID: 4340065911590251750}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6377337748117914540, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1218187047301631048}
   m_SourcePrefab: {fileID: 100100000, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+--- !u!1 &1654856619790985972 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6377337748117914540, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+  m_PrefabInstance: {fileID: 5654236034382850392}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1218187047301631048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1654856619790985972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28493f49e222e0b4fa90c74d0fac1207, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particleSystem: {fileID: 4122226595739834018}
+--- !u!198 &4122226595739834018 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8593702106494926842, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
+  m_PrefabInstance: {fileID: 5654236034382850392}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &9188598733004723995 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3599383710350425667, guid: 269e69878def3c84e843e3918dd8aee7, type: 3}
@@ -1134,9 +1176,25 @@ PrefabInstance:
       value: -17.232668
       objectReference: {fileID: 0}
     - target: {fileID: -1198315009683384140, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 5754758883800956968, guid: 925b3c55c0409a0419d2de28f31778ed, type: 3}
+    - target: {fileID: -1198315009683384140, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
       propertyPath: m_UpdateWhenOffscreen
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -1198315009683384140, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -1198315009683384140, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 35d1d17e4cb11de479ef07fd07472a9b, type: 2}
+    - target: {fileID: -1198315009683384140, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: 609cd624d15c73249b171da255d9896e, type: 2}
     - target: {fileID: -1134351572036301161, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -0.0017327345
@@ -1668,6 +1726,11 @@ MonoBehaviour:
   - m_Rig: {fileID: 0}
     m_Active: 1
   m_Effectors: []
+--- !u!137 &4340065911590251750 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -1198315009683384140, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
+  m_PrefabInstance: {fileID: 6009411773907858514}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4568917008694029784 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7786079324395886986, guid: 99e027f870113114e88b4c13b61b5fcb, type: 3}
@@ -1875,6 +1938,10 @@ PrefabInstance:
     - target: {fileID: 4922756691367874403, guid: 12e7bf4f6da3f874c81f85144dfad0da, type: 3}
       propertyPath: m_Name
       value: HandDetail
+      objectReference: {fileID: 0}
+    - target: {fileID: 4922756691367874403, guid: 12e7bf4f6da3f874c81f85144dfad0da, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

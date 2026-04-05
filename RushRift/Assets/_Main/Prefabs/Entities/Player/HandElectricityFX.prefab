@@ -287,8 +287,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.025
-      minScalar: 0.05
+      scalar: 0.005
+      minScalar: 0.015
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -673,7 +673,7 @@ ParticleSystem:
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
-    placementMode: 0
+    placementMode: 1
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
     m_MeshSpawn:
@@ -1046,20 +1046,29 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0
           value: 0.7
-          inSlope: 0
-          outSlope: 0
+          inSlope: -0.4759036
+          outSlope: -0.4759036
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.13469733
+        - serializedVersion: 3
+          time: 0.12793042
+          value: 0.8611666
+          inSlope: -0.098195314
+          outSlope: -0.098195314
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
           time: 1
-          value: 1
-          inSlope: 0.5166324
-          outSlope: 0.5166324
+          value: 0.41025668
+          inSlope: -0.49104384
+          outSlope: -0.49104384
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.1440751
+          inWeight: 0.14370388
           outWeight: 0.33333334
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -2747,7 +2756,7 @@ ParticleSystem:
     strength:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0.01
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -2904,7 +2913,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     separateAxes: 0
-    frequency: 0.5
+    frequency: 1.24
     damping: 1
     octaves: 1
     octaveMultiplier: 0.5
@@ -4365,8 +4374,17 @@ ParticleSystem:
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
+          time: 0.08697852
+          value: 0.6323938
+          inSlope: 0.36429062
+          outSlope: 0.36429062
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
           time: 1
-          value: 0
+          value: 0.73846054
           inSlope: 0
           outSlope: 0
           tangentMode: 0
@@ -5001,6 +5019,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 16434bc9d78247a4f9150ddf549ddf16, type: 3}
       propertyPath: m_Name
       value: Hand
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 16434bc9d78247a4f9150ddf549ddf16, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
