@@ -20,8 +20,8 @@ public class DialogueManager : MonoBehaviour
 
 	public bool isDialogueActive = false;
 
-	public float typingSpeed = 0.03f;
-	public float dialogueDelay = 1f;
+	private  float typingSpeed = 0.03f;
+	private float dialogueDelay = 1f;
 
 
 	private void Awake()
@@ -54,6 +54,9 @@ public class DialogueManager : MonoBehaviour
 			}
 		}
 
+		characterName.text = container.Name;
+
+
 		if (dialogue == null)
 		{
 			return false;
@@ -61,6 +64,12 @@ public class DialogueManager : MonoBehaviour
 
 		return true;
 	}
+
+	public void SetDialogueSpeedAndDelay(float typingSpeed, float dialogueDelay)
+    {
+		this.typingSpeed = typingSpeed;
+		this.dialogueDelay = dialogueDelay;
+    }
 
 	public void DisplayNextDialogueLine()
 	{
@@ -73,7 +82,7 @@ public class DialogueManager : MonoBehaviour
 		var current = lines.Dequeue();
 
 		//characterIcon.sprite = currentLine.characterIcon;
-		characterName.text = "[Delete this]";
+
 
 		StopAllCoroutines();
 
@@ -95,7 +104,7 @@ public class DialogueManager : MonoBehaviour
 		DisplayNextDialogueLine();
 	}
 
-
+	
 
 
 	void EndDialogue()

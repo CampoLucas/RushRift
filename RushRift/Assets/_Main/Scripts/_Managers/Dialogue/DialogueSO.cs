@@ -8,8 +8,13 @@ using UnityEngine.Serialization;
 public class DialogueSO : BaseDialogueSO
 {
 	public Line[] Lines => lines;
+	public float TypingSpeed => typingSpeed;
+	public float DialogueDelay => dialogueDelay;
+
     
     [SerializeField] private Line[] lines;
+	[SerializeField] private float typingSpeed = 0.03f;
+	[SerializeField] private float dialogueDelay = 1f;
     
     
     public override void Execute(DialogueManager manager)
@@ -32,6 +37,7 @@ public class DialogueSO : BaseDialogueSO
 			manager.lines.Enqueue(line);
 		}
 
+		manager.SetDialogueSpeedAndDelay(typingSpeed, dialogueDelay);
 		manager.DisplayNextDialogueLine();
 
 	}
