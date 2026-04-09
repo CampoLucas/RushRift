@@ -16,7 +16,7 @@ public class DialogueManager : MonoBehaviour
 	public TMP_Text dialogueArea;
 	public GameObject dialogueBox;
 
-	public Queue<Line> lines;
+	public Queue<Line> lines = new();
 
 	public bool isDialogueActive = false;
 
@@ -27,9 +27,9 @@ public class DialogueManager : MonoBehaviour
 	private void Awake()
 	{
 		if (Instance == null)
+        {
 			Instance = this;
-
-		lines = new Queue<Line>();
+        }
 	}
 
 	public bool ExecuteDialogue(DialogueContainerSO container)
@@ -48,8 +48,8 @@ public class DialogueManager : MonoBehaviour
 			if (d != null && d.CanExecute())
 			{
 				dialogue = (DialogueSO)d;
-				dialogue.Execute(this);
-				AudioManager.Play(dialogue.DialogueName);
+				dialogue.Execute(Instance);
+				AudioManager.Play(dialogue.DialogueAudioName);
 				break;
 			}
 		}
@@ -95,11 +95,7 @@ public class DialogueManager : MonoBehaviour
 		DisplayNextDialogueLine();
 	}
 
-	IEnumerator PlayAudio(Line line)
-	{
-		//play audio
-		yield return new WaitForSeconds(line.Clip.length);
-	}
+
 
 
 	void EndDialogue()

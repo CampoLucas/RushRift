@@ -131,7 +131,8 @@ namespace Game.Tools
             SearchWindow.Open(swc, provider);
         }
 #endif
-        
+
+#if UNITY_EDITOR        
         public static void OpenSearchTypeWindow(Type baseType, Action<Type> onSelected)
         {
             if (baseType == null)
@@ -156,7 +157,7 @@ namespace Game.Tools
 
             menu.ShowAsContext();
         }
-        
+#endif        
 
 #if UNITY_EDITOR
         private static (string[], Type[]) GetValues<TType>()

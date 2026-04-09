@@ -94,7 +94,6 @@ namespace Game.Saves
 
         public void SetDialogueHeard(string dialogueName)
         {
-            //check if dictionary is better
             GameDialogues.Add(dialogueName);
         }
 
