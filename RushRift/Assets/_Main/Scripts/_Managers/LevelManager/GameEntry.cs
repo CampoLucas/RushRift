@@ -586,7 +586,7 @@ namespace Game
             return _onLevelPreload.Detach(observer);
         }
         
-        public bool DetachOnLoad(DesignPatterns.Observers.IObserver<BaseLevelSO> observer)
+        public bool DetachOnLoaded(DesignPatterns.Observers.IObserver<BaseLevelSO> observer)
         {
             return _onLevelLoaded.Detach(observer);
         }
