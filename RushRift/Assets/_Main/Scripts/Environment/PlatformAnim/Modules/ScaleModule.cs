@@ -57,8 +57,6 @@ namespace RushRift.Environment
 
             // Update position so the pivot point appears stationary in local space
             target.localPosition = ComputeLocalPosition(currentScale);
-            
-            Debug.LogError("Moving platform");
         }
         
         private Vector3 EvaluateScale(float progress)

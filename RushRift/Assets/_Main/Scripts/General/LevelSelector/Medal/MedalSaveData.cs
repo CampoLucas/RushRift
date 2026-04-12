@@ -5,6 +5,8 @@ namespace Game.General
     [Serializable]
     public struct MedalSaveData
     {
+        
+
         public bool bronzeUnlocked;
         public bool silverUnlocked;
         public bool goldUnlocked;
@@ -22,6 +24,11 @@ namespace Game.General
             return (bronzeUnlocked ? 1 : 0) |
                    ((silverUnlocked ? 1 : 0) << 1) |
                    ((goldUnlocked ? 1 : 0) << 2);
+        }
+        
+        public override bool Equals(object obj)
+        {
+            return obj is MedalSaveData other && Equals(other);
         }
         
         public static bool operator ==(MedalSaveData left, MedalSaveData right)

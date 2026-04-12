@@ -28,6 +28,7 @@ namespace Tools.PlayHook
     public class PlayLevelToolbar : VisualElement
     {
         private const string DebugSpawnSymbol = "DEBUG_SPAWN";
+        private const string DepthSceneView = "DEPTH_FEATURE_IN_SCENE_VIEW";
         public const string CheatsEnabledSymbol = "CHEATS_ENABLED";
         public const string ID = "CustomToolbar/PlayLevel";
         public static readonly string DisabledFlag = "__NONE__";
@@ -289,7 +290,9 @@ namespace Tools.PlayHook
             SceneOptions(ref entries);
             SelectOptions(ref entries);
             ToggleMainSceneOptions(ref entries);
+            entries.Add(new MenuSeparator());
             ToggleSpawnOptions(ref entries);
+            ToggleDepthOptions(ref entries);
             
             return entries;
             
@@ -408,7 +411,7 @@ namespace Tools.PlayHook
 
         private bool ToggleSpawnOptions(ref List<MenuEntry> entries)
         {
-            entries.Add(new MenuSeparator());
+            // entries.Add(new MenuSeparator());
             var group = new MenuGroup("Spawn");
             
             var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
@@ -428,6 +431,26 @@ namespace Tools.PlayHook
 #if DEBUG_SPAWN
             group.Add(new MenuItem("Change Debug Spawn Pos", null, false, DisabledEntry));
 #endif
+
+            return true;
+        }
+        
+        private bool ToggleDepthOptions(ref List<MenuEntry> entries)
+        {
+            // entries.Add(new MenuSeparator());
+            var group = new MenuGroup("Depth");
+            
+            var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+            // Get current defines
+            //var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+
+            group.Add(new MenuItem(DefineSymbolUtility.HasDefine(DepthSceneView) ?
+                    "Disable depth in Scene View" 
+                    : "Enable depth in Scene View", 
+                () => DefineSymbolUtility.ToggleDefine(DepthSceneView), 
+                false, 
+                DisableEntryOnPlay));
+            entries.Add(group);
 
             return true;
         }
