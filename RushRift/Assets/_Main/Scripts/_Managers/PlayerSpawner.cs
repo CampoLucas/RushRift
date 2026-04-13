@@ -338,7 +338,6 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
 
     protected override void OnDisposeInstance()
     {
-        Debug.LogError("Dispose player spawner");
         base.OnDisposeInstance();
         GameEntry.LoadingState.DetachOnReady(_onLevelReady);
         

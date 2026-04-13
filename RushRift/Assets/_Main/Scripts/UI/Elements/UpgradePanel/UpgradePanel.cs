@@ -108,7 +108,7 @@ namespace Game.UI.Elements
         {
             if (_onLoadObserver.TryGet(out var loadObserver))
             {
-                GameEntry.LoadingState.DetachOnLoad(loadObserver);
+                GameEntry.LoadingState.DetachOnLoaded(loadObserver);
             }
 
             if (_onLoadingObserver.TryGet(out var loadingObserver))
