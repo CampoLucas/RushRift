@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_FadeScreen
-  m_Shader: {fileID: -6465566751694194690, guid: d54fbd337806d314f95aae6c36a348e5, type: 3}
+  m_Name: M_ElectricArc
+  m_Shader: {fileID: 4800000, guid: 9b07ca46a62fa9b488ee1c3d54a086b6, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,6 +23,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _TextureSample0:
+        m_Texture: {fileID: 2800000, guid: 3cdd7f365e2260b40a495b9898c9e365, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -37,7 +41,26 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _FadeAmount: 0.0075897574
-    - _FadeTime: 0
-    m_Colors: []
+    - _Cutoff: 0.5
+    - _Float0: 25.2
+    - _GradientStep: 0.03266852
+    - _PowerUp: 0
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _ScrollSpeed: 0.5
+    - _StepDifference0: 0.23
+    - _TessEdgeLength: 16
+    - _TessMax: 25
+    - _TessMaxDisp: 25
+    - _TessMin: 10
+    - _TessPhongStrength: 0.5
+    - _TessValue: 16
+    - _TexturePower: 0.25
+    m_Colors:
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _PowerUpTint: {r: 10.432949, g: 9.29094, b: 2.021042, a: 1}
+    - _Tint: {r: 1.010521, g: 3.1257918, b: 5.2164745, a: 1}
+    - _Vector0: {r: 1, g: 1, b: 0, a: 0}
+    - _Vector1: {r: 0, g: 0.25, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -35,8 +35,6 @@ namespace RushRift.Environment
             if (!target) return;
 
             target.localPosition = Vector3.LerpUnclamped(startPos, endPos, progress);
-            
-            Debug.LogError("Moving platform");
         }
 
 #if UNITY_EDITOR
