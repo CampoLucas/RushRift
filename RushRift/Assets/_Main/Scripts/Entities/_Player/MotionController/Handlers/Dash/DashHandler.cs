@@ -122,7 +122,7 @@ namespace Game.Entities.Components.MotionController
                 var point1 = center + up * _halfHeight;
                 var point2 = center - up * _halfHeight;
 
-                if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance) && UpdateStrategy.OnCollision(context, hit.collider)) // Call the on collision from the strategies
+                if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance) && UpdateStrategy.OnCollision(context, hit.collider) && !hit.collider.isTrigger) // Call the on collision from the strategies
                 {
                     // Stop just before hitting object
                     context.Velocity = Vector3.zero;
