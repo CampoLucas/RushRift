@@ -2262,6 +2262,7 @@ Transform:
   - {fileID: 1952238174}
   - {fileID: 1375470254}
   - {fileID: 1528975766}
+  - {fileID: 228232998}
   m_Father: {fileID: 1033514648}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &116134123
@@ -5005,6 +5006,61 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 236.912, y: 68.781}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &228232997
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 228232998}
+  - component: {fileID: 228232999}
+  m_Layer: 0
+  m_Name: FloatingTextSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
+--- !u!4 &228232998
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228232997}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 115453740}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &228232999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228232997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80d8f35886fc9c3418d8650306c0356b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floatingTextPrefab: {fileID: 3891358201714905960, guid: 2fd597e3c18344046bc29eebfa885b58, type: 3}
+  initialPoolSize: 16
+  allowPoolExpansion: 1
+  defaultLifetimeSeconds: 0.9
+  defaultDirection: {x: 0, y: 1, z: 0}
+  defaultUseUnscaledTime: 1
+  registerAsGlobalInstance: 1
+  isDebugLoggingEnabled: 0
+  drawGizmos: 1
+  gizmoIdleColor: {r: 0.2, g: 1, b: 0.6, a: 0.85}
+  gizmoActiveColor: {r: 1, g: 0.8, b: 0.2, a: 0.85}
 --- !u!1001 &228696475
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5060,7 +5116,7 @@ PrefabInstance:
     - target: {fileID: 4871121514938773570, guid: 6f8af9c25de2f484c8aae32e726e39b8, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: ce2907c13de6caa44a49b6075a79623b, type: 2}
+      objectReference: {fileID: 2100000, guid: 85de40a8c277f9b44b648c36b83750f1, type: 2}
     - target: {fileID: 5021389430784390968, guid: 6f8af9c25de2f484c8aae32e726e39b8, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -15366,7 +15422,7 @@ PrefabInstance:
     - target: {fileID: 4871121514938773570, guid: 6f8af9c25de2f484c8aae32e726e39b8, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: ce2907c13de6caa44a49b6075a79623b, type: 2}
+      objectReference: {fileID: 2100000, guid: 85de40a8c277f9b44b648c36b83750f1, type: 2}
     - target: {fileID: 5021389430784390968, guid: 6f8af9c25de2f484c8aae32e726e39b8, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -27551,6 +27607,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skywalk (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 7198442997951935916, guid: 61c0ee257aec78149a2ef1552353d080, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 85de40a8c277f9b44b648c36b83750f1, type: 2}
     - target: {fileID: 7732515713499829119, guid: 61c0ee257aec78149a2ef1552353d080, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -70290,7 +70350,7 @@ PrefabInstance:
     - target: {fileID: 4871121514938773570, guid: 6f8af9c25de2f484c8aae32e726e39b8, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: ce2907c13de6caa44a49b6075a79623b, type: 2}
+      objectReference: {fileID: 2100000, guid: 85de40a8c277f9b44b648c36b83750f1, type: 2}
     - target: {fileID: 5021389430784390968, guid: 6f8af9c25de2f484c8aae32e726e39b8, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -82099,6 +82159,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6118070781010263229, guid: 7790b3d1f3e995445820f69eef442824, type: 3}
+      propertyPath: defaultText
+      value: JumpPad Active
+      objectReference: {fileID: 0}
+    - target: {fileID: 6118070781010263229, guid: 7790b3d1f3e995445820f69eef442824, type: 3}
+      propertyPath: targetSpawner
+      value: 
+      objectReference: {fileID: 228232999}
     - target: {fileID: 8028276659034571937, guid: 7790b3d1f3e995445820f69eef442824, type: 3}
       propertyPath: sendBehavior
       value: 1
