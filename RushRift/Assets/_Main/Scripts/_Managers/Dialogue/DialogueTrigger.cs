@@ -38,7 +38,5 @@ public class DialogueTrigger : MonoBehaviour
             }
         }
         
-
-        gameObject.SetActive(false);
     }
 }

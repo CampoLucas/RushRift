@@ -50,6 +50,8 @@ public class DialogueManager : MonoBehaviour
 			this.Log("Trying to execute a dialogue from a null or missing container.", LogType.Error);
 		}
 
+		if (isDialogueActive) return false;
+
 		var dialogues = container.Dialogues;
 		DialogueSO dialogue = default;
 
