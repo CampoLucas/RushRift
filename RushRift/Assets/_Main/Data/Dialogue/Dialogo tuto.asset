@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
-  m_Name: Dialogue Container 1
+  m_Name: Dialogo tuto
   m_EditorClassIdentifier: 
   dialogues:
     collection:
@@ -27,27 +27,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
   m_Name: DialogueSO
   m_EditorClassIdentifier: 
-  dialogueName: 
+  dialogueName: Dialogo tuto
   savingMethod: 0
   conditions: []
   dialogueLines:
   - name: Goon
     audioAndLines:
     - dialogueAudioName: BarrelExplosion
+      typingSpeed: 0.03
+      dialogueDelay: 1
       line:
         text: Messi
     - dialogueAudioName: Dash
+      typingSpeed: 0.03
+      dialogueDelay: 5
       line:
         text: Cr7
   - name: Roy
     audioAndLines:
     - dialogueAudioName: LaserAttack
+      typingSpeed: 0.03
+      dialogueDelay: 1
       line:
         text: Ibuprofen
-  - name: Roy
-    audioAndLines:
-    - dialogueAudioName: LaserAttack
-      line:
-        text: Ibuprofen
-  typingSpeed: 0.03
-  dialogueDelay: 1

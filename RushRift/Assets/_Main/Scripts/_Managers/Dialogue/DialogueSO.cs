@@ -9,6 +9,8 @@ using UnityEngine.Serialization;
 public struct AudioAndLines
 {
 	public string dialogueAudioName;
+	public float typingSpeed;
+	public float dialogueDelay;
 	public Line line;
 }
 
@@ -21,14 +23,7 @@ public struct DialogueLines
 
 public class DialogueSO : BaseDialogueSO
 {
-	public float TypingSpeed => typingSpeed;
-	public float DialogueDelay => dialogueDelay;
-
-    
     [SerializeField] private DialogueLines[] dialogueLines;
-	[SerializeField] private float typingSpeed = 0.03f;
-	[SerializeField] private float dialogueDelay = 1f;
-    
     
     public override void Execute(DialogueManager manager)
     {
@@ -44,20 +39,21 @@ public class DialogueSO : BaseDialogueSO
 		{
 			for (var j = 0; j < dialogueLines[i].audioAndLines.Length; j++)
             {
-				nameAndAudio nameAndAudio;
+				AudioParameters audioParameters;
 				var currentLine = dialogueLines[i].audioAndLines[j].line;
-				nameAndAudio.speakerName = dialogueLines[i].name;
-				nameAndAudio.audioName = dialogueLines[i].audioAndLines[j].dialogueAudioName;
+				audioParameters.speakerName = dialogueLines[i].name;
+				audioParameters.audioName = dialogueLines[i].audioAndLines[j].dialogueAudioName;
+				audioParameters.typingSpeed = dialogueLines[i].audioAndLines[j].typingSpeed;
+				audioParameters.dialogueDelay = dialogueLines[i].audioAndLines[j].dialogueDelay;
 
 				if (currentLine == null) continue;
 
 				manager.lines.Enqueue(currentLine);
-				manager.names.Enqueue(nameAndAudio);
+				manager.audioParameters.Enqueue(audioParameters);
 			}
 			
 		}
 
-		manager.SetDialogueSpeedAndDelay(typingSpeed, dialogueDelay);
 		manager.DisplayNextDialogueLine();
 
 	}

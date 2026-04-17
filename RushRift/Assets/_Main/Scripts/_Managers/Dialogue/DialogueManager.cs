@@ -7,10 +7,12 @@ using UnityEngine;
 using TMPro;
 using Game;
 
-public struct nameAndAudio
+public struct AudioParameters
 {
 	public string speakerName;
 	public string audioName;
+	public float typingSpeed;
+	public float dialogueDelay;
 }
 
 public class DialogueManager : MonoBehaviour
@@ -23,12 +25,11 @@ public class DialogueManager : MonoBehaviour
 	public GameObject dialogueBox;
 
 	public Queue<Line> lines = new();
-	public Queue<nameAndAudio> names = new();
+	public Queue<AudioParameters> audioParameters = new();
 
 	public bool isDialogueActive = false;
 
-	private  float typingSpeed = 0.03f;
-	private float dialogueDelay = 1f;
+
 
 
 	private void Awake()
@@ -77,12 +78,6 @@ public class DialogueManager : MonoBehaviour
 		return true;
 	}
 
-	public void SetDialogueSpeedAndDelay(float typingSpeed, float dialogueDelay)
-    {
-		this.typingSpeed = typingSpeed;
-		this.dialogueDelay = dialogueDelay;
-    }
-
 
 	public void DisplayNextDialogueLine()
 	{
@@ -93,13 +88,13 @@ public class DialogueManager : MonoBehaviour
 		}
 
 		var currentLine = lines.Dequeue();
-		var currentNameAndAudio = names.Dequeue();
+		var currentAudioParameters = audioParameters.Dequeue();
 		StopAllCoroutines();
-		AudioManager.Play(currentNameAndAudio.audioName);
-		StartCoroutine(TypeSentence(currentLine, currentNameAndAudio.speakerName));		
+		AudioManager.Play(currentAudioParameters.audioName);
+		StartCoroutine(TypeSentence(currentLine, currentAudioParameters.speakerName,currentAudioParameters.typingSpeed, currentAudioParameters.dialogueDelay));		
 	}
 
-	IEnumerator TypeSentence(Line line, string speakerName)
+	IEnumerator TypeSentence(Line line, string speakerName, float typingSpeed, float dialogueDelay)
 	{
 		dialogueArea.text = "";
 		characterName.text = speakerName;
