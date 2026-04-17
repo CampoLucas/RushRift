@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
   m_Name: Dialogue Container 1
   m_EditorClassIdentifier: 
-  speakerName: pepito
   dialogues:
     collection:
     - {fileID: 6706004324076896761}
@@ -29,10 +28,18 @@ MonoBehaviour:
   m_Name: DialogueSO
   m_EditorClassIdentifier: 
   dialogueAudioName: 
-  frequency: 0
   savingMethod: 0
-  chance: 0
   conditions: []
-  lines:
-  - text: hola como estas
-  - text: todo bien?
+  dialogueLines:
+  - name: Goon
+    lines:
+    - text: Messi
+    - text: cr7
+  - name: Roy
+    lines:
+    - text: Let it ride!
+  - name: Goon
+    lines:
+    - text: ibuprofen
+  typingSpeed: 0.03
+  dialogueDelay: 6

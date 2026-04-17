@@ -17,6 +17,7 @@ public class DialogueManager : MonoBehaviour
 	public GameObject dialogueBox;
 
 	public Queue<Line> lines = new();
+	public Queue<string> names = new();
 
 	public bool isDialogueActive = false;
 
@@ -26,10 +27,14 @@ public class DialogueManager : MonoBehaviour
 
 	private void Awake()
 	{
-		if (Instance == null)
-        {
-			Instance = this;
-        }
+		//if (Instance == null)
+  //      {
+		//	Instance = this;
+  //      }
+  //      else
+  //      {
+		//	Destroy(gameObject);
+  //      }
 	}
 
 	public bool ExecuteDialogue(DialogueContainerSO container)
@@ -48,13 +53,12 @@ public class DialogueManager : MonoBehaviour
 			if (d != null && d.CanExecute())
 			{
 				dialogue = (DialogueSO)d;
-				dialogue.Execute(Instance);
+				dialogue.Execute(this);
+				dialogueBox.SetActive(true);
 				AudioManager.Play(dialogue.DialogueAudioName);
 				break;
 			}
 		}
-
-		characterName.text = container.Name;
 
 
 		if (dialogue == null)
@@ -71,6 +75,7 @@ public class DialogueManager : MonoBehaviour
 		this.dialogueDelay = dialogueDelay;
     }
 
+
 	public void DisplayNextDialogueLine()
 	{
 		if (lines.Count == 0)
@@ -79,22 +84,16 @@ public class DialogueManager : MonoBehaviour
 			return;
 		}
 
-		var current = lines.Dequeue();
-
-		//characterIcon.sprite = currentLine.characterIcon;
-
-
+		var currentLine = lines.Dequeue();
+		var currentName = names.Dequeue();
 		StopAllCoroutines();
-
-		StartCoroutine(TypeSentence(current));
-		//StartCoroutine(PlayAudio(currentLine));
-
-		
+		StartCoroutine(TypeSentence(currentLine, currentName));		
 	}
 
-	IEnumerator TypeSentence(Line line)
+	IEnumerator TypeSentence(Line line, string speakerName)
 	{
 		dialogueArea.text = "";
+		characterName.text = speakerName;
 		foreach (char letter in line.Text.ToCharArray())
 		{
 			dialogueArea.text += letter;

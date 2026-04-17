@@ -6,15 +6,16 @@ using UnityEngine;
 public abstract class BaseDialogueSO : ScriptableObject
 {
     public string DialogueAudioName => dialogueAudioName;
+    public SavingMethod SavingMethod => savingMethod;
     [SerializeField] private string dialogueAudioName;
     [Header("Settings")]
-    [SerializeField] private ExecutionFrequency frequency;
+    //[SerializeField] private ExecutionFrequency frequency;
 
     // Once
     [SerializeField] private SavingMethod savingMethod; // ToDo: Only appears the option if frequency is Once
 
-    // Random
-    [SerializeField] private float chance; // ToDo: Only appears the option if frequency is random, is in percentage
+    //// Random
+    //[SerializeField] private float chance; // ToDo: Only appears the option if frequency is random, is in percentage
 
     [Header("Conditions")]
     [Tooltip("All conditions must be met to play this dialogue.")]
@@ -24,15 +25,15 @@ public abstract class BaseDialogueSO : ScriptableObject
 
     public virtual bool CanExecute()
     {
-        // ToDo: here it would check for the frequency.
-        if (frequency == ExecutionFrequency.Once)
-        {
-            // ToDo: check it it was played before using the save file and return if it was.
-        }
-        else if (frequency == ExecutionFrequency.Random)
-        {
-            // ToDo: run a random roullete and if it didn't landed, return. 
-        }
+        //// ToDo: here it would check for the frequency.
+        //if (frequency == ExecutionFrequency.Once)
+        //{
+        //    // ToDo: check it it was played before using the save file and return if it was.
+        //}
+        //else if (frequency == ExecutionFrequency.Random)
+        //{
+        //    // ToDo: run a random roullete and if it didn't landed, return. 
+        //}
 
         for (var i = 0; i < conditions.Count; i++)
         {

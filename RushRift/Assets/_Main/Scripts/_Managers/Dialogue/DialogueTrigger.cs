@@ -11,10 +11,15 @@ public class DialogueTrigger : MonoBehaviour
 
     public void TriggerDialogue()
     {
-        if (DialogueManager.Instance.ExecuteDialogue(dialogue))
+        var manager = FindObjectOfType<DialogueManager>();
+        if (manager.ExecuteDialogue(dialogue))
         {
             gameObject.SetActive(false);
         }
+        //if (DialogueManager.Instance.ExecuteDialogue(dialogue))
+        //{
+        //    gameObject.SetActive(false);
+        //}
     }
 
     private void OnTriggerEnter(Collider other)
@@ -27,6 +32,7 @@ public class DialogueTrigger : MonoBehaviour
             {
                 if (data.CheckDialogueHeard(item.DialogueAudioName)) return;
                 TriggerDialogue();
+                if (dialogue.Dialogues[0].SavingMethod == SavingMethod.Never) return;
                 data.SetDialogueHeard(item.DialogueAudioName);
                 data.SaveGame();
             }

@@ -5,14 +5,20 @@ using MyTools.Global;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[System.Serializable]
+public struct DialogueLines
+{
+	public string name;
+	public Line[] lines;
+}
+
 public class DialogueSO : BaseDialogueSO
 {
-	public Line[] Lines => lines;
 	public float TypingSpeed => typingSpeed;
 	public float DialogueDelay => dialogueDelay;
 
     
-    [SerializeField] private Line[] lines;
+    [SerializeField] private DialogueLines[] dialogueLines;
 	[SerializeField] private float typingSpeed = 0.03f;
 	[SerializeField] private float dialogueDelay = 1f;
     
@@ -23,18 +29,23 @@ public class DialogueSO : BaseDialogueSO
 		// so that if we have more types of dialogues, each can have their own way of executing 
 		
 		this.Log("Call the dialogue");
-		manager.dialogueBox.SetActive(true);
 		manager.isDialogueActive = true;
 
 		manager.lines.Clear();
 
-		for (var i = 0; i < lines.Length; i++)
+		for (var i = 0; i < dialogueLines.Length; i++)
 		{
-			var line = lines[i];
+			for (var j = 0; j < dialogueLines[i].lines.Length; j++)
+            {
+				var currentLine = dialogueLines[i].lines[j];
+				string currentName = dialogueLines[i].name;
 
-			if (line == null) continue;
+				if (currentLine == null) continue;
 
-			manager.lines.Enqueue(line);
+				manager.lines.Enqueue(currentLine);
+				manager.names.Enqueue(currentName);
+			}
+			
 		}
 
 		manager.SetDialogueSpeedAndDelay(typingSpeed, dialogueDelay);
