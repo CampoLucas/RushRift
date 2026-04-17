@@ -5,9 +5,9 @@ using UnityEngine;
 
 public abstract class BaseDialogueSO : ScriptableObject
 {
-    public string DialogueAudioName => dialogueAudioName;
+    public string DialogueName => dialogueName;
     public SavingMethod SavingMethod => savingMethod;
-    [SerializeField] private string dialogueAudioName;
+    [SerializeField] private string dialogueName;
     [Header("Settings")]
     //[SerializeField] private ExecutionFrequency frequency;
 

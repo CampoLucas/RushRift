@@ -27,19 +27,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
   m_Name: DialogueSO
   m_EditorClassIdentifier: 
-  dialogueAudioName: 
+  dialogueName: 
   savingMethod: 0
   conditions: []
   dialogueLines:
   - name: Goon
-    lines:
-    - text: Messi
-    - text: cr7
+    audioAndLines:
+    - dialogueAudioName: BarrelExplosion
+      line:
+        text: Messi
+    - dialogueAudioName: Dash
+      line:
+        text: Cr7
   - name: Roy
-    lines:
-    - text: Let it ride!
-  - name: Goon
-    lines:
-    - text: ibuprofen
+    audioAndLines:
+    - dialogueAudioName: LaserAttack
+      line:
+        text: Ibuprofen
+  - name: Roy
+    audioAndLines:
+    - dialogueAudioName: LaserAttack
+      line:
+        text: Ibuprofen
   typingSpeed: 0.03
-  dialogueDelay: 6
+  dialogueDelay: 1

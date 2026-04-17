@@ -7,6 +7,12 @@ using UnityEngine;
 using TMPro;
 using Game;
 
+public struct nameAndAudio
+{
+	public string speakerName;
+	public string audioName;
+}
+
 public class DialogueManager : MonoBehaviour
 {
 	public static DialogueManager Instance;
@@ -17,7 +23,7 @@ public class DialogueManager : MonoBehaviour
 	public GameObject dialogueBox;
 
 	public Queue<Line> lines = new();
-	public Queue<string> names = new();
+	public Queue<nameAndAudio> names = new();
 
 	public bool isDialogueActive = false;
 
@@ -55,7 +61,7 @@ public class DialogueManager : MonoBehaviour
 				dialogue = (DialogueSO)d;
 				dialogue.Execute(this);
 				dialogueBox.SetActive(true);
-				AudioManager.Play(dialogue.DialogueAudioName);
+				//AudioManager.Play(dialogue.DialogueAudioName);
 				break;
 			}
 		}
@@ -85,15 +91,17 @@ public class DialogueManager : MonoBehaviour
 		}
 
 		var currentLine = lines.Dequeue();
-		var currentName = names.Dequeue();
+		var currentNameAndAudio = names.Dequeue();
 		StopAllCoroutines();
-		StartCoroutine(TypeSentence(currentLine, currentName));		
+		AudioManager.Play(currentNameAndAudio.audioName);
+		StartCoroutine(TypeSentence(currentLine, currentNameAndAudio.speakerName));		
 	}
 
 	IEnumerator TypeSentence(Line line, string speakerName)
 	{
 		dialogueArea.text = "";
 		characterName.text = speakerName;
+		
 		foreach (char letter in line.Text.ToCharArray())
 		{
 			dialogueArea.text += letter;

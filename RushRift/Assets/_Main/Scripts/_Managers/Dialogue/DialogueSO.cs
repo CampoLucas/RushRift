@@ -6,10 +6,17 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [System.Serializable]
+public struct AudioAndLines
+{
+	public string dialogueAudioName;
+	public Line line;
+}
+
+[System.Serializable]
 public struct DialogueLines
 {
 	public string name;
-	public Line[] lines;
+	public AudioAndLines[] audioAndLines;
 }
 
 public class DialogueSO : BaseDialogueSO
@@ -35,15 +42,17 @@ public class DialogueSO : BaseDialogueSO
 
 		for (var i = 0; i < dialogueLines.Length; i++)
 		{
-			for (var j = 0; j < dialogueLines[i].lines.Length; j++)
+			for (var j = 0; j < dialogueLines[i].audioAndLines.Length; j++)
             {
-				var currentLine = dialogueLines[i].lines[j];
-				string currentName = dialogueLines[i].name;
+				nameAndAudio nameAndAudio;
+				var currentLine = dialogueLines[i].audioAndLines[j].line;
+				nameAndAudio.speakerName = dialogueLines[i].name;
+				nameAndAudio.audioName = dialogueLines[i].audioAndLines[j].dialogueAudioName;
 
 				if (currentLine == null) continue;
 
 				manager.lines.Enqueue(currentLine);
-				manager.names.Enqueue(currentName);
+				manager.names.Enqueue(nameAndAudio);
 			}
 			
 		}

@@ -30,10 +30,10 @@ public class DialogueTrigger : MonoBehaviour
         {
             if (item.CanExecute())
             {
-                if (data.CheckDialogueHeard(item.DialogueAudioName)) return;
+                if (data.CheckDialogueHeard(item.DialogueName)) return;
                 TriggerDialogue();
                 if (dialogue.Dialogues[0].SavingMethod == SavingMethod.Never) return;
-                data.SetDialogueHeard(item.DialogueAudioName);
+                data.SetDialogueHeard(item.DialogueName);
                 data.SaveGame();
             }
         }
