@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
+  m_Name: Dialogue2
+  m_EditorClassIdentifier: 
+  dialogues:
+    collection:
+    - {fileID: 7880334450412497282}
+--- !u!114 &7880334450412497282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
+  m_Name: DialogueSO
+  m_EditorClassIdentifier: 
+  dialogueName: Dialogue2
+  savingMethod: 1
+  conditions: []
+  dialogueLines:
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 4
+      line:
+        text: "Aid, I don't get it, this sector looks just like the last one I cracked\u2026"
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 3
+      line:
+        text: "The system just reset, but things seem different\u2026 "
+  - name: ???
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 3
+      line:
+        text: "Oh, I see\u2026 So you are the bug that has been causing trouble in
+          my systems\u2026"
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 2
+      line:
+        text: Aid, did you say something?
+  - name: ???
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 2
+      line:
+        text: "And you brought a friend\u2026"
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 5
+      line:
+        text: Split! Something is happening to the Runner-net but I can't pinpoint
+          the problem.
