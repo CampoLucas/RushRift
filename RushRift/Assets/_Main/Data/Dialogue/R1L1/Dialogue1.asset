@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
+  m_Name: Dialogue1
+  m_EditorClassIdentifier: 
+  dialogues:
+    collection:
+    - {fileID: 5024662364818967644}
+--- !u!114 &5024662364818967644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
+  m_Name: DialogueSO
+  m_EditorClassIdentifier: 
+  dialogueName: Dialogue1
+  savingMethod: 1
+  conditions: []
+  dialogueLines:
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: Split1
+      typingSpeed: 0.05
+      dialogueDelay: 2
+      line:
+        text: "So\u2026 Are we in?"
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 3
+      line:
+        text: "Wait a minute Split, something's off/wrong here\u2026"
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: Split2
+      typingSpeed: 0.05
+      dialogueDelay: 4
+      line:
+        text: "Nah dude, this has to be Accolade\u2019s runner net, I can feel it!"
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 4
+      line:
+        text: "It's just\u2026 I don't see your ping anywhere in the network\u2026"
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: Split3
+      typingSpeed: 0.05
+      dialogueDelay: 4
+      line:
+        text: "There's no way I'm not in their system, this level of security is
+          insane\u2026"
