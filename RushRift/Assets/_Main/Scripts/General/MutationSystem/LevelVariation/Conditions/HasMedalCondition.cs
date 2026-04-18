@@ -23,7 +23,7 @@ namespace Game.MutationSystem.LevelVariation
                 this.Log("The level is null", LogType.Error);
                 return false;
             }
-            return SaveSystem.LoadGame().IsMedalUnlocked(level.LevelID, medal);
+            return SaveSystem.LoadGame().CanUseMedal(level.LevelID, medal);
         }
     }
 }

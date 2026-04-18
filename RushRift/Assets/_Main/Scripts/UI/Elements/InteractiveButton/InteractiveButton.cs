@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Game.UI.StateMachine.Elements
+namespace Game.UI.Elements
 {
     [AddComponentMenu("UI/Interactive Button", 31)]
     public sealed class InteractiveButton : Button, ISubject<ButtonSelectState>

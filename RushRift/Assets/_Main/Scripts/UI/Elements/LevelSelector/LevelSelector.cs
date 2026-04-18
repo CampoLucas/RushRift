@@ -1,17 +1,13 @@
-using System;
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
-using Game.General;
 using Game.Levels;
-using Game.Saves;
-using Game.UI;
+using Game.LevelSelector;
 using Game.UI.Mediator;
 using Game.UI.StateMachine;
 using Game.UI.StateMachine.Elements;
-using MyTools.Global;
 using UnityEngine;
 
-namespace Game.LevelSelector
+namespace Game.UI.Elements.LevelSelector
 {
     public class LevelSelector : MonoBehaviour
     {

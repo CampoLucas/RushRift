@@ -1,10 +1,8 @@
-using System;
 using Game.DesignPatterns.Observers;
-using Game.UI;
-using Game.UI.Elements;
+using Game.LevelSelector;
 using UnityEngine;
 
-namespace Game.LevelSelector
+namespace Game.UI.Elements.LevelSelector
 {
     public class LevelSelectorView : MonoBehaviour
     {

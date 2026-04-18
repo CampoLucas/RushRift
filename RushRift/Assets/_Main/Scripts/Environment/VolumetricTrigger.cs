@@ -132,20 +132,17 @@ public class VolumetricTrigger : MonoBehaviour, ISubject<string>
             case ActionType.SendOn:
                 subject.NotifyAll(Terminal.ON_ARGUMENT);
                 state = true;
-                Log("Notify ON");
                 break;
             
             case ActionType.SendOff:
                 subject.NotifyAll(Terminal.OFF_ARGUMENT);
                 state = false;
-                Log("Notify OFF");
                 break;
             
             case ActionType.Toggle:
                 string arg = state ? Terminal.OFF_ARGUMENT : Terminal.ON_ARGUMENT;
                 subject.NotifyAll(arg);
                 state = !state;
-                Log($"Notify {arg.ToUpper()} (Toggle)");
                 break;
         }
     }
@@ -184,12 +181,6 @@ public class VolumetricTrigger : MonoBehaviour, ISubject<string>
         if (triggerOnlyOnce && hasFiredOnce) return true;
         if (Time.time - lastActionTime < minIntervalBetweenActions) return true;
         return false;
-    }
-
-    private void Log(string msg)
-    {
-        if (!isDebugLoggingEnabled) return;
-        Debug.Log($"[VolumetricTrigger] {name}: {msg}", this);
     }
 
 #if UNITY_EDITOR

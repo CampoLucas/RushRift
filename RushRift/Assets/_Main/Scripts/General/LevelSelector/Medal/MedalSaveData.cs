@@ -5,40 +5,24 @@ namespace Game.General
     [Serializable]
     public struct MedalSaveData
     {
+        // public bool bronzeUnlocked;
+        // public bool silverUnlocked;
+        // public bool goldUnlocked;
         
-
-        public bool bronzeUnlocked;
-        public bool silverUnlocked;
-        public bool goldUnlocked;
+        /// <summary>
+        /// -1 = auto (use highest unlocked), 0 = none, 1 = Bronze, 2 = Silver, 3 = Gold
+        /// </summary>
+        public int medalSelected;
+        public int unlockedMedals;
         
         public bool Equals(MedalSaveData other)
         {
-            return bronzeUnlocked == other.bronzeUnlocked &&
-                   silverUnlocked == other.silverUnlocked &&
-                   goldUnlocked == other.goldUnlocked;
+            return unlockedMedals == other.unlockedMedals && medalSelected == other.medalSelected;
         }
         
-        public override int GetHashCode()
-        {
-            // Compact hash code from bools
-            return (bronzeUnlocked ? 1 : 0) |
-                   ((silverUnlocked ? 1 : 0) << 1) |
-                   ((goldUnlocked ? 1 : 0) << 2);
-        }
+        public override bool Equals(object obj) => obj is MedalSaveData other && Equals(other);
+        public static bool operator ==(MedalSaveData left, MedalSaveData right) => left.Equals(right);
+        public static bool operator !=(MedalSaveData left, MedalSaveData right) => !left.Equals(right);
         
-        public override bool Equals(object obj)
-        {
-            return obj is MedalSaveData other && Equals(other);
-        }
-        
-        public static bool operator ==(MedalSaveData left, MedalSaveData right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(MedalSaveData left, MedalSaveData right)
-        {
-            return !left.Equals(right);
-        }
     }
 }

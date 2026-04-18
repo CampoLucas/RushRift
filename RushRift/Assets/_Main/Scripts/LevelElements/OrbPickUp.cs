@@ -36,7 +36,6 @@ namespace Game.LevelElements
             if (!effectOnCollision) effectOnCollision = GetComponent<EffectOnCollision>();
             if (orbLight) _lightStartIntensity = orbLight.intensity;
             ClampConfig();
-            Log("Awake");
         }
 
         private void Start()
@@ -56,7 +55,6 @@ namespace Game.LevelElements
                 EnableEffect();
                 if (effectOnCollision != null)
                     effectOnCollision.OnApplied += OnPickUpHandler;
-                Log("Respawned");
             }
         }
 
@@ -136,8 +134,6 @@ namespace Game.LevelElements
             }
 
             if (orbFadeVFX) orbFadeVFX.Stop();
-
-            Log("Enabled");
         }
 
         private void DisableEffect()
@@ -150,20 +146,12 @@ namespace Game.LevelElements
             if (effectOnCollision) effectOnCollision.enabled = false;
             if (orbVFX) orbVFX.enabled = false;
             if (orbFadeVFX) orbFadeVFX.Stop();
-
-            Log(isRespawnEnabled ? $"Disabled. Respawning in {respawnTime:0.##}s" : "Disabled. No respawn");
         }
 
         private void ClampConfig()
         {
             fadeTime = Mathf.Max(0f, fadeTime);
             respawnTime = Mathf.Max(0f, respawnTime);
-        }
-
-        private void Log(string msg)
-        {
-            if (!isDebugLoggingEnabled) return;
-            Debug.Log($"[OrbPickUp] {name}: {msg}", this);
         }
 
 #if UNITY_EDITOR
