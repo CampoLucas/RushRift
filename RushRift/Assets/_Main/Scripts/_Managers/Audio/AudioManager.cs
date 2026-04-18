@@ -290,6 +290,7 @@ namespace Game
             var masterSubject = Options.MasterVolumeChanged;
             var musicSubject  = Options.MusicVolumeChanged;
             var sfxSubject    = Options.SfxVolumeChanged;
+            var voiceSubject    = Options.VoiceVolumeChanged;
 
             if (_onMasterVolumeChanged != null)
             {
@@ -307,6 +308,11 @@ namespace Game
             {
                 if (sfxSubject != null) sfxSubject.Detach(_onSFXVolumeChanged);
                 _onSFXVolumeChanged.Dispose();
+            }
+            if (_onVoiceVolumeChanged != null)
+            {
+                if (voiceSubject != null) voiceSubject.Detach(_onVoiceVolumeChanged);
+                _onVoiceVolumeChanged.Dispose();
             }
         }
 

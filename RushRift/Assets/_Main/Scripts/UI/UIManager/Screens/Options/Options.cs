@@ -121,7 +121,7 @@ namespace Game.UI
 
         public void OnVoiceChangedHandler(float value)
         {
-            SfxVolumeChanged.NotifyAll(value);
+            VoiceVolumeChanged.NotifyAll(value);
 
             // Save value
             var saveData = SaveSystem.LoadSettings();
