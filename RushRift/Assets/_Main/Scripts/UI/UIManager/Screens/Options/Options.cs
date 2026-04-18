@@ -13,6 +13,7 @@ namespace Game.UI
         public static readonly ISubject<float> MasterVolumeChanged = new Subject<float>();
         public static readonly ISubject<float> MusicVolumeChanged = new Subject<float>();
         public static readonly ISubject<float> SfxVolumeChanged = new Subject<float>();
+        public static readonly ISubject<float> VoiceVolumeChanged = new Subject<float>();
 
         [Header("Camera Settings")]
         [SerializeField] private OptionSlider sensibilitySlider;
@@ -22,6 +23,10 @@ namespace Game.UI
         [SerializeField] private OptionSlider masterSlider;
         [SerializeField] private OptionSlider musicSlider;
         [SerializeField] private OptionSlider sfxSlider;
+        [SerializeField] private OptionSlider voiceSlider;
+        [SerializeField] private Toggle toggle;
+        
+        private bool _showDialogue = true;
 
         private Options _instance;
 
@@ -42,6 +47,7 @@ namespace Game.UI
             masterSlider.OnValueChanged.AddListener(OnMasterChangedHandler);
             musicSlider.OnValueChanged.AddListener(OnMusicChangedHandler);
             sfxSlider.OnValueChanged.AddListener(OnSFXChangedHandler);
+            voiceSlider.OnValueChanged.AddListener(OnVoiceChangedHandler);
         }
 
         private void Start()
@@ -54,6 +60,8 @@ namespace Game.UI
             masterSlider.Value = saveData.Sound.masterVolume;
             musicSlider.Value = saveData.Sound.musicVolume;
             sfxSlider.Value = saveData.Sound.sfxVolume;
+            voiceSlider.Value = saveData.Sound.voiceVolume;
+            toggle.isOn = saveData.Sound.isSubtitlesEnabled;
         }
 
         public void OnSensibilityChangedHandler(float value)
@@ -111,6 +119,26 @@ namespace Game.UI
             SaveSystem.SaveSettings(saveData);
         }
 
+        public void OnVoiceChangedHandler(float value)
+        {
+            SfxVolumeChanged.NotifyAll(value);
+
+            // Save value
+            var saveData = SaveSystem.LoadSettings();
+
+            saveData.Sound.voiceVolume = value;
+            SaveSystem.SaveSettings(saveData);
+        }
+
+        public void OnSubtitlesChangedHandler()
+        {
+            _showDialogue = !_showDialogue;
+            var saveData = SaveSystem.LoadSettings();
+
+            saveData.Sound.isSubtitlesEnabled = _showDialogue;
+            SaveSystem.SaveSettings(saveData);
+        }
+
         private void OnDestroy()
         {
             sensibilitySlider.OnValueChanged.RemoveAllListeners();
@@ -118,6 +146,7 @@ namespace Game.UI
             masterSlider.OnValueChanged.RemoveAllListeners();
             musicSlider.OnValueChanged.RemoveAllListeners();
             sfxSlider.OnValueChanged.RemoveAllListeners();
+            voiceSlider.OnValueChanged.RemoveAllListeners();
             
             if (_instance == this)
             {

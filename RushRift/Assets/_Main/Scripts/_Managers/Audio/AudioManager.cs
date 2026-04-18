@@ -43,6 +43,7 @@ namespace Game
         private ActionObserver<float> _onMasterVolumeChanged;
         private ActionObserver<float> _onMusicVolumeChanged;
         private ActionObserver<float> _onSFXVolumeChanged;
+        private ActionObserver<float> _onVoiceVolumeChanged;
 
         private static GameObject s_musicGO;
         private static AudioSource s_musicSource;
@@ -95,14 +96,17 @@ namespace Game
             SetMasterVolume(sound.masterVolume);
             SetMusicVolume(sound.musicVolume);
             SetSFXVolume(sound.sfxVolume);
+            SetVoiceVolume(sound.voiceVolume);
 
             _onMasterVolumeChanged = new ActionObserver<float>(OnMasterVolumeChanged);
             _onMusicVolumeChanged  = new ActionObserver<float>(OnMusicVolumeChanged);
             _onSFXVolumeChanged    = new ActionObserver<float>(OnSFXVolumeChanged);
+            _onVoiceVolumeChanged    = new ActionObserver<float>(OnVoiceVolumeChanged);
 
             Options.MasterVolumeChanged.Attach(_onMasterVolumeChanged);
             Options.MusicVolumeChanged.Attach(_onMusicVolumeChanged);
             Options.SfxVolumeChanged.Attach(_onSFXVolumeChanged);
+            Options.VoiceVolumeChanged.Attach(_onVoiceVolumeChanged);
         }
 
         public static void Play(string name)
@@ -309,9 +313,11 @@ namespace Game
         private void SetMasterVolume(float value) => mixer.SetFloat("MasterVolume",  Mathf.Log10(Mathf.Max(0.0001f, value)) * 20f);
         private void SetMusicVolume(float value)  => mixer.SetFloat("MusicVolume",   Mathf.Log10(Mathf.Max(0.0001f, value)) * 20f);
         private void SetSFXVolume(float value)    => mixer.SetFloat("GameplayVolume",Mathf.Log10(Mathf.Max(0.0001f, value)) * 20f);
+        private void SetVoiceVolume(float value)    => mixer.SetFloat("VoiceVolume",Mathf.Log10(Mathf.Max(0.0001f, value)) * 20f);
 
         private void OnSFXVolumeChanged(float v)   => SetSFXVolume(v);
         private void OnMusicVolumeChanged(float v) => SetMusicVolume(v);
         private void OnMasterVolumeChanged(float v)=> SetMasterVolume(v);
+        private void OnVoiceVolumeChanged(float v)=> SetVoiceVolume(v);
     }
 }

@@ -295,6 +295,8 @@ namespace Game.Saves
         public float masterVolume = 1;
         public float musicVolume = 1;
         public float sfxVolume = 1;
+        public float voiceVolume = 1;
+        public bool isSubtitlesEnabled = true;
     }
 
     [Serializable]

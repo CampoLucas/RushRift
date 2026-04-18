@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using Game;
+using Game.Saves;
 
 public struct AudioParameters
 {
@@ -29,19 +30,12 @@ public class DialogueManager : MonoBehaviour
 
 	public bool isDialogueActive = false;
 
-
-
+	private bool _isSubtitlesEnabled;
 
 	private void Awake()
 	{
-		//if (Instance == null)
-  //      {
-		//	Instance = this;
-  //      }
-  //      else
-  //      {
-		//	Destroy(gameObject);
-  //      }
+		var saveData = SaveSystem.LoadSettings();
+		_isSubtitlesEnabled = saveData.Sound.isSubtitlesEnabled;
 	}
 
 	public bool ExecuteDialogue(DialogueContainerSO container)
@@ -63,7 +57,10 @@ public class DialogueManager : MonoBehaviour
 			{
 				dialogue = (DialogueSO)d;
 				dialogue.Execute(this);
-				dialogueBox.SetActive(true);
+                if (_isSubtitlesEnabled)
+                {
+					dialogueBox.SetActive(true);
+				}		
 				//AudioManager.Play(dialogue.DialogueAudioName);
 				break;
 			}
