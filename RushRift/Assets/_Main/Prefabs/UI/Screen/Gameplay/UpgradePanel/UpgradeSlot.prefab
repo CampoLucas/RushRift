@@ -48,7 +48,6 @@ GameObject:
   - component: {fileID: 776768686241069258}
   - component: {fileID: 1653652828608312164}
   - component: {fileID: 4678335313096795153}
-  - component: {fileID: 7259701322299170538}
   m_Layer: 0
   m_Name: UpgradeSlot
   m_TagString: Untagged
@@ -90,7 +89,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enabledColor: {r: 1, g: 1, b: 1, a: 1}
   disabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  iconImg: {fileID: 7259701322299170538}
+  iconImg: {fileID: 60972154117341933}
   backgroundImg: {fileID: 6036025552131951633}
 --- !u!222 &4678335313096795153
 CanvasRenderer:
@@ -100,33 +99,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1366425919539343892}
   m_CullTransparentMesh: 1
---- !u!114 &7259701322299170538
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1366425919539343892}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: a9d29861aff82264286a6720e0f3c47a, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 0ef5f2de29131b24ca5b51450caab4f3, type: 3}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
 --- !u!1 &3723810011796315717
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,7 +191,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2941649415470163585
 RectTransform:
   m_ObjectHideFlags: 0
@@ -259,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 485e001fabb761c44a3a7b9aeee09a63, type: 2}
+  m_Material: {fileID: 2100000, guid: a9d29861aff82264286a6720e0f3c47a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -267,7 +239,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: f586b733fa421c3479695eb579ce8efb, type: 3}
+  m_Texture: {fileID: 2800000, guid: 0ef5f2de29131b24ca5b51450caab4f3, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
