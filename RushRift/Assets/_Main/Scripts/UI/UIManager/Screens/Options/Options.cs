@@ -14,6 +14,7 @@ namespace Game.UI
         public static readonly ISubject<float> MusicVolumeChanged = new Subject<float>();
         public static readonly ISubject<float> SfxVolumeChanged = new Subject<float>();
         public static readonly ISubject<float> VoiceVolumeChanged = new Subject<float>();
+        public static readonly ISubject<float> DialogueOpacityChanged = new Subject<float>();
 
         [Header("Camera Settings")]
         [SerializeField] private OptionSlider sensibilitySlider;
@@ -24,6 +25,7 @@ namespace Game.UI
         [SerializeField] private OptionSlider musicSlider;
         [SerializeField] private OptionSlider sfxSlider;
         [SerializeField] private OptionSlider voiceSlider;
+        [SerializeField] private OptionSlider dialogueOpacitySlider;
         [SerializeField] private Toggle toggle;
         
         private bool _showDialogue = true;
@@ -48,6 +50,7 @@ namespace Game.UI
             musicSlider.OnValueChanged.AddListener(OnMusicChangedHandler);
             sfxSlider.OnValueChanged.AddListener(OnSFXChangedHandler);
             voiceSlider.OnValueChanged.AddListener(OnVoiceChangedHandler);
+            dialogueOpacitySlider.OnValueChanged.AddListener(OnDialogueOpacityChangedHandler);
         }
 
         private void Start()
@@ -62,6 +65,7 @@ namespace Game.UI
             sfxSlider.Value = saveData.Sound.sfxVolume;
             voiceSlider.Value = saveData.Sound.voiceVolume;
             toggle.isOn = saveData.Sound.isSubtitlesEnabled;
+            dialogueOpacitySlider.Value = saveData.Sound.dialogueOpacity;
         }
 
         public void OnSensibilityChangedHandler(float value)
@@ -130,6 +134,17 @@ namespace Game.UI
             SaveSystem.SaveSettings(saveData);
         }
 
+        public void OnDialogueOpacityChangedHandler(float value)
+        {
+            DialogueOpacityChanged.NotifyAll(value);
+
+            // Save value
+            var saveData = SaveSystem.LoadSettings();
+
+            saveData.Sound.dialogueOpacity = value;
+            SaveSystem.SaveSettings(saveData);
+        }
+
         public void OnSubtitlesChangedHandler()
         {
             _showDialogue = !_showDialogue;
@@ -147,6 +162,7 @@ namespace Game.UI
             musicSlider.OnValueChanged.RemoveAllListeners();
             sfxSlider.OnValueChanged.RemoveAllListeners();
             voiceSlider.OnValueChanged.RemoveAllListeners();
+            dialogueOpacitySlider.OnValueChanged.RemoveAllListeners();
             
             if (_instance == this)
             {
