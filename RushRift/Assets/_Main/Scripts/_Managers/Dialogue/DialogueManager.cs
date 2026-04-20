@@ -7,6 +7,8 @@ using UnityEngine;
 using TMPro;
 using Game;
 using Game.Saves;
+using Game.DesignPatterns.Observers;
+using Game.UI;
 
 public struct AudioParameters
 {
@@ -24,21 +26,30 @@ public class DialogueManager : MonoBehaviour
 	public TMP_Text characterName;
 	public TMP_Text dialogueArea;
 	public GameObject dialogueBox;
+	public Image dialogueBoxImage;
 
 	public Queue<Line> lines = new();
 	public Queue<AudioParameters> audioParameters = new();
 
 	public bool isDialogueActive = false;
 
+	private ActionObserver<float> _onDialogueOpacityChanged;
 	private bool _isSubtitlesEnabled;
 
 	private void Awake()
 	{
 		var saveData = SaveSystem.LoadSettings();
 		_isSubtitlesEnabled = saveData.Sound.isSubtitlesEnabled;
+		SetDialogueOpacity(saveData.Sound.dialogueOpacity);
 	}
 
-	public bool ExecuteDialogue(DialogueContainerSO container)
+    private void Start()
+    {
+		_onDialogueOpacityChanged = new ActionObserver<float>(OnDialogueOpacityChanged);
+		Options.DialogueOpacityChanged.Attach(_onDialogueOpacityChanged);
+	}
+
+    public bool ExecuteDialogue(DialogueContainerSO container)
 	{
 		if (container.IsNullOrMissing())
 		{
@@ -105,12 +116,29 @@ public class DialogueManager : MonoBehaviour
 		DisplayNextDialogueLine();
 	}
 
-	
-
-
 	void EndDialogue()
 	{
 		isDialogueActive = false;
 		dialogueBox.SetActive(false);
+	}
+
+	private void OnDialogueOpacityChanged(float v) => SetDialogueOpacity(v);
+
+	private void SetDialogueOpacity(float value)
+    {
+		var color = dialogueBoxImage.color;
+		color.a = value;
+		dialogueBoxImage.color = color;
+    }
+
+    private void OnDestroy()
+    {
+		var dialogueOpacitySubject = Options.DialogueOpacityChanged;
+
+		if (_onDialogueOpacityChanged != null)
+		{
+			if (dialogueOpacitySubject != null) dialogueOpacitySubject.Detach(_onDialogueOpacityChanged);
+			_onDialogueOpacityChanged.Dispose();
+		}
 	}
 }

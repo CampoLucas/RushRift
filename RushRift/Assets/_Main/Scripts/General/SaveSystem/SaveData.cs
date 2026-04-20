@@ -296,6 +296,7 @@ namespace Game.Saves
         public float musicVolume = 1;
         public float sfxVolume = 1;
         public float voiceVolume = 1;
+        public float dialogueOpacity = 1;
         public bool isSubtitlesEnabled = true;
     }
 
