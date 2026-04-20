@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1375506684182384474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
+  m_Name: DialogueSO
+  m_EditorClassIdentifier: 
+  dialogueName: Dialogue4
+  savingMethod: 1
+  conditions: []
+  dialogueLines:
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 3
+      line:
+        text: Aid what the fuck was that? Did you hear that guy talking to me earlier?
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 2.75
+      line:
+        text: "Split! You are back online! I thought I lost you for a second there\u2026"
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 3
+      line:
+        text: "No no, I seem to have reached a second layer of Accolade\u2019s runner-net
+          firewall"
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: 
+      typingSpeed: 0.05
+      dialogueDelay: 3.5
+      line:
+        text: That's great! Though I imagine security here is going to be much tighter
+          now. Good luck!
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
+  m_Name: Dialogue4
+  m_EditorClassIdentifier: 
+  dialogues:
+    collection:
+    - {fileID: -1375506684182384474}
