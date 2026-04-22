@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
+  m_Name: Dialogue5
+  m_EditorClassIdentifier: 
+  dialogues:
+    collection:
+    - {fileID: 4806058920840588970}
+--- !u!114 &4806058920840588970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
+  m_Name: DialogueSO
+  m_EditorClassIdentifier: 
+  dialogueName: Dialogue5
+  savingMethod: 1
+  conditions: []
+  dialogueLines:
+  - name: ???
+    audioAndLines:
+    - dialogueAudioName: 2-2Carter1
+      typingSpeed: 0.05
+      dialogueDelay: 5
+      line:
+        text: "Well\u2026 Perhaps getting rid of you isn't as\u2026 easy\u2026 as
+          I had thought before. No matter, these next few areas won't be as forgiving
+          as the last ones\u2026"
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: Aid8
+      typingSpeed: 0.05
+      dialogueDelay: 2
+      line:
+        text: "Wow, what\u2026 who is that?"
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: Split9
+      typingSpeed: 0.05
+      dialogueDelay: 4
+      line:
+        text: "I have no idea, but this guy sounds like every other Accolade asshole
+          I've heard before\u2026"

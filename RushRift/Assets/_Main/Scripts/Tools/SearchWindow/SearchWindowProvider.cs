@@ -132,6 +132,33 @@ namespace Game.Tools
         }
 #endif
 
+#if UNITY_EDITOR        
+        public static void OpenSearchTypeWindow(Type baseType, Action<Type> onSelected)
+        {
+            if (baseType == null)
+                throw new ArgumentNullException(nameof(baseType));
+
+            // Replace this with your existing UIElements search window implementation if you have one.
+            // This version is simple and works: GenericMenu.
+            var types = TypeCache.GetTypesDerivedFrom(baseType)
+                .Where(t => t != null && !t.IsAbstract && !t.IsGenericTypeDefinition)
+                .OrderBy(t => t.FullName);
+
+            var menu = new GenericMenu();
+
+            foreach (var t in types)
+            {
+                var label = t.FullName ?? t.Name;
+                menu.AddItem(new GUIContent(label), false, () => onSelected?.Invoke(t));
+            }
+
+            if (!types.Any())
+                menu.AddDisabledItem(new GUIContent($"No concrete types derived from {baseType.Name}"));
+
+            menu.ShowAsContext();
+        }
+#endif        
+
 #if UNITY_EDITOR
         private static (string[], Type[]) GetValues<TType>()
         {

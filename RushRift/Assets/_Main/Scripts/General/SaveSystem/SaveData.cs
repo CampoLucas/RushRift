@@ -37,8 +37,15 @@ namespace Game.Saves
             set => _levelsMedalsTimes = value;
         }
 
+        private List<string> GameDialogues
+        {
+            get => _gameDialogues ??= new List<string>();
+            set => _gameDialogues = value;
+        }
+
         private Dictionary<int, float> _bestTimes = new();
         private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
+        private List<string> _gameDialogues = new();
 
         public SaveData()
         {
@@ -182,6 +189,16 @@ namespace Game.Saves
                 MedalType.Gold => medals > 2,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
+        }
+
+        public void SetDialogueHeard(string dialogueName)
+        {
+            GameDialogues.Add(dialogueName);
+        }
+
+        public bool CheckDialogueHeard(string dialogueName)
+        {
+            return GameDialogues.Contains(dialogueName);
         }
 
         public int TryGetUnlockedEffects(int levelID, out Effect[] unlockedEffects)
@@ -368,6 +385,9 @@ namespace Game.Saves
         public float masterVolume = 1;
         public float musicVolume = 1;
         public float sfxVolume = 1;
+        public float voiceVolume = 1;
+        public float dialogueOpacity = 1;
+        public bool isSubtitlesEnabled = true;
     }
 
     [Serializable]

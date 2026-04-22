@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5724795471455118602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
+  m_Name: DialogueSO
+  m_EditorClassIdentifier: 
+  dialogueName: Dialogue8
+  savingMethod: 1
+  conditions: []
+  dialogueLines:
+  - name: Carter
+    audioAndLines:
+    - dialogueAudioName: 3-2Carter1
+      typingSpeed: 0.05
+      dialogueDelay: 4
+      line:
+        text: "Alright \u201CSplit\u201D... Maybe you are more\u2026 Resourceful\u2026
+          Then I anticipated. I do have to admit that no one has gotten into this
+          level of our runner net before you\u2026"
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: Split19
+      typingSpeed: 0.05
+      dialogueDelay: 1.75
+      line:
+        text: "Uhh.. thanks, I guess\u2026"
+  - name: Carter
+    audioAndLines:
+    - dialogueAudioName: 3-2Carter2take3
+      typingSpeed: 0.05
+      dialogueDelay: 5.5
+      line:
+        text: "Oh yes, many have tried, but\u2026 none have ever succeeded\u2026"
+  - name: Split
+    audioAndLines:
+    - dialogueAudioName: Split17
+      typingSpeed: 0.05
+      dialogueDelay: 3
+      line:
+        text: Hey uhh Aid, you still here? Can you still hear this guy?
+  - name: Aid
+    audioAndLines:
+    - dialogueAudioName: Aid13
+      typingSpeed: 0.05
+      dialogueDelay: 2
+      line:
+        text: "Sadly, yes\u2026"
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
+  m_Name: Dialogue8
+  m_EditorClassIdentifier: 
+  dialogues:
+    collection:
+    - {fileID: -5724795471455118602}

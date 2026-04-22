@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 17167675724738487}
   - component: {fileID: 189018925005410179}
   - component: {fileID: 2266012989696685568}
+  - component: {fileID: 724331451043230173}
   - component: {fileID: 7028289189763740876}
   m_Layer: 0
   m_Name: P_AudioManager
@@ -358,6 +359,51 @@ MonoBehaviour:
     mixer: {fileID: -3980701561750064647, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
     randomVolume: 0
     volume: 0.5
+    volumeRange: {x: 1, y: 1}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.8, y: 1}
+    timeBetweenPlays: 0.5
+    isMusic: 0
+  - name: Split1
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: a51122f3bef72ea40bce92125c54c728, type: 3}
+    mixer: {fileID: -8327240777701943894, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 0
+    volume: 1
+    volumeRange: {x: 1, y: 1}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.8, y: 1}
+    timeBetweenPlays: 0.5
+    isMusic: 0
+  - name: Split2
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 81aff688dddd8c64c8960fea83c14a0d, type: 3}
+    mixer: {fileID: -8327240777701943894, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 0
+    volume: 1
+    volumeRange: {x: 1, y: 1}
+    pitch: 1
+    randomPitch: 1
+    pitchRange: {x: 0.8, y: 1}
+    timeBetweenPlays: 0.5
+    isMusic: 0
+  - name: Split3
+    loop: 0
+    playOnAwake: 0
+    delaySeconds: 0
+    clips:
+    - {fileID: 8300000, guid: 271c99268f332ad4aa837af7c39d469e, type: 3}
+    mixer: {fileID: -8327240777701943894, guid: 979e3da9f479dcb4795bd6a9250f7e9e, type: 2}
+    randomVolume: 0
+    volume: 1
     volumeRange: {x: 1, y: 1}
     pitch: 1
     randomPitch: 1
@@ -1810,6 +1856,102 @@ AudioSource:
     m_PostInfinity: 2
     m_RotationOrder: 4
 --- !u!82 &2266012989696685568
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7095539490065185307}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &724331451043230173
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

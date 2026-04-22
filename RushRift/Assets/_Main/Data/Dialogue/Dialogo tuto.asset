@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9ac5cdefb1a2c46b52bf57f97ebe5b, type: 3}
+  m_Name: Dialogo tuto
+  m_EditorClassIdentifier: 
+  dialogues:
+    collection:
+    - {fileID: 6706004324076896761}
+--- !u!114 &6706004324076896761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aefe974bcb4732d42a19ef758cf58eef, type: 3}
+  m_Name: DialogueSO
+  m_EditorClassIdentifier: 
+  dialogueName: Dialogo tuto
+  savingMethod: 0
+  conditions: []
+  dialogueLines:
+  - name: Goon
+    audioAndLines:
+    - dialogueAudioName: Split1
+      typingSpeed: 0.03
+      dialogueDelay: 2
+      line:
+        text: "So\u2026 Are we in?"
+    - dialogueAudioName: Split2
+      typingSpeed: 0.03
+      dialogueDelay: 4
+      line:
+        text: "Nah dude, this has to be Accolade\u2019s runner net, I can feel it!"
