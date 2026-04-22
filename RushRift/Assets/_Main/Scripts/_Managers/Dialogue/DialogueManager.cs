@@ -155,6 +155,7 @@ public class DialogueManager : MonoBehaviour
     private void OnDestroy()
     {
 		var dialogueOpacitySubject = Options.DialogueOpacityChanged;
+		GameEntry.LoadingState.DetachOnPreload(_onLevelExit);
 
 		if (_onDialogueOpacityChanged != null)
 		{
