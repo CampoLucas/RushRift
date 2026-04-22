@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
-using Game.UI.StateMachine.Elements;
+using Game.UI.Elements.LevelSelector;
+using Game.UI.StateMachine;
 using MyTools.Global;
 using UnityEngine;
 
-namespace Game.UI.StateMachine
+namespace Game.UI.Elements
 {
     public sealed class GameModesPresenter : UIPresenter<GameModesModel, GameModesView>
     {

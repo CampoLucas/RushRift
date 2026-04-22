@@ -58,7 +58,10 @@ namespace _Main.Scripts.Feedbacks
         /// <summary>Spawns a floating text at the specified world position.</summary>
         public FloatingText Spawn(string text, Vector3 worldPosition, Vector3? direction = null, float intensity = 1f, float? lifetime = null, Gradient colorGradient = null, Transform attachment = null, bool? useUnscaledTime = null)
         {
-            if (!floatingTextPrefab) { Log("Spawn ignored: missing prefab"); return null; }
+            if (!floatingTextPrefab)
+            {
+                return null;
+            }
             var ft = GetFromPool();
             var life = Mathf.Max(0.01f, lifetime ?? defaultLifetimeSeconds);
             var dir = direction ?? defaultDirection;
@@ -83,7 +86,6 @@ namespace _Main.Scripts.Feedbacks
             pool.Clear();
             int count = Mathf.Max(0, initialPoolSize);
             for (int i = 0; i < count; i++) CreatePooled();
-            Log($"Pool built: {pool.Count}");
         }
 
         /// <summary>Returns an available instance from the pool, expanding if necessary.</summary>
@@ -112,13 +114,6 @@ namespace _Main.Scripts.Feedbacks
         {
             if (!ft) return;
             ft.gameObject.SetActive(false);
-        }
-
-        /// <summary>Writes a debug message if logging is enabled.</summary>
-        private void Log(string msg)
-        {
-            if (!isDebugLoggingEnabled) return;
-            Debug.Log($"[FloatingTextSpawner] {name}: {msg}", this);
         }
 
 #if UNITY_EDITOR

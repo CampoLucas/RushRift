@@ -77,28 +77,28 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         switch (medal)
         {
             case "bronze":
-                if (_prevMedals.bronzeUnlocked)
+                if (_prevMedals.unlockedMedals >= 1)
                 {
                     return false;
                 }
                 upgrade = levelSo.GetMedal(MedalType.Bronze).upgrade;
-                _prevMedals.bronzeUnlocked = true;
+                _prevMedals.unlockedMedals = 1;
                 break;
             case "silver":
-                if (_prevMedals.silverUnlocked)
+                if (_prevMedals.unlockedMedals >= 2)
                 {
                     return false;
                 }
                 upgrade = levelSo.GetMedal(MedalType.Silver).upgrade;
-                _prevMedals.silverUnlocked = true;
+                _prevMedals.unlockedMedals = 2;
                 break;
             case "gold":
-                if (_prevMedals.goldUnlocked)
+                if (_prevMedals.unlockedMedals >= 3)
                 {
                     return false;
                 }
                 upgrade = levelSo.GetMedal(MedalType.Gold).upgrade;
-                _prevMedals.goldUnlocked = true;
+                _prevMedals.unlockedMedals = 3;
                 break;
             default:
                 return false;
@@ -118,28 +118,28 @@ public class PlayerSpawner : SingletonBehaviour<PlayerSpawner>
         switch (medal)
         {
             case 1:
-                if (_prevMedals.bronzeUnlocked)
+                if (_prevMedals.unlockedMedals >= 1)
                 {
                     return false;
                 }
                 upgrade = levelSo.GetMedal(MedalType.Bronze).upgrade;
-                _prevMedals.bronzeUnlocked = true;
+                _prevMedals.unlockedMedals = 1;
                 break;
             case 2:
-                if (_prevMedals.silverUnlocked)
+                if (_prevMedals.unlockedMedals >= 2)
                 {
                     return false;
                 }
                 upgrade = levelSo.GetMedal(MedalType.Silver).upgrade;
-                _prevMedals.silverUnlocked = true;
+                _prevMedals.unlockedMedals = 2;
                 break;
             case 3:
-                if (_prevMedals.goldUnlocked)
+                if (_prevMedals.unlockedMedals >= 3)
                 {
                     return false;
                 }
                 upgrade = levelSo.GetMedal(MedalType.Gold).upgrade;
-                _prevMedals.goldUnlocked = true;
+                _prevMedals.unlockedMedals = 3;
                 break;
             default:
                 return false;

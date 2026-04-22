@@ -96,7 +96,7 @@ namespace Game.UI.Elements
                 if (!level.TryGetMedal(medalType, out var medal)) continue;
                 var s = Instantiate(slotPrefab, origin);
 
-                var isUnlocked = SaveSystem.LoadGame().IsMedalUnlocked(level.LevelID, medalType);
+                var isUnlocked = SaveSystem.LoadGame().CanUseMedal(level.LevelID, medalType);
                     
                 s.Init(GetIconOrDefault(medal.Icon), isUnlocked);
             }

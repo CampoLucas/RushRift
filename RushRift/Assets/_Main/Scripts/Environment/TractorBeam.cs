@@ -143,7 +143,6 @@ public class TractorBeam : ObserverComponent
                 var recv = root.GetComponent<ZeroGravityReceiver>();
                 if (recv) recv.EnterZeroG(this, zeroGMoveMultiplier);
 
-                Log($"Enter: {root.name}");
             }
         }
 
@@ -168,7 +167,6 @@ public class TractorBeam : ObserverComponent
                     }
                     RestoreBody(rb);
                     lastSeenTime.Remove(rb);
-                    Log($"Exit: {(root ? root.name : "null")}");
                 }
             }
             ListPool<Rigidbody>.Release(toRemove);
@@ -225,13 +223,11 @@ public class TractorBeam : ObserverComponent
         if (turnOn)
         {
             canBeUsed = true;
-            Log("On");
             ReapplyInsideBodies();
         }
         else if (turnOff)
         {
             canBeUsed = false;
-            Log("Off");
             foreach (var rb in currentBodies)
             {
                 var root = rb ? rb.gameObject : null;
@@ -245,10 +241,6 @@ public class TractorBeam : ObserverComponent
             currentBodies.Clear();
             savedStates.Clear();
             lastSeenTime.Clear();
-        }
-        else
-        {
-            Log($"OnNotify ignored: {arg}");
         }
     }
 
@@ -281,7 +273,6 @@ public class TractorBeam : ObserverComponent
                 var recv = root.GetComponent<ZeroGravityReceiver>();
                 if (recv) recv.EnterZeroG(this, zeroGMoveMultiplier);
 
-                Log($"Applied to occupant: {root.name}");
             }
         }
     }
@@ -384,12 +375,6 @@ public class TractorBeam : ObserverComponent
         }
     }
 #endif
-
-    private void Log(string msg)
-    {
-        if (!isDebugLoggingEnabled) return;
-        Debug.Log($"[TractorBeam] {name}: {msg}", this);
-    }
 
     private static class ListPool<T>
     {

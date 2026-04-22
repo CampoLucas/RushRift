@@ -48,7 +48,7 @@ namespace Game.Entities.Components.MotionController
                 if (!context.Jump && vel.y <= 2f)
                 {
                     var snapOrigin = pos + Vector3.up * 0.5f;
-                    if (Physics.Raycast(snapOrigin, Vector3.down, out var snapHit, 1f, Config.Layer))
+                    if (Physics.Raycast(snapOrigin, Vector3.down, out var snapHit, 1f, Config.Layer, QueryTriggerInteraction.Ignore))
                     {
                         context.Grounded = true;
                         context.Normal = snapHit.normal;

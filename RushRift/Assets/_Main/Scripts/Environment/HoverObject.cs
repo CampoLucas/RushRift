@@ -122,37 +122,31 @@ public class HoverObject : MonoBehaviour
     public void StartHover()
     {
         isHovering = true;
-        Log("Hover started");
     }
 
     public void StopHover()
     {
         isHovering = false;
-        Log("Hover stopped");
     }
 
     public void SetHoverSpeed(float cyclesPerSecond)
     {
         hoverSpeedCyclesPerSecond = Mathf.Max(0f, cyclesPerSecond);
-        Log($"Speed set to {hoverSpeedCyclesPerSecond:0.###} Hz");
     }
 
     public void SetHoverAmplitude(float meters)
     {
         hoverAmplitudeMeters = Mathf.Max(0f, meters);
-        Log($"Amplitude set to {hoverAmplitudeMeters:0.###} m");
     }
 
     public void SetPhaseDegrees(float degrees)
     {
         phaseRadians = degrees * Mathf.Deg2Rad;
-        Log($"Phase set to {degrees:0.##}°");
     }
 
     public void RebaseNow()
     {
         CacheBasePosition();
-        Log("Rebased");
     }
 
     private void TryCarryPlayerByDeltaY(float deltaY)
@@ -213,7 +207,6 @@ public class HoverObject : MonoBehaviour
         if (preferCharacterControllerMove && chosenCC && chosenCC.enabled)
         {
             chosenCC.Move(Vector3.up * deltaY);
-            Log($"Carried CharacterController by {deltaY:0.###}m");
             return;
         }
 
@@ -222,14 +215,12 @@ public class HoverObject : MonoBehaviour
             if (chosenRB.isKinematic)
             {
                 chosenRB.MovePosition(chosenRB.position + Vector3.up * deltaY);
-                Log($"Carried kinematic Rigidbody by {deltaY:0.###}m");
             }
             else
             {
                 var p = chosenRB.position;
                 p.y += deltaY;
                 chosenRB.position = p;
-                Log($"Carried dynamic Rigidbody by {deltaY:0.###}m");
             }
             return;
         }
@@ -237,7 +228,6 @@ public class HoverObject : MonoBehaviour
         var tp = chosen.position;
         tp.y += deltaY;
         chosen.position = tp;
-        Log($"Carried Transform by {deltaY:0.###}m");
     }
 
     private void CacheBasePosition()
@@ -255,12 +245,6 @@ public class HoverObject : MonoBehaviour
     {
         if (useLocalSpace) transform.localPosition = baseLocalPosition;
         else transform.position = baseWorldPosition;
-    }
-
-    private void Log(string msg)
-    {
-        if (!isDebugLoggingEnabled) return;
-        Debug.Log($"[HoverObject] {name}: {msg}", this);
     }
 
 #if UNITY_EDITOR

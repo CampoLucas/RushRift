@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
+using Game.UI.Elements;
 using MyTools.Global;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.UI.StateMachine.Elements
+namespace Game.UI.Elements.LevelSelector
 {
     public sealed class GameModeButton : MonoBehaviour, DesignPatterns.Observers.IObserver<ButtonSelectState>, ISubject
     {

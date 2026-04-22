@@ -66,6 +66,60 @@ namespace Game.Saves
 
         #region Medal Methods
 
+        /// <summary>
+        /// Returns the medal selected
+        /// </summary>
+        /// <param name="levelId"></param>
+        /// <returns>
+        /// -1 = Default, 0 = None, 1 = Bronze, 2 = Silver, 3 = Gold
+        /// </returns>
+        public int GetLevelMedalSelection(int levelId)
+        {
+            if (!MedalsSaveData.TryGetValue(levelId, out var data) || data.medalSelected < 0)
+            {
+                if (IsMedalUnlocked(levelId, MedalType.Gold))
+                {
+                    return 3;
+                }
+                if (IsMedalUnlocked(levelId, MedalType.Silver))
+                {
+                    return 2;
+                }
+                if (IsMedalUnlocked(levelId, MedalType.Bronze))
+                {
+                    return 1;
+                }
+                
+                return 0;
+            }
+
+            return data.medalSelected;
+        }
+        
+        public int GetUnlockedMedals(int levelId)
+        {
+            if (!MedalsSaveData.TryGetValue(levelId, out var data))
+            {
+                return 0;
+            }
+
+            return data.unlockedMedals;
+        }
+
+        public void SetLevelMedalSelection(int levelId, int selection)
+        {
+            if (!MedalsSaveData.TryGetValue(levelId, out var data))
+            {
+                data = new MedalSaveData
+                {
+                    medalSelected = -1
+                };
+            }
+
+            data.medalSelected = selection;
+            MedalsSaveData[levelId] = data;
+        }
+        
         public MedalSaveData GetMedalSaveData(int levelId)
         {
             if (!MedalsSaveData.TryGetValue(levelId, out var saveData))
@@ -75,6 +129,32 @@ namespace Game.Saves
 
             return saveData;
         }
+
+        /// <summary>
+        /// If unlocks a new medal, clears the selection. Sets the selected int to -1.
+        /// </summary>
+        /// <param name="levelId"></param>
+        /// <param name="newType"></param>
+        public void OnMedalUnlocked(int levelId, int prevMedals, int newMedals)
+        {
+            var sel = GetUnlockedMedals(levelId);
+            if (sel <= 0) return; // Already on default selection. ToDO: make a setting for this.
+
+            //var selMedal = SaveData.SelectionToMedalType(sel);
+            if (newMedals > prevMedals)
+            {
+                SetLevelMedalSelection(levelId, -1);
+            }
+            
+        }
+        
+        public static MedalType? SelectionToMedalType(int selection) => selection switch
+        {
+            1 => MedalType.Bronze,
+            2 => MedalType.Silver,
+            3 => MedalType.Gold,
+            _ => null
+        };
         
         public bool IsMedalUnlocked(int currLevel, MedalType type)
         {
@@ -85,9 +165,28 @@ namespace Game.Saves
 
             return type switch
             {
-                MedalType.Bronze => saveData.bronzeUnlocked,
-                MedalType.Silver => saveData.silverUnlocked,
-                MedalType.Gold => saveData.goldUnlocked,
+                MedalType.Bronze => saveData.unlockedMedals > 0,
+                MedalType.Silver => saveData.unlockedMedals > 1,
+                MedalType.Gold => saveData.unlockedMedals > 2,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
+        
+        public bool CanUseMedal(int currLevel, MedalType type)
+        {
+            if (!MedalsSaveData.TryGetValue(currLevel, out var saveData))
+            {
+                MedalsSaveData[currLevel] = saveData;
+            }
+
+            var medals = GetLevelMedalSelection(currLevel);
+            
+
+            return type switch
+            {
+                MedalType.Bronze => medals > 0,
+                MedalType.Silver => medals > 1,
+                MedalType.Gold => medals > 2,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
@@ -136,7 +235,7 @@ namespace Game.Saves
 
         private bool TryGetUpgrade(int levelID, MedalType type, BaseLevelSO config, out Effect upgrade)
         {
-            if (IsMedalUnlocked(levelID, type) && config.TryGetMedal(type, out var bronze))
+            if (CanUseMedal(levelID, type) && config.TryGetMedal(type, out var bronze))
             {
                 upgrade = bronze.upgrade;
                 return true;
@@ -146,53 +245,44 @@ namespace Game.Saves
             return false;
         }
 
-        public void UnlockMedal(int levelID, MedalType type)
+        public void UnlockMedal(int levelId, MedalType type)
         {
-            if (!MedalsSaveData.TryGetValue(levelID, out var medalSaveData))
+            if (!MedalsSaveData.TryGetValue(levelId, out var medalSaveData))
             {
-                MedalsSaveData[levelID] = medalSaveData;
+                MedalsSaveData[levelId] = medalSaveData;
             }
 
+            var prevMedals = medalSaveData.unlockedMedals;
+            var unlockedMedals = medalSaveData.unlockedMedals;
+            
             switch (type)
             {
                 case MedalType.Bronze:
-                    medalSaveData.bronzeUnlocked = true;
+                    if (prevMedals < 1) unlockedMedals = 1;
                     break;
                 case MedalType.Silver:
-                    medalSaveData.silverUnlocked = true;
+                    if (prevMedals < 2) unlockedMedals = 2;
                     break;
                 case MedalType.Gold:
-                    medalSaveData.goldUnlocked = true;
+                    if (prevMedals < 3) unlockedMedals = 3;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
 
-            MedalsSaveData[levelID] = medalSaveData;
+            medalSaveData.unlockedMedals = unlockedMedals;
+            MedalsSaveData[levelId] = medalSaveData;
+            OnMedalUnlocked(levelId, prevMedals, unlockedMedals);
         }
         
         public int GetUnlockedMedalsCount(int currLevel)
         {
-            var medalsUnlocked = 0;
             if (!MedalsSaveData.TryGetValue(currLevel, out var saveData))
             {
                 MedalsSaveData[currLevel] = saveData;
             }
 
-            if (saveData.bronzeUnlocked)
-            {
-                medalsUnlocked++;
-            }
-            if (saveData.silverUnlocked)
-            {
-                medalsUnlocked++;
-            }
-            if (saveData.goldUnlocked)
-            {
-                medalsUnlocked++;
-            }
-            
-            Debug.Log($"Has {medalsUnlocked}");
+            var medalsUnlocked = saveData.unlockedMedals;
             return medalsUnlocked;
         }
 

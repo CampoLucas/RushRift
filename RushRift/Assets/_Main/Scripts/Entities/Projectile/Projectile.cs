@@ -210,7 +210,7 @@ namespace Game.Entities
             if (other == _thrower) return;
             if (!_collided.Add(other)) return;
             
-            Debug.Log($"On trigger {other.name}");
+            //Debug.Log($"On trigger {other.name}");
 
             if (other.TryGetComponent<IController>(out var controller) &&
                 controller.GetModel().TryGetComponent<HealthComponent>(out var healthComponent))

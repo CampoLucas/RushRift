@@ -104,19 +104,16 @@ public class RotatingSkybox : MonoBehaviour
     {
         if (!runtimeMaterial) ResolveMaterial();
         isRunning = true;
-        Log("Rotation started");
     }
 
     public void StopRotation()
     {
         isRunning = false;
-        Log("Rotation stopped");
     }
 
     public void SetRotationSpeed(float degreesPerSecond)
     {
         rotationSpeedDegreesPerSecond = degreesPerSecond;
-        Log($"Speed set to {rotationSpeedDegreesPerSecond:0.##} dps");
     }
 
     public void SetAngle(float angleDegrees)
@@ -124,7 +121,6 @@ public class RotatingSkybox : MonoBehaviour
         currentAngle = angleDegrees;
         if (runtimeMaterial && runtimeMaterial.HasProperty(rotationPropertyName))
             runtimeMaterial.SetFloat(rotationPropertyName, currentAngle);
-        Log($"Angle set to {currentAngle:0.##}°");
     }
 
     private void ResolveMaterial()
@@ -134,7 +130,6 @@ public class RotatingSkybox : MonoBehaviour
         var src = targetSkyboxMaterial ? targetSkyboxMaterial : RenderSettings.skybox;
         if (!src)
         {
-            Log("No skybox material found");
             return;
         }
 
@@ -145,8 +140,6 @@ public class RotatingSkybox : MonoBehaviour
 
         if (instantiateSkyboxMaterial && targetSkyboxMaterial)
             targetSkyboxMaterial = runtimeMaterial;
-
-        Log($"Using {(instantiateSkyboxMaterial ? "instance of" : "shared")} material '{runtimeMaterial.name}'");
     }
 
     private IEnumerator DynamicGIUpdater()
@@ -173,13 +166,6 @@ public class RotatingSkybox : MonoBehaviour
         }
 
         giCoroutine = null;
-    }
-
-
-    private void Log(string msg)
-    {
-        if (!isDebugLoggingEnabled) return;
-        Debug.Log($"[RotatingSkybox] {name}: {msg}", this);
     }
 
 #if UNITY_EDITOR

@@ -94,8 +94,7 @@ namespace _Main.Scripts.Feedbacks
             targetText.text = text;
             elapsed = 0f;
             isPlaying = true;
-            if (isDebugLoggingEnabled) Debug.Log($"[FloatingText] Play at {worldPosition} dir={normalizedBaseDirection} life={totalLifetimeSeconds:0.###}", this);
-
+            
             ApplyAtTime(0f);
             gameObject.SetActive(true);
         }

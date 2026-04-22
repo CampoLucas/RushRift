@@ -69,7 +69,6 @@ public class CheckInputChange : MonoBehaviour
                 {
                     EventSystem.current.SetSelectedGameObject(null);
                 }
-                Debug.Log("Gamepad");   
             }
         }
         if (device is Mouse)
@@ -79,12 +78,7 @@ public class CheckInputChange : MonoBehaviour
             if (current)
             {
                 _lastSelectableUsed = EventSystem.current.currentSelectedGameObject;
-                Debug.Log("mouse");
-
             }
-            //if (_onSubMenu)
-            //{
-            //}
         }
         if (device is Keyboard)
         {
@@ -100,7 +94,6 @@ public class CheckInputChange : MonoBehaviour
                 {
                     EventSystem.current.SetSelectedGameObject(null);
                 }
-                Debug.Log("keyboard");
             }
         }
 

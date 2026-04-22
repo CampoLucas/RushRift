@@ -67,7 +67,6 @@ public class VignettePlayer : VolumeEffectPlayerBase<Vignette>
             effect.intensity.value = 0f;
             effect.color.overrideState = true;
             effect.color.value = Color.black;
-            Log("Vignette override added to profile");
         }
         return effect != null;
     }
@@ -99,12 +98,18 @@ public class VignettePlayer : VolumeEffectPlayerBase<Vignette>
         AnimationCurve colorAnim, float colorRemapMin, float colorRemapMax,
         bool unscaledTime)
     {
-        if (!IsReady) { Log("Play ignored: not ready"); return; }
+        if (!IsReady)
+        {
+            return;
+        }
 
         if (_vignetteRoutine != null)
         {
             if (restartIfAlreadyPlaying) { StopCoroutine(_vignetteRoutine); _vignetteRoutine = null; }
-            else { Log("Play ignored: already playing"); return; }
+            else 
+            { 
+                return; 
+            }
         }
 
         _vignetteRoutine = StartCoroutine(PlayVignetteRoutine(targetColor, intensityAnim, Mathf.Max(0f, duration), Mathf.Max(0f, amplitude), remapMin, remapMax, colorAnim, colorRemapMin, colorRemapMax, unscaledTime));
@@ -152,7 +157,6 @@ public class VignettePlayer : VolumeEffectPlayerBase<Vignette>
         if (resetToInitialOnStop) colorParam.value = _initialColor;
 
         _vignetteRoutine = null;
-        Log("Play finished");
     }
 
     public void VignetteTween(float fromValue, float toValue, float durationSeconds, bool useUnscaled = true) =>

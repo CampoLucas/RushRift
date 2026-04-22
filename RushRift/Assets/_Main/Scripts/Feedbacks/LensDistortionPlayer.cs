@@ -23,7 +23,6 @@ namespace _Main.Scripts.Feedbacks
                 effect.active = true;
                 effect.intensity.overrideState = true;
                 effect.intensity.value = 0f;
-                Log("Lens Distortion override added to profile");
             }
             return effect != null;
         }
@@ -40,8 +39,6 @@ namespace _Main.Scripts.Feedbacks
 
         protected override void RegisterGlobalInstance()
         {
-            if (s_global && s_global != this && s_global.isActiveAndEnabled)
-                Log("Replaced previous global instance");
             s_global = this;
         }
 

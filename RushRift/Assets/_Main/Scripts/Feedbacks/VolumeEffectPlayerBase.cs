@@ -81,7 +81,6 @@ namespace _Main.Scripts.Feedbacks
 
             ClampConfig();
             if (registerAsGlobalInstance) RegisterGlobalInstance();
-            Log("Awake");
         }
 
         protected virtual void OnDisable()
@@ -119,17 +118,22 @@ namespace _Main.Scripts.Feedbacks
         {
             if (playCoroutine != null) { StopCoroutine(playCoroutine); playCoroutine = null; }
             if (IsReady && resetToInitialOnStop) SetIntensityImmediate(InitialIntensity);
-            Log("Stopped");
         }
 
         public void TweenIntensity(float fromValue, float toValue, float duration, bool unscaled)
         {
-            if (!IsReady) { Log("Tween ignored: not ready"); return; }
+            if (!IsReady)
+            {
+                return;
+            }
 
             if (playCoroutine != null)
             {
                 if (restartIfAlreadyPlaying) { StopCoroutine(playCoroutine); playCoroutine = null; }
-                else { Log("Tween ignored: already playing"); return; }
+                else
+                {
+                    return;
+                }
             }
 
             playCoroutine = StartCoroutine(TweenRoutine(ClampValue(fromValue), ClampValue(toValue), Mathf.Max(0f, duration), unscaled));
@@ -137,12 +141,18 @@ namespace _Main.Scripts.Feedbacks
 
         private void Play(AnimationCurve curve, float duration, float amplitude, float remapMin, float remapMax, bool unscaled)
         {
-            if (!IsReady) { Log("Play ignored: not ready"); return; }
+            if (!IsReady)
+            {
+                return;
+            }
 
             if (playCoroutine != null)
             {
                 if (restartIfAlreadyPlaying) { StopCoroutine(playCoroutine); playCoroutine = null; }
-                else { Log("Play ignored: already playing"); return; }
+                else
+                {
+                    return;
+                }
             }
 
             playCoroutine = StartCoroutine(PlayRoutine(curve, Mathf.Max(0f, duration), Mathf.Max(0f, amplitude), remapMin, remapMax, unscaled));
@@ -168,7 +178,6 @@ namespace _Main.Scripts.Feedbacks
             float final = MapFinalValue(true, finalMapped, finalMapped);
             SetIntensityImmediate(final);
             playCoroutine = null;
-            Log("Play finished");
         }
 
         private IEnumerator TweenRoutine(float fromValue, float toValue, float duration, bool unscaled)
@@ -189,7 +198,6 @@ namespace _Main.Scripts.Feedbacks
 
             SetIntensityImmediate(toValue);
             playCoroutine = null;
-            Log("Tween finished");
         }
 
         protected void SetIntensityImmediate(float value)
@@ -234,12 +242,6 @@ namespace _Main.Scripts.Feedbacks
             if (_cachedVolume.profile == null) _cachedVolume.profile = ScriptableObject.CreateInstance<VolumeProfile>();
             _createdVolumeRuntime = true;
             targetVolume = _cachedVolume;
-        }
-
-        protected void Log(string msg)
-        {
-            if (!isDebugLoggingEnabled) return;
-            Debug.Log($"[{GetType().Name}] {name}: {msg}", this);
         }
 
 #if UNITY_EDITOR

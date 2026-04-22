@@ -106,11 +106,13 @@ namespace Game.Entities.Components.MotionController
         {
             if (!_isDashing)
             {
+                //Debug.LogError("DashTest: isn't dashing");
                 return true;
             }
 
             if (UpdateStrategy.OnLateUpdate(context, delta))
             {
+                //Debug.LogError("DashTest: Cancel dash by on late update");
                 return true;
             }
             
@@ -122,14 +124,25 @@ namespace Game.Entities.Components.MotionController
                 var point1 = center + up * _halfHeight;
                 var point2 = center - up * _halfHeight;
 
-                if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance) && UpdateStrategy.OnCollision(context, hit.collider) && !hit.collider.isTrigger) // Call the on collision from the strategies
+                //if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance) && UpdateStrategy.OnCollision(context, hit.collider) && !hit.collider.isTrigger) // Call the on collision from the strategies
+                //if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore) && UpdateStrategy.OnCollision(context, hit.collider))
+                if (Physics.CapsuleCast(point1, point2, _radius, _dashDir, out var hit, distance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
                 {
-                    // Stop just before hitting object
-                    context.Velocity = Vector3.zero;
-                    context.MovePosition(context.Position + _dashDir * (hit.distance - 0.01f));
-                    
+                    //Debug.LogError("DashTest: Wall capsule cast detected");
 
-                    return true;
+                    if (!UpdateStrategy.OnCollision(context, hit.collider))
+                    {
+                        Debug.LogError("DashTest: Didn't collide");
+                    }
+                    else
+                    {
+                        // Stop just before hitting object
+                        context.Velocity = Vector3.zero;
+                        context.MovePosition(context.Position + _dashDir * (hit.distance - 0.01f));
+                        
+
+                        return true;
+                    }
                 }
                 
                 context.Velocity = _dashDir * Config.Force;
