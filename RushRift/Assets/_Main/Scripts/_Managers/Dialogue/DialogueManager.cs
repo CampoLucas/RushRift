@@ -162,5 +162,12 @@ public class DialogueManager : MonoBehaviour
 			if (dialogueOpacitySubject != null) dialogueOpacitySubject.Detach(_onDialogueOpacityChanged);
 			_onDialogueOpacityChanged.Dispose();
 		}
+
+		StopAllCoroutines();
+		AudioManager.Stop(currentDialogueAudio);
+		lines.Clear();
+		audioParameters.Clear();
+		isDialogueActive = false;
+		dialogueBox.SetActive(false);
 	}
 }
