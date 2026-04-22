@@ -9,6 +9,7 @@ using Game;
 using Game.Saves;
 using Game.DesignPatterns.Observers;
 using Game.UI;
+using Game.Levels;
 
 public struct AudioParameters
 {
@@ -34,6 +35,9 @@ public class DialogueManager : MonoBehaviour
 	public bool isDialogueActive = false;
 
 	private ActionObserver<float> _onDialogueOpacityChanged;
+	private ActionObserver<BaseLevelSO> _onLevelExit;
+	private DialogueContainerSO currentDialogue;
+	private string currentDialogueAudio;
 	private bool _isSubtitlesEnabled;
 
 	private void Awake()
@@ -46,7 +50,9 @@ public class DialogueManager : MonoBehaviour
     private void Start()
     {
 		_onDialogueOpacityChanged = new ActionObserver<float>(OnDialogueOpacityChanged);
+		_onLevelExit = new ActionObserver<BaseLevelSO>(OnLevelExitHandler);
 		Options.DialogueOpacityChanged.Attach(_onDialogueOpacityChanged);
+		GameEntry.LoadingState.AttachOnPreload(_onLevelExit);
 	}
 
     public bool ExecuteDialogue(DialogueContainerSO container)
@@ -58,6 +64,7 @@ public class DialogueManager : MonoBehaviour
 
 		if (isDialogueActive) return false;
 
+		currentDialogue = container;
 		var dialogues = container.Dialogues;
 		DialogueSO dialogue = default;
 
@@ -97,6 +104,7 @@ public class DialogueManager : MonoBehaviour
 
 		var currentLine = lines.Dequeue();
 		var currentAudioParameters = audioParameters.Dequeue();
+		currentDialogueAudio = currentAudioParameters.audioName;
 		StopAllCoroutines();
 		AudioManager.Play(currentAudioParameters.audioName);
 		StartCoroutine(TypeSentence(currentLine, currentAudioParameters.speakerName,currentAudioParameters.typingSpeed, currentAudioParameters.dialogueDelay));		
@@ -118,6 +126,9 @@ public class DialogueManager : MonoBehaviour
 
 	void EndDialogue()
 	{
+		var data = SaveSystem.LoadGame();
+		data.SetDialogueHeard(currentDialogue.Dialogues[0].DialogueName);
+		data.SaveGame();
 		isDialogueActive = false;
 		dialogueBox.SetActive(false);
 	}
@@ -130,6 +141,16 @@ public class DialogueManager : MonoBehaviour
 		color.a = value;
 		dialogueBoxImage.color = color;
     }
+
+	private void OnLevelExitHandler(BaseLevelSO level)
+    {
+		StopAllCoroutines();
+		AudioManager.Stop(currentDialogueAudio);
+		lines.Clear();
+		audioParameters.Clear();
+		isDialogueActive = false;
+		dialogueBox.SetActive(false);
+	}
 
     private void OnDestroy()
     {
