@@ -15,6 +15,7 @@ namespace Game.UI
         public static readonly ISubject<float> SfxVolumeChanged = new Subject<float>();
         public static readonly ISubject<float> VoiceVolumeChanged = new Subject<float>();
         public static readonly ISubject<float> DialogueOpacityChanged = new Subject<float>();
+        public static readonly ISubject<bool> SubtitlesEnabled = new Subject<bool>();
 
         [Header("Camera Settings")]
         [SerializeField] private OptionSlider sensibilitySlider;
@@ -51,6 +52,7 @@ namespace Game.UI
             sfxSlider.OnValueChanged.AddListener(OnSFXChangedHandler);
             voiceSlider.OnValueChanged.AddListener(OnVoiceChangedHandler);
             dialogueOpacitySlider.OnValueChanged.AddListener(OnDialogueOpacityChangedHandler);
+            
         }
 
         private void Start()
@@ -148,6 +150,7 @@ namespace Game.UI
         public void OnSubtitlesChangedHandler()
         {
             _showDialogue = !_showDialogue;
+            SubtitlesEnabled.NotifyAll(_showDialogue);
             var saveData = SaveSystem.LoadSettings();
 
             saveData.Sound.isSubtitlesEnabled = _showDialogue;

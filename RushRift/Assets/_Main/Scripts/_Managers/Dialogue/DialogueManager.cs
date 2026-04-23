@@ -35,6 +35,7 @@ public class DialogueManager : MonoBehaviour
 	public bool isDialogueActive = false;
 
 	private ActionObserver<float> _onDialogueOpacityChanged;
+	private ActionObserver<bool> _onSubtitlesEnabled;
 	private ActionObserver<BaseLevelSO> _onLevelExit;
 	private DialogueContainerSO currentDialogue;
 	private string currentDialogueAudio;
@@ -50,7 +51,9 @@ public class DialogueManager : MonoBehaviour
     private void Start()
     {
 		_onDialogueOpacityChanged = new ActionObserver<float>(OnDialogueOpacityChanged);
+		_onSubtitlesEnabled = new ActionObserver<bool>(OnSubtitlesEnabled);
 		_onLevelExit = new ActionObserver<BaseLevelSO>(OnLevelExitHandler);
+		Options.SubtitlesEnabled.Attach(_onSubtitlesEnabled);
 		Options.DialogueOpacityChanged.Attach(_onDialogueOpacityChanged);
 		GameEntry.LoadingState.AttachOnPreload(_onLevelExit);
 	}
@@ -134,12 +137,19 @@ public class DialogueManager : MonoBehaviour
 	}
 
 	private void OnDialogueOpacityChanged(float v) => SetDialogueOpacity(v);
+	private void OnSubtitlesEnabled(bool v) => SetSubtitles(v);
 
 	private void SetDialogueOpacity(float value)
     {
 		var color = dialogueBoxImage.color;
 		color.a = value;
 		dialogueBoxImage.color = color;
+    }
+
+	private void SetSubtitles(bool v)
+    {
+		_isSubtitlesEnabled = v;
+		dialogueBox.SetActive(v);
     }
 
 	private void OnLevelExitHandler(BaseLevelSO level)
@@ -155,12 +165,19 @@ public class DialogueManager : MonoBehaviour
     private void OnDestroy()
     {
 		var dialogueOpacitySubject = Options.DialogueOpacityChanged;
+		var subtitles = Options.SubtitlesEnabled;
 		GameEntry.LoadingState.DetachOnPreload(_onLevelExit);
 
 		if (_onDialogueOpacityChanged != null)
 		{
 			if (dialogueOpacitySubject != null) dialogueOpacitySubject.Detach(_onDialogueOpacityChanged);
 			_onDialogueOpacityChanged.Dispose();
+		}
+
+		if (_onSubtitlesEnabled!= null)
+		{
+			if (subtitles != null) subtitles.Detach(_onSubtitlesEnabled);
+			_onSubtitlesEnabled.Dispose();
 		}
 
 		StopAllCoroutines();
