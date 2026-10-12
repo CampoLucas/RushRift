@@ -178,5 +178,10 @@ namespace Game.UI.StateMachine
         {
             Dispose();
         }
+
+        public bool TryGetState(UIScreen screen, out UIState state)
+        {
+            return _states.TryGetValue(screen, out state);
+        }
     } 
 }

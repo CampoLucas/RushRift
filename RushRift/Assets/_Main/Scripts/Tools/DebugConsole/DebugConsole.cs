@@ -50,6 +50,8 @@ namespace Game.Tools.DebugCommands
                 new KillAllCmd(),
                 new SetMedalString(),
                 new SetMedalInt(),
+                new ToggleHUDCmd(),
+                new TogglePauseUICmd()
             };
 
             _inputManager = GetComponent<InputManager>();
