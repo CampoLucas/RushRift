@@ -1297,6 +1297,7 @@ GameObject:
   - component: {fileID: 4772232905907060196}
   - component: {fileID: 7990503373257069912}
   - component: {fileID: 1342991445229217335}
+  - component: {fileID: 2224275440640492491}
   m_Layer: 0
   m_Name: Page 2 - LeaderBoard
   m_TagString: Untagged
@@ -1381,6 +1382,23 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2224275440640492491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352869395949563574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebb985fac681c3a458e29d7a7ced7add, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  View: {fileID: 0}
+  DefaultButton: {fileID: 0}
+  userNameList: []
+  userTimelist: []
+  userPoslist: []
 --- !u!1 &372520098382571417
 GameObject:
   m_ObjectHideFlags: 0
@@ -3604,6 +3622,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5571916595540927268}
   - component: {fileID: 3882128151659169442}
+  - component: {fileID: 6396343500555934989}
   m_Layer: 0
   m_Name: TabGroup
   m_TagString: Untagged
@@ -3640,6 +3659,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1715347377278228253}
   m_CullTransparentMesh: 1
+--- !u!114 &6396343500555934989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715347377278228253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0bb5e46e86b35148b0379f78d7a8d61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tabs:
+  - {fileID: 7876998018265849902}
+  - {fileID: 3231412565799056386}
+  defaultIndex: 0
 --- !u!1 &1880574153344380516
 GameObject:
   m_ObjectHideFlags: 0
@@ -5855,6 +5890,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6396343500555934989}
+        m_TargetAssemblyTypeName: TabGroup, Assembly-CSharp
+        m_MethodName: Init
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onWon:
     m_PersistentCalls:
       m_Calls:
@@ -6054,6 +6101,7 @@ GameObject:
   - component: {fileID: 6754037244912336853}
   - component: {fileID: 1638331478075147356}
   - component: {fileID: 861875500270454479}
+  - component: {fileID: 7876998018265849902}
   m_Layer: 0
   m_Name: Tab - Results
   m_TagString: Untagged
@@ -6163,6 +6211,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7876998018265849902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2925563453135295712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c4035d0e587d642913738ba5f1f657, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tabButton: {fileID: 861875500270454479}
+  tabContent: {fileID: 5259438592809729130}
 --- !u!1 &3040283434723966687
 GameObject:
   m_ObjectHideFlags: 0
@@ -7514,6 +7576,7 @@ GameObject:
   - component: {fileID: 3051696914585584493}
   - component: {fileID: 9036156667014640426}
   - component: {fileID: 1469277033671364263}
+  - component: {fileID: 3231412565799056386}
   m_Layer: 0
   m_Name: Tab - Leaderboard
   m_TagString: Untagged
@@ -7622,7 +7685,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 9036156667014640426}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2224275440640492491}
+        m_TargetAssemblyTypeName: LeaderboardPresenter, Assembly-CSharp
+        m_MethodName: GetScoreData
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &3231412565799056386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3914881266761834618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c4035d0e587d642913738ba5f1f657, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tabButton: {fileID: 1469277033671364263}
+  tabContent: {fileID: 352869395949563574}
 --- !u!1 &4064689463215447559
 GameObject:
   m_ObjectHideFlags: 0

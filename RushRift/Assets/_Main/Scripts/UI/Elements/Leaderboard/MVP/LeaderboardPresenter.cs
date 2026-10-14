@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Game.DataBase;
 using Game;
 using System.Threading;
 using TMPro;
@@ -38,29 +37,28 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         if (hasChecked) return;
         CancellationTokenSource cts = new CancellationTokenSource();
         var id = GlobalLevelManager.GetID();
-        DataBaseHandler.DB.GetScore(id,OnrecievedScore,cts.Token);
         hasChecked = true;
     }
 
-    private void OnrecievedScore(ScoreList scoreList)
-    {
+    //private void OnrecievedScore(ScoreList scoreList)
+    //{
         
-        for (int i = 0; i < scoreList.scores.Length; i++)
-        {
-            userNameList[i].SetActive(true);
-            userTimelist[i].SetActive(true);
-            userPoslist[i].SetActive(true);
+    //    for (int i = 0; i < scoreList.scores.Length; i++)
+    //    {
+    //        userNameList[i].SetActive(true);
+    //        userTimelist[i].SetActive(true);
+    //        userPoslist[i].SetActive(true);
 
-            var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
-            var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
-            var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
+    //        var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
+    //        var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
+    //        var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
 
-            userNameText.text = scoreList.scores[i].name;
-            userTimeText.text = scoreList.scores[i].timescore;
-            userPosText.text = (i+1).ToString();
-        }
+    //        userNameText.text = scoreList.scores[i].name;
+    //        userTimeText.text = scoreList.scores[i].timescore;
+    //        userPosText.text = (i+1).ToString();
+    //    }
         
-    }
+    //}
 
     public override bool TryGetState(out UIState state)
     {

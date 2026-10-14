@@ -22,22 +22,22 @@ namespace Game.UI.StateMachine
             hasChecked = false;
         }
 
-        public void OnSuccessHandler(ScoreList scoreList)
-        {
-            if (hasChecked) return;
-            for (int i = 0; i < scoreList.scores.Length; i++)
-            {
-                var newUserName = Instantiate(userNameObj, layoutParent);
-                var newUserTime = Instantiate(userTimeObj, layoutParent);
-                var userNameText = newUserName.GetComponentInChildren<TMP_Text>();
-                var userTimeText = newUserTime.GetComponentInChildren<TMP_Text>();
+        //public void OnSuccessHandler(ScoreList scoreList)
+        //{
+        //    if (hasChecked) return;
+        //    for (int i = 0; i < scoreList.scores.Length; i++)
+        //    {
+        //        var newUserName = Instantiate(userNameObj, layoutParent);
+        //        var newUserTime = Instantiate(userTimeObj, layoutParent);
+        //        var userNameText = newUserName.GetComponentInChildren<TMP_Text>();
+        //        var userTimeText = newUserTime.GetComponentInChildren<TMP_Text>();
 
-                userNameText.text = scoreList.scores[i].name;
-                userTimeText.text = scoreList.scores[i].timescore;
-            }
-            hasChecked = true;
+        //        userNameText.text = scoreList.scores[i].name;
+        //        userTimeText.text = scoreList.scores[i].timescore;
+        //    }
+        //    hasChecked = true;
 
-        }
+        //}
 
         public void OnLoadingHandler()
         {
