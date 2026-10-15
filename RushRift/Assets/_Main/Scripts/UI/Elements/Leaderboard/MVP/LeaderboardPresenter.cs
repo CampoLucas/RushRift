@@ -45,6 +45,7 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 
     private void OnrecievedScore(LeaderBoardData leaderBoardData)
     {
+        ResetLeaderboard();
         var levelLeaderBoard = leaderBoardData.GetLevelLeaderBoard(GlobalLevelManager.GetID());
 
         for (int i = 0; i < levelLeaderBoard.Count; i++)
@@ -57,13 +58,33 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
             var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
             var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
 
+            var newFormatedTime = FormatTime(levelLeaderBoard[i].timescore);
 
             userNameText.text = levelLeaderBoard[i].name;
-            userTimeText.text = levelLeaderBoard[i].timescore.ToString();
+            userTimeText.text = newFormatedTime.ToString();
             userPosText.text = (i + 1).ToString();
             if (i == (rankLimit-1)) break;
         }
 
+    }
+
+    private void ResetLeaderboard()
+    {
+        for (int i = 0; i < userNameList.Count; i++)
+        {
+            userNameList[i].SetActive(false);
+            userTimelist[i].SetActive(false);
+            userPoslist[i].SetActive(false);
+        }
+    }
+
+    private string FormatTime(float time)
+    {
+        var minutes = Mathf.FloorToInt(time / 60f);
+        var seconds = Mathf.FloorToInt(time % 60f);
+        var milliseconds = Mathf.FloorToInt((time * 1000f) % 1000f);
+
+        return $"{minutes:00}:{seconds:00}.{milliseconds:000}";
     }
 
     public override bool TryGetState(out UIState state)
