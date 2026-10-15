@@ -38,28 +38,30 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         if (hasChecked) return;
         //Checkear la lista en el save
         var leaderBoardSave = SaveSystem.LoadLeaderBoard();
-
+        OnrecievedScore(leaderBoardSave);
         hasChecked = true;
 
     }
 
-    private void OnrecievedScore(ScoreData scoreList)
+    private void OnrecievedScore(LeaderBoardData leaderBoardData)
     {
+        var levelLeaderBoard = leaderBoardData.GetLevelLeaderBoard(GlobalLevelManager.GetID());
 
-        //for (int i = 0; i < scoreList.leaderBoardList.Count; i++)
-        //{
-        //    userNameList[i].SetActive(true);
-        //    userTimelist[i].SetActive(true);
-        //    userPoslist[i].SetActive(true);
+        for (int i = 0; i < levelLeaderBoard.Count; i++)
+        {
+            userNameList[i].SetActive(true);
+            userTimelist[i].SetActive(true);
+            userPoslist[i].SetActive(true);
 
-        //    var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
-        //    var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
-        //    var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
+            var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
+            var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
+            var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
 
-        //    userNameText.text = scoreList.leaderBoardList[i].;
-        //    userTimeText.text = scoreList.leaderBoardList[i].timescore;
-        //    userPosText.text = (i + 1).ToString();
-        //}
+
+            userNameText.text = levelLeaderBoard[i].name;
+            userTimeText.text = levelLeaderBoard[i].timescore.ToString();
+            userPosText.text = (i + 1).ToString();
+        }
 
     }
 

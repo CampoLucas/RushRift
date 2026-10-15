@@ -151,7 +151,10 @@ namespace Game.UI.StateMachine
         {
             if (model.NewRecord)
             {
+                var leaderBoardData = SaveSystem.LoadLeaderBoard();
                 data.SetNewBestTime(GlobalLevelManager.GetID(), model.BestTime);
+                leaderBoardData.AddTimeToLevel(GlobalLevelManager.GetID(), data.GetPlayerName(), model.BestTime);
+                SaveSystem.SaveLeaderBoard(leaderBoardData);
             }
         }
 

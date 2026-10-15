@@ -47,7 +47,7 @@ namespace Game.Saves
         private Dictionary<int, float> _bestTimes = new();
         private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
         private List<string> _gameDialogues = new();
-        private string _playerName;
+        private string _playerName = "default";
 
         public SaveData()
         {
