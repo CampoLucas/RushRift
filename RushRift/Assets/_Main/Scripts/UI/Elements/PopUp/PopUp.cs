@@ -122,6 +122,11 @@ namespace Game.UI.StateMachine.Elements
             StopAllCoroutines();
             StartCoroutine(CloseRoutine(delay));
         }
+
+        public void SetConfirmInteractable(bool interactableState)
+        {
+            confirmButton.interactable = interactableState;
+        }
         
         private void CloseHandler()
         {
