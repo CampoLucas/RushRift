@@ -615,6 +615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   View: {fileID: 0}
   DefaultButton: {fileID: 0}
+  rankLimit: 10
   userNameList:
   - {fileID: 5601097487295308736}
   - {fileID: 8303095737131657027}
@@ -2897,7 +2898,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.2129, y: -29.777}
+  m_AnchoredPosition: {x: -16, y: 63}
   m_SizeDelta: {x: 1100, y: 533.93}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3882128151659169442
@@ -4881,13 +4882,73 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1785532251907433600}
+        m_TargetAssemblyTypeName: Game.UI.UIAnimationRunner, Assembly-CSharp
+        m_MethodName: Stop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4256628077779481757}
+        m_TargetAssemblyTypeName: Game.UI.UIAnimationRunner, Assembly-CSharp
+        m_MethodName: Stop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onLost:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 1785532251907433600}
+        m_TargetAssemblyTypeName: Game.UI.UIAnimationRunner, Assembly-CSharp
+        m_MethodName: Reset
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 4256628077779481757}
+        m_TargetAssemblyTypeName: Game.UI.UIAnimationRunner, Assembly-CSharp
+        m_MethodName: Reset
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
       - m_Target: {fileID: 872717154518827709}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1785532251907433600}
+        m_TargetAssemblyTypeName: Game.UI.UIAnimation, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4971,7 +5032,7 @@ MonoBehaviour:
   animations:
   - animation: {fileID: 354105359172193051}
     delay: 0
-  - animation: {fileID: 0}
+  - animation: {fileID: 1274419418928767593}
     delay: 0.25
   - animation: {fileID: 8911146816115802413}
     delay: 0.5
@@ -6878,8 +6939,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6004265533876263501}
   - {fileID: 8062326687823265412}
+  - {fileID: 6004265533876263501}
   m_Father: {fileID: 5571916595540927268}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -12300,7 +12361,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -174}
+  m_AnchoredPosition: {x: -16, y: -129.09}
   m_SizeDelta: {x: 1039.86, y: 258.19}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &2689322760797115282
@@ -13561,7 +13622,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7187791488473583891, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: onAllSequencesComplete.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: set_enabled
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7187791488473583891, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: onPlaySequences.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -13621,6 +13682,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
+--- !u!114 &1785532251907433600 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4617811358699127054, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
+  m_PrefabInstance: {fileID: 6400387930849060238}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &3438486143536367352 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8603364046019896182, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
@@ -13630,6 +13702,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4256628077779481757 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7187791488473583891, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
+  m_PrefabInstance: {fileID: 6400387930849060238}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe494672b226491cb22bfd949cb37023, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &9127694593503101951 stripped

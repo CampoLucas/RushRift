@@ -10,6 +10,7 @@ using Game.Saves;
 
 public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardView>
 {
+    [SerializeField] private int rankLimit;
     [SerializeField] private List<GameObject> userNameList;
     [SerializeField] private List<GameObject> userTimelist;
     [SerializeField] private List<GameObject> userPoslist;
@@ -35,11 +36,10 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 
     public void GetScoreData()
     {
-        if (hasChecked) return;
-        //Checkear la lista en el save
+        //if (hasChecked) return;
         var leaderBoardSave = SaveSystem.LoadLeaderBoard();
         OnrecievedScore(leaderBoardSave);
-        hasChecked = true;
+        //hasChecked = true;
 
     }
 
@@ -61,6 +61,7 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
             userNameText.text = levelLeaderBoard[i].name;
             userTimeText.text = levelLeaderBoard[i].timescore.ToString();
             userPosText.text = (i + 1).ToString();
+            if (i == (rankLimit-1)) break;
         }
 
     }
