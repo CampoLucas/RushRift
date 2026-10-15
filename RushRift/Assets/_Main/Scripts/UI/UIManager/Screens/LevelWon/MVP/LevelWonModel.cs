@@ -14,15 +14,17 @@ namespace Game.UI.StateMachine
         public float BestTime { get; private set; }
         public bool NewRecord { get; private set; }
         public bool LevelWon { get; private set; }
+        public string PlayerName { get; private set; }
 
         public List<MedalType> MedalInfos { get; private set; } = new();
         private Dictionary<MedalType, MedalInfo> _medalDict = new();
 
-        public void Initialize(float endTime, float bestTime, bool newRecord, Dictionary<MedalType, MedalInfo> medals)
+        public void Initialize(float endTime, float bestTime, bool newRecord,string playerName, Dictionary<MedalType, MedalInfo> medals)
         {
             EndTime = endTime;
             BestTime = bestTime;
             NewRecord = newRecord;
+            PlayerName = playerName;
 
             MedalInfos.Clear();
             _medalDict.Clear();
@@ -57,7 +59,7 @@ namespace Game.UI.StateMachine
         public override void Reset()
         {
             base.Reset();
-            Initialize(0, 0, false, null);
+            Initialize(0, 0,false,null,null);
         }
 
         public bool IsMedalUnlocked(MedalType type)

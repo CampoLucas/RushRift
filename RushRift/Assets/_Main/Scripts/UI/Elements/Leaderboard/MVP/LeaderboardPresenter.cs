@@ -6,6 +6,7 @@ using System.Threading;
 using TMPro;
 using Game.UI.StateMachine;
 using UnityEngine.EventSystems;
+using Game.Saves;
 
 public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardView>
 {
@@ -35,30 +36,32 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
     public void GetScoreData()
     {
         if (hasChecked) return;
-        CancellationTokenSource cts = new CancellationTokenSource();
-        var id = GlobalLevelManager.GetID();
+        //Checkear la lista en el save
+        var leaderBoardSave = SaveSystem.LoadLeaderBoard();
+
         hasChecked = true;
+
     }
 
-    //private void OnrecievedScore(ScoreList scoreList)
-    //{
-        
-    //    for (int i = 0; i < scoreList.scores.Length; i++)
-    //    {
-    //        userNameList[i].SetActive(true);
-    //        userTimelist[i].SetActive(true);
-    //        userPoslist[i].SetActive(true);
+    private void OnrecievedScore(ScoreData scoreList)
+    {
 
-    //        var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
-    //        var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
-    //        var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
+        //for (int i = 0; i < scoreList.leaderBoardList.Count; i++)
+        //{
+        //    userNameList[i].SetActive(true);
+        //    userTimelist[i].SetActive(true);
+        //    userPoslist[i].SetActive(true);
 
-    //        userNameText.text = scoreList.scores[i].name;
-    //        userTimeText.text = scoreList.scores[i].timescore;
-    //        userPosText.text = (i+1).ToString();
-    //    }
-        
-    //}
+        //    var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
+        //    var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
+        //    var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
+
+        //    userNameText.text = scoreList.leaderBoardList[i].;
+        //    userTimeText.text = scoreList.leaderBoardList[i].timescore;
+        //    userPosText.text = (i + 1).ToString();
+        //}
+
+    }
 
     public override bool TryGetState(out UIState state)
     {

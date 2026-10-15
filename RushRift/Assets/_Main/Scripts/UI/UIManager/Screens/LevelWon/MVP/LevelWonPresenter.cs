@@ -104,7 +104,9 @@ namespace Game.UI.StateMachine
             var endTime = GlobalLevelManager.CompleteTime;
             var id = GlobalLevelManager.GetID();
             
+            
             data.CheckBestTime(id, endTime, out var prevBest, out var currBest, out var newRecord);
+            var playerName = data.GetPlayerName();
 
             var medalInfo = new Dictionary<MedalType, MedalInfo>();
 
@@ -123,13 +125,13 @@ namespace Game.UI.StateMachine
                 medalInfo[MedalType.Gold] = medal;
             }
             
-            model.Initialize(endTime, currBest, newRecord, medalInfo);
+            model.Initialize(endTime, currBest, newRecord,playerName,medalInfo);
         }
 
         private void UpdateSaveData(in LevelWonModel model)
         {
             var data = SaveSystem.LoadGame();
-            
+
             SaveUnlockedMedals(model, ref data);
             SaveNewBest(model, ref data);
             
