@@ -154,7 +154,7 @@ namespace Game.UI.StateMachine
 
         public override void FadeIn(float t, float startTime, float duration)
         {
-            Presenter.FadeIn(t, startTime, duration, ref _enableSubject, ref _startSubject);
+            if (Presenter) Presenter.FadeIn(t, startTime, duration, ref _enableSubject, ref _startSubject);
         }
 
         public override void FadeOut(float t, float startTime, float duration)
@@ -164,7 +164,11 @@ namespace Game.UI.StateMachine
 
         public override void Dispose()
         {
-            ToggleUISubject.Detach(Presenter.GetToggleUIObserver());
+            if (Presenter && Presenter.GetToggleUIObserver() != null)
+            {
+                ToggleUISubject.Detach(Presenter.GetToggleUIObserver());
+            }
+            
             Presenter = null;
             
             base.Dispose();
