@@ -125,7 +125,7 @@ namespace Game.UI.StateMachine
                 medalInfo[MedalType.Gold] = medal;
             }
             
-            model.Initialize(endTime, currBest, newRecord,playerName,medalInfo);
+            model.Initialize(endTime, currBest, newRecord,playerName.name,playerName.id,medalInfo);
         }
 
         private void UpdateSaveData(in LevelWonModel model)

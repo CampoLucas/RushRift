@@ -3,7 +3,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class ScoreData
 {
-    public Dictionary<int,List<Score>> leaderBoardList = new Dictionary<int,List<Score>>();
+    public Dictionary<int, Dictionary<string, Score>> leaderBoardList = new Dictionary<int, Dictionary<string, Score>>();
 }
 
 [System.Serializable]
