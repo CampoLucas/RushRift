@@ -85,6 +85,16 @@ namespace Game.LeaderboardDebugger
             RefreshOnScreen();
         }
 
+        public static void DeleteEntry(int level, string id)
+        {
+            var data = Load();
+
+            if (data.Score.leaderBoardList.TryGetValue(level, out var entries)) entries.Remove(id);
+
+            Save(data);
+            RefreshOnScreen();
+        }
+
         public static void RefreshOnScreen()
         {
             if (!Application.isPlaying) return;

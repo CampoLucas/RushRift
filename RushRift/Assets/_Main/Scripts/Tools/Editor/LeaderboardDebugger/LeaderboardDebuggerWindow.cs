@@ -24,9 +24,9 @@ namespace Game.LeaderboardDebugger
         [SerializeField] private DebuggerContext context = new DebuggerContext();
         [SerializeField] private GenerateTab generate = new GenerateTab();
         [SerializeField] private DataTab data = new DataTab();
+        [SerializeField] private EntriesTab entries = new EntriesTab();
         [SerializeField] private UnitTestsView unitTests = new UnitTestsView();
 
-        private readonly EntriesTab entries = new EntriesTab();
         private GUIStyle titleStyle;
         private Vector2 scroll;
         private double lastPoll;

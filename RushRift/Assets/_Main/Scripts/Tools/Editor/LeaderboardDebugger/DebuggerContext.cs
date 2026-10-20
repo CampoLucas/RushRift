@@ -36,7 +36,8 @@ namespace Game.LeaderboardDebugger
         public bool LevelResolved { get; private set; } = true;
         public bool SaveExists { get; private set; }
         public string SaveError { get; private set; }
-        public LeaderBoardData Data { get; private set; }
+        public bool HasData { get; private set; }
+        public string Description { get; private set; } = "";
         public List<Score> Entries { get; private set; } = new List<Score>();
         public List<int> Levels { get; private set; } = new List<int>();
         public int Revision { get; private set; }
@@ -93,7 +94,8 @@ namespace Game.LeaderboardDebugger
             stamp = currentStamp;
             stampLevel = Level;
             Revision++;
-            Data = null;
+            HasData = false;
+            Description = "";
             Entries = new List<Score>();
             Levels = new List<int>();
 
@@ -104,7 +106,8 @@ namespace Game.LeaderboardDebugger
             }
 
             SaveError = null;
-            Data = read;
+            HasData = true;
+            Description = LeaderboardDebuggerService.Describe(read);
             Entries = LeaderboardDebuggerService.GetEntries(read, Level);
             Levels = LeaderboardDebuggerService.GetLevels(read);
             return true;

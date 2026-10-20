@@ -112,7 +112,7 @@ namespace Game.LeaderboardDebugger
 
             DebuggerHelp.Info(context, "Exactly what is stored: a readable listing of the deserialized data and a hex dump of the first 4096 bytes of the binary file.");
 
-            if (context.Data == null)
+            if (!context.HasData)
             {
                 DebuggerHelp.Warning("There is nothing to show because the save is missing or unreadable.");
                 return;
@@ -128,7 +128,7 @@ namespace Game.LeaderboardDebugger
         private void RefreshRaw(DebuggerContext context)
         {
             rawRevision = context.Revision;
-            rawDescription = LeaderboardDebuggerService.Describe(context.Data);
+            rawDescription = context.Description;
             rawHex = LeaderboardDebuggerService.HexDump(File.ReadAllBytes(LeaderboardDebuggerService.SavePath), HexBytes);
         }
     }

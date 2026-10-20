@@ -12,7 +12,7 @@ namespace Game.LeaderboardDebugger
 {
     public static class LeaderboardLevelSource
     {
-        public const string CurrentLabel = "Current (Play Mode level, otherwise PlayHook selection)";
+        public const string CurrentLabel = "Current";
 
         private static List<GameModeSO> gameModes = new List<GameModeSO>();
         private static List<BaseLevelSO> levels = new List<BaseLevelSO>();
