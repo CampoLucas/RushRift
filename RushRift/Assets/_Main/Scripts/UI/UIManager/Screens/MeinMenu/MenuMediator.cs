@@ -42,7 +42,8 @@ namespace Game.UI.StateMachine
 
         [Header("PlayerName")]
         [SerializeField] private TMP_InputField enterNameInputField;
-
+        [SerializeField] private UsernameGenerator randomName;
+        private string newRandomName;
 
 
         private UIStateMachine _stateMachine;
@@ -175,6 +176,12 @@ namespace Game.UI.StateMachine
                 confirmButton.SetConfirmInteractable(false);
             else
                 confirmButton.SetConfirmInteractable(true);
+        }
+
+        public void GenerateNewRandomName()
+        {
+            newRandomName = randomName.GenerateUsername();
+            enterNameInputField.text = newRandomName;
         }
 
         public void Dispose()

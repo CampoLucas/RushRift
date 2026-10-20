@@ -179,6 +179,7 @@ MonoBehaviour:
   hub: {fileID: 0}
   defaultGameMode: {fileID: 0}
   enterNameInputField: {fileID: 3347354959112017614}
+  randomName: {fileID: 6449305942591615600}
 --- !u!1 &1155511852845767793
 GameObject:
   m_ObjectHideFlags: 0
@@ -1027,7 +1028,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnSelect:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7741878721897154984}
+        m_TargetAssemblyTypeName: Game.UI.StateMachine.MenuMediator, Assembly-CSharp
+        m_MethodName: GenerateNewRandomName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnDeselect:
     m_PersistentCalls:
       m_Calls: []
@@ -1081,6 +1094,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3789499849175205614}
   - component: {fileID: 5148669106853182763}
+  - component: {fileID: 6449305942591615600}
   m_Layer: 0
   m_Name: EnterNamePopUp
   m_TagString: Untagged
@@ -1117,6 +1131,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6328211772594288867}
   m_CullTransparentMesh: 1
+--- !u!114 &6449305942591615600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6328211772594288867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b24148cf82cf7418e864582c82f2bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patterns:
+  - '[n][##][i]'
+  - '[i][n][i]'
+  - '[i][n][i][###]'
+  - '[###][i][n][i][###]'
+  - '[n][i]'
+  - '[i][n]'
+  - '[n][i][##]'
+  - '[n][i][###]'
+  - '[n][n]'
+  - '[i][n][n][i][###]'
+  names:
+  - John
+  - Nova
+  - Rush
+  - Messi
+  - Dash
+  - Sanic
+  - Jill
+  - Goku
+  - Atomic
+  - Blast
+  icons:
+  - _
+  - '-'
+  - '@'
+  - '#'
+  - $
+  - <3
+  - =3
+  - :c
+  - :D
+  - T_T
 --- !u!1 &7863316178348041170
 GameObject:
   m_ObjectHideFlags: 0
@@ -2579,7 +2638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4284322151662850439, guid: b4087106d6c5f9845a323c757f8ea532, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.048942376
+      value: -0.05386359
       objectReference: {fileID: 0}
     - target: {fileID: 4882413253321378702, guid: b4087106d6c5f9845a323c757f8ea532, type: 3}
       propertyPath: m_AnchorMax.y
