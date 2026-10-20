@@ -24,6 +24,9 @@ namespace Game
         
         public static bool GameOver { get; private set; }
         public static float CompleteTime { get; private set; }
+#if LEADERBOARD_CMD_ENABLED
+        public static float CurrentTime => _instance && _instance.TryGet(out var instance) && instance._levelTimer != null ? instance._levelTimer.CurrentTime : 0f;
+#endif
         public int LevelIndex { get; set; } = -1;
         public bool ReachedNextZone { get; set; }
 

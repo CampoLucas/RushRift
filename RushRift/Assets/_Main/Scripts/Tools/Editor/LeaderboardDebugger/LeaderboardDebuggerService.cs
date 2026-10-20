@@ -74,6 +74,31 @@ namespace Game.LeaderboardDebugger
         public static void ClearAll()
         {
             SaveSystem.ResetLeaderBoard();
+            RefreshOnScreen();
+        }
+
+        public static void ClearLevel(int level)
+        {
+            var data = Load();
+            data.Score.leaderBoardList.Remove(level);
+            Save(data);
+            RefreshOnScreen();
+        }
+
+        public static void RefreshOnScreen()
+        {
+            if (!Application.isPlaying) return;
+
+            foreach (var presenter in UnityEngine.Object.FindObjectsOfType<LeaderboardPresenter>())
+            {
+                try
+                {
+                    presenter.GetScoreData();
+                }
+                catch (KeyNotFoundException)
+                {
+                }
+            }
         }
 
         public static bool TryReadWithoutRepair(out LeaderBoardData data, out string error)
@@ -127,6 +152,7 @@ namespace Game.LeaderboardDebugger
             var data = Load();
             foreach (var entry in entries) AddEntry(data, level, entry.name, entry.id, entry.timescore);
             Save(data);
+            RefreshOnScreen();
         }
 
         public static void ReplaceLevel(int level, IEnumerable<Score> entries)
@@ -135,6 +161,7 @@ namespace Game.LeaderboardDebugger
             data.Score.leaderBoardList.Remove(level);
             foreach (var entry in entries) AddEntry(data, level, entry.name, entry.id, entry.timescore);
             Save(data);
+            RefreshOnScreen();
         }
 
         public static void BackupToLibrary()
@@ -147,6 +174,7 @@ namespace Game.LeaderboardDebugger
         {
             var bytes = File.ReadAllBytes(LibraryBackupPath);
             new SaveBackup(bytes.Length == 0 ? null : bytes).Restore();
+            RefreshOnScreen();
         }
 
         public static void DeleteLibraryBackup()
@@ -164,6 +192,7 @@ namespace Game.LeaderboardDebugger
         {
             Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
             File.Copy(path, SavePath, true);
+            RefreshOnScreen();
         }
 
         public static void DeleteSave()

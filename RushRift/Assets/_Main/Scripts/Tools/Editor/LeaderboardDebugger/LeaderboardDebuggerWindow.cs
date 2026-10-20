@@ -12,7 +12,9 @@ namespace Game.LeaderboardDebugger
         private static readonly string[] TabNames = { "Generate", "Inspect", "Checks", "Edge Cases", "Persistence", "Data", "Unit Tests" };
 
         [SerializeField] private int tab;
-        [SerializeField] private int level = 1;
+        [SerializeField] private int manualLevel = 1;
+        [SerializeField] private bool useCurrentLevel = true;
+        [SerializeField] private bool showLiveEntries = true;
         [SerializeField] private int generateCount = 50;
         [SerializeField] private ScoreDistribution distribution = ScoreDistribution.Uniform;
         [SerializeField] private float minTime = 20f;
@@ -26,6 +28,13 @@ namespace Game.LeaderboardDebugger
         private readonly Dictionary<string, CheckResult> results = new Dictionary<string, CheckResult>();
         private LeaderboardUnitTestsTab unitTestsTab;
         private Vector2 scroll;
+        private Vector2 liveScroll;
+        private double lastPoll;
+        private long liveStamp = -1;
+        private int liveLevel = int.MinValue;
+        private string liveError;
+        private string levelSource = "";
+        private List<Score> liveEntries = new List<Score>();
         private bool inspectDirty = true;
         private bool showHex;
         private string inspectError;
@@ -33,6 +42,9 @@ namespace Game.LeaderboardDebugger
         private string inspectHex;
         private List<Score> inspectEntries = new List<Score>();
         private List<int> inspectLevels = new List<int>();
+
+        private int level { get; set; } = 1;
+
 
         [MenuItem("Tools/Leaderboard Debugger")]
         public static void Open()
@@ -44,11 +56,53 @@ namespace Game.LeaderboardDebugger
         {
             unitTestsTab = new LeaderboardUnitTestsTab(Repaint);
             unitTestsTab.Enable();
+            LeaderboardLevelSource.Reload();
+            EditorApplication.update += OnEditorUpdate;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
         private void OnDisable()
         {
             unitTestsTab?.Disable();
+            EditorApplication.update -= OnEditorUpdate;
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+        }
+
+        private void OnEditorUpdate()
+        {
+            if (EditorApplication.timeSinceStartup - lastPoll < 0.5) return;
+
+            lastPoll = EditorApplication.timeSinceStartup;
+            if (PollLive()) Repaint();
+        }
+
+        private void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            liveStamp = -1;
+            Repaint();
+        }
+
+        private bool PollLive()
+        {
+            LeaderboardLevelSource.TryResolve(useCurrentLevel, manualLevel, out var resolved, out levelSource);
+            level = resolved;
+
+            var path = LeaderboardDebuggerService.SavePath;
+            var info = new FileInfo(path);
+            var stamp = info.Exists ? info.LastWriteTimeUtc.Ticks ^ info.Length : 0L;
+
+            if (stamp == liveStamp && level == liveLevel) return false;
+
+            liveStamp = stamp;
+            liveLevel = level;
+            inspectDirty = true;
+            liveEntries = new List<Score>();
+            liveError = null;
+
+            if (!LeaderboardDebuggerService.TryReadWithoutRepair(out var data, out liveError)) return true;
+
+            liveEntries = LeaderboardDebuggerService.GetEntries(data, level);
+            return true;
         }
 
         private void OnFocus()
@@ -58,7 +112,9 @@ namespace Game.LeaderboardDebugger
 
         private void OnGUI()
         {
-            level = EditorGUILayout.IntField("Level id", level);
+            if (Event.current.type == EventType.Layout) PollLive();
+            DrawLevelSection();
+            DrawLiveEntries();
             var selected = GUILayout.Toolbar(tab, TabNames);
             if (selected != tab)
             {
@@ -84,6 +140,70 @@ namespace Game.LeaderboardDebugger
                 case 3: DrawCheckList("Edge cases", LeaderboardChecks.EdgeCases()); break;
                 case 4: DrawPersistence(); break;
                 case 5: DrawData(); break;
+            }
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void DrawLevelSection()
+        {
+            useCurrentLevel = EditorGUILayout.ToggleLeft("Use current level (Play Mode level, otherwise PlayHook selection)", useCurrentLevel);
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("Level", GUILayout.Width(40));
+
+                var content = new GUIContent(LeaderboardLevelSource.GetLabel(level));
+                var rect = GUILayoutUtility.GetRect(content, EditorStyles.popup, GUILayout.MinWidth(120));
+                if (EditorGUI.DropdownButton(rect, content, FocusType.Passive))
+                {
+                    LeaderboardLevelSource.ShowDropdown(rect, level, id =>
+                    {
+                        manualLevel = id;
+                        useCurrentLevel = false;
+                        Repaint();
+                    });
+                }
+
+                var edited = EditorGUILayout.IntField(level, GUILayout.Width(60));
+                if (edited != level)
+                {
+                    manualLevel = edited;
+                    useCurrentLevel = false;
+                }
+            }
+
+            EditorGUILayout.LabelField($"Active level id {level} ({levelSource})", EditorStyles.miniLabel);
+        }
+
+        private void DrawLiveEntries()
+        {
+            showLiveEntries = EditorGUILayout.Foldout(showLiveEntries, $"Current entries, level {level} ({liveEntries.Count})", true);
+
+            if (!showLiveEntries) return;
+
+            if (liveError != null)
+            {
+                EditorGUILayout.HelpBox(liveError, MessageType.Warning);
+                return;
+            }
+
+            if (liveEntries.Count == 0)
+            {
+                EditorGUILayout.HelpBox($"Level {level} has no entries.", MessageType.Info);
+                return;
+            }
+
+            liveScroll = EditorGUILayout.BeginScrollView(liveScroll, GUILayout.MaxHeight(150));
+
+            for (var i = 0; i < liveEntries.Count; i++)
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField($"#{i + 1}", GUILayout.Width(40));
+                    EditorGUILayout.LabelField(liveEntries[i].name, GUILayout.MinWidth(80));
+                    EditorGUILayout.LabelField(LeaderboardDebuggerService.FormatTime(liveEntries[i].timescore), GUILayout.Width(100));
+                }
             }
 
             EditorGUILayout.EndScrollView();
