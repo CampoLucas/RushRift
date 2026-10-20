@@ -10,5 +10,6 @@ public class ScoreData
 public struct Score
 {
     public string name;
+    public string id;
     public float timescore;
 }

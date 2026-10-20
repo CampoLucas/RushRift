@@ -1,80 +1,176 @@
+using Game;
+using Game.Saves;
+using Game.UI.StateMachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Game;
-using System.Threading;
-using TMPro;
-using Game.UI.StateMachine;
 using UnityEngine.EventSystems;
-using Game.Saves;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardView>
 {
-    [SerializeField] private int rankLimit;
-    [SerializeField] private List<GameObject> userNameList;
-    [SerializeField] private List<GameObject> userTimelist;
-    [SerializeField] private List<GameObject> userPoslist;
+    [Header("Referencias")]
+    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private RectTransform content;
+    [SerializeField] private LeaderboardRow rowPrefab;
 
-    private bool hasChecked;
+    [Header("Configuración")]
+    [SerializeField] private int rankLimit = 100;          // Máximo de puestos a cargar
+    [SerializeField] private int scrollLimit = 10;        
+    [SerializeField] private float waitAtTop = 1f;         // Segundos mostrando el Top 10 antes de scrollear
+    [SerializeField] private float scrollDuration = 0.8f;  // Duración del scroll hacia tu puesto
+
+    private readonly List<LeaderboardRow> rows = new List<LeaderboardRow>();
+    private Coroutine scrollRoutine;
+
+    // Datos del jugador para saber cuál es "su" fila
+    private bool hasPlayerEntry;
+    private bool isPlayer;
+    private string playerId;
+    private float playerTime;
+
+    private void Awake()
+    {
+        GetScoreData();
+    }
 
     public void Init()
     {
-        for (int i = 0; i < userNameList.Count; i++)
-        {
-            userNameList[i].SetActive(false);
-            userTimelist[i].SetActive(false);
-        }
+        StopScroll();
 
-        hasChecked = false;
+        for (int i = 0; i < rows.Count; i++)
+            rows[i].gameObject.SetActive(false);
+
+        hasPlayerEntry = false;
     }
 
     public override void Begin()
     {
-        
         base.Begin();
+    }
+
+    /// <summary>
+    /// Llamar antes de GetScoreData() con el resultado que acaba de hacer el jugador.
+    /// </summary>
+    public void SetPlayerEntry(string name, float time)
+    {
+        playerId = name;
+        playerTime = time;
+        hasPlayerEntry = true;
     }
 
     public void GetScoreData()
     {
-        //if (hasChecked) return;
         var leaderBoardSave = SaveSystem.LoadLeaderBoard();
+        var saveData = SaveSystem.LoadGame();
+        var currentPlayer = saveData.GetPlayerName();
+        var id = GlobalLevelManager.GetID();
+        var endTime = GlobalLevelManager.CompleteTime;
+        saveData.CheckBestTime(id, endTime, out var prevBest, out var currBest, out var newRecord);
+        SetPlayerEntry(currentPlayer.id, currBest);
         OnrecievedScore(leaderBoardSave);
-        //hasChecked = true;
-
     }
 
     private void OnrecievedScore(LeaderBoardData leaderBoardData)
     {
+        StopScroll();
         ResetLeaderboard();
+
         var levelLeaderBoard = leaderBoardData.GetLevelLeaderBoard(GlobalLevelManager.GetID());
 
-        for (int i = 0; i < levelLeaderBoard.Count; i++)
+        
+
+        int count = Mathf.Min(levelLeaderBoard.Count, rankLimit);
+        int playerIndex = -1;
+
+        for (int i = 0; i < count; i++)
         {
-            userNameList[i].SetActive(true);
-            userTimelist[i].SetActive(true);
-            userPoslist[i].SetActive(true);
+            var row = GetRow(i);
+            row.gameObject.SetActive(true);
 
-            var userNameText = userNameList[i].GetComponentInChildren<TMP_Text>();
-            var userTimeText = userTimelist[i].GetComponentInChildren<TMP_Text>();
-            var userPosText = userPoslist[i].GetComponentInChildren<TMP_Text>();
+            isPlayer = hasPlayerEntry
+                            && levelLeaderBoard[i].id == playerId;
+                            
 
-            var newFormatedTime = FormatTime(levelLeaderBoard[i].timescore);
+            if (isPlayer) playerIndex = i;
 
-            userNameText.text = levelLeaderBoard[i].name;
-            userTimeText.text = newFormatedTime.ToString();
-            userPosText.text = (i + 1).ToString();
-            if (i == (rankLimit-1)) break;
+            row.Set(i + 1, levelLeaderBoard[i].name, FormatTime(levelLeaderBoard[i].timescore), isPlayer);
         }
 
+        // Empezamos arriba (Top 10 visible)
+        scrollRect.verticalNormalizedPosition = 1f;
+
+        // Si el jugador está fuera del Top 10, scrolleamos hasta su puesto
+        if (playerIndex >= scrollLimit)
+            scrollRoutine = StartCoroutine(ScrollToRow(rows[playerIndex]));
+    }
+
+    private LeaderboardRow GetRow(int index)
+    {
+        // Reutilizamos filas existentes y solo instanciamos si faltan
+        while (rows.Count <= index)
+            rows.Add(Instantiate(rowPrefab, content));
+
+        return rows[index];
     }
 
     private void ResetLeaderboard()
     {
-        for (int i = 0; i < userNameList.Count; i++)
+        for (int i = 0; i < rows.Count; i++)
+            rows[i].gameObject.SetActive(false);
+    }
+
+    private IEnumerator ScrollToRow(LeaderboardRow targetRow)
+    {
+        // Esperamos un frame para que el layout se calcule bien
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+
+        float scrollableHeight = content.rect.height - ((RectTransform)scrollRect.viewport ?? scrollRect.GetComponent<RectTransform>()).rect.height;
+        if (scrollableHeight <= 0f) yield break; // Todo cabe en pantalla, no hay nada que scrollear
+
+        float viewportHeight = ((RectTransform)scrollRect.viewport ?? scrollRect.GetComponent<RectTransform>()).rect.height;
+
+        // Distancia desde el borde superior del content hasta el centro de la fila
+        // (el Content debe tener el pivot arriba: Y = 1)
+        Vector3 rowCenterLocal = content.InverseTransformPoint(targetRow.Rect.TransformPoint(targetRow.Rect.rect.center));
+        float distanceFromTop = -rowCenterLocal.y;
+
+        // Queremos la fila centrada en el viewport
+        float desiredTop = Mathf.Clamp(distanceFromTop - viewportHeight * 0.5f, 0f, scrollableHeight);
+        float targetNormalized = 1f - (desiredTop / scrollableHeight);
+
+        // Pausa mostrando el Top 10
+        float t = 0f;
+        while (t < waitAtTop)
         {
-            userNameList[i].SetActive(false);
-            userTimelist[i].SetActive(false);
-            userPoslist[i].SetActive(false);
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        // Scroll suave
+        float startNormalized = scrollRect.verticalNormalizedPosition;
+        t = 0f;
+        while (t < scrollDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.SmoothStep(0f, 1f, t / scrollDuration);
+            scrollRect.verticalNormalizedPosition = Mathf.Lerp(startNormalized, targetNormalized, k);
+            yield return null;
+        }
+
+        scrollRect.verticalNormalizedPosition = targetNormalized;
+        scrollRoutine = null;
+    }
+
+    private void StopScroll()
+    {
+        if (scrollRoutine != null)
+        {
+            StopCoroutine(scrollRoutine);
+            scrollRoutine = null;
         }
     }
 
@@ -89,19 +185,20 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 
     public override bool TryGetState(out UIState state)
     {
-        state = new LeaderboardState(this);
+        state = new LeaderboardState(null); // Ver nota abajo
         return true;
     }
-    
+
     public override void Dispose()
     {
+        StopScroll();
         base.Dispose();
     }
 
     public override void End()
     {
+        StopScroll();
         EventSystem.current.SetSelectedGameObject(null);
         base.End();
     }
-
 }

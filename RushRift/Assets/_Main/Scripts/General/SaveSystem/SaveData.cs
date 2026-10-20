@@ -390,6 +390,7 @@ namespace Game.Saves
             Score newScore;
             newScore.name = playerName.name;
             newScore.timescore = playerTime;
+            newScore.id = playerName.id;
             //if (!_score.leaderBoardList.ContainsKey(level))
             //{
             //    var newLevelList = new List<Score>();
