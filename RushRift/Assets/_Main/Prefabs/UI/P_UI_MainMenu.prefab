@@ -1028,19 +1028,7 @@ MonoBehaviour:
       m_Calls: []
   m_OnSelect:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7741878721897154984}
-        m_TargetAssemblyTypeName: Game.UI.StateMachine.MenuMediator, Assembly-CSharp
-        m_MethodName: GenerateNewRandomName
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_OnDeselect:
     m_PersistentCalls:
       m_Calls: []
@@ -1757,7 +1745,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -1768,6 +1756,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
+      propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 695908354389151163}
@@ -1775,6 +1767,10 @@ PrefabInstance:
       propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 695908354389151163}
+    - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
+      propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 7741878721897154984}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onEnd.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -1788,8 +1784,16 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
+      propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: Init
+      objectReference: {fileID: 0}
+    - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
+      propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: GenerateNewRandomName
       objectReference: {fileID: 0}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onEnd.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -1800,11 +1804,19 @@ PrefabInstance:
       value: CheckInputSet, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
+      propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: Game.UI.StateMachine.MenuMediator, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
       propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8149847418174896304, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
+      propertyPath: onBegin.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8360425198928838625, guid: 565fa1612f2d1fc45835556f245b3b89, type: 3}
@@ -2638,7 +2650,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4284322151662850439, guid: b4087106d6c5f9845a323c757f8ea532, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.05386359
+      value: -0.075187564
       objectReference: {fileID: 0}
     - target: {fileID: 4882413253321378702, guid: b4087106d6c5f9845a323c757f8ea532, type: 3}
       propertyPath: m_AnchorMax.y
