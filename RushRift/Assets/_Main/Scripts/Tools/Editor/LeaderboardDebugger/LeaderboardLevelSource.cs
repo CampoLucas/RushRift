@@ -12,6 +12,8 @@ namespace Game.LeaderboardDebugger
 {
     public static class LeaderboardLevelSource
     {
+        public const string CurrentLabel = "Current (Play Mode level, otherwise PlayHook selection)";
+
         private static List<GameModeSO> gameModes = new List<GameModeSO>();
         private static List<BaseLevelSO> levels = new List<BaseLevelSO>();
 
@@ -62,34 +64,46 @@ namespace Game.LeaderboardDebugger
             return string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<BaseLevelSO>(path);
         }
 
-        public static string GetLabel(int levelId)
+        public static bool IsKnown(int levelId)
         {
+            return levels.Any(candidate => candidate.LevelID == levelId);
+        }
+
+        public static string GetLabel(LevelMode mode, int levelId)
+        {
+            if (mode == LevelMode.Current) return CurrentLabel;
+            if (mode == LevelMode.Custom) return $"Custom id ({levelId})";
+
             var level = levels.FirstOrDefault(candidate => candidate.LevelID == levelId);
             return level == null ? $"Level {levelId}" : Describe(level);
         }
 
-        public static void ShowDropdown(Rect buttonRect, int selectedLevel, Action<int> onSelected)
+        public static void ShowDropdown(Rect buttonRect, LevelMode mode, int selectedLevel, Action<LevelMode, int> onSelected)
         {
             Reload();
 
-            var entries = new List<MenuEntry>();
+            var entries = new List<MenuEntry>
+            {
+                new MenuItem(CurrentLabel, () => onSelected(LevelMode.Current, selectedLevel), mode == LevelMode.Current, () => false),
+                new MenuSeparator()
+            };
 
             if (gameModes.Count == 0)
             {
                 entries.Add(new MenuItem("No GameModes found", null, false, () => true));
             }
 
-            foreach (var mode in gameModes)
+            foreach (var gameMode in gameModes)
             {
-                var group = new MenuGroup(mode.DisplayName);
-                var modeLevels = mode.Levels == null ? new List<BaseLevelSO>() : mode.Levels.Where(level => level != null).ToList();
+                var group = new MenuGroup(gameMode.DisplayName);
+                var modeLevels = gameMode.Levels == null ? new List<BaseLevelSO>() : gameMode.Levels.Where(level => level != null).ToList();
 
                 if (modeLevels.Count == 0) group.Add(new MenuItem("Empty", null, false, () => true));
 
                 foreach (var level in modeLevels)
                 {
                     var id = level.LevelID;
-                    group.Add(new MenuItem(Describe(level), () => onSelected(id), id == selectedLevel, () => false));
+                    group.Add(new MenuItem(Describe(level), () => onSelected(LevelMode.Listed, id), mode == LevelMode.Listed && id == selectedLevel, () => false));
                 }
 
                 entries.Add(group);
@@ -103,10 +117,12 @@ namespace Game.LeaderboardDebugger
             foreach (var level in levels)
             {
                 var id = level.LevelID;
-                all.Add(new MenuItem(Describe(level), () => onSelected(id), id == selectedLevel, () => false));
+                all.Add(new MenuItem(Describe(level), () => onSelected(LevelMode.Listed, id), mode == LevelMode.Listed && id == selectedLevel, () => false));
             }
 
             entries.Add(all);
+            entries.Add(new MenuSeparator());
+            entries.Add(new MenuItem("Custom id...", () => onSelected(LevelMode.Custom, selectedLevel), mode == LevelMode.Custom, () => false));
 
             var menu = new GenericMenu();
             foreach (var entry in entries) entry.Setup(ref menu);
