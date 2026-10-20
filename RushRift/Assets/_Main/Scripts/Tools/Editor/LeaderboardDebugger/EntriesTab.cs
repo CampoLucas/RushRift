@@ -14,11 +14,15 @@ namespace Game.LeaderboardDebugger
 
         [SerializeField] private bool debug;
 
+        private static GUIStyle headerStyle;
+
+        private static GUIStyle HeaderStyle => headerStyle ??= new GUIStyle { padding = new RectOffset(6, 6, 3, 3) };
+
+        private static Color HeaderColor => EditorGUIUtility.isProSkin ? new Color(0.14f, 0.14f, 0.14f) : new Color(0.62f, 0.62f, 0.62f);
+
         public void Draw(DebuggerContext context)
         {
             DebuggerHelp.Info(context, "Shows the saved entries of the active level, sorted the way the game sorts them. It refreshes by itself when the save file changes. Use X to delete a single entry. Debug also shows each entry's id and the levels stored in the save.");
-
-            debug = GUILayout.Toggle(debug, "Debug");
 
             if (context.SaveError != null)
             {
@@ -29,10 +33,13 @@ namespace Game.LeaderboardDebugger
 
             if (debug) EditorGUILayout.LabelField("Levels in save", context.Levels.Count == 0 ? "none" : string.Join(", ", context.Levels));
 
-            using (new EditorGUILayout.HorizontalScope())
+            using (var header = new EditorGUILayout.HorizontalScope(HeaderStyle))
             {
+                if (Event.current.type == EventType.Repaint) EditorGUI.DrawRect(header.rect, HeaderColor);
+
                 EditorGUILayout.LabelField($"Level {context.Level} ({context.Entries.Count} entries)", EditorStyles.boldLabel);
                 GUILayout.FlexibleSpace();
+                debug = GUILayout.Toggle(debug, "Debug", GUI.skin.button, GUILayout.Width(70));
                 if (GUILayout.Button("Refresh", GUILayout.Width(70))) context.Invalidate();
 
                 using (new EditorGUI.DisabledScope(context.Entries.Count == 0))
