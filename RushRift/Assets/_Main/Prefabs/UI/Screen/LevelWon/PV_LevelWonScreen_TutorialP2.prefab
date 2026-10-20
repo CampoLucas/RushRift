@@ -26,8 +26,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 678672388632729868, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_text
-      value: You ran out of time. You were close, try again using the <color=green>Dash
-        Damage</color>
+      value: "No llegaste a tiempo, estuviste cerca. Intenta de nuevo usando la habilidad
+        <color=green>Da\xF1o de Impulso</color>."
+      objectReference: {fileID: 0}
+    - target: {fileID: 678672388632729868, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_fontSize
+      value: 55
       objectReference: {fileID: 0}
     - target: {fileID: 708562930411459704, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: onShow.m_PersistentCalls.m_Calls.Array.size
@@ -57,6 +61,22 @@ PrefabInstance:
       propertyPath: onShow.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 3379742046038110876, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3379742046038110876, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3379742046038110876, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3379742046038110876, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3463167431870168594, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_fontColor.a
       value: 1
@@ -77,11 +97,31 @@ PrefabInstance:
       propertyPath: m_fontColor32.rgba
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 3589345713864994711, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3589345713864994711, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3589345713864994711, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 519.1327
+      objectReference: {fileID: 0}
+    - target: {fileID: 3589345713864994711, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -274
+      objectReference: {fileID: 0}
     - target: {fileID: 3962302402557954552, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_text
-      value: 'Tutorial Finished!!!
+      value: 'Tutorial Completado!!!
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 4863743111681273557, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5522102762072931798, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_Enabled
@@ -121,25 +161,29 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6047062161926032940, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_text
-      value: 'So close...
+      value: 'Tan cerca...
 
 '
       objectReference: {fileID: 0}
     - target: {fileID: 6113774057790122051, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6113774057790122051, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6113774057790122051, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 959.8446
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6113774057790122051, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -540.0874
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6778210463915802706, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
+      propertyPath: m_text
+      value: Nivel Completado
       objectReference: {fileID: 0}
     - target: {fileID: 7004372876272214080, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_Enabled
@@ -231,7 +275,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7200693037127223835, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7572940030486351831, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_Name
@@ -239,16 +283,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7817324284476104408, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_text
-      value: 'Don''t forget that <color=green>Upgrades are unique to each level</color>!!!
+      value: 'No olvides que las <color=green>Mejoras son unicas a cada nivel</color>!!!
 
-        Press
-        <color=green>Continue</color> to play the real challenge...
+        Presiona
+        <color=green>Continuar</color> para jugar el verdadero reto...
 
 '
       objectReference: {fileID: 0}
     - target: {fileID: 7817324284476104408, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: m_fontSize
-      value: 56.6
+      value: 54.85
       objectReference: {fileID: 0}
     - target: {fileID: 8966316171323768053, guid: 0433c304bbd28f44aabe20e9a30f1335, type: 3}
       propertyPath: retryButton

@@ -846,7 +846,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Continue
+  m_text: Continuar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 45eddd94a9535e44095fcee8446f766e, type: 2}
   m_sharedMaterial: {fileID: 4525757836658514990, guid: 45eddd94a9535e44095fcee8446f766e, type: 2}
@@ -980,7 +980,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Retry
+  m_text: Reintentar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 45eddd94a9535e44095fcee8446f766e, type: 2}
   m_sharedMaterial: {fileID: 4525757836658514990, guid: 45eddd94a9535e44095fcee8446f766e, type: 2}
@@ -1688,7 +1688,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Level Completed
+  m_text: Nivel Completado
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7a4b808295af0d144ae843f2bf5d0791, type: 2}
   m_sharedMaterial: {fileID: 4525757836658514990, guid: 7a4b808295af0d144ae843f2bf5d0791, type: 2}
@@ -4105,7 +4105,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Level Completed!!!
+  m_text: Nivel Completado!!!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ae31f60f55e41b84fb294a0554258584, type: 2}
   m_sharedMaterial: {fileID: -7033578942129305474, guid: ae31f60f55e41b84fb294a0554258584, type: 2}
@@ -4132,10 +4132,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 84.59
+  m_fontSize: 72
   m_fontSizeBase: 84.59
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 16
@@ -4811,6 +4811,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
+      propertyPath: m_text
+      value: 'Tiempo:
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
+      propertyPath: m_fontSize
+      value: 53.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 62.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5088,8 +5106,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2223196220876820714, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_text
-      value: You ran out of time. You were close, but the clock won this round. Try
-        again.
+      value: No completaste el nivel a tiempo, estuviste cerca. Intentalo de nuevo.
       objectReference: {fileID: 0}
     - target: {fileID: 2223196220876820714, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_fontSize
@@ -5189,7 +5206,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2773842672596887153, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -306.5
+      value: -274
       objectReference: {fileID: 0}
     - target: {fileID: 2773842672596887153, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5219,6 +5236,10 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 2100000, guid: ebf1f1d0a39eb8743994167ebcd53547, type: 2}
+    - target: {fileID: 4103810865444318885, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4617811358699127054, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: onPlaySequences.m_PersistentCalls.m_Calls.Array.size
       value: 2
@@ -5253,9 +5274,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4925314157018204106, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_text
-      value: 'Level Lost...
-
-'
+      value: Nivel No Completado...
       objectReference: {fileID: 0}
     - target: {fileID: 4925314157018204106, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_fontAsset
@@ -6350,9 +6369,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
       propertyPath: m_text
-      value: 'Best:
+      value: 'Mejor:
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
+      propertyPath: m_fontSize
+      value: 53.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 53.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 7238766282768912829, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7450789394152135253, guid: bebbaa309950b26469645eb4b18f3b93, type: 3}
       propertyPath: m_Sprite
@@ -6644,6 +6675,10 @@ PrefabInstance:
       propertyPath: newGameButton
       value: 
       objectReference: {fileID: 3339268708545186856}
+    - target: {fileID: 2236493619003038976, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2264032022765249339, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_SizeDelta.x
       value: 264.93
@@ -6722,11 +6757,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2773842672596887153, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 220
+      value: 487
       objectReference: {fileID: 0}
     - target: {fileID: 2773842672596887153, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -306.5
+      value: -274
       objectReference: {fileID: 0}
     - target: {fileID: 2773842672596887153, guid: f0cabf1a71f43da41b9ed568f724c0b1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
