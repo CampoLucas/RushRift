@@ -18,11 +18,7 @@ namespace Game.LeaderboardDebugger
         {
             DebuggerHelp.Info(context, "Shows the saved entries of the active level, sorted the way the game sorts them. It refreshes by itself when the save file changes. Use X to delete a single entry. Debug also shows each entry's id and the levels stored in the save.");
 
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                debug = GUILayout.Toggle(debug, "Debug (show ids)", GUILayout.Width(130));
-                if (GUILayout.Button("Refresh", GUILayout.Width(80))) context.Invalidate();
-            }
+            debug = GUILayout.Toggle(debug, "Debug");
 
             if (context.SaveError != null)
             {
@@ -33,7 +29,17 @@ namespace Game.LeaderboardDebugger
 
             if (debug) EditorGUILayout.LabelField("Levels in save", context.Levels.Count == 0 ? "none" : string.Join(", ", context.Levels));
 
-            EditorGUILayout.LabelField($"Level {context.Level} ({context.Entries.Count} entries)", EditorStyles.boldLabel);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField($"Level {context.Level} ({context.Entries.Count} entries)", EditorStyles.boldLabel);
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Refresh", GUILayout.Width(70))) context.Invalidate();
+
+                using (new EditorGUI.DisabledScope(context.Entries.Count == 0))
+                {
+                    if (GUILayout.Button("Clear", GUILayout.Width(70))) ConfirmClear(context);
+                }
+            }
 
             if (context.Entries.Count == 0) DebuggerHelp.Warning($"Level {context.Level} has no saved entries.");
 
@@ -60,6 +66,16 @@ namespace Game.LeaderboardDebugger
 
                 if (GUILayout.Button("X", GUILayout.Width(22))) ConfirmDelete(context, entry, index + 1);
             }
+        }
+
+        private static void ConfirmClear(DebuggerContext context)
+        {
+            var message = $"Delete all {context.Entries.Count} entries of level {context.Level}? This cannot be undone.";
+
+            if (!EditorUtility.DisplayDialog("Clear entries", message, "Clear", "Cancel")) return;
+
+            LeaderboardDebuggerService.ClearLevel(context.Level);
+            context.Invalidate();
         }
 
         private static void ConfirmDelete(DebuggerContext context, Score entry, int placement)
