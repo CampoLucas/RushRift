@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if LEADERBOARD_CMD_ENABLED
+using System.Linq;
+#endif
 using Game.Entities;
 using Game.Entities.Components;
 using Game.InputSystem;
@@ -51,6 +54,10 @@ namespace Game.Tools.DebugCommands
                 new SetMedalString(),
                 new SetMedalInt(),
             };
+
+#if LEADERBOARD_CMD_ENABLED
+            _commandList.AddRange(LeaderboardCmdUtils.CreateCommands());
+#endif
 
             _inputManager = GetComponent<InputManager>();
         }
@@ -227,6 +234,14 @@ namespace Game.Tools.DebugCommands
                     c.Do();
                     return;
                 }
+
+#if LEADERBOARD_CMD_ENABLED
+                if (command is DebugCommandArgs cArgs)
+                {
+                    cArgs.Do(properties.Skip(1).Where(word => word.Length > 0).ToArray());
+                    return;
+                }
+#endif
 
                 if (args <= 1) continue;
                 var property1 = properties[1];
