@@ -23,7 +23,7 @@ public class TabGroup : MonoBehaviour
         ShowTab(defaultIndex);
     }
 
-    private void ShowTab(int index)
+    public void ShowTab(int index)
     {
         if (tabs.Count == 0) return;  
         for (int i = 0; i < tabs.Count; i++)
