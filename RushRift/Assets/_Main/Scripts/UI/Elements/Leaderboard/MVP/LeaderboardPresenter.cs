@@ -3,6 +3,7 @@ using Game.Saves;
 using Game.UI.StateMachine;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering.Universal;
@@ -14,6 +15,9 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private RectTransform content;
     [SerializeField] private LeaderboardRow rowPrefab;
+    [SerializeField] private TMP_Text currPlayerPos;
+    [SerializeField] private TMP_Text currPlayerName;
+    [SerializeField] private TMP_Text currPlayerTime;
 
     [Header("Configuración")]
     [SerializeField] private int rankLimit = 100;          // Máximo de puestos a cargar
@@ -69,6 +73,8 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         var endTime = GlobalLevelManager.CompleteTime;
         saveData.CheckBestTime(id, endTime, out var prevBest, out var currBest, out var newRecord);
         SetPlayerEntry(currentPlayer.id, currBest);
+        currPlayerName.text = currentPlayer.name;
+        currPlayerTime.text = FormatTime(currBest);
         OnrecievedScore(leaderBoardSave);
     }
 
@@ -101,9 +107,14 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         // Empezamos arriba (Top 10 visible)
         scrollRect.verticalNormalizedPosition = 1f;
 
+        currPlayerPos.text = (playerIndex + 1).ToString();
+
         // Si el jugador está fuera del Top 10, scrolleamos hasta su puesto
         if (playerIndex >= scrollLimit)
+        {
             scrollRoutine = StartCoroutine(ScrollToRow(rows[playerIndex]));
+        }
+
     }
 
     private LeaderboardRow GetRow(int index)
