@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.LeaderboardDebugger.Tests;
 using UnityEditor;
 using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine;
@@ -30,6 +29,7 @@ namespace Game.LeaderboardDebugger
         }
 
         private const string FailedKey = "LeaderboardDebugger.FailedTests";
+        private const string TestsNamespace = "Game.LeaderboardDebugger.Tests.";
 
         private readonly Action repaint;
         private readonly List<TestEntry> entries = new List<TestEntry>();
@@ -153,7 +153,7 @@ namespace Game.LeaderboardDebugger
         {
             if (!test.HasChildren)
             {
-                if (test.FullName.StartsWith(typeof(LeaderboardTests).FullName + "."))
+                if (test.FullName.StartsWith(TestsNamespace))
                 {
                     entries.Add(previous.TryGetValue(test.FullName, out var existing) ? existing : new TestEntry { FullName = test.FullName });
                 }
