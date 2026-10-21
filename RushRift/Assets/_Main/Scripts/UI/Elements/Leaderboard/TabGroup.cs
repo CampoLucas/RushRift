@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class TabGroup : MonoBehaviour
 {
     [SerializeField] private List<Tab> tabs;
+    [SerializeField] private Color highlightColor;
+    [SerializeField] private Color disableColor;
     [SerializeField] private int defaultIndex = 0;
 
     public void Init()
@@ -31,11 +33,15 @@ public class TabGroup : MonoBehaviour
             if(i == index)
             {
                 tabs[i].TabContent.SetActive(true);
+                tabs[i].SelectedButtonImage.color = highlightColor;
             }
             else
             {
                 tabs[i].TabContent.SetActive(false);
+                tabs[i].SelectedButtonImage.color = disableColor;
+
             }
         }
     }
 }
+
