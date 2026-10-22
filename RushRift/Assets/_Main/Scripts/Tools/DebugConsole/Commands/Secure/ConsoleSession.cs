@@ -1,10 +1,15 @@
+using System;
+
 namespace Game.Tools.DebugCommands
 {
     /// <summary>
     /// Login state of the debug console. Every command except login needs it to be logged in.
+    /// Consoles that show a command history listen to HistoryCleared.
     /// </summary>
     public sealed class ConsoleSession
     {
+        public event Action HistoryCleared;
+
         public static ConsoleSession Shared { get; } = new ConsoleSession(null);
 
         public bool LoggedIn { get; private set; }
@@ -33,6 +38,11 @@ namespace Game.Tools.DebugCommands
         public void Logout()
         {
             LoggedIn = false;
+        }
+
+        public void ClearHistory()
+        {
+            HistoryCleared?.Invoke();
         }
     }
 }

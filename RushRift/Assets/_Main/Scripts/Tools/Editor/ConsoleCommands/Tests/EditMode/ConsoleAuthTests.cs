@@ -16,6 +16,7 @@ namespace Game.ConsoleCommands.Tests
         private static readonly string[] ProtectedCommands =
         {
             "logout",
+            "clear",
             "load-gm SomeMode",
             "disable-ghost",
             "enable-ghost",
@@ -235,6 +236,58 @@ namespace Game.ConsoleCommands.Tests
             Assert.AreEqual(1, services.SettingsClears);
         }
 
+        [Test]
+        public void Clear_LoggedIn_ClearsHistoryOnceAndStaysLoggedIn()
+        {
+            LogIn();
+            var cleared = 0;
+            session.HistoryCleared += () => cleared++;
+
+            var result = Run("clear");
+
+            Assert.IsTrue(result.Success, result.Message);
+            Assert.AreEqual(1, cleared);
+            Assert.IsTrue(session.LoggedIn);
+            Assert.AreEqual(0, services.Calls);
+        }
+
+        [Test]
+        public void Clear_LoggedOut_DoesNotClearHistory()
+        {
+            var cleared = 0;
+            session.HistoryCleared += () => cleared++;
+
+            var result = Run("clear");
+
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual(0, cleared);
+        }
+
+        [Test]
+        public void Logout_ClearsHistory()
+        {
+            LogIn();
+            var cleared = 0;
+            session.HistoryCleared += () => cleared++;
+
+            Assert.IsTrue(Run("logout").Success);
+
+            Assert.AreEqual(1, cleared);
+        }
+
+        [Test]
+        public void WrongPasswordOrFailedLogout_DoNotClearHistory()
+        {
+            var cleared = 0;
+            session.HistoryCleared += () => cleared++;
+
+            Run("login wrong");
+            Run("logout");
+
+            Assert.AreEqual(0, cleared);
+        }
+
+        [TestCase("clear all")]
         [TestCase("logout now")]
         [TestCase("disable-ghost please")]
         [TestCase("enable-ghost 1")]
@@ -282,7 +335,7 @@ namespace Game.ConsoleCommands.Tests
         {
             var ids = commands.Commands.Select(command => command.ID).ToArray();
 
-            CollectionAssert.AreEquivalent(new[] { "login", "logout", "load-gm", "disable-ghost", "enable-ghost", "clear-settings-data", "clear-save-data", "clear-leaderboard-data" }, ids);
+            CollectionAssert.AreEquivalent(new[] { "login", "logout", "clear", "load-gm", "disable-ghost", "enable-ghost", "clear-settings-data", "clear-save-data", "clear-leaderboard-data" }, ids);
         }
     }
 }

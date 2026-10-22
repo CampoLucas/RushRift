@@ -1,7 +1,7 @@
 namespace Game.Tools.DebugCommands
 {
     /// <summary>
-    /// Locks every console command again.
+    /// Locks every console command again and clears the command history.
     /// </summary>
     public class LogoutCmd : SecureDebugCommand
     {
@@ -13,6 +13,7 @@ namespace Game.Tools.DebugCommands
         protected override ConsoleResult Run(string[] args)
         {
             Session.Logout();
+            Session.ClearHistory();
             return ConsoleResult.Ok("Logged out. Console commands locked.");
         }
     }

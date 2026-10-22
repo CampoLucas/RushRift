@@ -31,6 +31,7 @@ namespace Game.Tools.DebugCommands
             {
                 new LoginCmd(session, services),
                 new LogoutCmd(session, services),
+                new ClearCmd(session, services),
                 new LoadGameModeCmd(session, services, GameModes),
                 new DisableGhostCmd(session, services),
                 new EnableGhostCmd(session, services),

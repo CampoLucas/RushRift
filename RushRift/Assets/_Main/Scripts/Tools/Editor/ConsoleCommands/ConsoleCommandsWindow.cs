@@ -267,6 +267,7 @@ namespace Game.ConsoleCommands
                     }
 
                     if (GUILayout.Button("Logout", GUILayout.Width(70))) Run("logout");
+                    if (GUILayout.Button("clear", GUILayout.Width(70))) Run("clear");
                 }
 
                 EditorGUILayout.Space();
@@ -333,10 +334,24 @@ namespace Game.ConsoleCommands
         private void Run(string text)
         {
             var live = FindLiveConsole();
+            var commands = GetCommands(live);
+            var cleared = false;
+            void OnHistoryCleared() => cleared = true;
             ConsoleResult result;
 
-            if (live) result = live.Execute(text);
-            else if (!GetCommands(null).TryExecute(text, out result)) result = ConsoleResult.Error("Old console commands only run in Play Mode with the Debug Console in the scene.");
+            commands.Session.HistoryCleared += OnHistoryCleared;
+
+            try
+            {
+                if (live) result = live.Execute(text);
+                else if (!commands.TryExecute(text, out result)) result = ConsoleResult.Error("Old console commands only run in Play Mode with the Debug Console in the scene.");
+            }
+            finally
+            {
+                commands.Session.HistoryCleared -= OnHistoryCleared;
+            }
+
+            if (cleared) log.Clear();
 
             Add(new LogEntry { text = ConsoleCommandSet.MaskInput(text), isInput = true });
             Add(new LogEntry { text = result.Message, success = result.Success });

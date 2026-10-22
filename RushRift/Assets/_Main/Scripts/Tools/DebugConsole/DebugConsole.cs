@@ -76,6 +76,19 @@ namespace Game.Tools.DebugCommands
 #endif
 
             _inputManager = GetComponent<InputManager>();
+            Commands.Session.HistoryCleared += ClearHistory;
+        }
+
+        private void OnDestroy()
+        {
+            if (Commands != null) Commands.Session.HistoryCleared -= ClearHistory;
+        }
+
+        private void ClearHistory()
+        {
+            _usedInputs.Clear();
+            _index = -1;
+            _lastOutput = null;
         }
 
         private void OnEnable()
@@ -155,10 +168,9 @@ namespace Game.Tools.DebugCommands
         private void OnReturn(InputAction.CallbackContext obj)
         {
             var shown = ConsoleCommandSet.MaskInput(_input);
-            _lastOutput = Execute(_input).Message;
             this.Log($"[{shown}]");
-            
             _usedInputs.Add(shown);
+            _lastOutput = Execute(_input).Message;
             _input = "";
             _focusInput = true;
         }

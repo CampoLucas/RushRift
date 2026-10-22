@@ -60,7 +60,7 @@ namespace Game.ConsoleCommands.Tests
         {
             var commands = new ConsoleCommandSet(new ConsoleSession("pw"), new FakeConsoleServices(), null);
 
-            Assert.AreEqual(8, commands.Commands.Count);
+            Assert.AreEqual(9, commands.Commands.Count);
         }
     }
 }
