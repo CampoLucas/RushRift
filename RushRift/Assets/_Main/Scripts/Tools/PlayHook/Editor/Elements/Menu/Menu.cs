@@ -150,7 +150,7 @@ namespace Tools.PlayHook.Elements.Menu
     {
         public override void Setup(ref GenericMenu menu, string group = null)
         {
-            var path = string.IsNullOrEmpty(group) ? "" : group;
+            var path = string.IsNullOrEmpty(group) ? "" : group + "/";
             
             menu.AddSeparator(path);
         }

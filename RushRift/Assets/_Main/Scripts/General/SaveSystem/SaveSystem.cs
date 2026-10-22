@@ -16,9 +16,11 @@ namespace Game.Saves
 #if UNITY_EDITOR
         private static readonly string GamePath = $"{Application.persistentDataPath}/rushrift_game_editor.save";
         private static readonly string SettingsPath = $"{Application.persistentDataPath}/rushrift_settings_editor.save";
+        private static readonly string LeaderBoardPath = $"{Application.persistentDataPath}/rushrift_leaderboard_editor.save";
 #else
         private static readonly string GamePath = $"{Application.persistentDataPath}/rushrift_game_build.save";
         private static readonly string SettingsPath = $"{Application.persistentDataPath}/rushrift_settings_build.save";
+        private static readonly string LeaderBoardPath = $"{Application.persistentDataPath}/rushrift_leaderboard_build.save";
 #endif
 
         #region Generic
@@ -190,6 +192,25 @@ namespace Game.Saves
         #endregion
 
         #region Settings Save
+        public static void SaveLeaderBoard(LeaderBoardData data)
+        {
+            Save(data, LeaderBoardPath);
+        }
+
+        public static LeaderBoardData LoadLeaderBoard()
+        {
+            return Load(LeaderBoardPath, CreateNewLeaderboardSave, SaveMigrations.LeaderBoardMigrations);
+        }
+
+        public static LeaderBoardData CreateNewLeaderboardSave()
+        {
+            return new LeaderBoardData();
+        }
+
+        public static void ResetLeaderBoard()
+        {
+            Reset(LeaderBoardPath, CreateNewLeaderboardSave);
+        }
 
         public static void SaveSettings(SettingsData data)
         {
