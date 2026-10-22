@@ -36,7 +36,7 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 
     private void Awake()
     {
-        GetScoreData();
+        //GetScoreData();
     }
 
     public void Init()
@@ -84,7 +84,6 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
         ResetLeaderboard();
 
         var levelLeaderBoard = leaderBoardData.GetLevelLeaderBoard(GlobalLevelManager.GetID());
-
         
 
         int count = Mathf.Min(levelLeaderBoard.Count, rankLimit);

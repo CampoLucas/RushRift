@@ -400,9 +400,9 @@ namespace Game.Saves
             {
                 _score.leaderBoardList.Add(level, new Dictionary<string, Score>());
             }
-            if (!_score.leaderBoardList[level].ContainsKey(playerName.id))
+            if (_score.leaderBoardList[level].ContainsKey(playerName.id) == false)
             {
-                _score.leaderBoardList[level].Add(playerName.id, newScore);    
+                _score.leaderBoardList[level].Add(playerName.id, newScore);
             }
             else
             {
