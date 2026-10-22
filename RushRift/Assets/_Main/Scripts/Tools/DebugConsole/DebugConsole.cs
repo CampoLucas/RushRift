@@ -21,8 +21,14 @@ namespace Game.Tools.DebugCommands
 
     public class DebugConsole : MonoBehaviour
     {
-#if UNITY_EDITOR || CHEATS_ENABLED
         private const float ConsoleHeight = 30f;
+        private const string InputControl = "DebugConsoleInput";
+        private const string PasswordControl = "DebugConsolePassword";
+
+        [SerializeField] private ConsoleConfigSO config;
+
+        public ConsoleConfigSO Config => config;
+        public ConsoleCommandSet Commands { get; private set; }
 
         private InputManager _inputManager;
         private PlayerControls _playerControls;
@@ -32,6 +38,8 @@ namespace Game.Tools.DebugCommands
         private CursorLockMode _mode;
         private bool _isVisible;
         private int _index = -1;
+        private string _lastOutput;
+        private bool _focusInput;
 
         private static HelpCmd _help;
         private static DebugCommand _killAll;
@@ -46,16 +54,22 @@ namespace Game.Tools.DebugCommands
         {
             _help = new HelpCmd();
 
-            _commandList = new List<object>
+            Commands = ConsoleCommandSet.Create(config, ConsoleSession.Shared, new GameConsoleServices());
+
+            _commandList = new List<object> { _help };
+            _commandList.AddRange(Commands.Commands);
+
+#if UNITY_EDITOR || CHEATS_ENABLED
+            _commandList.AddRange(new object[]
             {
-                _help,
                 new DashHackCmd(),
                 new KillAllCmd(),
                 new SetMedalString(),
                 new SetMedalInt(),
                 new ToggleHUDCmd(),
                 new TogglePauseUICmd()
-            };
+            });
+#endif
 
 #if LEADERBOARD_CMD_ENABLED
             _commandList.AddRange(LeaderboardCmdUtils.CreateCommands());
@@ -140,11 +154,22 @@ namespace Game.Tools.DebugCommands
 
         private void OnReturn(InputAction.CallbackContext obj)
         {
-            HandleInput();
-            this.Log($"[{_input}]");
+            var shown = ConsoleCommandSet.MaskInput(_input);
+            _lastOutput = Execute(_input).Message;
+            this.Log($"[{shown}]");
             
-            _usedInputs.Add(_input);
+            _usedInputs.Add(shown);
             _input = "";
+            _focusInput = true;
+        }
+
+        public ConsoleResult Execute(string input)
+        {
+            if (Commands.TryExecute(input, out var result)) return result;
+
+            result = HandleInput(input) ? ConsoleResult.Ok($"Ran: {input}") : ConsoleResult.Error($"Unknown command or wrong arguments: {input}");
+            ConsoleCommandSet.Print(result);
+            return result;
         }
         
         private void OnClose(InputAction.CallbackContext obj)
@@ -196,7 +221,13 @@ namespace Game.Tools.DebugCommands
             GUI.Box(new Rect(0, y, width, ConsoleHeight), "");
             
             y -= spacing;
-            _input = GUI.TextField(new Rect(10f, y, width -= 20f, height), _input);
+            _input = DrawInput(new Rect(10f, y, width -= 20f, height), _input);
+
+            if (!string.IsNullOrEmpty(_lastOutput))
+            {
+                y -= (1 + height);
+                GUI.Label(new Rect(10f, y, width, height), _lastOutput);
+            }
 
             if (_help.ShowHelp)
             {
@@ -221,27 +252,66 @@ namespace Game.Tools.DebugCommands
             }
         }
 
-        private void HandleInput()
+        private string DrawInput(Rect rect, string input)
         {
-            var properties = _input.Split(' ');
+            var prefixLength = ConsoleCommandSet.LoginPrefixLength(input);
+
+            if (prefixLength == 0)
+            {
+                GUI.SetNextControlName(InputControl);
+                var typed = GUI.TextField(rect, input ?? "");
+
+                if (_focusInput)
+                {
+                    GUI.FocusControl(InputControl);
+                    _focusInput = false;
+                }
+
+                return typed;
+            }
+
+            var prefix = input.Substring(0, prefixLength);
+            var password = input.Substring(prefixLength);
+            var prefixWidth = GUI.skin.label.CalcSize(new GUIContent(prefix)).x;
+            var current = Event.current;
+
+            if (password.Length == 0 && current.type == EventType.KeyDown && current.keyCode == KeyCode.Backspace && GUI.GetNameOfFocusedControl() == PasswordControl)
+            {
+                current.Use();
+                _focusInput = true;
+                return prefix.Substring(0, prefix.Length - 1);
+            }
+
+            GUI.Label(new Rect(rect.x, rect.y, prefixWidth, rect.height), prefix);
+            GUI.SetNextControlName(PasswordControl);
+            password = GUI.PasswordField(new Rect(rect.x + prefixWidth, rect.y, rect.width - prefixWidth, rect.height), password, ConsoleCommandSet.MaskCharacter);
+
+            if (GUI.GetNameOfFocusedControl() != PasswordControl) GUI.FocusControl(PasswordControl);
+
+            return prefix + password;
+        }
+
+        private bool HandleInput(string input)
+        {
+            var properties = input.Split(' ');
             
             for (var i = 0; i < _commandList.Count; i++)
             {
                 var args = properties.Length;
                 
-                if (_commandList[i] is not DebugCommandBase command || !_input.Contains(command.ID)) continue;
+                if (_commandList[i] is not DebugCommandBase command || !input.Contains(command.ID)) continue;
 
                 if (properties.Length == 1 && command is DebugCommand c)
                 {
                     c.Do();
-                    return;
+                    return true;
                 }
 
 #if LEADERBOARD_CMD_ENABLED
                 if (command is DebugCommandArgs cArgs)
                 {
                     cArgs.Do(properties.Skip(1).Where(word => word.Length > 0).ToArray());
-                    return;
+                    return true;
                 }
 #endif
 
@@ -249,15 +319,16 @@ namespace Game.Tools.DebugCommands
                 var property1 = properties[1];
                 if (int.TryParse(property1, out var parsedInt) && command is DebugCommand<int> cInt && cInt.Do(parsedInt))
                 {
-                    return;
+                    return true;
                 }
 
                 if (command is DebugCommand<string> cString && cString.Do(property1))
                 {
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
-#endif
     }
 }

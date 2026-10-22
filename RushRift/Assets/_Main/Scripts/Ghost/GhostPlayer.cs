@@ -95,6 +95,35 @@ namespace _Main.Scripts.Ghost
         
         private Vector3 _initialInspectorOffset;
 
+        public static bool GhostEnabled { get; private set; } = true;
+
+        private static readonly HashSet<GhostPlayer> DisabledByToggle = new();
+
+        public static void SetGhostEnabled(bool enabled)
+        {
+            GhostEnabled = enabled;
+
+            if (enabled)
+            {
+                foreach (var player in DisabledByToggle)
+                {
+                    if (player) player.enabled = true;
+                }
+
+                DisabledByToggle.Clear();
+                return;
+            }
+
+            foreach (var player in FindObjectsOfType<GhostPlayer>())
+            {
+                if (!player.enabled) continue;
+
+                player.SetGhostVisible(false);
+                player.enabled = false;
+                DisabledByToggle.Add(player);
+            }
+        }
+
         private void Awake()
         {
             _suppressBuildWarnings |= drawGizmos && gizmoMaxSegments >= 0;
@@ -110,6 +139,14 @@ namespace _Main.Scripts.Ghost
 
         private void OnEnable()
         {
+            if (!GhostEnabled)
+            {
+                SetGhostVisible(false);
+                DisabledByToggle.Add(this);
+                enabled = false;
+                return;
+            }
+
             if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
 
             PauseHandler.Attach(_onPause.Get());
