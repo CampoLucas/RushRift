@@ -105,8 +105,8 @@ namespace Game.UI.StateMachine
             data.SetPlayerName(enterNameInputField.text);
             data.SaveGame();
             var session = GameSessionSO.GetOrCreate(GlobalLevelManager.CurrentSession, defaultGameMode, defaultGameMode.Levels[0]);
-            
-            
+            AudioManager.Play("LevelMusic");
+
             GameEntry.LoadSessionAsync(session);
             //SceneHandler.LoadFirstLevel();
             // creates new save and takes you to the first level.
@@ -140,7 +140,7 @@ namespace Game.UI.StateMachine
 
         private void MainMenu()
         {
-            _stateMachine.TransitionTo(UIScreen.MainMenu, fadeOut, fadeIn, fadeInStart);
+            _stateMachine.TransitionTo(UIScreen.MainMenu, fadeOut, fadeIn, fadeInStart);     
         }
 
         public void OnNotify(MenuState arg)
