@@ -157,9 +157,16 @@ namespace _Main.Scripts.Ghost
             if (toggleVisibilityKey != KeyCode.None && Input.GetKeyDown(toggleVisibilityKey))
                 ToggleGhostVisible();
 
+#if UNITY_EDITOR
+            if (ExternalTimeControl) return;
+#endif
+            Advance(useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
+        }
+
+        public void Advance(float dt)
+        {
             if (PauseHandler.IsPaused || !isPlaying || !HasValidRun() || !ghostTransform) return;
 
-            float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
             float dur = Duration(framesCache, loadedRun.durationSeconds);
             if (dur <= 0f) return;
 
@@ -259,24 +266,7 @@ namespace _Main.Scripts.Ghost
 
             if (!string.IsNullOrEmpty(levelName) && GhostRecorder.TryLoadBestGhostForLevel(levelName, out data, out path))
             {
-                loadedRun = data;
-                debugLoadedGhostPath = path;
-
-                framesCache.Clear();
-                for (int i = 0; i < loadedRun.frames.Count; i++)
-                {
-                    var f = loadedRun.frames[i];
-                    framesCache.Add(new Frame { time = f.time, position = f.position, rotation = f.rotation });
-                }
-
-                CachePositions();
-                AlignToPlayerStartIfNeeded();
-
-                var f0 = loadedRun.frames[0];
-                smoothedPos = f0.position + worldPositionOffset;
-                smoothedRot = f0.rotation;
-                TrySpawnGhostVisualIfNeeded();
-                if (ghostTransform) ApplyPose(0f, 0f);
+                LoadRun(data, path);
 
                 Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) for {levelName} from: {debugLoadedGhostPath}");
             }
@@ -293,7 +283,51 @@ namespace _Main.Scripts.Ghost
             nextFrameIndex = 1; playbackTime = 0f;
         }
 
-        public void Play() 
+        public void LoadRun(GhostRecorder.GhostRunData data, string path)
+        {
+            Pause();
+            nextFrameIndex = 1;
+            playbackTime = 0f;
+            smoothedPosVel = Vector3.zero;
+            worldPositionOffset = _initialInspectorOffset;
+
+            loadedRun = data;
+            debugLoadedGhostPath = path;
+
+            framesCache.Clear();
+            for (int i = 0; i < loadedRun.frames.Count; i++)
+            {
+                var f = loadedRun.frames[i];
+                framesCache.Add(new Frame { time = f.time, position = f.position, rotation = f.rotation });
+            }
+
+            CachePositions();
+            AlignToPlayerStartIfNeeded();
+
+            var f0 = loadedRun.frames[0];
+            smoothedPos = f0.position + worldPositionOffset;
+            smoothedRot = f0.rotation;
+            TrySpawnGhostVisualIfNeeded();
+            if (ghostTransform) ApplyPose(0f, 0f);
+        }
+
+#if UNITY_EDITOR
+        public bool ExternalTimeControl { get; set; }
+        public float PlaybackTime => playbackTime;
+        public bool IsPlaying => isPlaying;
+        public GhostRecorder.GhostRunData LoadedRun => loadedRun;
+        public Transform GhostTransform => ghostTransform;
+
+        public void SetPlaybackTime(float t)
+        {
+            playbackTime = t;
+            nextFrameIndex = 1;
+            smoothedPosVel = Vector3.zero;
+            if (HasValidRun() && ghostTransform) ApplyPose(t, 0f);
+        }
+#endif
+
+        public void Play()
         { 
             if (!HasValidRun()) { Log("Play ignored: no run"); return; } 
             EnsureGhostVisual(); 
