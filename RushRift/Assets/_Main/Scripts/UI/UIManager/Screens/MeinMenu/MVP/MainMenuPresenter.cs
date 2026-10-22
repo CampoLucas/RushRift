@@ -17,9 +17,12 @@ namespace Game.UI.StateMachine
         [SerializeField] private Button optionsButton;
         [SerializeField] private Button quitButton;
 
-        [Header("PopUp")]
-        [SerializeField] private PopUp popUp;
-        [SerializeField] private GameObject popUpBackground;
+        [Header("PopUps")]
+        [SerializeField] private PopUp newGameWarningPopUp;
+        [SerializeField] private GameObject newGameWarningPopUpBackground;
+        [SerializeField] private PopUp enterNamePopUp;
+        [SerializeField] private GameObject enterNamePopUpBackground;
+
 
         [Header("Events")]
         [SerializeField] private UnityEvent onBegin = new UnityEvent();
@@ -27,7 +30,7 @@ namespace Game.UI.StateMachine
 
         private void Awake()
         {
-            popUpBackground.gameObject.SetActive(false);
+            newGameWarningPopUpBackground.gameObject.SetActive(false);
         }
 
         private void Start()
@@ -78,14 +81,22 @@ namespace Game.UI.StateMachine
             if (SaveSystem.HasSaveGame())
             {
                 this.Log("Open pop up");
-                popUpBackground.gameObject.SetActive(true);
-                popUp.Open(OnNewGameHandler);
+                newGameWarningPopUpBackground.gameObject.SetActive(true);
+                newGameWarningPopUp.Open(OnNewGameName);
             }
             else
             {
                 this.Log("Don't open pop up");
-                OnNewGameHandler();
+                OnNewGameName();
             }
+        }
+
+        private void OnNewGameName()
+        {
+            enterNamePopUpBackground.gameObject.SetActive(true);
+            newGameWarningPopUpBackground.gameObject.SetActive(false);
+            enterNamePopUp.Open(OnNewGameHandler);
+
         }
 
         private void OnNewGameHandler()
@@ -114,6 +125,7 @@ namespace Game.UI.StateMachine
         {
             NotifyAll(MenuState.Quit);
         }
+
         
         public override void Dispose()
         {

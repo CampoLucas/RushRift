@@ -14,5 +14,9 @@ namespace Game.Saves
         {
             // ToDo: add more migrations here
         };
+        public static List<ISaveMigration<LeaderBoardData>> LeaderBoardMigrations = new List<ISaveMigration<LeaderBoardData>>()
+        {
+            // ToDo: add more migrations here
+        };
     }
 }

@@ -622,6 +622,7 @@ MonoBehaviour:
   playPosition: {x: 0, y: 0}
   playRotation: 0
   playScale: 0
+  playIgnoreZScale: 0
   playColor: {r: 1, g: 1, b: 1, a: 1}
   canvas: {fileID: 3058564095449716530}
   targetRect: {fileID: 6863971179625221417}
@@ -652,6 +653,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1.15
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -715,6 +717,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 0.85
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -778,6 +781,7 @@ MonoBehaviour:
           axisMultiplier: {x: 0, y: 0}
       scaleAnim:
         endScale: 1
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve:
@@ -943,6 +947,12 @@ MonoBehaviour:
   quitButton: {fileID: 2287842820624942496}
   popUp: {fileID: 9141917743836344639}
   popUpBackground: {fileID: 1457669093161363719}
+  onBegin:
+    m_PersistentCalls:
+      m_Calls: []
+  onEnd:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &6755623260677382609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -985,6 +995,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  onHide:
+    m_PersistentCalls:
+      m_Calls: []
+  showAnimation: {fileID: 0}
+  hideAnimation: {fileID: 0}
 --- !u!114 &3506424561870838610
 MonoBehaviour:
   m_ObjectHideFlags: 0
