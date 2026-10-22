@@ -429,8 +429,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -483, y: 0}
-  m_SizeDelta: {x: 344.41, y: 0}
+  m_AnchoredPosition: {x: -516.733, y: 0}
+  m_SizeDelta: {x: 276.9441, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &155200135285580157
 CanvasRenderer:
@@ -945,8 +945,10 @@ MonoBehaviour:
   creditsButton: {fileID: 1169170976214007299}
   optionsButton: {fileID: 8867459934937836590}
   quitButton: {fileID: 2287842820624942496}
-  popUp: {fileID: 9141917743836344639}
-  popUpBackground: {fileID: 1457669093161363719}
+  newGameWarningPopUp: {fileID: 0}
+  newGameWarningPopUpBackground: {fileID: 0}
+  enterNamePopUp: {fileID: 0}
+  enterNamePopUpBackground: {fileID: 0}
   onBegin:
     m_PersistentCalls:
       m_Calls: []
@@ -1198,7 +1200,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 234214971022899946, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 234214971022899946, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_AnchorMin.x
@@ -1206,7 +1208,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 234214971022899946, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 234214971022899946, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1246,11 +1248,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 234214971022899946, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 183.21002
       objectReference: {fileID: 0}
     - target: {fileID: 234214971022899946, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -72.369995
       objectReference: {fileID: 0}
     - target: {fileID: 234214971022899946, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1267,6 +1269,10 @@ PrefabInstance:
     - target: {fileID: 4848703343221794301, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_Name
       value: ContinueButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848703343221794301, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4933259939071377113, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_Navigation.m_Mode
@@ -1444,6 +1450,14 @@ PrefabInstance:
       propertyPath: m_Navigation.m_SelectOnDown
       value: 
       objectReference: {fileID: 360179075469802224}
+    - target: {fileID: 8092343276430408725, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_text
+      value: Jugar
+      objectReference: {fileID: 0}
+    - target: {fileID: 8092343276430408725, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
+      propertyPath: m_fontSize
+      value: 38
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1746,7 +1760,7 @@ PrefabInstance:
       objectReference: {fileID: 803869567109792735}
     - target: {fileID: 8092343276430408725, guid: 1e9db56a19eb65243bfe2c22e189046e, type: 3}
       propertyPath: m_text
-      value: Salir del Juego
+      value: Salir
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1886,14 +1900,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2792557198525818437, guid: dd2a65748083ab04885d17408d3698eb, type: 3}
   m_PrefabInstance: {fileID: 7487705080690095602}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9141917743836344639 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1816975786677044429, guid: dd2a65748083ab04885d17408d3698eb, type: 3}
-  m_PrefabInstance: {fileID: 7487705080690095602}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee1b8759318752e4ab016839b930067e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
