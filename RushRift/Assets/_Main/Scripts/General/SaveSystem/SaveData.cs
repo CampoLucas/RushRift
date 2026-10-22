@@ -7,6 +7,7 @@ using Game.Levels;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using System.Linq;
 
 
 namespace Game.Saves
@@ -46,10 +47,23 @@ namespace Game.Saves
         private Dictionary<int, float> _bestTimes = new();
         private Dictionary<int, MedalSaveData> _levelsMedalsTimes = new();
         private List<string> _gameDialogues = new();
+        private PlayerID _player;
 
         public SaveData()
         {
             Version = Application.version;
+        }
+
+        public void SetPlayerName(string playerName)
+        {
+            _player.name = playerName;
+            _player.id = Guid.NewGuid().ToString();
+            Debug.Log("El id del player es:" + _player.id);
+        }
+
+        public PlayerID GetPlayerName()
+        {
+            return _player;
         }
 
         public void CheckBestTime(int level, float currTime, out float prevBest, out float currBest, out bool newRecord)
@@ -330,6 +344,8 @@ namespace Game.Saves
             private set => _custom = value;
         }
 
+        
+
         public SettingsData()
         {
             Version = Application.version;
@@ -339,11 +355,59 @@ namespace Game.Saves
         private CameraSettings _camera = new();
         private SoundSettings _sound = new();
         private CustomSettings _custom = new();
+        
 
         public static Color GetBlinkChargeColor()
         {
             //var settings = SaveSystem.LoadSettings();
             return Color.white;
+        }
+    }
+
+    [Serializable]
+    public class LeaderBoardData: BaseSaveData
+    {
+        public ScoreData Score
+        {
+            get => _score ??= new ScoreData();
+            private set => _score = value;
+        }
+        private ScoreData _score = new();
+
+        public LeaderBoardData()
+        {
+            Version = Application.version;
+        }
+
+        public List<Score> GetLevelLeaderBoard(int level)
+        {
+            List<Score> sortedList = _score.leaderBoardList[level].Values.ToList();
+            sortedList.Sort((s1, s2) => s1.timescore.CompareTo(s2.timescore));
+            return sortedList;
+        }
+        public void AddTimeToLevel(int level, PlayerID playerName, float playerTime)
+        {
+            Score newScore;
+            newScore.name = playerName.name;
+            newScore.timescore = playerTime;
+            newScore.id = playerName.id;
+            //if (!_score.leaderBoardList.ContainsKey(level))
+            //{
+            //    var newLevelList = new List<Score>();
+            //    _score.leaderBoardList.Add(level, newLevelList);
+            //}
+            if (!_score.leaderBoardList.ContainsKey(level))
+            {
+                _score.leaderBoardList.Add(level, new Dictionary<string, Score>());
+            }
+            if (!_score.leaderBoardList[level].ContainsKey(playerName.id))
+            {
+                _score.leaderBoardList[level].Add(playerName.id, newScore);    
+            }
+            else
+            {
+                _score.leaderBoardList[level][playerName.id] = newScore;
+            }
         }
     }
 
@@ -394,6 +458,13 @@ namespace Game.Saves
     public class CustomSettings
     {
         //public Vector3 blinkChargeColor = Color.red;
+    }
+
+    [Serializable]
+    public struct PlayerID
+    {
+        public string id;
+        public string name;
     }
 }
 

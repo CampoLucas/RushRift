@@ -3,9 +3,12 @@ using System;
 using Game.DesignPatterns.Observers;
 using Game.Levels;
 using Game.Saves;
+using Game.UI.StateMachine.Elements;
 using Game.Utils;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
+using TMPro;
 
 namespace Game.UI.StateMachine
 {
@@ -36,7 +39,12 @@ namespace Game.UI.StateMachine
         [Header("Levels")]
         [SerializeField] private HubSO hub;
         [SerializeField] private GameModeSO defaultGameMode;
-        
+
+        [Header("PlayerName")]
+        [SerializeField] private TMP_InputField enterNameInputField;
+        [SerializeField] private UsernameGenerator randomName;
+        private string newRandomName;
+
 
         private UIStateMachine _stateMachine;
         private IObserver _onSceneChanged;
@@ -93,7 +101,9 @@ namespace Game.UI.StateMachine
             if (_loadingLevel) return;
             _loadingLevel = true;
             SaveSystem.ResetGame();
-
+            var data = SaveSystem.LoadGame();
+            data.SetPlayerName(enterNameInputField.text);
+            data.SaveGame();
             var session = GameSessionSO.GetOrCreate(GlobalLevelManager.CurrentSession, defaultGameMode, defaultGameMode.Levels[0]);
             
             
@@ -158,6 +168,20 @@ namespace Game.UI.StateMachine
                 default:
                     throw new ArgumentOutOfRangeException(nameof(arg), arg, null);
             }
+        }
+
+        public void OnEnterPlayerName(PopUp confirmButton)
+        {
+            if (string.IsNullOrEmpty(enterNameInputField.text))
+                confirmButton.SetConfirmInteractable(false);
+            else
+                confirmButton.SetConfirmInteractable(true);
+        }
+
+        public void GenerateNewRandomName()
+        {
+            newRandomName = randomName.GenerateUsername();
+            enterNameInputField.text = newRandomName;
         }
 
         public void Dispose()
