@@ -20,7 +20,7 @@ namespace _Main.Scripts.Ghost
         [SerializeField] private float minFrameIntervalSeconds = 0.02f;
         [SerializeField] private float minPositionDeltaMeters = 0.005f;
         [SerializeField] private float minRotationDeltaDegrees = 0.5f;
-        [SerializeField] private int maxRecordedFrames;
+        [SerializeField] private int maxRecordedFrames = 30000;
 
         [Header("Scene Filtering")]
         [Tooltip("Exact names of scenes to record. If empty, records Active Scene.")]
@@ -65,10 +65,15 @@ namespace _Main.Scripts.Ghost
         private int recordedLevelId;
         private bool runFailed;
         private bool leaderboardRunSaved;
+        private bool frameLimitWarned;
         private float lastFrameTime;
         private Vector3 lastPos;
         private Quaternion lastRot;
-        
+        private int nextFrameIndex;
+        private float prevTickTime;
+        private Vector3 prevTickPos;
+        private Quaternion prevTickRot;
+
         private ActionObserver<bool> winObserver;
         
         // We use this to store the specific scene NAME we decided to record
@@ -264,7 +269,7 @@ namespace _Main.Scripts.Ghost
         public void StartRecording()
         {
             if (!_target.TryGet(out var target)) return;
-            recordedLevelId = GlobalLevelManager.GetID();
+            recordedLevelId = GlobalLevelManager.TryGetLevelConfig(out var levelConfig) ? levelConfig.LevelID : -1;
             runFailed = false;
             leaderboardRunSaved = false;
             
@@ -280,9 +285,14 @@ namespace _Main.Scripts.Ghost
                 formatVersion = CurrentFormatVersion
             };
             isRecording = true;
+            frameLimitWarned = false;
             lastFrameTime = 0f;
             lastPos = target.position;
             lastRot = target.rotation;
+            nextFrameIndex = 1;
+            prevTickTime = 0f;
+            prevTickPos = lastPos;
+            prevTickRot = lastRot;
             PushFrame(0f, lastPos, lastRot);
             
             Debug.Log($"[GhostRecorder] Started recording for Level: {_targetSceneName}");
@@ -302,40 +312,84 @@ namespace _Main.Scripts.Ghost
             currentRun.durationSeconds += dt;
             float t = currentRun.durationSeconds;
 
-            if (t - lastFrameTime < minFrameIntervalSeconds) return;
+            float prevTime = prevTickTime;
+            Vector3 prevPos = prevTickPos;
+            Quaternion prevRot = prevTickRot;
+            prevTickTime = t;
+            prevTickPos = target.position;
+            prevTickRot = target.rotation;
 
-            Vector3 p = target.position;
-            Quaternion r = target.rotation;
+            float frameTime = t;
+            if (minFrameIntervalSeconds > 0f)
+            {
+                int index = Mathf.FloorToInt((t + Epsilon) / minFrameIntervalSeconds);
+                if (index < nextFrameIndex) return;
+                nextFrameIndex = index + 1;
+                frameTime = Mathf.Min(index * minFrameIntervalSeconds, t);
+            }
+
+            float span = t - prevTime;
+            float blend = span > 0f ? Mathf.Clamp01((frameTime - prevTime) / span) : 1f;
+            Vector3 p = Vector3.Lerp(prevPos, prevTickPos, blend);
+            Quaternion r = Quaternion.Slerp(prevRot, prevTickRot, blend);
 
             if (Vector3.SqrMagnitude(p - lastPos) < minPositionDeltaMeters * minPositionDeltaMeters &&
                 Quaternion.Angle(r, lastRot) < minRotationDeltaDegrees)
                 return;
 
-            PushFrame(t, p, r);
+            PushFrame(frameTime, p, r);
         }
 
         private void PushFrame(float time, Vector3 pos, Quaternion rot)
         {
+            if (maxRecordedFrames > 0 && currentRun.frames.Count >= maxRecordedFrames)
+            {
+                if (!frameLimitWarned) Debug.LogWarning($"[GhostRecorder] Frame limit of {maxRecordedFrames} reached. Later frames are not recorded.");
+                frameLimitWarned = true;
+                return;
+            }
+
             GhostFrame f; f.time = time; f.position = pos; f.rotation = rot;
             currentRun.frames.Add(f);
             lastFrameTime = time; lastPos = pos; lastRot = rot;
-
-            if (maxRecordedFrames > 0 && currentRun.frames.Count > maxRecordedFrames)
-                currentRun.frames.RemoveAt(0);
         }
+
+        private static bool IsValidRun(GhostRunData run)
+        {
+            if (float.IsNaN(run.durationSeconds) || float.IsInfinity(run.durationSeconds)) return false;
+            foreach (var f in run.frames)
+            {
+                if (!IsFinite(f.time) || !IsFinite(f.position.x) || !IsFinite(f.position.y) || !IsFinite(f.position.z) ||
+                    !IsFinite(f.rotation.x) || !IsFinite(f.rotation.y) || !IsFinite(f.rotation.z) || !IsFinite(f.rotation.w))
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
         private void OnGameOverHandler(bool levelWon)
         {
             runFailed = !levelWon;
             if (!isRecording) return;
             StopRecording();
-            if (!levelWon) return; 
+            if (!levelWon) return;
+
+            if (currentRun != null && currentRun.frames != null && _target.TryGet(out var finishTarget) &&
+                (currentRun.frames.Count == 0 || currentRun.durationSeconds > currentRun.frames[currentRun.frames.Count - 1].time))
+                PushFrame(currentRun.durationSeconds, finishTarget.position, finishTarget.rotation);
 
             float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
             
             if (measuredDuration <= MinValidDurationSeconds || currentRun == null || currentRun.frames == null || currentRun.frames.Count < 2)
             {
                 StopRecording();
+                return;
+            }
+
+            if (!IsValidRun(currentRun))
+            {
+                Debug.LogWarning("[GhostRecorder] Run has NaN or infinite values. Ghost not saved.");
                 return;
             }
 
@@ -451,10 +505,12 @@ namespace _Main.Scripts.Ghost
             try
             {
                 data = JsonUtility.FromJson<GhostRunData>(File.ReadAllText(path));
+                if (data == null) Debug.LogError($"[GhostRecorder] Ghost file is empty: {path}");
                 return data != null;
             }
-            catch
+            catch (Exception exception)
             {
+                Debug.LogError($"[GhostRecorder] Could not read ghost file {path}: {exception.Message}");
                 data = null;
                 return false;
             }
