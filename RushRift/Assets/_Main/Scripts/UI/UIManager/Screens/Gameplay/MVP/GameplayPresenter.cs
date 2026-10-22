@@ -76,6 +76,7 @@ namespace Game.UI.StateMachine
                 return false;
             }
             
+            Debug.Log($"Set presenter to this {this}");
             state = new GameplayState(player.GetModel(), this);
             return true;
         }

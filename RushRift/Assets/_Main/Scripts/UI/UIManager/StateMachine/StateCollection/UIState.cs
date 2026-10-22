@@ -11,6 +11,8 @@ namespace Game.UI.StateMachine
         public HashSet<UITransition> Transitions { get; private set; } = new();
         protected NullCheck<ActionObserver<bool>> LoadingObserver;
 
+        protected ISubject ToggleUISubject { get; private set; } = new Subject();
+        
         public virtual void Init()
         {
             if (LoadingObserver.TryGet(out var observer))
@@ -49,6 +51,11 @@ namespace Game.UI.StateMachine
             // fade out effect
         }
 
+        public void ToggleUI()
+        {
+            ToggleUISubject.NotifyAll();
+        }
+
         public virtual void Dispose()
         {
             if (LoadingObserver.TryGet(out var observer))
@@ -65,6 +72,11 @@ namespace Game.UI.StateMachine
             
                 Transitions.Clear();
                 Transitions = null;
+            }
+
+            if (ToggleUISubject != null)
+            {
+                ToggleUISubject.Dispose();
             }
         }
 
@@ -106,14 +118,23 @@ namespace Game.UI.StateMachine
             Init();
         }
         
-        protected UIState(TPresenter presenter) : this()
+        protected UIState(TPresenter presenter)
         {
             Presenter = presenter;
+            Debug.Log($"Log this Presenter: {Presenter}, presenter {presenter}");
         }
         
         public sealed override void Init()
         {
             base.Init();
+
+            if (!Presenter)
+            {
+                Debug.Log("Presenter is null");
+            }
+            
+            Debug.Log("Init ui state");
+            ToggleUISubject.Attach(Presenter.GetToggleUIObserver());
             
             _enableSubject.Attach(new ActionObserver(Enable));
             _disableSubject.Attach(new ActionObserver(Disable));
@@ -133,7 +154,7 @@ namespace Game.UI.StateMachine
 
         public override void FadeIn(float t, float startTime, float duration)
         {
-            Presenter.FadeIn(t, startTime, duration, ref _enableSubject, ref _startSubject);
+            if (Presenter) Presenter.FadeIn(t, startTime, duration, ref _enableSubject, ref _startSubject);
         }
 
         public override void FadeOut(float t, float startTime, float duration)
@@ -143,6 +164,13 @@ namespace Game.UI.StateMachine
 
         public override void Dispose()
         {
+            if (Presenter && Presenter.GetToggleUIObserver() != null)
+            {
+                ToggleUISubject.Detach(Presenter.GetToggleUIObserver());
+            }
+            
+            Presenter = null;
+            
             base.Dispose();
             
             _startSubject?.Dispose();

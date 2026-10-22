@@ -16,7 +16,8 @@ namespace Game.UI.StateMachine
         [SerializeField] protected TView View;
         [SerializeField] protected Selectable DefaultButton;
         protected TModel Model;
-        
+
+        private IObserver _toggleUIObserver;
 
         public void Init(TModel model)
         {
@@ -61,6 +62,21 @@ namespace Game.UI.StateMachine
             Model?.Dispose();
             Model = null;
             View = null;
+        }
+
+        public IObserver GetToggleUIObserver()
+        {
+            if (_toggleUIObserver == null)
+            {
+                _toggleUIObserver = new ActionObserver(ToggleUIHandler);
+            }
+
+            return _toggleUIObserver;
+        }
+
+        private void ToggleUIHandler()
+        {
+            View.ToggleUI();
         }
 
         protected virtual void OnInit()

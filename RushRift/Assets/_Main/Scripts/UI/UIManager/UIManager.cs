@@ -58,7 +58,6 @@ namespace Game.UI
             CursorHandler.lockState = CursorLockMode.Locked;
             CursorHandler.visible = false;
 
-            Debug.Log("Set Loading screen update");
             loadingScreen.SetActive(true);
 
             _active = false;
@@ -67,14 +66,11 @@ namespace Game.UI
 
             GameEntry.LoadingState.AttachOnPreload(_onPreload);
             GameEntry.LoadingState.AttachOnReady(_onReady);
-            
-            defaultUI.Test();
         }
 
         private void OnPreloadHandler(BaseLevelSO level)
         {
             _active = false;
-            Debug.Log("Add Loading screen");
             if (loadingScreen) loadingScreen.SetActive(true);
             
             
@@ -353,6 +349,26 @@ namespace Game.UI
             _onHealthChanged = null;
             
             PauseHandler.Dispose();
+        }
+
+        public void ToggleHUD()
+        {
+            if (_stateMachine.TryGet(out var stateMachine) && stateMachine.TryGetState(UIScreen.Gameplay, out var state))
+            {
+                state.ToggleUI();
+            }
+            else
+            {
+                Debug.Log("No Screen");
+            }
+        }
+
+        public void TogglePauseUI()
+        {
+            if (_stateMachine.TryGet(out var stateMachine) && stateMachine.TryGetState(UIScreen.Pause, out var state))
+            {
+                state.ToggleUI();
+            }
         }
     }
 }

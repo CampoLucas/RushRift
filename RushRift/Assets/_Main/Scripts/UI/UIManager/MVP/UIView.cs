@@ -124,6 +124,18 @@ namespace Game.UI.StateMachine
             if (_coroutine != null) StopCoroutine(_coroutine);
         }
 
+        public void ToggleUI()
+        {
+            if (canvas.enabled)
+            {
+                Hide();
+            }
+            else
+            {
+                Show();
+            }
+        }
+
         private void OnDestroy()
         {
             Dispose();

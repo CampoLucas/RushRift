@@ -53,6 +53,8 @@ namespace Game.Tools.DebugCommands
                 new KillAllCmd(),
                 new SetMedalString(),
                 new SetMedalInt(),
+                new ToggleHUDCmd(),
+                new TogglePauseUICmd()
             };
 
 #if LEADERBOARD_CMD_ENABLED
