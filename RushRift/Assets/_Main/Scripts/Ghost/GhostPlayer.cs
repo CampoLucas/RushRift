@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Game;
 using Game.DesignPatterns.Observers;
+using Game.Levels;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static _Main.Scripts.Ghost.GhostPlaybackUtils;
@@ -89,7 +90,8 @@ namespace _Main.Scripts.Ghost
         private bool _suppressBuildWarnings;
 
         private NullCheck<ActionObserver<bool>> _onPause;
-        private NullCheck<ActionObserver> _onLevelReadySimple;
+        private ActionObserver<BaseLevelSO> _onLevelReady;
+        private ActionObserver<bool> _onLoading;
         
         private Vector3 _initialInspectorOffset;
 
@@ -102,24 +104,25 @@ namespace _Main.Scripts.Ghost
                 _fader = new ProximityFader(proximityFadeMaterial, playerTagForFade, fadeMinDistance, fadeMaxDistance, alphaWhenClose, alphaWhenFar);
 
             if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
-            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
+            _onLevelReady = new ActionObserver<BaseLevelSO>(_ => OnLevelReady());
+            _onLoading = new ActionObserver<bool>(OnLoadingChanged);
         }
 
         private void OnEnable()
         {
             if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
-            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
 
             PauseHandler.Attach(_onPause.Get());
             OnPauseChanged(PauseHandler.IsPaused);
-            GameEntry.LoadingState.LevelChanged.Attach(_onLevelReadySimple.Get());
+            GameEntry.LoadingState.AttachOnReady(_onLevelReady);
+            GameEntry.LoadingState.AttachOnLoading(_onLoading);
 
-            if (autoLoadOnEnable) LoadBestGhost();
+            if (autoLoadOnEnable && !GameEntry.LoadingState.Loading) LoadBestGhost();
             EnsureGhostVisual();
-            SetGhostVisible(initialGhostVisible);
+            SetGhostVisible(initialGhostVisible && HasValidRun() && !GameEntry.LoadingState.Loading);
             
             // Check by NAME now
-            if (beginPlaybackOnEnable && HasValidRun() && !string.IsNullOrEmpty(GetTargetLevelName())) 
+            if (beginPlaybackOnEnable && HasValidRun() && !GameEntry.LoadingState.Loading && !string.IsNullOrEmpty(GetTargetLevelName()))
             {
                 if (!PauseHandler.IsPaused) 
                     Play();
@@ -131,12 +134,23 @@ namespace _Main.Scripts.Ghost
         private void OnDisable()
         {
             if (_onPause) PauseHandler.Detach(_onPause.Get());
-            if (_onLevelReadySimple) GameEntry.LoadingState.LevelChanged.Detach(_onLevelReadySimple.Get());
+            GameEntry.LoadingState.DetachOnReady(_onLevelReady);
+            GameEntry.LoadingState.DetachOnLoading(_onLoading);
+            wasPlayingBeforePause = false;
             Pause();
+        }
+
+        private void OnLoadingChanged(bool loading)
+        {
+            if (!loading) return;
+            wasPlayingBeforePause = false;
+            Pause();
+            SetGhostVisible(false);
         }
 
         private void Update()
         {
+            if (GameEntry.LoadingState.Loading) return;
             if (togglePlayKey != KeyCode.None && Input.GetKeyDown(togglePlayKey))
             { if (isPlaying) Pause(); else if (!PauseHandler.IsPaused) Play(); }
 
@@ -173,7 +187,7 @@ namespace _Main.Scripts.Ghost
             }
             else 
             { 
-                if (wasPlayingBeforePause && HasValidRun()) 
+                if (wasPlayingBeforePause && HasValidRun() && !GameEntry.LoadingState.Loading)
                 {
                     Play();
                 }
@@ -188,6 +202,7 @@ namespace _Main.Scripts.Ghost
             PauseHandler.Attach(_onPause.Get());
 
             Pause();
+            wasPlayingBeforePause = false;
 
             loadedRun = null;
             framesCache.Clear();
@@ -197,10 +212,9 @@ namespace _Main.Scripts.Ghost
             playbackTime = 0f;
             nextFrameIndex = 1;
 
-            LoadBestGhost();
+            if (autoLoadOnEnable) LoadBestGhost();
             EnsureGhostVisual();
-            AlignToPlayerStartIfNeeded();
-            SetGhostVisible(initialGhostVisible);
+            SetGhostVisible(initialGhostVisible && HasValidRun());
 
             if (beginPlaybackOnEnable && HasValidRun())
             {
@@ -226,18 +240,24 @@ namespace _Main.Scripts.Ghost
                     Scene s = SceneManager.GetSceneAt(i);
                     if (allowedScenes.Contains(s.name)) return s.name;
                 }
+                return "";
             }
             return SceneManager.GetActiveScene().name;
         }
 
         public void LoadBestGhost()
         {
+            Pause();
+            nextFrameIndex = 1;
+            playbackTime = 0f;
+            smoothedPosVel = Vector3.zero;
+            worldPositionOffset = _initialInspectorOffset;
             // FIX: Use Name logic
             string levelName = GetTargetLevelName();
             
             GhostRecorder.GhostRunData data; string path;
 
-            if (GhostRecorder.TryLoadBestGhostForLevel(levelName, out data, out path))
+            if (!string.IsNullOrEmpty(levelName) && GhostRecorder.TryLoadBestGhostForLevel(levelName, out data, out path))
             {
                 loadedRun = data;
                 debugLoadedGhostPath = path;
@@ -250,12 +270,13 @@ namespace _Main.Scripts.Ghost
                 }
 
                 CachePositions();
-                TrySpawnGhostVisualIfNeeded();
                 AlignToPlayerStartIfNeeded();
 
                 var f0 = loadedRun.frames[0];
                 smoothedPos = f0.position + worldPositionOffset;
                 smoothedRot = f0.rotation;
+                TrySpawnGhostVisualIfNeeded();
+                if (ghostTransform) ApplyPose(0f, 0f);
 
                 Log($"Loaded BEST ghost ({loadedRun.durationSeconds:0.###}s) for {levelName} from: {debugLoadedGhostPath}");
             }
@@ -265,6 +286,7 @@ namespace _Main.Scripts.Ghost
                 framesCache.Clear();
                 cachedPositions.Clear();
                 debugLoadedGhostPath = "";
+                SetGhostVisible(false);
                 Log($"No BEST ghost found for level {levelName}");
             }
 
@@ -387,11 +409,11 @@ namespace _Main.Scripts.Ghost
             if (rotationMode == RotationMode.IgnoreRotation) rawRot = ghostTransform.rotation;
             else rawRot = SampleRotation(frames, i0, i1, t, (RotMode)rotationMode, rawPos, smoothedPos, dt, faceVelocityMinSpeed);
 
-            Vector3 finalPos = applyOutputSmoothing && positionSmoothTimeSeconds > 0f
+            Vector3 finalPos = applyOutputSmoothing && positionSmoothTimeSeconds > 0f && dt > 0f
                 ? SmoothPosition(smoothedPos, rawPos, ref smoothedPosVel, positionSmoothTimeSeconds, dt)
                 : rawPos;
 
-            Quaternion finalRot = applyOutputSmoothing
+            Quaternion finalRot = applyOutputSmoothing && dt > 0f
                 ? SmoothRotation(smoothedRot, rawRot, rotationSmoothTimeSeconds, dt)
                 : rawRot;
 

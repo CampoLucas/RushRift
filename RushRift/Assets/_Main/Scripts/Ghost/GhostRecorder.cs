@@ -5,6 +5,7 @@ using System.IO;
 using Game;
 using Game.DesignPatterns.Observers;
 using Game.Entities;
+using Game.Levels;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -66,12 +67,14 @@ namespace _Main.Scripts.Ghost
 
         private NullCheck<ActionObserver<bool>> _onPause;
         private NullCheck<Transform> _target;
-        private NullCheck<ActionObserver> _onLevelReadySimple;
+        private ActionObserver<BaseLevelSO> _onLevelReady;
+        private ActionObserver<bool> _onLoading;
 
         private void Awake()
         {
             if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
-            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
+            _onLevelReady = new ActionObserver<BaseLevelSO>(_ => OnLevelReady());
+            _onLoading = new ActionObserver<bool>(OnLoadingChanged);
             
             winObserver = new ActionObserver<bool>(OnGameOverHandler);
             GlobalEvents.GameOver.Attach(winObserver);
@@ -80,12 +83,13 @@ namespace _Main.Scripts.Ghost
         private void OnEnable()
         {
             if (!_onPause) _onPause = new ActionObserver<bool>(OnPauseChanged);
-            if (!_onLevelReadySimple) _onLevelReadySimple = new ActionObserver(OnLevelReady);
 
             PauseHandler.Attach(_onPause.Get());
             OnPauseChanged(PauseHandler.IsPaused);
 
-            GameEntry.LoadingState.LevelChanged.Attach(_onLevelReadySimple.Get());
+            GameEntry.LoadingState.AttachOnReady(_onLevelReady);
+            GameEntry.LoadingState.AttachOnLoading(_onLoading);
+            GlobalEvents.GameOver.Attach(winObserver);
 
             if (startRecordingOnEnable)
             {
@@ -96,9 +100,24 @@ namespace _Main.Scripts.Ghost
         private void OnDisable()
         {
             if (_onPause) PauseHandler.Detach(_onPause.Get());
-            if (_onLevelReadySimple) GameEntry.LoadingState.LevelChanged.Detach(_onLevelReadySimple.Get());
+            GameEntry.LoadingState.DetachOnReady(_onLevelReady);
+            GameEntry.LoadingState.DetachOnLoading(_onLoading);
+            StopAllCoroutines();
             
             GlobalEvents.GameOver.Detach(winObserver);
+            StopRecording();
+        }
+
+        private void Start()
+        {
+            // GlobalLevelManager may reset the event subscriptions after our Awake.
+            GlobalEvents.GameOver.Attach(winObserver);
+        }
+
+        private void OnLoadingChanged(bool loading)
+        {
+            if (!loading) return;
+            StopAllCoroutines();
             StopRecording();
         }
 
@@ -115,6 +134,7 @@ namespace _Main.Scripts.Ghost
         
         private void CheckSceneAndStart()
         {
+            if (GameEntry.LoadingState.Loading) return;
             if (TryGetAllowedSceneName(out string sceneName))
             {
                 Debug.Log($"[GhostRecorder] Scene '{sceneName}' is allowed. Initializing...");
@@ -156,7 +176,7 @@ namespace _Main.Scripts.Ghost
             while (timeout > 0)
             {
                 if (TryFindPlayer()) { StartRecording(); yield break; }
-                timeout -= Time.deltaTime;
+                timeout -= Time.unscaledDeltaTime;
                 yield return null;
             }
             Debug.LogWarning("[GhostRecorder] Player not found after timeout.");
@@ -196,6 +216,7 @@ namespace _Main.Scripts.Ghost
 
         private void OnLevelReady()
         {
+            StopAllCoroutines();
             GlobalEvents.GameOver.Detach(winObserver); 
             GlobalEvents.GameOver.Attach(winObserver); 
 
@@ -272,6 +293,8 @@ namespace _Main.Scripts.Ghost
 
         private void OnGameOverHandler(bool levelWon)
         {
+            if (!isRecording) return;
+            StopRecording();
             if (!levelWon) return; 
 
             float measuredDuration = currentRun != null ? currentRun.durationSeconds : 0f;
