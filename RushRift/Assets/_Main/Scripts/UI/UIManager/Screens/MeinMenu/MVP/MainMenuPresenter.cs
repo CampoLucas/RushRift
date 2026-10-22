@@ -81,8 +81,9 @@ namespace Game.UI.StateMachine
             if (SaveSystem.HasSaveGame())
             {
                 this.Log("Open pop up");
-                newGameWarningPopUpBackground.gameObject.SetActive(true);
-                newGameWarningPopUp.Open(OnNewGameName);
+                //newGameWarningPopUpBackground.gameObject.SetActive(true);
+                //newGameWarningPopUp.Open(OnNewGameName);
+                OnNewGameName();
             }
             else
             {
@@ -94,7 +95,7 @@ namespace Game.UI.StateMachine
         private void OnNewGameName()
         {
             enterNamePopUpBackground.gameObject.SetActive(true);
-            newGameWarningPopUpBackground.gameObject.SetActive(false);
+            //newGameWarningPopUpBackground.gameObject.SetActive(false);
             enterNamePopUp.Open(OnNewGameHandler);
 
         }
