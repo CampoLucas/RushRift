@@ -48,7 +48,11 @@ namespace _Main.Scripts.Ghost
             public List<GhostFrame> frames = new List<GhostFrame>(1024);
             public string recordedAtUtc;
             public string appVersion;
+            public int formatVersion;
         }
+
+        public const int CurrentFormatVersion = 1;
+        public const int MinFormatVersion = 0;
 
         private const float MinValidDurationSeconds = 0.25f;
         private const float Epsilon = 0.0005f;
@@ -200,13 +204,33 @@ namespace _Main.Scripts.Ghost
 
         private void Update()
         {
+#if UNITY_EDITOR
+            if (ExternalTimeControl) return;
+#endif
             if (!recordAtFixedUpdate) TickRecord(Time.deltaTime);
         }
 
         private void FixedUpdate()
         {
+#if UNITY_EDITOR
+            if (ExternalTimeControl) return;
+#endif
             if (recordAtFixedUpdate) TickRecord(Time.fixedDeltaTime);
         }
+
+#if UNITY_EDITOR
+        public static string FolderOverride { get; set; }
+        public bool ExternalTimeControl { get; set; }
+        public GhostRunData CurrentRun => currentRun;
+
+        public void Tick(float dt) => TickRecord(dt);
+
+        public void StartRecording(Transform target)
+        {
+            _target = target;
+            StartRecording();
+        }
+#endif
 
         private void OnPauseChanged(bool paused)
         {
@@ -244,7 +268,8 @@ namespace _Main.Scripts.Ghost
                 levelName = _targetSceneName,
                 durationSeconds = 0f,
                 recordedAtUtc = DateTime.UtcNow.ToString("o"),
-                appVersion = Application.version
+                appVersion = Application.version,
+                formatVersion = CurrentFormatVersion
             };
             isRecording = true;
             lastFrameTime = 0f;
@@ -336,7 +361,13 @@ namespace _Main.Scripts.Ghost
             StopRecording();
         }
 
-        private string GetFolderPath() => Path.Combine(Application.persistentDataPath, ghostsFolderName);
+        private string GetFolderPath()
+        {
+#if UNITY_EDITOR
+            if (!string.IsNullOrEmpty(FolderOverride)) return FolderOverride;
+#endif
+            return Path.Combine(Application.persistentDataPath, ghostsFolderName);
+        }
         
         // FIX: Path generation uses NAME now
         private string GetFilePathForLevel(string levelName) 
@@ -378,10 +409,21 @@ namespace _Main.Scripts.Ghost
         public static bool TryLoadBestGhostForLevel(string levelName, out GhostRunData data, out string path)
         {
             string folder = Path.Combine(Application.persistentDataPath, "ghosts");
+#if UNITY_EDITOR
+            if (!string.IsNullOrEmpty(FolderOverride)) folder = FolderOverride;
+#endif
             path = Path.Combine(folder, $"level_{levelName}.ghost.json");
-            
+
             if (File.Exists(path) && TryReadJson(path, out data))
+            {
+                if (data.formatVersion < MinFormatVersion || data.formatVersion > CurrentFormatVersion)
+                {
+                    Debug.LogError($"[GhostRecorder] Unsupported ghost format version {data.formatVersion} in {path}");
+                    data = null;
+                    return false;
+                }
                 return data.frames != null && data.frames.Count >= 2 && data.durationSeconds > MinValidDurationSeconds;
+            }
 
             data = null;
             return false;
