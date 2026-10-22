@@ -44,6 +44,8 @@ namespace _Main.Scripts.Ghost
         public class GhostRunData
         {
             public string levelName; // Changed from index to name
+            public int leaderboardLevelId;
+            public string leaderboardPlayerId;
             public float durationSeconds;
             public List<GhostFrame> frames = new List<GhostFrame>(1024);
             public string recordedAtUtc;
@@ -60,6 +62,9 @@ namespace _Main.Scripts.Ghost
         private GhostRunData currentRun;
         private bool isRecording;
         private bool pauseGate;
+        private int recordedLevelId;
+        private bool runFailed;
+        private bool leaderboardRunSaved;
         private float lastFrameTime;
         private Vector3 lastPos;
         private Quaternion lastRot;
@@ -259,6 +264,9 @@ namespace _Main.Scripts.Ghost
         public void StartRecording()
         {
             if (!_target.TryGet(out var target)) return;
+            recordedLevelId = GlobalLevelManager.GetID();
+            runFailed = false;
+            leaderboardRunSaved = false;
             
             if (string.IsNullOrEmpty(_targetSceneName)) 
                 _targetSceneName = SceneManager.GetActiveScene().name;
@@ -318,6 +326,7 @@ namespace _Main.Scripts.Ghost
 
         private void OnGameOverHandler(bool levelWon)
         {
+            runFailed = !levelWon;
             if (!isRecording) return;
             StopRecording();
             if (!levelWon) return; 
@@ -367,6 +376,60 @@ namespace _Main.Scripts.Ghost
             if (!string.IsNullOrEmpty(FolderOverride)) return FolderOverride;
 #endif
             return Path.Combine(Application.persistentDataPath, ghostsFolderName);
+        }
+
+        public static bool SaveLeaderboardGhost(int levelId, string playerId, float completionTime)
+        {
+            if (string.IsNullOrEmpty(playerId) || !LeaderboardGhostStorage.IsValidTime(completionTime)) return false;
+            foreach (var recorder in FindObjectsOfType<GhostRecorder>())
+            {
+                if (recorder.TrySaveLeaderboardGhost(levelId, playerId, completionTime)) return true;
+            }
+            return false;
+        }
+
+        private bool TrySaveLeaderboardGhost(int levelId, string playerId, float completionTime)
+        {
+            if (recordedLevelId != levelId || runFailed || leaderboardRunSaved || currentRun == null ||
+                currentRun.durationSeconds <= 0f || currentRun.frames.Count < 2) return false;
+
+            // The win screen can run before or after our GameOver observer.
+            StopRecording();
+            var replay = new GhostRunData
+            {
+                levelName = currentRun.levelName,
+                leaderboardLevelId = levelId,
+                leaderboardPlayerId = playerId,
+                durationSeconds = completionTime,
+                recordedAtUtc = currentRun.recordedAtUtc,
+                appVersion = currentRun.appVersion
+            };
+            float scale = completionTime / currentRun.durationSeconds;
+            foreach (var frame in currentRun.frames)
+            {
+                var alignedFrame = frame;
+                alignedFrame.time = Mathf.Min(completionTime, frame.time * scale);
+                replay.frames.Add(alignedFrame);
+            }
+            var finish = replay.frames[replay.frames.Count - 1];
+            finish.time = completionTime;
+            if (_target.TryGet(out var target))
+            {
+                finish.position = target.position;
+                finish.rotation = target.rotation;
+            }
+            replay.frames.Add(finish);
+            try
+            {
+                LeaderboardGhostStorage.Save(replay);
+                leaderboardRunSaved = true;
+                return true;
+            }
+            catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+            {
+                Debug.LogWarning($"[GhostRecorder] Could not save leaderboard ghost: {exception.Message}", this);
+                return false;
+            }
         }
         
         // FIX: Path generation uses NAME now
