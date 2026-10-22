@@ -145,6 +145,10 @@ namespace Game.UI
 
         private IEnumerator DoAnim(Vector2 startPos, float startRot, float startScale, bool ignoreZ, Color startColor, float delay)
         {
+            if (!gameObject.activeSelf)
+            {
+                yield return null;
+            }
             SetPosition(startPos);
             SetRotation(startRot);
             SetScale(startScale, ignoreZ);

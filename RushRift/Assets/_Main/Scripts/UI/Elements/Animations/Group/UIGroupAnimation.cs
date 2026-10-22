@@ -81,6 +81,10 @@ namespace Game.UI.Group
             // Start all sequences in parallel
             foreach (var sequence in animations)
             {
+                if (!sequence.Animation.CanRun())
+                {
+                    continue;
+                }
                 running.Add(StartCoroutine(sequence.Animation.PlayRoutine(sequence.Delay)));
             }
 
