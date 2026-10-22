@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using _Main.Scripts.Ghost;
 using Game.DesignPatterns.Observers;
 using Game.General;
 using Game.Levels;
@@ -155,6 +156,7 @@ namespace Game.UI.StateMachine
                 data.SetNewBestTime(GlobalLevelManager.GetID(), model.BestTime);
                 leaderBoardData.AddTimeToLevel(GlobalLevelManager.GetID(), data.GetPlayerName(), model.BestTime);
                 SaveSystem.SaveLeaderBoard(leaderBoardData);
+                GhostRecorder.SaveLeaderboardGhost(GlobalLevelManager.GetID(), model.PlayerName.id, model.BestTime);
             }
         }
 
