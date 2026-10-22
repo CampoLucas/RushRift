@@ -1,3 +1,4 @@
+#if GHOST_LEADERBOARD_OBSOLETE
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -154,3 +155,18 @@ namespace Game.LeaderboardDebugger.Tests
         }
     }
 }
+#else
+using NUnit.Framework;
+
+namespace Game.LeaderboardDebugger.Tests
+{
+    /// <summary>
+    /// Obsolete: leaderboard ghosts were removed. Each player now races their own best ghost.
+    /// </summary>
+    public class GhostLeaderboardTests
+    {
+        [Test, Ignore("Obsolete: leaderboard ghosts were removed.")]
+        public void LeaderboardGhosts() { }
+    }
+}
+#endif

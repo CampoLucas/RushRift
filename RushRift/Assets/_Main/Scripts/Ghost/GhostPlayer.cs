@@ -264,7 +264,7 @@ namespace _Main.Scripts.Ghost
             
             GhostRecorder.GhostRunData data; string path;
 
-            if (!string.IsNullOrEmpty(levelName) && LeaderboardGhostStorage.TryLoadBestForLevel(GlobalLevelManager.GetID(), levelName, out data, out path))
+            if (!string.IsNullOrEmpty(levelName) && GhostRecorder.TryLoadBestGhostForLevel(levelName, out data, out path))
             {
                 LoadRun(data, path);
 
@@ -277,7 +277,7 @@ namespace _Main.Scripts.Ghost
                 cachedPositions.Clear();
                 debugLoadedGhostPath = "";
                 SetGhostVisible(false);
-                Log($"No recording available for the leaderboard's first-place entry in {levelName}");
+                Log($"No best ghost for {levelName}");
             }
 
             nextFrameIndex = 1; playbackTime = 0f;

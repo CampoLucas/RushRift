@@ -155,9 +155,7 @@ namespace Game.UI.StateMachine
                 var leaderBoardData = SaveSystem.LoadLeaderBoard();
                 data.SetNewBestTime(GlobalLevelManager.GetID(), model.BestTime);
                 leaderBoardData.AddTimeToLevel(GlobalLevelManager.GetID(), data.GetPlayerName(), model.BestTime);
-                SaveSystem.SaveLeaderBoard(leaderBoardData);
-                GhostRecorder.SaveLeaderboardGhost(GlobalLevelManager.GetID(), model.PlayerName.id, model.BestTime);
-            }
+                SaveSystem.SaveLeaderBoard(leaderBoardData);            }
         }
 
         public override void Dispose()

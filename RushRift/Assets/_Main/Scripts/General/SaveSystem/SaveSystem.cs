@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using _Main.Scripts.Ghost;
 using Game.Entities;
 using Game.Saves.Interfaces;
 using Unity.VisualScripting;
@@ -182,6 +183,7 @@ namespace Game.Saves
         public static void ResetGame()
         {
             Reset(GamePath, CreateNewGameSave);
+            GhostRecorder.DeleteAllGhosts();
         }
 
         public static bool HasSaveGame()
