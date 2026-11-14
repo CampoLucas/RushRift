@@ -104,6 +104,7 @@ namespace Game.UI.StateMachine
 
         private void OnMainMenuHandler()
         {
+            AudioManager.Stop("LevelMusic");
             NotifyAll(MenuState.MainMenu);
         }
 

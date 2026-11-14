@@ -38,5 +38,10 @@ namespace Game.UI
             if (!Application.isPlaying) return;
             Play();
         }
+
+        public virtual bool CanRun()
+        {
+            return gameObject.activeSelf;
+        }
     }
 }

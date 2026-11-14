@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Game.Levels;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 namespace Game.UI.StateMachine.Elements
@@ -16,6 +17,7 @@ namespace Game.UI.StateMachine.Elements
         [SerializeField] private PopUpData bronze;
         [SerializeField] private PopUpData silver;
         [SerializeField] private PopUpData gold;
+        [SerializeField] private UnityEvent onPopUpFailed;
 
         private List<(PopUpData, MedalInfo)> _popUps = new();
 
@@ -86,6 +88,8 @@ namespace Game.UI.StateMachine.Elements
         private IEnumerator OpenPopUps()
         {
             var model = presenter.GetModel();
+
+            if (_popUps.Count <= 0) onPopUpFailed.Invoke();
 
             for (var i = 0; i < _popUps.Count; i++)
             {

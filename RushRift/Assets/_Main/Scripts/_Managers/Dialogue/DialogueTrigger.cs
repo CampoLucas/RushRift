@@ -5,9 +5,13 @@ using UnityEngine;
 
 public class DialogueTrigger : MonoBehaviour
 {
-    public string triggerTag = "Player";
+    public string triggerTag = "";
     public DialogueContainerSO dialogue;
 
+    private void Awake()
+    {
+        triggerTag = "disable";
+    }
 
     public void TriggerDialogue()
     {
@@ -24,8 +28,8 @@ public class DialogueTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        var data = SaveSystem.LoadGame();
         if (!other.CompareTag(triggerTag)) return;
+        var data = SaveSystem.LoadGame();
         foreach (var item in dialogue.Dialogues)
         {
             if (item.CanExecute())

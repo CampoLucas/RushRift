@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Game.LeaderboardDebugger;
 using Game.Levels;
 using Game.Utils;
 using Tools.EditorToolbar;
@@ -30,6 +31,7 @@ namespace Tools.PlayHook
         private const string DebugSpawnSymbol = "DEBUG_SPAWN";
         private const string DepthSceneView = "DEPTH_FEATURE_IN_SCENE_VIEW";
         public const string CheatsEnabledSymbol = "CHEATS_ENABLED";
+        public const string LeaderboardCommandsSymbol = "LEADERBOARD_CMD_ENABLED";
         public const string ID = "CustomToolbar/PlayLevel";
         public static readonly string DisabledFlag = "__NONE__";
 
@@ -293,7 +295,8 @@ namespace Tools.PlayHook
             entries.Add(new MenuSeparator());
             ToggleSpawnOptions(ref entries);
             ToggleDepthOptions(ref entries);
-            
+            ToggleLeaderboardOptions(ref entries);
+
             return entries;
             
         }
@@ -453,6 +456,48 @@ namespace Tools.PlayHook
             entries.Add(group);
 
             return true;
+        }
+
+        private bool ToggleLeaderboardOptions(ref List<MenuEntry> entries)
+        {
+            var group = new MenuGroup("Leaderboard");
+            var hasLevel = LeaderboardLevelSource.TryResolve(true, -1, out var levelId, out _);
+
+            group.Add(new MenuItem("Open Leaderboard Debugger", LeaderboardDebuggerWindow.Open, false, EnabledEntry));
+            group.Add(new MenuSeparator());
+            group.Add(new MenuItem("Clear all entries", ClearLeaderboardEntries, false, EnabledEntry));
+            group.Add(new MenuItem(hasLevel ? $"Clear level {levelId}" : "Clear level (no level selected)", () => ClearLeaderboardLevel(levelId), false, () => !hasLevel));
+            group.Add(new MenuItem(hasLevel ? $"Add 50 random entries to level {levelId}" : "Add 50 random entries (no level selected)",
+                () => LeaderboardDebuggerService.AddEntries(levelId, LeaderboardGenerator.Generate(50, ScoreDistribution.Uniform, 20f, 300f)), false, () => !hasLevel));
+            group.Add(new MenuSeparator());
+            group.Add(new MenuItem("Back up current data", LeaderboardDebuggerService.BackupToLibrary, false, EnabledEntry));
+            group.Add(new MenuItem("Restore backup", LeaderboardDebuggerService.RestoreFromLibrary, false, () => !LeaderboardDebuggerService.HasLibraryBackup));
+            group.Add(new MenuSeparator());
+            group.Add(new MenuItem(DefineSymbolUtility.HasDefine(LeaderboardCommandsSymbol) ?
+                    "Disable leaderboard commands"
+                    : "Enable leaderboard commands",
+                () => DefineSymbolUtility.ToggleDefine(LeaderboardCommandsSymbol),
+                false,
+                DisableEntryOnPlay));
+
+            entries.Add(group);
+            return true;
+        }
+
+        private void ClearLeaderboardEntries()
+        {
+            if (EditorUtility.DisplayDialog("Clear leaderboard", "This deletes every entry on every level from the saved leaderboard. Continue?", "Clear", "Cancel"))
+            {
+                LeaderboardDebuggerService.ClearAll();
+            }
+        }
+
+        private void ClearLeaderboardLevel(int levelId)
+        {
+            if (EditorUtility.DisplayDialog("Clear level", $"This deletes every entry of level {levelId} from the saved leaderboard. Continue?", "Clear", "Cancel"))
+            {
+                LeaderboardDebuggerService.ClearLevel(levelId);
+            }
         }
 
         private bool OpenSceneDisabled(string path)

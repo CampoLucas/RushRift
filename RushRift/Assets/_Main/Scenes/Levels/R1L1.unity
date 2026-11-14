@@ -2262,7 +2262,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1952238174}
   - {fileID: 1375470254}
   - {fileID: 1528975766}
   - {fileID: 228232998}
@@ -33307,7 +33306,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 115453740}
+    m_TransformParent: {fileID: 7777750294831999256}
     m_Modifications:
     - target: {fileID: 2627069822641952034, guid: 9947f9b0fa555d34ca6c0359b691d33f, type: 3}
       propertyPath: m_Mesh
@@ -33351,7 +33350,7 @@ PrefabInstance:
       objectReference: {fileID: 1224711910}
     - target: {fileID: 3273733636690223250, guid: 9947f9b0fa555d34ca6c0359b691d33f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.37800598
+      value: -37.121994
       objectReference: {fileID: 0}
     - target: {fileID: 3273733636690223250, guid: 9947f9b0fa555d34ca6c0359b691d33f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -52311,7 +52310,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fc2991e38ef4a499db3172ca837e96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelConfig: {fileID: 11400000, guid: 255937394c34a824d9d1eef8c6054b79, type: 2}
+  levelConfig: {fileID: 11400000, guid: bc796eedeb612f04fa6b2ccb93729e97, type: 2}
   startGate: {fileID: 0}
   endGate: {fileID: 0}
   goal: {fileID: 0}
@@ -90184,7 +90183,7 @@ Transform:
   m_GameObject: {fileID: 1823665163}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -5.49, z: -8.47}
+  m_LocalPosition: {x: 0, y: 83.33, z: 546.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -98930,9 +98929,17 @@ PrefabInstance:
       objectReference: {fileID: 1984332806}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6518698032084363985, guid: 1846d78721b75684caacdc56fe234009, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 1952238174}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1846d78721b75684caacdc56fe234009, type: 3}
+--- !u!4 &7777750294831999256 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6518698032084363985, guid: 1846d78721b75684caacdc56fe234009, type: 3}
+  m_PrefabInstance: {fileID: 7777750294831999255}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8366700161258295585 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7713035835268024157, guid: 1846d78721b75684caacdc56fe234009, type: 3}

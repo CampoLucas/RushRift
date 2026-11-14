@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Game
+  m_text: Nueva Partida
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d8ec9ec47cb178147b21897fd462a737, type: 2}
   m_sharedMaterial: {fileID: 7124022091769897723, guid: d8ec9ec47cb178147b21897fd462a737, type: 2}
@@ -277,6 +277,7 @@ MonoBehaviour:
   playPosition: {x: -1000, y: 0}
   playRotation: 0
   playScale: 1
+  playIgnoreZScale: 0
   playColor: {r: 1, g: 1, b: 1, a: 1}
   canvas: {fileID: 0}
   targetRect: {fileID: 203795760409399822}
@@ -343,6 +344,7 @@ MonoBehaviour:
           axisMultiplier: {x: 1, y: 1}
       scaleAnim:
         endScale: 0
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve: []
@@ -424,6 +426,7 @@ MonoBehaviour:
           axisMultiplier: {x: 1, y: 1}
       scaleAnim:
         endScale: 0
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve: []
@@ -505,6 +508,7 @@ MonoBehaviour:
           axisMultiplier: {x: 1, y: 1}
       scaleAnim:
         endScale: 0
+        ignoreZ: 0
         curve:
           serializedVersion: 2
           m_Curve: []
