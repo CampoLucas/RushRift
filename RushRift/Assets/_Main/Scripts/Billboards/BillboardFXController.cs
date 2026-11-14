@@ -1,259 +1,354 @@
+
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class BillboardFXController : MonoBehaviour
 {
-    [Header("Target")]
-    public Renderer targetRenderer;
-    public bool useSpriteRenderer = false;
+    [Header("TARGET")]
+    [SerializeField] private Renderer targetRenderer;
 
-    [Header("Base (arte del cartel)")]
-    public Texture baseTexture;
-    public Color baseTint = Color.white;
-    [Range(0f, 50f)] public float emissionStrength = 10f;
+    [Header("HOLOGRAM COLOR")]
+    [ColorUsage(true, true)]
+    public Color hologramColor = new Color(0f, 0.85f, 1f, 1f);
 
-    [Tooltip("Scroll del UV (px/seg en unidades UV).")]
-    public Vector2 scrollSpeed = new Vector2(0.08f, 0f);
+    [Range(0f, 15f)]
+    public float emissionStrength = 4f;
 
-    [Header("UV Offset & Tiling")]
-    [Tooltip("Offset manual en UV (se suma al scroll).")]
-    public Vector2 uvOffset = Vector2.zero;
-    [Tooltip("Escala UV (1,1 por defecto).")]
-    public Vector2 uvTiling = Vector2.one;
+    [Range(0f, 1f)]
+    public float opacity = 0.85f;
 
-    [Header("Flicker")]
-    [Range(0f, 40f)] public float flickerSpeed = 8f;
-    [Range(0f, 1f)] public float flickerAmount = 0.2f;
+    [Header("ENERGY SEGMENTS")]
+    [Range(4f, 64f)]
+    public float segments = 24f;
 
-    [Header("Glitch (sacudidas UV)")]
-    [Range(0f, 0.2f)] public float glitchMaxOffsetX = 0.02f;
-    [Range(0f, 30f)] public float glitchBurstPerMin = 12f;
-    [Range(0.01f, 0.5f)] public float glitchBurstDuration = 0.12f;
+    [Range(0.1f, 0.95f)]
+    public float segmentWidth = 0.7f;
 
-    [Header("Scanlines (overlay aditivo)")]
-    public bool enableScanlines = true;
-    [Range(64, 4096)] public int scanlineDensity = 1200;
-    [Range(0f, 1f)] public float scanlineContrast = 0.5f;
-    public float scanlineScrollSpeed = 2.0f;
-    public Renderer scanlineRenderer;
+    [Range(-5f, 5f)]
+    public float patternSpeed = 0.35f;
 
-    [Header("World Offset (opcional)")]
+    [Header("SCANLINES")]
+    [Range(2f, 100f)]
+    public float scanlineDensity = 28f;
+
+    [Range(-5f, 5f)]
+    public float scanlineSpeed = 0.6f;
+
+    [Header("PULSE")]
+    public bool enablePulse = true;
+
+    [Range(0f, 15f)]
+    public float pulseSpeed = 2f;
+
+    [Range(0f, 1f)]
+    public float pulseAmount = 0.2f;
+
+    [Header("GLITCH")]
+    public bool enableGlitch = true;
+
+    [Range(0f, 1f)]
+    public float glitchAmount = 0.12f;
+
+    [Range(1f, 30f)]
+    public float glitchSpeed = 8f;
+
+    [Header("PHYSICAL ROTATION")]
+    public bool rotateTorus = false;
+
+    public Vector3 rotationAxis = Vector3.up;
+
+    public float rotationSpeed = 20f;
+
+    [Header("WORLD OFFSET")]
     public bool applyWorldOffset = false;
+
     public Vector3 worldOffset = Vector3.zero;
 
-    // Internos
-    MaterialPropertyBlock _mpb;
-    int _baseMapId, _baseColorId;
-    Vector2 _uvScrollAccum;
-    bool _glitchActive;
-    float _glitchUntil;
-    Texture2D _scanlineTex;
-    Vector3 _initialLocalPos;
+    [Header("INTERACTION")]
+    public bool enableInteractionPulse = true;
 
-    void Reset()
+    public float interactionMultiplier = 2.5f;
+
+    public float interactionDuration = 0.35f;
+
+    // Shader property IDs
+    private static readonly int ColorID =
+        Shader.PropertyToID("_Color");
+
+    private static readonly int IntensityID =
+        Shader.PropertyToID("_Intensity");
+
+    private static readonly int OpacityID =
+        Shader.PropertyToID("_Opacity");
+
+    private static readonly int SegmentsID =
+        Shader.PropertyToID("_Segments");
+
+    private static readonly int SegmentWidthID =
+        Shader.PropertyToID("_SegmentWidth");
+
+    private static readonly int RotationSpeedID =
+        Shader.PropertyToID("_RotationSpeed");
+
+    private static readonly int LineDensityID =
+        Shader.PropertyToID("_LineDensity");
+
+    private static readonly int ScanSpeedID =
+        Shader.PropertyToID("_ScanSpeed");
+
+    private static readonly int PulseSpeedID =
+        Shader.PropertyToID("_PulseSpeed");
+
+    private static readonly int GlitchAmountID =
+        Shader.PropertyToID("_GlitchAmount");
+
+    private static readonly int GlitchSpeedID =
+        Shader.PropertyToID("_GlitchSpeed");
+
+    // Internal
+    private MaterialPropertyBlock propertyBlock;
+    private Vector3 initialLocalPosition;
+
+    private float interactionTimer;
+    private bool interactionActive;
+
+    private void Reset()
     {
         targetRenderer = GetComponent<Renderer>();
-        useSpriteRenderer = (GetComponent<SpriteRenderer>() != null);
     }
 
-    void Awake()
+    private void Awake()
     {
-        _initialLocalPos = transform.localPosition;
+        if (targetRenderer == null)
+            targetRenderer = GetComponent<Renderer>();
 
-        if (!targetRenderer) targetRenderer = GetComponent<Renderer>();
-        if (!targetRenderer)
+        if (targetRenderer == null)
         {
-            Debug.LogError("[BillboardFX] No hay Renderer. Agregá MeshRenderer o SpriteRenderer.");
-            enabled = false; return;
+            Debug.LogError(
+                "[RushRift Hologram] No Renderer found!",
+                this
+            );
+
+            enabled = false;
+            return;
         }
 
-        _mpb = new MaterialPropertyBlock();
-        _baseMapId = Shader.PropertyToID("_BaseMap");     // URP/Unlit
-        _baseColorId = Shader.PropertyToID("_BaseColor");   // URP/Unlit
+        propertyBlock = new MaterialPropertyBlock();
 
-        if (enableScanlines)
-        {
-            EnsureScanlineRenderer();
-            BuildScanlineTexture();
-            ApplyScanlineTexture();
-        }
+        initialLocalPosition = transform.localPosition;
 
-        if (baseTexture) SetBaseTexture(baseTexture);
+        ApplyProperties();
     }
 
-    void Update()
+    private void Update()
     {
-        float t = Time.time;
+        UpdateRotation();
+        UpdateWorldOffset();
+        UpdateInteraction();
+        ApplyProperties();
+    }
 
-        // --- World Offset opcional ---
+    private void UpdateRotation()
+    {
+        if (!rotateTorus)
+            return;
+
+        if (rotationAxis.sqrMagnitude < 0.0001f)
+            return;
+
+        transform.Rotate(
+            rotationAxis.normalized,
+            rotationSpeed * Time.deltaTime,
+            Space.Self
+        );
+    }
+
+    private void UpdateWorldOffset()
+    {
         if (applyWorldOffset)
-            transform.localPosition = _initialLocalPos + worldOffset;
-        else
-            transform.localPosition = _initialLocalPos;
-
-        // --- Scroll acumulado ---
-        _uvScrollAccum += scrollSpeed * Time.deltaTime;
-
-        // --- Flicker ---
-        float flicker = 1f + (Mathf.Sin(t * flickerSpeed) * 0.5f + 0.5f) * flickerAmount;
-
-        // --- Glitch bursts ---
-        if (!_glitchActive)
         {
-            float p = glitchBurstPerMin / 60f * Time.deltaTime;
-            if (Random.value < p) { _glitchActive = true; _glitchUntil = t + glitchBurstDuration; }
-        }
-        float glitchOffsetX = 0f;
-        if (_glitchActive)
-        {
-            glitchOffsetX = Random.Range(-glitchMaxOffsetX, glitchMaxOffsetX);
-            if (t >= _glitchUntil) _glitchActive = false;
-        }
-
-        // --- MPB para material base ---
-        targetRenderer.GetPropertyBlock(_mpb);
-
-        // _BaseMap_ST = (scaleX, scaleY, offsetX, offsetY)
-        // Tiling y offset combinando: uvTiling + (uvOffset + scroll + glitchX)
-        Vector4 st = _mpb.GetVector("_BaseMap_ST");
-        if (st == Vector4.zero) st = new Vector4(1, 1, 0, 0);
-        st.x = Mathf.Approximately(uvTiling.x, 0f) ? 1f : uvTiling.x;
-        st.y = Mathf.Approximately(uvTiling.y, 0f) ? 1f : uvTiling.y;
-        st.z = uvOffset.x + _uvScrollAccum.x + glitchOffsetX; // offset X
-        st.w = uvOffset.y + _uvScrollAccum.y;                 // offset Y
-        _mpb.SetVector("_BaseMap_ST", st);
-
-        // Color “emisión” simulado
-        Color baseCol = baseTint * EmissionToColor(emissionStrength * flicker);
-        _mpb.SetColor(_baseColorId, baseCol);
-
-        if (baseTexture) _mpb.SetTexture(_baseMapId, baseTexture);
-        targetRenderer.SetPropertyBlock(_mpb);
-
-        // --- Overlay scanlines ---
-        if (enableScanlines && scanlineRenderer)
-        {
-            var mpb2 = new MaterialPropertyBlock();
-            scanlineRenderer.GetPropertyBlock(mpb2);
-
-            Vector4 st2 = mpb2.GetVector("_BaseMap_ST");
-            if (st2 == Vector4.zero) st2 = new Vector4(1, 1, 0, 0);
-            st2.w += scanlineScrollSpeed * Time.deltaTime; // mover líneas
-            mpb2.SetVector("_BaseMap_ST", st2);
-
-            float intensity = Mathf.Lerp(0.25f, 1.25f, scanlineContrast);
-            mpb2.SetColor("_BaseColor", new Color(intensity, intensity, intensity, 1));
-            mpb2.SetTexture("_BaseMap", _scanlineTex);
-
-            scanlineRenderer.SetPropertyBlock(mpb2);
-        }
-    }
-
-    // ----------------- API pública -----------------
-    public void SetUVOffset(Vector2 uv) => uvOffset = uv;
-    public void NudgeUV(Vector2 delta) => uvOffset += delta;
-    public void SetUVTiling(Vector2 tiling) => uvTiling = tiling;
-    public void SetWorldOffset(Vector3 wofs) { applyWorldOffset = true; worldOffset = wofs; }
-    public void ClearWorldOffset() { applyWorldOffset = false; worldOffset = Vector3.zero; }
-
-    // ----------------- Helpers internos -----------------
-    Material GetSharedMaterial(Renderer r)
-    {
-        if (r is SpriteRenderer sr) return sr.sharedMaterial;
-        var mats = r.sharedMaterials;
-        return (mats != null && mats.Length > 0) ? mats[0] : null;
-    }
-
-    void SetBaseTexture(Texture tex)
-    {
-        if (targetRenderer is SpriteRenderer sr)
-        {
-            sr.sharedMaterial.SetTexture(_baseMapId, tex);
+            transform.localPosition =
+                initialLocalPosition + worldOffset;
         }
         else
         {
-            var mats = targetRenderer.sharedMaterials;
-            if (mats != null && mats.Length > 0) mats[0].SetTexture(_baseMapId, tex);
+            transform.localPosition =
+                initialLocalPosition;
         }
     }
 
-    void EnsureScanlineRenderer()
+    private void UpdateInteraction()
     {
-        if (scanlineRenderer != null) return;
+        if (!interactionActive)
+            return;
 
-        var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        go.name = "[ScanlinesOverlay]";
-        go.transform.SetParent(transform, false);
-        go.transform.localPosition = Vector3.forward * 0.0001f;
-        go.transform.localRotation = Quaternion.identity;
-        go.transform.localScale = Vector3.one;
+        interactionTimer -= Time.deltaTime;
 
-        var r = go.GetComponent<MeshRenderer>();
-        var mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-        r.sharedMaterial = mat;
-        scanlineRenderer = r;
-    }
-
-    void BuildScanlineTexture()
-    {
-        if (!enableScanlines) return;
-
-        int height = Mathf.Clamp(scanlineDensity / 4, 64, 4096);
-        int width = 256;
-
-        if (_scanlineTex != null) Destroy(_scanlineTex);
-        _scanlineTex = new Texture2D(width, height, TextureFormat.R8, true, false)
+        if (interactionTimer <= 0f)
         {
-            name = "ScanlinesProcedural",
-            wrapMode = TextureWrapMode.Repeat,
-            filterMode = FilterMode.Bilinear
-        };
-
-        var cols = new Color32[width * height];
-        byte dark = (byte)Mathf.RoundToInt(Mathf.Lerp(10, 60, scanlineContrast));
-        byte bright = (byte)Mathf.RoundToInt(Mathf.Lerp(120, 255, scanlineContrast));
-
-        for (int y = 0; y < height; y++)
-        {
-            byte v = (y % 2 == 0) ? bright : dark;
-            for (int x = 0; x < width; x++) cols[y * width + x] = new Color32(v, v, v, 255);
+            interactionTimer = 0f;
+            interactionActive = false;
         }
-        _scanlineTex.SetPixels32(cols);
-        _scanlineTex.Apply(true, false);
     }
 
-    void ApplyScanlineTexture()
+    private void ApplyProperties()
     {
-        if (!scanlineRenderer || _scanlineTex == null) return;
+        if (targetRenderer == null)
+            return;
 
-        var mat = scanlineRenderer.sharedMaterial;
-        if (!mat || mat.shader == null)
+        if (propertyBlock == null)
+            propertyBlock = new MaterialPropertyBlock();
+
+        targetRenderer.GetPropertyBlock(propertyBlock);
+
+        float finalEmission = emissionStrength;
+
+        // Optional interaction boost
+        if (interactionActive && enableInteractionPulse)
         {
-            mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-            scanlineRenderer.sharedMaterial = mat;
+            float normalizedTime = Mathf.Clamp01(
+                interactionTimer /
+                Mathf.Max(0.001f, interactionDuration)
+            );
+
+            float boost = Mathf.Lerp(
+                1f,
+                interactionMultiplier,
+                normalizedTime
+            );
+
+            finalEmission *= boost;
         }
-        mat.SetTexture("_BaseMap", _scanlineTex);
-        mat.SetColor("_BaseColor", Color.white);
-        mat.SetVector("_BaseMap_ST", new Vector4(1f, 1f, 0f, 0f));
+
+        propertyBlock.SetColor(
+            ColorID,
+            hologramColor
+        );
+
+        propertyBlock.SetFloat(
+            IntensityID,
+            finalEmission
+        );
+
+        propertyBlock.SetFloat(
+            OpacityID,
+            opacity
+        );
+
+        propertyBlock.SetFloat(
+            SegmentsID,
+            segments
+        );
+
+        propertyBlock.SetFloat(
+            SegmentWidthID,
+            segmentWidth
+        );
+
+        propertyBlock.SetFloat(
+            RotationSpeedID,
+            patternSpeed
+        );
+
+        propertyBlock.SetFloat(
+            LineDensityID,
+            scanlineDensity
+        );
+
+        propertyBlock.SetFloat(
+            ScanSpeedID,
+            scanlineSpeed
+        );
+
+        propertyBlock.SetFloat(
+            PulseSpeedID,
+            enablePulse ? pulseSpeed : 0f
+        );
+
+        propertyBlock.SetFloat(
+            GlitchAmountID,
+            enableGlitch ? glitchAmount : 0f
+        );
+
+        propertyBlock.SetFloat(
+            GlitchSpeedID,
+            glitchSpeed
+        );
+
+        targetRenderer.SetPropertyBlock(propertyBlock);
     }
 
-    Color EmissionToColor(float e)
+    // =====================================
+    // PUBLIC API
+    // =====================================
+
+    public void SetColor(Color newColor)
     {
-        float m = Mathf.Lerp(1f, 4f, Mathf.Clamp01(e / 50f));
-        return new Color(m, m, m, 1f);
+        hologramColor = newColor;
+        ApplyProperties();
+    }
+
+    public void SetEmission(float value)
+    {
+        emissionStrength = Mathf.Max(0f, value);
+        ApplyProperties();
+    }
+
+    public void SetOpacity(float value)
+    {
+        opacity = Mathf.Clamp01(value);
+        ApplyProperties();
+    }
+
+    public void SetPatternSpeed(float value)
+    {
+        patternSpeed = value;
+        ApplyProperties();
+    }
+
+    public void SetGlitch(float amount)
+    {
+        enableGlitch = true;
+        glitchAmount = Mathf.Clamp01(amount);
+        ApplyProperties();
+    }
+
+    public void TriggerPulse()
+    {
+        if (!enableInteractionPulse)
+            return;
+
+        interactionTimer = Mathf.Max(
+            0.001f,
+            interactionDuration
+        );
+
+        interactionActive = true;
+
+        ApplyProperties();
+    }
+
+    public void SetWorldOffset(Vector3 offset)
+    {
+        worldOffset = offset;
+        applyWorldOffset = true;
+    }
+
+    public void ClearWorldOffset()
+    {
+        worldOffset = Vector3.zero;
+        applyWorldOffset = false;
     }
 
 #if UNITY_EDITOR
-    void OnValidate()
+    private void OnValidate()
     {
-        if (enableScanlines)
-        {
-            if (Application.isPlaying)
-            {
-                BuildScanlineTexture();
-                ApplyScanlineTexture();
-            }
-        }
+        if (targetRenderer == null)
+            targetRenderer = GetComponent<Renderer>();
+
+        if (Application.isPlaying)
+            ApplyProperties();
     }
 #endif
 }
+
