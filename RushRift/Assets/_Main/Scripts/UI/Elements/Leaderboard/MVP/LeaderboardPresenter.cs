@@ -133,6 +133,7 @@ public class LeaderboardPresenter : UIPresenter<LeaderboardModel, LeaderboardVie
 
     private IEnumerator ScrollToRow(LeaderboardRow targetRow)
     {
+        Debug.Log("Leaderboard Scroll Initialized");
         // Esperamos un frame para que el layout se calcule bien
         yield return null;
         Canvas.ForceUpdateCanvases();
